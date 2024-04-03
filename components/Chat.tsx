@@ -11,6 +11,9 @@ import {
 } from "react-native";
 import Message from "./Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import OpenAIHandler from "@/controller/OpenAIHandler";
+
+const openAIChatService = new OpenAIHandler();
 
 interface Message {
   id: string;
@@ -22,6 +25,12 @@ interface Message {
 const userImageUrl = "../assets/images/user-icon.png";
 const buddyImageUrl = "../assets/images/buddy-icon.png";
 
+async function getResponse(message: string) {
+  const response = await openAIChatService.sendMessage(message);
+  console.log(response);
+  return response;
+}
+
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     // Sample messages
@@ -31,8 +40,18 @@ const Chat: React.FC = () => {
       imageUrl: require("../assets/images/buddy-icon.png"),
       type: "received",
     },
-    { id: "2", text: "Thanks but I didn't ask", imageUrl: require("../assets/images/user-icon.png"), type: "sent" },
-    { id: "3", text: ":(", imageUrl: require("../assets/images/buddy-icon.png"), type: "received" },
+    {
+      id: "2",
+      text: "Thanks but I didn't ask",
+      imageUrl: require("../assets/images/user-icon.png"),
+      type: "sent",
+    },
+    {
+      id: "3",
+      text: ":(",
+      imageUrl: require("../assets/images/buddy-icon.png"),
+      type: "received",
+    },
   ]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const flatListRef = useRef<FlatList>(null);
@@ -57,6 +76,8 @@ const Chat: React.FC = () => {
   };
 
   const resetMessages = () => {
+    getResponse("How many countires are there?");
+    console.log(`${process.env.OPENAI_API_KEY}`);
     setMessages([]);
   };
 
