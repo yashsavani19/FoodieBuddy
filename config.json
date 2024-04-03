@@ -1,0 +1,11 @@
+{
+  "firebase": {
+    "api_key": "",
+    "auth_domain": "",
+    "database_url": "",
+    "storage_bucket": ""
+  },
+  "googlemaps": {
+    "api_key": ""
+  }
+}
