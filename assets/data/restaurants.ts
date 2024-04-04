@@ -69,6 +69,12 @@ const restaurants = [
         'https://lh5.googleusercontent.com/p/AF1QipPHnkcpOlQJlQUaSTaLs0iYVs2K5Ou5aegkuc1Y=w408-h306-k-no',
       distance: 13,
     },
+    {
+        id: 11,
+        name: "Fran's new Restaurant",
+        image: null,
+        distance: 0.5,
+      },
   ];
   
   export default restaurants;
