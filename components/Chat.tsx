@@ -14,6 +14,7 @@ import Message from "./Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import OpenAIHandler from "@/controller/OpenAIHandler";
 import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
+import Colors from "@/constants/Colors";
 
 const openAIChatService = new OpenAIHandler();
 
@@ -34,9 +35,7 @@ async function getAIResponse(message: string) {
 }
 
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    initialBuddyMessage,
-  ]);
+  const [messages, setMessages] = useState<Message[]>([initialBuddyMessage]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const flatListRef = useRef<FlatList>(null);
 
@@ -104,6 +103,7 @@ const Chat: React.FC = () => {
         )}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
+        ListHeaderComponent={<View style={{ height: 10 }} />}
       />
       <View style={styles.inputContainer}>
         <TextInput
@@ -112,9 +112,14 @@ const Chat: React.FC = () => {
           onChangeText={setCurrentMessage}
           placeholder="Type a message..."
         />
-        <Button title="Send" onPress={sendMessage} />
+        <View style={{}}>
+        <TouchableOpacity onPress={sendMessage}>
+          <FontAwesome name="send" size={24} color={Colors.light.iconColor} />
+        </TouchableOpacity>
       </View>
-      <View style={{ position: "absolute", top: 10, left: 10 }}>
+        {/* <Button title="Send" onPress={sendMessage} /> */}
+      </View>
+      <View style={{ position: "absolute", top: 10, right: 15 }}>
         <TouchableOpacity onPress={resetMessages}>
           <FontAwesome name="repeat" size={24} color="grey" />
         </TouchableOpacity>
