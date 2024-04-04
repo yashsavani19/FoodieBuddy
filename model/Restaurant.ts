@@ -5,7 +5,6 @@ export interface Restaurant {
     categories: string[];
     price: string;
     rating: number;
-    reviewCount: number;
     displayAddress: string;
     phone: string;
     distance: number;

@@ -3,9 +3,17 @@ import React, { useState } from "react";
 import { Text, View } from "@/components/Themed";
 import TitleHeader from "@/components/TitleHeader";
 import Chat from "@/components/Chat";
+import { Alert } from "react-native";
+import { useFocusEffect } from "expo-router";
 
 export default function ChatView() {
-  const [headerHeight, setHeaderHeight] = useState(120);
+  useFocusEffect(
+    React.useCallback(() => {
+      Alert.alert("For your information", "Buddy is still learning, please be patient and understand that they can still make mistakes from time to time. Please check with the restaurant for allergen information.");
+      return () => {
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
