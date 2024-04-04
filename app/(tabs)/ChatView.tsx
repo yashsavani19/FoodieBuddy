@@ -7,6 +7,7 @@ import { Alert } from "react-native";
 import { useFocusEffect } from "expo-router";
 
 export default function ChatView() {
+  // Display "AI-learning" alert message when user enters the chat view
   useFocusEffect(
     React.useCallback(() => {
       Alert.alert("For your information", "Buddy is still learning, please be patient and understand that they can still make mistakes from time to time. Please check with the restaurant for allergen information.");

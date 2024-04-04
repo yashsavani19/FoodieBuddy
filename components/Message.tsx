@@ -7,12 +7,19 @@ import {
   ImageSourcePropType,
 } from "react-native";
 
-interface MessageProps {
+// Message props interface
+export interface MessageProps {
+  id: string;
   imageUrl: ImageSourcePropType;
   text: string;
   type: "sent" | "received";
 }
 
+/**
+ * Message component for chat
+ * @param param0 Message props
+ * @returns Message component
+ */
 const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
   const isSentMessage = type === "sent";
   return (

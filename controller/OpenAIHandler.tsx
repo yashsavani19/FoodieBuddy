@@ -5,7 +5,9 @@ import { Restaurant } from "@/model/Restaurant";
 import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
 import { Preference } from "@/model/Preference";
 
-// Temp data for testing
+/**
+ * Temporary data for testing purposes
+ */
 const restaurants: Restaurant[] = [
   {
     id: "1",
@@ -60,6 +62,16 @@ const restaurantList: RestaurantList = {
 };
 // End of temp data
 
+/**
+ * Handler for OpenAI API, sends and receives messages to OpenAI
+ * @param apiKey API key for OpenAI
+ * @param completionURL URL for OpenAI completions
+ * @param organisation Organisation ID for OpenAI
+ * @param restaurantList List of restaurants
+ * @param preferenceList List of preferences
+ * @returns Message received from OpenAI
+ * @throws Error if message cannot be sent to OpenAI
+ */
 class OpenAIHandler {
   private apiKey: string = OPENAI_API_KEY;
   private completionURL: string = "https://api.openai.com/v1/chat/completions";

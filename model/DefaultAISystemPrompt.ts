@@ -1,6 +1,9 @@
 import { RestaurantList } from "./RestaurantList";
 import { PreferenceList } from "./PreferenceList";
 
+/**
+ * Default AI System Prompt for Buddy that is used when a user submits a request
+ */
 const NAME =
   "Your name is Buddy. You are a helpful foodie expert that can help me find the best places to eat. ";
 const PRE_LIST =

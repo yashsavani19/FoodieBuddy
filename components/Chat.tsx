@@ -10,7 +10,7 @@ import {
   Platform,
   TouchableOpacity,
 } from "react-native";
-import Message from "./Message";
+import Message, { MessageProps } from "./Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import OpenAIHandler from "@/controller/OpenAIHandler";
 import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
@@ -18,24 +18,23 @@ import Colors from "@/constants/Colors";
 
 const openAIChatService = new OpenAIHandler();
 
-interface Message {
-  id: string;
-  text: string;
-  imageUrl: string;
-  type?: "sent" | "received";
-}
-
-const userImageUrl = "../assets/images/user-icon.png";
-const buddyImageUrl = "../assets/images/buddy-icon.png";
-
+/**
+ * AI Chat function to send user message to AI and get response
+ * @param message user message to send to AI
+ * @returns response from AI
+ */
 async function getAIResponse(message: string) {
   const response = await openAIChatService.sendMessage(message);
   // console.log(response);
   return response;
 }
 
+/**
+ *  Chat component for user to interact with Buddy
+ * @returns Chat component with messages, input text box, and send button
+ */
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([initialBuddyMessage]);
+  const [messages, setMessages] = useState<MessageProps[]>([initialBuddyMessage]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const flatListRef = useRef<FlatList>(null);
 
@@ -63,16 +62,19 @@ const Chat: React.FC = () => {
     };
   }, []);
 
+  /**
+   * Send message to Buddy and get response from AI
+   */
   const sendMessage = () => {
     if (currentMessage.trim()) {
-      const newMessage: Message = {
+      const newMessage: MessageProps = {
         id: Date.now().toString(),
         text: currentMessage,
         imageUrl: require("../assets/images/user-icon.png"),
         type: "sent",
       };
       getAIResponse(currentMessage).then((response) => {
-        const newResponse: Message = {
+        const newResponse: MessageProps = {
           id: Date.now().toString(),
           text: response,
           imageUrl: require("../assets/images/buddy-icon.png"),
@@ -90,6 +92,9 @@ const Chat: React.FC = () => {
     setMessages([initialBuddyMessage]);
   };
 
+  /**
+   * Chat component with messages, input text box, and send button
+   */
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -99,7 +104,7 @@ const Chat: React.FC = () => {
         ref={flatListRef}
         data={messages}
         renderItem={({ item }) => (
-          <Message text={item.text} imageUrl={item.imageUrl} type={item.type} />
+          <Message id={item.id} text={item.text} imageUrl={item.imageUrl} type={item.type} />
         )}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
@@ -130,7 +135,6 @@ const Chat: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#e0e0e0",
     paddingLeft: 5,
     paddingRight: 5,
   },
