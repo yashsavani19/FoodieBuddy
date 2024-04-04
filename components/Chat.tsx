@@ -113,11 +113,10 @@ const Chat: React.FC = () => {
           placeholder="Type a message..."
         />
         <View style={{}}>
-        <TouchableOpacity onPress={sendMessage}>
-          <FontAwesome name="send" size={24} color={Colors.light.iconColor} />
-        </TouchableOpacity>
-      </View>
-        {/* <Button title="Send" onPress={sendMessage} /> */}
+          <TouchableOpacity onPress={sendMessage}>
+            <FontAwesome name="send" size={24} color={Colors.light.iconColor} />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={{ position: "absolute", top: 10, right: 15 }}>
         <TouchableOpacity onPress={resetMessages}>
