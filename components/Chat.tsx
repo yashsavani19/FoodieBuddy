@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   Button,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
@@ -12,6 +13,7 @@ import {
 import Message from "./Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import OpenAIHandler from "@/controller/OpenAIHandler";
+import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
 
 const openAIChatService = new OpenAIHandler();
 
@@ -25,42 +27,42 @@ interface Message {
 const userImageUrl = "../assets/images/user-icon.png";
 const buddyImageUrl = "../assets/images/buddy-icon.png";
 
-async function getResponse(message: string) {
+async function getAIResponse(message: string) {
   const response = await openAIChatService.sendMessage(message);
-  console.log(response);
+  // console.log(response);
   return response;
 }
 
 const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
-    // Sample messages
-    {
-      id: "1",
-      text: "Hi! I'm Buddy, your friendly foodie guide at your service! Looking for some tasty bites? Just let me know what you're craving, and I'll whip up a list of great places for you to check out. Whether it's burgers, pizza, tacos, or something fancy, I've got you covered! So, what's on your mind?",
-      imageUrl: require("../assets/images/buddy-icon.png"),
-      type: "received",
-    },
-    {
-      id: "2",
-      text: "Thanks but I didn't ask",
-      imageUrl: require("../assets/images/user-icon.png"),
-      type: "sent",
-    },
-    {
-      id: "3",
-      text: ":(",
-      imageUrl: require("../assets/images/buddy-icon.png"),
-      type: "received",
-    },
+    initialBuddyMessage,
   ]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToEnd({ animated: true });
-    }
+    setTimeout(() => {
+      if (flatListRef.current) {
+        flatListRef.current.scrollToEnd({ animated: true });
+      }
+    }, 100);
   }, [messages]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setTimeout(() => {
+          if (flatListRef.current) {
+            flatListRef.current.scrollToEnd({ animated: true });
+          }
+        }, 100);
+      }
+    );
+    return () => {
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const sendMessage = () => {
     if (currentMessage.trim()) {
@@ -70,15 +72,23 @@ const Chat: React.FC = () => {
         imageUrl: require("../assets/images/user-icon.png"),
         type: "sent",
       };
+      getAIResponse(currentMessage).then((response) => {
+        const newResponse: Message = {
+          id: Date.now().toString(),
+          text: response,
+          imageUrl: require("../assets/images/buddy-icon.png"),
+          type: "received",
+        };
+        setMessages((prevMessages) => [...prevMessages, newResponse]);
+      });
       setMessages((prevMessages) => [...prevMessages, newMessage]);
       setCurrentMessage("");
     }
   };
 
   const resetMessages = () => {
-    getResponse("How many countires are there?");
-    console.log(`${process.env.OPENAI_API_KEY}`);
-    setMessages([]);
+    console.log("Resetting messages");
+    setMessages([initialBuddyMessage]);
   };
 
   return (
@@ -117,7 +127,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: "#e0e0e0",
-    padding: 10,
+    paddingLeft: 5,
+    paddingRight: 5,
   },
   messagesList: {
     flex: 1,

@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 0,
     alignItems: "center",
+    marginBottom: 10,
     // marginRight: 50,
   },
   image: {
@@ -72,9 +73,10 @@ receivedTextBox: {
   },
   sentMessage: {
     justifyContent: "flex-end",
+    marginLeft: 100,
   },
   receivedMessage: {
-    marginRight: 50,
+    marginRight: 100,
   },
 });
 

@@ -1,9 +1,10 @@
 import axios from "axios";
+import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
 
 class OpenAIHandler {
-  private apiKey: string = `${process.env.OPENAI_API_KEY}`;
+  private apiKey: string = OPENAI_API_KEY;
   private completionURL: string = "https://api.openai.com/v1/chat/completions";
-  private organisation: string = `${process.env.OPENAI_ORG_ID}`;
+  private organisation: string = OPENAI_ORG_ID;
 
   async sendMessage(message: string): Promise<string> {
     try {
@@ -14,7 +15,7 @@ class OpenAIHandler {
           messages: [
             {
               role: "system",
-              content: "You are a helpful assistant.",
+              content: "You are a helpful assistant. Your name is Buddy.",
             },
             {
               role: "user",
