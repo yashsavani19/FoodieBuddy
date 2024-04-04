@@ -1,29 +1,24 @@
-import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { FlatList, StyleSheet } from 'react-native';
+import RestaurantListItem from '@/components/RestaurantListItem'
+import restaurants from '@/assets/data/restaurants';
+import { View } from '@/components/Themed';
+import Colors from '@/constants/Colors';
 
 export default function HomeView() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Home View</Text>
+    <View style={styles.background}>
+      <FlatList 
+        data={restaurants}
+        renderItem={({ item }) => < RestaurantListItem restaurant={item} />}
+        contentContainerStyle={{ gap: 3 }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+    backgroundColor: Colors.backgroundColor
   },
 });
