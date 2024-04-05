@@ -15,6 +15,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import OpenAIHandler from "@/controller/OpenAIHandler";
 import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
 import Colors from "@/constants/Colors";
+import { RestaurantList } from "@/model/RestaurantList";
+import { restaurantList } from "@/constants/AITestData";
 
 const openAIChatService = new OpenAIHandler();
 
@@ -27,6 +29,19 @@ async function getAIResponse(message: string) {
   const response = await openAIChatService.sendMessage(message);
   // console.log(response);
   return response;
+}
+
+function findRestaurantInMessage(
+  latestMessage: string,
+  restaurants: RestaurantList
+) {
+  const restaurantNames = restaurants.localRestaurants.map(
+    (restaurant) => restaurant.name
+  );
+  const restaurant = restaurantNames.find((name) =>
+    latestMessage.includes(name)
+  );
+  return restaurant;
 }
 
 /**
@@ -75,6 +90,14 @@ const Chat: React.FC = () => {
         imageUrl: require("../assets/images/user-icon.png"),
         type: "sent",
       };
+
+      const loadingMessage: MessageProps = {
+        id: Date.now().toString() + "loading",
+        type: "loading",
+      };
+
+      setMessages((prevMessages) => [...prevMessages, newMessage]); // Display user message
+      setMessages((prevMessages) => [...prevMessages, loadingMessage]); // Display loading message
       getAIResponse(currentMessage).then((response) => {
         const newResponse: MessageProps = {
           id: Date.now().toString(),
@@ -82,9 +105,26 @@ const Chat: React.FC = () => {
           imageUrl: require("../assets/images/buddy-icon.png"),
           type: "received",
         };
-        setMessages((prevMessages) => [...prevMessages, newResponse]);
+        setMessages((prevMessages) =>
+          prevMessages.slice(0, prevMessages.length - 1)
+        ); // Remove loading message
+        setMessages((prevMessages) => [...prevMessages, newResponse]); // Display AI response
+        const recommendation = findRestaurantInMessage(
+          newResponse.text || "",
+          restaurantList
+        );
+        if (recommendation) {
+          const recommendationMessage: MessageProps = {
+            id: Date.now().toString() + "recommendation",
+            text: `${recommendation}`,
+            type: "suggestion",
+          };
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            recommendationMessage,
+          ]); // Display recommendation if found
+        }
       });
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
       setCurrentMessage("");
     }
   };

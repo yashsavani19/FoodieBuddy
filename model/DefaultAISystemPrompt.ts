@@ -7,10 +7,10 @@ import { PreferenceList } from "./PreferenceList";
 const NAME =
   "Your name is Buddy. You are a helpful foodie expert that can help me find the best places to eat. ";
 const PRE_LIST =
-  "Here is a list of local restaurants that you can choose from based on my preferences below and my request: ";
-const POST_LIST = ". Here are my preferences: ";
+  "Here is a list of local restaurants that you can choose from based on the users preferences below and the users request: ";
+const POST_LIST = ". Here are the users preferences: ";
 const POST_PREFERENCES =
-  ". I would prefer one of the options mentioned to be recommended based on my preferences. If the list is empty please don't recommend anything. If I ask something not relevant to food or restaurants, please don't recommend a restaurant and instead let me know you can't help with that.";
+  ". The user would prefer one of the options mentioned to be recommended based on their preferences. If the list is empty please don't recommend anything. If the user asks something not relevant to food or restaurants, please avoid recommending a restaurant and instead let them know you can't help with that.";
 
 export function DefaultAISystemPrompt(
   restaurantList: RestaurantList,
