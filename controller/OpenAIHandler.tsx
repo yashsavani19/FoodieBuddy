@@ -4,6 +4,7 @@ import { RestaurantList } from "@/model/RestaurantList";
 import { Restaurant } from "@/model/Restaurant";
 import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
 import { Preference } from "@/model/Preference";
+import { IMessage } from "@/model/AITypes";
 
 /**
  * Temporary data for testing purposes
@@ -76,23 +77,35 @@ class OpenAIHandler {
   private apiKey: string = OPENAI_API_KEY;
   private completionURL: string = "https://api.openai.com/v1/chat/completions";
   private organisation: string = OPENAI_ORG_ID;
+  private messages: IMessage[] = [];
+
+  constructor() {
+    this.messages.push({
+      role: "system",
+      content: DefaultAISystemPrompt(restaurantList, preferenceList),
+    });
+  }
+
+  public resetMessages() {
+    this.messages = [];
+    this.messages.push({
+      role: "system",
+      content: DefaultAISystemPrompt(restaurantList, preferenceList),
+    });
+  }
 
   async sendMessage(message: string): Promise<string> {
+    this.messages.push({ role: "user", content: message });
+    if (this.messages.length > 11) {
+      this.messages = [this.messages[0], ...this.messages.slice(-10)];
+    }
+
     try {
       const response = await axios.post(
         `${this.completionURL}`,
         {
           model: "gpt-3.5-turbo",
-          messages: [
-            {
-              role: "system",
-              content: DefaultAISystemPrompt(restaurantList, preferenceList),
-            },
-            {
-              role: "user",
-              content: message,
-            },
-          ],
+          messages: this.messages,
         },
         {
           headers: {
@@ -106,11 +119,13 @@ class OpenAIHandler {
       );
 
       const messageReceived = response.data.choices[0].message.content;
+      this.messages.push({ role: "assistant", content: messageReceived });
+      console.log("All messages", this.messages);
       return messageReceived;
     } catch (error) {
       console.error("Error sending messsage to OpenAI", error);
+      return "There was an error communicating with AI. Please try again.";
     }
-    return "";
   }
 }
 

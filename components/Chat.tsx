@@ -34,7 +34,9 @@ async function getAIResponse(message: string) {
  * @returns Chat component with messages, input text box, and send button
  */
 const Chat: React.FC = () => {
-  const [messages, setMessages] = useState<MessageProps[]>([initialBuddyMessage]);
+  const [messages, setMessages] = useState<MessageProps[]>([
+    initialBuddyMessage,
+  ]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const flatListRef = useRef<FlatList>(null);
 
@@ -89,6 +91,7 @@ const Chat: React.FC = () => {
 
   const resetMessages = () => {
     console.log("Resetting messages");
+    openAIChatService.resetMessages();
     setMessages([initialBuddyMessage]);
   };
 
@@ -104,7 +107,12 @@ const Chat: React.FC = () => {
         ref={flatListRef}
         data={messages}
         renderItem={({ item }) => (
-          <Message id={item.id} text={item.text} imageUrl={item.imageUrl} type={item.type} />
+          <Message
+            id={item.id}
+            text={item.text}
+            imageUrl={item.imageUrl}
+            type={item.type}
+          />
         )}
         keyExtractor={(item) => item.id}
         style={styles.messagesList}
@@ -147,6 +155,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
+    fontSize: 16,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 15,

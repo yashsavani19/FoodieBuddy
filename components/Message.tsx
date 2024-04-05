@@ -77,6 +77,7 @@ receivedTextBox: {
   },
   text: {
     color: "white",
+    fontSize: 16,
   },
   sentMessage: {
     justifyContent: "flex-end",
