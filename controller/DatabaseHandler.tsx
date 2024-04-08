@@ -43,10 +43,9 @@ const preferenceCollection = `users/${auth.currentUser?.uid}/preferences`;
 
 /**
  * Adds favourite to user's favourites
- * @param userId authenticated user id
  * @param placeId Maps API place id
  */
-export const addFavourite = async (userId: string, placeId: string) => {
+export const addFavourite = async (placeId: string) => {
   try {
     const docRef = await addDoc(collection(db, favouriteCollection), {
       placeId: placeId,
@@ -60,10 +59,9 @@ export const addFavourite = async (userId: string, placeId: string) => {
 
 /**
  * Removes favourite from user's favourites
- * @param userId authenticated user id
  * @param placeId Maps API place id
  */
-export const removeFavourite = async (userId: string, placeId: string) => {
+export const removeFavourite = async (placeId: string) => {
   try {
     await deleteDoc(doc(db, favouriteCollection, placeId));
   } catch (e) {
@@ -74,9 +72,8 @@ export const removeFavourite = async (userId: string, placeId: string) => {
 
 /**
  * Fetches favourites from user
- * @param userId authenticated user id
  */
-export const fetchFavourites = async (userId: string) => {
+export const fetchFavourites = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, favouriteCollection));
     const favourites: string[] = [];
@@ -92,10 +89,9 @@ export const fetchFavourites = async (userId: string) => {
 
 /**
  * Adds bookmark to user's bookmarks
- * @param userId authenticated user id
  * @param placeId Maps API place id
  */
-export const addBookmark = async (userId: string, placeId: string) => {
+export const addBookmark = async (placeId: string) => {
   try {
     const docRef = await addDoc(collection(db, bookmarkCollection), {
       placeId: placeId,
@@ -109,10 +105,9 @@ export const addBookmark = async (userId: string, placeId: string) => {
 
 /**
  * Removes bookmark from user's bookmarks
- * @param userId authenticated user id
  * @param placeId Maps API place id
  */
-export const removeBookmark = async (userId: string, placeId: string) => {
+export const removeBookmark = async (placeId: string) => {
   try {
     await deleteDoc(doc(db, bookmarkCollection, placeId));
   } catch (e) {
@@ -123,9 +118,8 @@ export const removeBookmark = async (userId: string, placeId: string) => {
 
 /**
  * Fetches bookmarks from user
- * @param userId authenticated user id
  */
-export const fetchBookmarks = async (userId: string) => {
+export const fetchBookmarks = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, bookmarkCollection));
     const bookmarks: string[] = [];
@@ -141,10 +135,9 @@ export const fetchBookmarks = async (userId: string) => {
 
 /**
  * Adds visited to user's visited
- * @param userId authenticated user id
  * @param placeId Maps API place id
  */
-export const addVisited = async (userId: string, placeId: string) => {
+export const addVisited = async (placeId: string) => {
   try {
     const docRef = await addDoc(collection(db, visitedCollection), {
       placeId: placeId,
@@ -158,10 +151,9 @@ export const addVisited = async (userId: string, placeId: string) => {
 
 /**
  * Removes visited from user's visited
- * @param userId authenticated user id
  * @param placeId Maps API place id
  */
-export const removeVisited = async (userId: string, placeId: string) => {
+export const removeVisited = async (placeId: string) => {
   try {
     await deleteDoc(doc(db, visitedCollection, placeId));
   } catch (e) {
@@ -172,9 +164,8 @@ export const removeVisited = async (userId: string, placeId: string) => {
 
 /**
  * Fetches visited from user
- * @param userId authenticated user id
  */
-export const fetchVisited = async (userId: string) => {
+export const fetchVisited = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, visitedCollection));
     const visited: string[] = [];
@@ -190,9 +181,8 @@ export const fetchVisited = async (userId: string) => {
 
 /**
  * Fetches user data
- * @param userId authenticated user id
  */
-export const fetchUser = async (userId: string) => {
+export const fetchUser = async () => {
   try {
     const docRef = doc(db, userCollection);
     const docSnap = await getDoc(docRef);
@@ -210,10 +200,9 @@ export const fetchUser = async (userId: string) => {
 
 /**
  * Updates username
- * @param userId authenticated user id
  * @param newUsername new username
  */
-export const updateUsername = async (userId: string, newUsername: string) => {
+export const updateUsername = async (newUsername: string) => {
   try {
     await setDoc(doc(db, userCollection), { username: newUsername }, { merge: true });
   } catch (e) {
@@ -225,10 +214,9 @@ export const updateUsername = async (userId: string, newUsername: string) => {
 // WARNING: Currently only updates database email, not authentication email
 /**
  * Updates user email
- * @param userId authenticated user id
  * @param newEmail new email address
  */
-export const updateEmail = async (userId: string, newEmail: string) => {
+export const updateEmail = async (newEmail: string) => {
   try {
     await setDoc(doc(db, userCollection), { email: newEmail }, { merge: true });
   } catch (e) {
@@ -239,10 +227,9 @@ export const updateEmail = async (userId: string, newEmail: string) => {
 
 /**
  * Updates user profile picture
- * @param userId authenticated user id
  * @param newProfilePictureUrl new profile picture URL
  */
-export const updateProfilePicture = async (userId: string, newProfilePictureUrl: string) => {
+export const updateProfilePicture = async (newProfilePictureUrl: string) => {
   try {
     await setDoc(doc(db, userCollection), { profilePicture: newProfilePictureUrl }, { merge: true });
   } catch (e) {
@@ -253,10 +240,9 @@ export const updateProfilePicture = async (userId: string, newProfilePictureUrl:
 
 /**
  * Adds preference to user's preferences
- * @param userId authenticated user id
  * @param preference preference object
  */
-export const addPreference = async (userId: string, preference: Preference) => {
+export const addPreference = async (preference: Preference) => {
   try {
     const docRef = await addDoc(collection(db, preferenceCollection), {
       name: preference.name,
@@ -269,10 +255,9 @@ export const addPreference = async (userId: string, preference: Preference) => {
 
 /**
  * Removes preference from user's preferences
- * @param userId authenticated user id
  * @param preferenceId preference id
  */
-export const removePreference = async (userId: string, preferenceId: string) => {
+export const removePreference = async (preferenceId: string) => {
   try {
     await deleteDoc(doc(db, preferenceCollection, preferenceId));
   } catch (e) {
@@ -283,9 +268,8 @@ export const removePreference = async (userId: string, preferenceId: string) => 
 
 /**
  * Fetches preferences from user
- * @param userId authenticated user id
  */
-export const fetchPreferences = async (userId: string) => {
+export const fetchPreferences = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
     const preferences: Preference[] = [];
