@@ -1,6 +1,6 @@
 import { Preference } from "@/model/Preference";
-import firestore from "@react-native-firebase/firestore";
-
+import { collection, doc, addDoc, getDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import { db, auth } from "@/services/FirestoreServices";
 /**
  * Getters and setters for user data
  * Schema:
@@ -35,21 +35,27 @@ import firestore from "@react-native-firebase/firestore";
  * }
  */
 
+const userCollection = `users/${auth.currentUser?.uid}`;
+const favouriteCollection = `users/${auth.currentUser?.uid}/favourites`;
+const bookmarkCollection = `users/${auth.currentUser?.uid}/bookmarks`;
+const visitedCollection = `users/${auth.currentUser?.uid}/visited`;
+const preferenceCollection = `users/${auth.currentUser?.uid}/preferences`;
+
 /**
  * Adds favourite to user's favourites
  * @param userId authenticated user id
  * @param placeId Maps API place id
  */
 export const addFavourite = async (userId: string, placeId: string) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("favourites")
-    .doc(placeId)
-    .set({
+  try {
+    const docRef = await addDoc(collection(db, favouriteCollection), {
       placeId: placeId,
-      addedOn: firestore.FieldValue.serverTimestamp(),
+      addedOn: new Date(),
     });
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding favourite. Please try again later.");
+  }
 };
 
 /**
@@ -58,12 +64,12 @@ export const addFavourite = async (userId: string, placeId: string) => {
  * @param placeId Maps API place id
  */
 export const removeFavourite = async (userId: string, placeId: string) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("favourites")
-    .doc(placeId)
-    .delete();
+  try {
+    await deleteDoc(doc(db, favouriteCollection, placeId));
+  } catch (e) {
+    console.error("Error removing document: ", e);
+    alert("Internal error removing favourite. Please try again later.");
+  }
 };
 
 /**
@@ -71,12 +77,17 @@ export const removeFavourite = async (userId: string, placeId: string) => {
  * @param userId authenticated user id
  */
 export const fetchFavourites = async (userId: string) => {
-  const favourites = await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("favourites")
-    .get();
-  return favourites.docs.map((doc) => doc.data());
+  try {
+    const querySnapshot = await getDocs(collection(db, favouriteCollection));
+    const favourites: string[] = [];
+    querySnapshot.forEach((doc) => {
+      favourites.push(doc.data().placeId);
+    });
+    return favourites;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching favourites. Please try again later.");
+  }
 };
 
 /**
@@ -85,15 +96,15 @@ export const fetchFavourites = async (userId: string) => {
  * @param placeId Maps API place id
  */
 export const addBookmark = async (userId: string, placeId: string) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("bookmarks")
-    .doc(placeId)
-    .set({
+  try {
+    const docRef = await addDoc(collection(db, bookmarkCollection), {
       placeId: placeId,
-      addedOn: firestore.FieldValue.serverTimestamp(),
+      addedOn: new Date(),
     });
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding bookmark. Please try again later.");
+  }
 };
 
 /**
@@ -102,12 +113,12 @@ export const addBookmark = async (userId: string, placeId: string) => {
  * @param placeId Maps API place id
  */
 export const removeBookmark = async (userId: string, placeId: string) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("bookmarks")
-    .doc(placeId)
-    .delete();
+  try {
+    await deleteDoc(doc(db, bookmarkCollection, placeId));
+  } catch (e) {
+    console.error("Error removing document: ", e);
+    alert("Internal error removing bookmark. Please try again later.");
+  }
 };
 
 /**
@@ -115,12 +126,17 @@ export const removeBookmark = async (userId: string, placeId: string) => {
  * @param userId authenticated user id
  */
 export const fetchBookmarks = async (userId: string) => {
-  const bookmarks = await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("bookmarks")
-    .get();
-  return bookmarks.docs.map((doc) => doc.data());
+  try {
+    const querySnapshot = await getDocs(collection(db, bookmarkCollection));
+    const bookmarks: string[] = [];
+    querySnapshot.forEach((doc) => {
+      bookmarks.push(doc.data().placeId);
+    });
+    return bookmarks;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching bookmarks. Please try again later.");
+  }
 };
 
 /**
@@ -129,15 +145,15 @@ export const fetchBookmarks = async (userId: string) => {
  * @param placeId Maps API place id
  */
 export const addVisited = async (userId: string, placeId: string) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("visited")
-    .doc(placeId)
-    .set({
+  try {
+    const docRef = await addDoc(collection(db, visitedCollection), {
       placeId: placeId,
-      addedOn: firestore.FieldValue.serverTimestamp(),
+      addedOn: new Date(),
     });
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding visited. Please try again later.");
+  }
 };
 
 /**
@@ -146,12 +162,12 @@ export const addVisited = async (userId: string, placeId: string) => {
  * @param placeId Maps API place id
  */
 export const removeVisited = async (userId: string, placeId: string) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("visited")
-    .doc(placeId)
-    .delete();
+  try {
+    await deleteDoc(doc(db, visitedCollection, placeId));
+  } catch (e) {
+    console.error("Error removing document: ", e);
+    alert("Internal error removing visited. Please try again later.");
+  }
 };
 
 /**
@@ -159,12 +175,17 @@ export const removeVisited = async (userId: string, placeId: string) => {
  * @param userId authenticated user id
  */
 export const fetchVisited = async (userId: string) => {
-  const visited = await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("visited")
-    .get();
-  return visited.docs.map((doc) => doc.data());
+  try {
+    const querySnapshot = await getDocs(collection(db, visitedCollection));
+    const visited: string[] = [];
+    querySnapshot.forEach((doc) => {
+      visited.push(doc.data().placeId);
+    });
+    return visited;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching visited. Please try again later.");
+  }
 };
 
 /**
@@ -172,8 +193,19 @@ export const fetchVisited = async (userId: string) => {
  * @param userId authenticated user id
  */
 export const fetchUser = async (userId: string) => {
-  const user = await firestore().collection("users").doc(userId).get();
-  return user.data();
+  try {
+    const docRef = doc(db, userCollection);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      console.error("No such document!");
+      alert("User not found.");
+    }
+  } catch (e) {
+    console.error("Error getting document: ", e);
+    alert("Internal error fetching user. Please try again later.");
+  }
 };
 
 /**
@@ -182,9 +214,12 @@ export const fetchUser = async (userId: string) => {
  * @param newUsername new username
  */
 export const updateUsername = async (userId: string, newUsername: string) => {
-  await firestore().collection("users").doc(userId).update({
-    username: newUsername,
-  });
+  try {
+    await setDoc(doc(db, userCollection), { username: newUsername }, { merge: true });
+  } catch (e) {
+    console.error("Error updating document: ", e);
+    alert("Internal error updating username. Please try again later.");
+  }
 };
 
 // WARNING: Currently only updates database email, not authentication email
@@ -194,9 +229,12 @@ export const updateUsername = async (userId: string, newUsername: string) => {
  * @param newEmail new email address
  */
 export const updateEmail = async (userId: string, newEmail: string) => {
-  await firestore().collection("users").doc(userId).update({
-    email: newEmail,
-  });
+  try {
+    await setDoc(doc(db, userCollection), { email: newEmail }, { merge: true });
+  } catch (e) {
+    console.error("Error updating document: ", e);
+    alert("Internal error updating email. Please try again later.");
+  }
 };
 
 /**
@@ -204,13 +242,13 @@ export const updateEmail = async (userId: string, newEmail: string) => {
  * @param userId authenticated user id
  * @param newProfilePictureUrl new profile picture URL
  */
-export const updateProfilePicture = async (
-  userId: string,
-  newProfilePictureUrl: string
-) => {
-  await firestore().collection("users").doc(userId).update({
-    profilePicture: newProfilePictureUrl,
-  });
+export const updateProfilePicture = async (userId: string, newProfilePictureUrl: string) => {
+  try {
+    await setDoc(doc(db, userCollection), { profilePicture: newProfilePictureUrl }, { merge: true });
+  } catch (e) {
+    console.error("Error updating document: ", e);
+    alert("Internal error updating profile picture. Please try again later.");
+  }
 };
 
 /**
@@ -219,14 +257,14 @@ export const updateProfilePicture = async (
  * @param preference preference object
  */
 export const addPreference = async (userId: string, preference: Preference) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("preferences")
-    .doc(preference.preferenceId)
-    .set({
-      name: preference.preferenceId,
+  try {
+    const docRef = await addDoc(collection(db, preferenceCollection), {
+      name: preference.name,
     });
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding preference. Please try again later.");
+  }
 };
 
 /**
@@ -234,16 +272,13 @@ export const addPreference = async (userId: string, preference: Preference) => {
  * @param userId authenticated user id
  * @param preferenceId preference id
  */
-export const removePreference = async (
-  userId: string,
-  preferenceId: string
-) => {
-  await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("preferences")
-    .doc(preferenceId)
-    .delete();
+export const removePreference = async (userId: string, preferenceId: string) => {
+  try {
+    await deleteDoc(doc(db, preferenceCollection, preferenceId));
+  } catch (e) {
+    console.error("Error removing document: ", e);
+    alert("Internal error removing preference. Please try again later.");
+  }
 };
 
 /**
@@ -251,10 +286,15 @@ export const removePreference = async (
  * @param userId authenticated user id
  */
 export const fetchPreferences = async (userId: string) => {
-  const preferences = await firestore()
-    .collection("users")
-    .doc(userId)
-    .collection("preferences")
-    .get();
-  return preferences.docs.map((doc) => doc.data());
+  try {
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const preferences: Preference[] = [];
+    querySnapshot.forEach((doc) => {
+      preferences.push(doc.data().name);
+    });
+    return preferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+  }
 };
