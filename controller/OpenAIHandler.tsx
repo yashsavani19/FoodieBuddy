@@ -1,86 +1,52 @@
 import axios from "axios";
 import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
-import { RestaurantList } from "@/model/RestaurantList";
-import { Restaurant } from "@/model/Restaurant";
 import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
-import { Preference } from "@/model/Preference";
+import { IMessage } from "@/model/AITypes";
+import { preferenceList, restaurantList } from "@/constants/AITestData";
 
-// Temp data for testing
-const restaurants: Restaurant[] = [
-  {
-    id: "1",
-    name: "McDonalds",
-    imageUrl:
-      "https://www.mcdonalds.com/is/image/content/dam/usa/nfl/nutrition/items/hero/desktop/t-mcdonalds-Big-Mac.jpg",
-    categories: ["Fast Food"],
-    price: "$",
-    rating: 4.5,
-    displayAddress: "123 Main St",
-    phone: "123-456-7890",
-    distance: 1.2,
-    isClosed: false,
-  },
-  {
-    id: "2",
-    name: "Burger King",
-    imageUrl:
-      "https://www.bk.com/sites/default/files/032021-Homepage-Combo-1-Logo.png",
-    categories: ["Fast Food"],
-    price: "$",
-    rating: 4.0,
-    displayAddress: "456 Elm St",
-    phone: "098-765-4321",
-    distance: 2.3,
-    isClosed: false,
-  },
-  {
-    id: "3",
-    name: "Wendys",
-    imageUrl:
-      "https://www.wendys.com/assets/q4-2020/hero/hero-breakfast-baconator.jpg",
-    categories: ["Fast Food"],
-    price: "$",
-    rating: 4.2,
-    displayAddress: "789 Oak St",
-    phone: "543-210-6789",
-    distance: 3.4,
-    isClosed: false,
-  },
-];
-const preferences: Preference[] = [
-  { preferenceId: "Fast Food" },
-  { preferenceId: "American" },
-  { preferenceId: "Burgers" },
-];
-const preferenceList = { preferences };
-
-const restaurantList: RestaurantList = {
-  localRestaurants: restaurants,
-  location: "123 Main St",
-};
-// End of temp data
-
+/**
+ * Handler for OpenAI API, sends and receives messages to OpenAI
+ * @param apiKey API key for OpenAI
+ * @param completionURL URL for OpenAI completions
+ * @param organisation Organisation ID for OpenAI
+ * @param restaurantList List of restaurants
+ * @param preferenceList List of preferences
+ * @returns Message received from OpenAI
+ * @throws Error if message cannot be sent to OpenAI
+ */
 class OpenAIHandler {
   private apiKey: string = OPENAI_API_KEY;
   private completionURL: string = "https://api.openai.com/v1/chat/completions";
   private organisation: string = OPENAI_ORG_ID;
+  private messages: IMessage[] = [];
+
+  constructor() {
+    this.messages.push({
+      role: "system",
+      content: DefaultAISystemPrompt(restaurantList, preferenceList),
+    });
+  }
+
+  public resetMessages() {
+    this.messages = [];
+    this.messages.push({
+      role: "system",
+      content: DefaultAISystemPrompt(restaurantList, preferenceList),
+    });
+  }
 
   async sendMessage(message: string): Promise<string> {
+    this.messages.push({ role: "user", content: message });
+    if (this.messages.length > 11) {
+      this.messages = [this.messages[0], ...this.messages.slice(-10)];
+    }
+
     try {
       const response = await axios.post(
         `${this.completionURL}`,
         {
           model: "gpt-3.5-turbo",
-          messages: [
-            {
-              role: "system",
-              content: DefaultAISystemPrompt(restaurantList, preferenceList),
-            },
-            {
-              role: "user",
-              content: message,
-            },
-          ],
+          messages: this.messages,
         },
         {
           headers: {
@@ -94,11 +60,13 @@ class OpenAIHandler {
       );
 
       const messageReceived = response.data.choices[0].message.content;
+      this.messages.push({ role: "assistant", content: messageReceived });
+      console.log("All messages", this.messages);
       return messageReceived;
     } catch (error) {
       console.error("Error sending messsage to OpenAI", error);
+      return "There was an error communicating with AI. Please try again.";
     }
-    return "";
   }
 }
 

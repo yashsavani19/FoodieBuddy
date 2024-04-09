@@ -1,6 +1,10 @@
 import { StyleSheet, Button, View } from "react-native";
 import Share from "react-native-share";
 
+// Still TBC
+/**
+ * TODO: ShareHandler component to share message, url and title
+ */
 export default function ShareHandler() {
   const options = {
     message: "This is a test message",

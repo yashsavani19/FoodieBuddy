@@ -10,6 +10,9 @@ import {
 
 import firebase from "@react-native-firebase/app";
 
+/**
+ * Firebase configuration
+ */
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
