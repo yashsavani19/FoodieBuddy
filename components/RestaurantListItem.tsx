@@ -1,4 +1,4 @@
-import { Restaurant } from "@/types";
+import { Restaurant } from "@/model/Restaurant";
 import { StyleSheet, Image, Pressable } from 'react-native';
 import { Text, View } from './Themed';
 import images from "@/assets/data/images";

@@ -1,12 +1,16 @@
 export interface Restaurant {
     id: string;
     name: string;
-    imageUrl: string;
-    categories: string[];
-    price: string;
-    rating: number;
-    displayAddress: string;
-    phone: string;
+    image: string | null;
+    categories?: string[];
+    price?: string;
+    rating?: number;
+    displayAddress?: string;
+    phone?: string;
     distance: number;
-    isClosed: boolean;
+    isClosed?: boolean;
+    
+    isFavourite?: boolean;
+    isBookmarked?: boolean;
+    isVisited?: boolean;
 }

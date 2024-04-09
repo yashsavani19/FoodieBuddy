@@ -12,11 +12,14 @@ interface TitleHeaderProps {
  * @param param0 String title for the header
  * @returns Title header component
  */
+
+import images from "@/assets/data/images";
+
 export default function TitleHeader({ title }: TitleHeaderProps) {
   return (
     <View style={styles.container}>
       <Image
-        source={require("../assets/images/title-logo.png")}
+        source={{ uri: images.logo }}
         style={styles.image}
       />
       <Text style={styles.title}>{title}</Text>
@@ -47,9 +50,8 @@ const styles = StyleSheet.create({
   image: {
     width: 110,
     height: 110,
-    padding: 10,
+    resizeMode: "contain",
     margin: 10,
-    borderRadius: 50,
-    backgroundColor: Colors.light.tint,
+    marginTop: 15,
   },
 });
