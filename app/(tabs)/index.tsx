@@ -8,7 +8,7 @@ import TitleHeader from '@/components/TitleHeader';
 export default function HomeView() {
   return (
     <View style={{flex: 1}}>
-      <TitleHeader title = "Home" />
+      <TitleHeader searchBar={true}/>
 
       <View style={styles.background}>
         <FlatList 

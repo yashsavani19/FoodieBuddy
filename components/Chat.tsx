@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   View,
   TextInput,
@@ -15,10 +15,12 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import OpenAIHandler from "@/controller/OpenAIHandler";
 import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
 import Colors from "@/constants/Colors";
-import { RestaurantList } from "@/model/RestaurantList";
-import { restaurantList } from "@/constants/AITestData";
+import { AppContext } from "@/model/AppContext";
+import { Restaurant } from "@/model/Restaurant";
 
 const openAIChatService = new OpenAIHandler();
+// const { localRestaurants } = useContext(AppContext);
+const localRestaurants: Restaurant[] = [];
 
 /**
  * AI Chat function to send user message to AI and get response
@@ -33,9 +35,8 @@ async function getAIResponse(message: string) {
 
 function findRestaurantInMessage(
   latestMessage: string,
-  restaurants: RestaurantList
 ) {
-  const restaurantNames = restaurants.localRestaurants.map(
+  const restaurantNames = localRestaurants.map(
     (restaurant) => restaurant.name
   );
   const restaurant = restaurantNames.find((name) =>
@@ -110,8 +111,7 @@ const Chat: React.FC = () => {
         ); // Remove loading message
         setMessages((prevMessages) => [...prevMessages, newResponse]); // Display AI response
         const recommendation = findRestaurantInMessage(
-          newResponse.text || "",
-          restaurantList
+          newResponse.text || ""
         );
         if (recommendation) {
           const recommendationMessage: MessageProps = {

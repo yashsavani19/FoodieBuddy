@@ -1,10 +1,16 @@
-import React from "react";
-import { StyleSheet, View, Text, Image } from "react-native";
+import React, {useState} from "react";
+import { StyleSheet, View, Text, Image, TextInput } from "react-native";
 import Colors from "@/constants/Colors";
+import SearchBar from "@/components/SearchBar";
+import Categories from "@/components/Categories";
+import Filters from "@/components/Filters";
+import images from "@/assets/data/images";
+import HeaderComponents from "./HeaderComponents";
 
 // Add additional properties here if required
 interface TitleHeaderProps {
-  title: string;
+  title?: string;
+  searchBar?: boolean;
 }
 
 /**
@@ -13,28 +19,29 @@ interface TitleHeaderProps {
  * @returns Title header component
  */
 
-import images from "@/assets/data/images";
 
-export default function TitleHeader({ title }: TitleHeaderProps) {
+export default function TitleHeader({ title, searchBar }: TitleHeaderProps) {
+  const [searchTerm, setSearchTerm] = useState('');
   return (
     <View style={styles.container}>
       <Image
         source={{ uri: images.logo }}
         style={styles.image}
       />
-      <Text style={styles.title}>{title}</Text>
+      <HeaderComponents title={title} searchBar={searchBar} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: "stretch",
+    flex: 1,
     position: "absolute",
     top: 0,
     height: 120,
+    width: "100%",
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
     backgroundColor: Colors.light.headerBackground,
   },
   title: {
@@ -51,7 +58,16 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     resizeMode: "contain",
-    margin: 10,
-    marginTop: 15,
+    marginLeft: 15,
+    margin: 12,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 15,
+    marginRight: 10,
+    paddingLeft: 10,
   },
 });

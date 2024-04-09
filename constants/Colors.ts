@@ -12,11 +12,6 @@ export default {
     iconColor: '#f26722',
   },
   dark: {
-    // text: '#fff',
-    // background: '#000',
-    // tint: tintColorDark,
-    // tabIconDefault: '#ccc',
-    // tabIconSelected: tintColorDark,
     text: '#363232',
     background: '#fff',
     headerBackground: '#f26722',
