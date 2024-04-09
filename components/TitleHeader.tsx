@@ -35,7 +35,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlignVertical: "center",
     margin: "auto",
-    paddingHorizontal: "15%",
+    paddingHorizontal: "17%",
+    paddingTop: 10,
   },
   image: {
     width: 110,
