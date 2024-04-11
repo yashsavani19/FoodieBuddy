@@ -10,4 +10,5 @@ declare module "@env" {
   export const FIREBASE_MEASUREMENT_ID: string;
   export const FIREBASE_DATABASE_URL: string;
   export const FIREBASE_PROJECT_URL: string;
+  export const GOOGLE_API_KEY: string;
 }
