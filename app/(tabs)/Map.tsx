@@ -60,6 +60,8 @@ export default function Map() {
   const [origin, setOrigin] = useState<LatLng | null>();
   const [destination, setDestination] = useState<LatLng | null>();
   const [showDirections, setShowDirections] = useState(false);
+  const [distance, setDistance] = useState(0);
+  const [duration, setDuration] = useState(0);
   const mapRef = useRef<MapView>(null);
 
   const moveTo = async (position: LatLng) => {
@@ -67,6 +69,28 @@ export default function Map() {
     if(camera) {
       camera.center = position;
       mapRef.current?.animateCamera(camera, {duration: 1000})
+    }
+  };
+
+  const edgePaddingValue = 120;
+  const edgePadding = {
+    top: edgePaddingValue,
+    right: edgePaddingValue,
+    bottom: edgePaddingValue,
+    left: edgePaddingValue
+  };
+
+  const traceRouteOnReady=(args: any) => {
+    if(args){
+      setDistance(args.distance)
+      setDuration(args.duration)
+    }
+  }
+
+  const traceRoute = () => {
+    if(origin && destination) {
+      setShowDirections(true)
+      mapRef.current?.fitToCoordinates([origin, destination],{edgePadding})
     }
   };
 
@@ -89,20 +113,26 @@ export default function Map() {
       >
         {origin && <Marker coordinate={origin}/>}
         {destination && <Marker coordinate={destination}/>}
-        {showDirections && origin && destination && <MapViewDirections
+        {showDirections && origin && destination && 
+        <MapViewDirections
           origin={origin}
           destination={destination}
           apikey={GOOGLE_API_KEY}
           strokeColor="#6644ff"
           strokeWidth={4}
+          onReady={traceRouteOnReady}
         />}
       </MapView>
       <View style={styles.searchContainer}>
       <InputAutoComplete label="Origin" onPlaceSelected={(details) => {onPlaceSelected(details, "origin")} } placeholder={"Enter Origin"}/>
       <InputAutoComplete label="Destination" onPlaceSelected={(details) => {onPlaceSelected(details, "destination")} } placeholder={"Enter Destination"}/>
-      <TouchableOpacity style={styles.button} onPress={() => setShowDirections(true)}>
+      <TouchableOpacity style={styles.button} onPress={traceRoute}>
         <Text style={styles.buttonText}>Trace route</Text>
       </TouchableOpacity>
+      {distance && duration ? (<View>
+        <Text>Distance: {distance.toFixed(2)}</Text>
+        <Text>Duration: {Math.ceil(duration)} miin</Text>
+      </View>): null}
       </View>
     </View>
   );
