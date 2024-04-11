@@ -1,7 +1,7 @@
 import EditScreenInfo from "@/components/EditScreenInfo";
 //import {View} from '@/components/Themed';
 
-import { PermissionsAndroid } from 'react-native';
+import { PermissionsAndroid, TouchableOpacity } from 'react-native';
 import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { Dimensions, StyleSheet, View, Text } from "react-native";
 import { GooglePlaceDetail, GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -57,9 +57,10 @@ function InputAutoComplete({
 
 export default function Map() {
 
-  const [origin, setOrigin] = useState<LatLng | null>()
-  const [destination, setDestination] = useState<LatLng | null>()
-  const mapRef = useRef<MapView>(null)
+  const [origin, setOrigin] = useState<LatLng | null>();
+  const [destination, setDestination] = useState<LatLng | null>();
+  const [showDirections, setShowDirections] = useState(false);
+  const mapRef = useRef<MapView>(null);
 
   const moveTo = async (position: LatLng) => {
     const camera = await mapRef.current?.getCamera()
@@ -88,15 +89,20 @@ export default function Map() {
       >
         {origin && <Marker coordinate={origin}/>}
         {destination && <Marker coordinate={destination}/>}
-        {origin && destination && <MapViewDirections
+        {showDirections && origin && destination && <MapViewDirections
           origin={origin}
           destination={destination}
           apikey={GOOGLE_API_KEY}
+          strokeColor="#6644ff"
+          strokeWidth={4}
         />}
       </MapView>
       <View style={styles.searchContainer}>
       <InputAutoComplete label="Origin" onPlaceSelected={(details) => {onPlaceSelected(details, "origin")} } placeholder={"Enter Origin"}/>
       <InputAutoComplete label="Destination" onPlaceSelected={(details) => {onPlaceSelected(details, "destination")} } placeholder={"Enter Destination"}/>
+      <TouchableOpacity style={styles.button} onPress={() => setShowDirections(true)}>
+        <Text style={styles.buttonText}>Trace route</Text>
+      </TouchableOpacity>
       </View>
     </View>
   );
@@ -130,4 +136,13 @@ const styles = StyleSheet.create({
     borderColor: "#888",
     borderWidth: 1,
   },
+  button: {
+    backgroundColor: "#bbb",
+    paddingVertical: 12,
+    marginTop: 16,
+    borderRadius: 4,
+  },
+  buttonText: {
+    textAlign: "center",
+  }
 });
