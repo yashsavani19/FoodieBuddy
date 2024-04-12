@@ -1,10 +1,10 @@
-import { StyleSheet, TextInput, Button } from "react-native";
-import {
-  register,
-  login,
-  authenticate,
-  logout,  firebase
-} from "@/controller/FirebaseHandler";
+import { StyleSheet, TextInput, Button, SafeAreaView } from "react-native";
+// import {
+//   register,
+//   login,
+//   authenticate,
+//   logout
+// } from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
 
 import EditScreenInfo from "@/components/EditScreenInfo";
@@ -16,23 +16,24 @@ export default function LoginView() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = () => {
-    if (password !== confirmPassword) {
-      // handle password mismatch error
-      return;
-    }
+  // const handleRegister = () => {
+  //   if (password !== confirmPassword) {
+  //     // handle password mismatch error
+  //     return;
+  //   }
 
-    register(email, username, password, confirmPassword)
-      .then(() => {
-        console.log("User registered");
-      })
-      .catch((error) => {
-        console.log("Registration failed:", error);
-      });
-  };
+  //   register(email, username, password, confirmPassword)
+  //     .then(() => {
+  //       console.log("User registered");
+  //     })
+  //     .catch((error) => {
+  //       console.log("Registration failed:", error);
+  //     });
+  // };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -59,8 +60,8 @@ export default function LoginView() {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
-      <Button title="Register" onPress={handleRegister} />
-    </View>
+      {/* <Button title="Register" onPress={handleRegister} /> */}
+    </SafeAreaView>
   );
 }
 
