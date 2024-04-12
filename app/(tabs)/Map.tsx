@@ -1,35 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import AppMappView from "@/components/AppMappView";
 import TitleHeader from "@/components/TitleHeader";
 import * as Location from 'expo-location';
-import { LocationObject } from "expo-location";
+import { UserLocationContext } from "./Context/UserLocationContext";
+import GlobalApis from "../Utils/GlobalApis";
 
 export default function Map() {
-   const [location, setLocation] = useState<LocationObject | null>(null);
-   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+   const { location, setLocation } = useContext(UserLocationContext);
+  const [placeList, setPlaceList]=useState([]);
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
-        return;
+    location && GetNearByPlace();
+  },[location])
+  const GetNearByPlace=()=>{
+  const data = {
+    "includedTypes": ["restaurant"],
+    "maxResultCount": 10,
+    "locationRestriction": {
+      "circle": {
+        "center": {
+          "latitude": location?.latitude,
+          "longitude": location?.longitude
+        },
+        "radius": 5000.0
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-      console.log(location);
-    })();
-  }, []);
-
-  let text = 'Waiting for location...';
-  if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
+    }
   }
-
+  GlobalApis.NewNearByPlaces(data).then(resp=>{
+    console.log(JSON.stringify(resp.data));
+    setPlaceList(resp.data?.places);
+  })
+}
   return (
     <View style={styles.container}>
       <TitleHeader />
