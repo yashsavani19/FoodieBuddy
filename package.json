@@ -38,7 +38,8 @@
     "react-native-screens": "~3.29.0",
     "react-native-share": "^10.1.0",
     "react-native-svg": "9.13.6",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "expo-location": "~16.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
