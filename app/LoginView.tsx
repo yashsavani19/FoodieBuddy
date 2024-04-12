@@ -1,18 +1,65 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, TextInput, Button } from "react-native";
+import {
+  register,
+  login,
+  authenticate,
+  logout,  firebase
+} from "@/controller/FirebaseHandler";
+import React, { useState } from "react";
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 
-export default function ChatView() {
+export default function LoginView() {
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleRegister = () => {
+    if (password !== confirmPassword) {
+      // handle password mismatch error
+      return;
+    }
+
+    register(email, username, password, confirmPassword)
+      .then(() => {
+        console.log("User registered");
+      })
+      .catch((error) => {
+        console.log("Registration failed:", error);
+      });
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab Two</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
       />
-      <EditScreenInfo path="app/(tabs)/two.tsx" />
+      <TextInput
+        style={styles.input}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm Password"
+        secureTextEntry
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+      />
+      <Button title="Register" onPress={handleRegister} />
     </View>
   );
 }
@@ -31,5 +78,13 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: "80%",
+  },
+  input: {
+    width: "80%",
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
 });
