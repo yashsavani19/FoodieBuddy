@@ -5,6 +5,7 @@ import TitleHeader from "@/components/TitleHeader";
 import * as Location from 'expo-location';
 import { UserLocationContext } from "./Context/UserLocationContext";
 import GlobalApis from "../Utils/GlobalApis";
+import PlaceListView from "@/components/PlaceListView";
 
 export default function Map() {
    const { location, setLocation } = useContext(UserLocationContext);
@@ -38,6 +39,9 @@ export default function Map() {
       <View style={styles.mapContainer}>
         <AppMappView />
       </View>
+      <View style={styles.placeListContainer}>
+        {placeList && <PlaceListView placeList={placeList}/>}
+      </View>
     </View>
   );
 }
@@ -50,4 +54,10 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 120, 
   },
+  placeListContainer: {
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 10,
+    width: '100%'
+  }
 });
