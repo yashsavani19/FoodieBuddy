@@ -8,7 +8,8 @@ import {
   FIREBASE_MEASUREMENT_ID,
 } from "@env";
 
-import firebase from "@react-native-firebase/app";
+import { initializeApp } from "firebase/app";
+import { initializeAuth } from "firebase/auth";
 
 /**
  * Firebase configuration
@@ -23,8 +24,7 @@ const firebaseConfig = {
   measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
-if(!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
 
-export { firebase };
+
+export const app = initializeApp(firebaseConfig);
+export const auth = initializeAuth(app);
