@@ -10,6 +10,7 @@ import Constants from 'expo-constants';
 import { useEffect, useRef, useState } from "react";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from 'expo-location';
+import axios from 'axios';
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,6 +23,16 @@ const INITIAL_POSITION = {
   latitudeDelta: 0.09,
   longitudeDelta: 0.04,
 };
+
+interface Restaurant {
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+  name: string;
+}
 
 type InputAutoCompleteProps = {
   label: string;
@@ -61,12 +72,13 @@ export default function Map() {
   const [showDirections, setShowDirections] = useState(false);
   const [distance, setDistance] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const mapRef = useRef<MapView>(null);
 
 
   useEffect(() => {
     async function fetchCurrentLocation() {
-      let { status } = await Location.requestForegroundPermissionsAsync();  // Request foreground location permissions
+      let { status } = await Location.requestForegroundPermissionsAsync();  
       if (status !== 'granted') {
         console.error("Permission to access location was denied");
         return;
@@ -81,10 +93,21 @@ export default function Map() {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude
       });
+      fetchNearbyRestaurants(location.coords.latitude, location.coords.longitude);
     }
 
     fetchCurrentLocation();
   }, []);
+
+  const fetchNearbyRestaurants = async (latitude: number, longitude: number) => {
+    const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=1500&type=restaurant&key=${GOOGLE_API_KEY}`;
+    try {
+      const response = await axios.get(apiUrl);
+      setRestaurants(response.data.results);
+    } catch (error) {
+      console.error("Failed to fetch restaurants:", error);
+    }
+  };
 
   const moveTo = async (position: LatLng) => {
     const camera = await mapRef.current?.getCamera()
@@ -143,6 +166,13 @@ export default function Map() {
         initialRegion={INITIAL_POSITION}
       >
         {currentLocation && <Marker coordinate={currentLocation} title="You are here"/>}
+        {restaurants.map((restaurant, index) => (
+          <Marker
+            key={index}
+            coordinate={{ latitude: restaurant.geometry.location.lat, longitude: restaurant.geometry.location.lng }}
+            title={restaurant.name}
+          />
+        ))}
         {origin && <Marker coordinate={origin}/>}
         {destination && <Marker coordinate={destination}/>}
         {showDirections && origin && destination && 
@@ -171,7 +201,7 @@ export default function Map() {
         </View>
       {distance && duration ? (<View>
         <Text>Distance: {distance.toFixed(2)}</Text>
-        <Text>Duration: {Math.ceil(duration)} miin</Text>
+        <Text>Duration: {Math.ceil(duration)} min</Text>
       </View>): null}
       </View>
     </View>
