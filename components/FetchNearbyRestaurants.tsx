@@ -1,5 +1,6 @@
 import { GOOGLE_API_KEY } from '@env';
 import axios from 'axios';
+import { getDistanceFromLatLonInKm } from '../app/Utils/distanceCalculator';
 
 // Update the fetchNearbyRestaurants function to construct the photo URL
 const fetchNearbyRestaurants = async (latitude: number, longitude: number): Promise<any[]> => {
@@ -18,12 +19,20 @@ const fetchNearbyRestaurants = async (latitude: number, longitude: number): Prom
         ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
         : null;
 
+        const distance = getDistanceFromLatLonInKm(
+          latitude,
+          longitude,
+          result.geometry.location.lat,
+          result.geometry.location.lng
+        );
+
       // Return restaurant data including photo URL
       return {
         geometry: result.geometry,
         name: result.name,
         rating: result.rating,
-        image: photoUrl // Assign the photo URL to the 'image' property
+        image: photoUrl, // Assign the photo URL to the 'image' property
+        distance: distance.toFixed(2)
       };
     }));
 

@@ -83,9 +83,9 @@ export default function AppMappView() {
               }}
               onPress={() => {
                 if (selectedMarkerId === index) {
-                  setSelectedMarkerId(null); // Deselect if the same marker is clicked
+                  setSelectedMarkerId(null); 
                 } else {
-                  setSelectedMarkerId(index); // Select new marker
+                  setSelectedMarkerId(index); 
                 }
               }}
             >
@@ -98,6 +98,7 @@ export default function AppMappView() {
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   <StarRating rating={restaurant.rating}/>
+                  <Text>Distance: {restaurant.distance} km</Text>
                   <WebView
                     style={styles.webViewStyle}
                     source={{

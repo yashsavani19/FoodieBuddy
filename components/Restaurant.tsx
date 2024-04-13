@@ -8,4 +8,5 @@ interface Restaurant {
   name: string;
   rating: number;
   image: string; 
+  distance: number;
 }

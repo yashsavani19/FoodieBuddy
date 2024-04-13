@@ -1,16 +1,14 @@
 import React from 'react';
 import { View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
-// Define an interface for component props
 interface StarRatingProps {
-  rating: number;  // Define the type for `rating` as number
+  rating: number;  
 }
 
 const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
   const fullStars = Math.floor(rating);
-  const halfStar = (rating % 1) >= 0.5 ? 1 : 0; // Determine if there is a half star
-  const noStars = 5 - fullStars - halfStar; // Calculate remaining empty stars
+  const halfStar = (rating % 1) >= 0.5 ? 1 : 0; 
+  const noStars = 5 - fullStars - halfStar; 
 
   return (
     <View style={{ flexDirection: 'row' }}>
