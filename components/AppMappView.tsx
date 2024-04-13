@@ -10,6 +10,7 @@ import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import { UserLocationContext } from "./../app/(tabs)/Context/UserLocationContext";
 import fetchNearbyRestaurants from "./../components/FetchNearbyRestaurants";
 import RestaurantMarker from './../components/RestaurantMarker';
+import { WebView } from 'react-native-webview';
 
 export default function AppMappView() {
   const { location } = useContext(UserLocationContext);
@@ -86,21 +87,18 @@ export default function AppMappView() {
               />
               {/*Information on Restaurant*/}
               <Callout>
-                <View style={styles.calloutContainer}>
-                  <Text style={styles.name}>{restaurant.name}</Text>
-                  <Text>Rating: {restaurant.rating}</Text>
-                  {restaurant.image && (
-                    <Image
-                      source={
-                        restaurant.image
-                          ? { uri: restaurant.image }
-                          : { uri: "https://via.placeholder.com/100" }
-                      }
-                      style={styles.image}
-                    />
-                  )}
-                </View>
-              </Callout>
+  <View style={styles.calloutContainer}>
+    <Text style={styles.name}>{restaurant.name}</Text>
+    <Text>Rating: {restaurant.rating}</Text>
+    <WebView
+      style={styles.webViewStyle}
+      source={{ html: `<img src="${restaurant.image}" style="width: 100%; height: auto;" />` }}
+      automaticallyAdjustContentInsets={true}
+      javaScriptEnabled={true}
+      domStorageEnabled={true}
+    />
+  </View>
+</Callout>
             </Marker>
           ))}
         </MapView>
@@ -124,4 +122,8 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 5,
   },
+  webViewStyle: {
+    height: 100, // Adjust as needed
+    width: 190, // Less than container width to account for padding
+  }
 });

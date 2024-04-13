@@ -7,5 +7,5 @@ interface Restaurant {
   };
   name: string;
   rating: number;
-  image: string; // New property for the restaurant's image URL
+  image: string; 
 }

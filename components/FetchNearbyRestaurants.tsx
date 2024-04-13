@@ -15,7 +15,7 @@ const fetchNearbyRestaurants = async (latitude: number, longitude: number): Prom
     const restaurants = await Promise.all(results.map(async (result: any) => {
       // Fetch the photo URL for each restaurant
       const photoUrl = result.photos && result.photos[0] && result.photos[0].photo_reference
-        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&maxheight=100&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
+        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
         : null;
 
       // Return restaurant data including photo URL
