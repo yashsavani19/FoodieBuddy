@@ -11,6 +11,7 @@ import { UserLocationContext } from "./../app/(tabs)/Context/UserLocationContext
 import fetchNearbyRestaurants from "./../components/FetchNearbyRestaurants";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
+import StarRating from "./StarRating";
 
 export default function AppMappView() {
   const { location } = useContext(UserLocationContext);
@@ -39,7 +40,7 @@ export default function AppMappView() {
 
   const handleMapPress = () => {
     if (selectedMarkerId !== null) {
-      setSelectedMarkerId(null); // Deselect the currently selected marker
+      setSelectedMarkerId(null); 
     }
   };
 
@@ -96,7 +97,7 @@ export default function AppMappView() {
               <Callout>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
-                  <Text>Rating: {restaurant.rating}</Text>
+                  <StarRating rating={restaurant.rating}/>
                   <WebView
                     style={styles.webViewStyle}
                     source={{

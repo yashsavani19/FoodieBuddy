@@ -8,7 +8,6 @@ interface RestaurantMarkerProps {
 }
 
 const RestaurantMarker: React.FC<RestaurantMarkerProps> = ({ rating, selected }) => {
-  // No need to manage pressed state here if selection is managed by the parent
   const bubbleStyle = selected ? styles.bubbleSelected : styles.bubble;
   const iconCircleStyle = selected ? styles.iconCircleSelected : styles.iconCircle;
   const pointerStyle = selected ? styles.pointerSelected : styles.pointer;
@@ -20,7 +19,7 @@ const RestaurantMarker: React.FC<RestaurantMarkerProps> = ({ rating, selected })
           <MaterialCommunityIcons
             name="silverware-fork-knife"
             size={14}
-            color={selected ? "#e46860" : "black"} // Change color conditionally
+            color={selected ? "#e46860" : "black"} 
           />
         </View>
         <Text style={styles.rating}>{rating}</Text>
