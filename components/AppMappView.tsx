@@ -56,10 +56,10 @@ export default function AppMappView() {
               latitude: location.latitude,
               longitude: location.longitude,
             }}
-            radius={200} // Adjust the radius as needed
-            fillColor="rgba(173, 216, 230, 0.2)" // Light blue color with 50% opacity
-            strokeColor="rgba(173, 216, 230, 0.2)" // Border color (blue) with 50% opacity
-            strokeWidth={2} // Border width
+            radius={200}
+            fillColor="rgba(173, 216, 230, 0.2)"
+            strokeColor="rgba(173, 216, 230, 0.2)"
+            strokeWidth={2}
           />
 
           {/* Render markers for each nearby restaurant */}
@@ -71,18 +71,21 @@ export default function AppMappView() {
                 longitude: restaurant.geometry.location.lng,
               }}
             >
-              {/* Customized marker with callout */}
+              {/*Information on Restaurant*/}
               <Callout>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   <Text>Rating: {restaurant.rating}</Text>
-                  <Image
-                    source={{
-                      uri:
-                        restaurant.image || "https://via.placeholder.com/100",
-                    }} // Use placeholder image if restaurant image is not available
-                    style={styles.image} // Adjust dimensions as needed
-                  />
+                  {restaurant.image && (
+                    <Image
+                      source={
+                        restaurant.image
+                          ? { uri: restaurant.image }
+                          : { uri: "https://via.placeholder.com/100" }
+                      }
+                      style={styles.image}
+                    />
+                  )}
                 </View>
               </Callout>
             </Marker>
@@ -97,15 +100,15 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", height: "100%" },
   calloutContainer: {
-    width: 200, // Adjust the width of the callout container
+    width: 200,
     padding: 4,
   },
-  name:{
-    fontWeight: 'bold',
+  name: {
+    fontWeight: "bold",
   },
   image: {
-    width: "100%", // Adjust the width to fill the container
-    height: 100, // Adjust the height as needed
-    borderRadius: 5, // Add border radius for a nicer look
+    width: 100,
+    height: 100,
+    borderRadius: 5,
   },
 });
