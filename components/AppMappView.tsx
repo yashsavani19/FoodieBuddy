@@ -9,8 +9,8 @@ import MapView, {
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import { UserLocationContext } from "./../app/(tabs)/Context/UserLocationContext";
 import fetchNearbyRestaurants from "./../components/FetchNearbyRestaurants";
-import RestaurantMarker from './../components/RestaurantMarker';
-import { WebView } from 'react-native-webview';
+import RestaurantMarker from "./../components/RestaurantMarker";
+import { WebView } from "react-native-webview";
 
 export default function AppMappView() {
   const { location } = useContext(UserLocationContext);
@@ -37,6 +37,12 @@ export default function AppMappView() {
     fetchRestaurants();
   }, [location]);
 
+  const handleMapPress = () => {
+    if (selectedMarkerId !== null) {
+      setSelectedMarkerId(null); // Deselect the currently selected marker
+    }
+  };
+
   return (
     location &&
     location.latitude && (
@@ -52,6 +58,7 @@ export default function AppMappView() {
             latitudeDelta: 0.0422,
             longitudeDelta: 0.0421,
           }}
+          onPress={handleMapPress}
         >
           {/* Blue transparent circle around the user's current location */}
           <Circle
@@ -81,24 +88,26 @@ export default function AppMappView() {
                 }
               }}
             >
-              <RestaurantMarker 
-              rating={restaurant.rating ?? 'N/A'} 
-              selected={selectedMarkerId === index}
+              <RestaurantMarker
+                rating={restaurant.rating ?? "N/A"}
+                selected={selectedMarkerId === index}
               />
               {/*Information on Restaurant*/}
               <Callout>
-  <View style={styles.calloutContainer}>
-    <Text style={styles.name}>{restaurant.name}</Text>
-    <Text>Rating: {restaurant.rating}</Text>
-    <WebView
-      style={styles.webViewStyle}
-      source={{ html: `<img src="${restaurant.image}" style="width: 100%; height: auto;" />` }}
-      automaticallyAdjustContentInsets={true}
-      javaScriptEnabled={true}
-      domStorageEnabled={true}
-    />
-  </View>
-</Callout>
+                <View style={styles.calloutContainer}>
+                  <Text style={styles.name}>{restaurant.name}</Text>
+                  <Text>Rating: {restaurant.rating}</Text>
+                  <WebView
+                    style={styles.webViewStyle}
+                    source={{
+                      html: `<img src="${restaurant.image}" style="width: 100%; height: auto;" />`,
+                    }}
+                    automaticallyAdjustContentInsets={true}
+                    javaScriptEnabled={true}
+                    domStorageEnabled={true}
+                  />
+                </View>
+              </Callout>
             </Marker>
           ))}
         </MapView>
@@ -123,7 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   webViewStyle: {
-    height: 100, // Adjust as needed
-    width: 190, // Less than container width to account for padding
-  }
+    height: 100, 
+    width: 190, 
+  },
 });
