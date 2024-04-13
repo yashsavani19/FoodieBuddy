@@ -31,7 +31,7 @@ const fetchNearbyRestaurants = async (latitude: number, longitude: number): Prom
         geometry: result.geometry,
         name: result.name,
         rating: result.rating,
-        image: photoUrl, // Assign the photo URL to the 'image' property
+        image: photoUrl, 
         distance: distance.toFixed(2)
       };
     }));
