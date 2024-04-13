@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View, Text, Image } from "react-native";
 import MapView, {
   Marker,
   Callout,
@@ -9,17 +9,6 @@ import MapView, {
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import { UserLocationContext } from "./../app/(tabs)/Context/UserLocationContext";
 import fetchNearbyRestaurants from "./../components/FetchNearbyRestaurants";
-
-interface Restaurant {
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
-  name: string;
-  rating: number;
-}
 
 export default function AppMappView() {
   const { location } = useContext(UserLocationContext);
@@ -84,9 +73,16 @@ export default function AppMappView() {
             >
               {/* Customized marker with callout */}
               <Callout>
-                <View>
-                  <Text>{restaurant.name}</Text>
+                <View style={styles.calloutContainer}>
+                  <Text style={styles.name}>{restaurant.name}</Text>
                   <Text>Rating: {restaurant.rating}</Text>
+                  <Image
+                    source={{
+                      uri:
+                        restaurant.image || "https://via.placeholder.com/100",
+                    }} // Use placeholder image if restaurant image is not available
+                    style={styles.image} // Adjust dimensions as needed
+                  />
                 </View>
               </Callout>
             </Marker>
@@ -100,4 +96,16 @@ export default function AppMappView() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { width: "100%", height: "100%" },
+  calloutContainer: {
+    width: 200, // Adjust the width of the callout container
+    padding: 4,
+  },
+  name:{
+    fontWeight: 'bold',
+  },
+  image: {
+    width: "100%", // Adjust the width to fill the container
+    height: 100, // Adjust the height as needed
+    borderRadius: 5, // Add border radius for a nicer look
+  },
 });
