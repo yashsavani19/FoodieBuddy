@@ -7,10 +7,10 @@ import { UserLocationContext } from "./Context/UserLocationContext";
 
 export default function Map() {
    const { location, setLocation } = useContext(UserLocationContext);
-   
+
   return (
     <View style={styles.container}>
-      <TitleHeader />
+      <TitleHeader searchBar/>
       <View style={styles.mapContainer}>
         <AppMappView />
       </View>

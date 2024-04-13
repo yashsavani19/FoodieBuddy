@@ -9,6 +9,7 @@ import MapView, {
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import { UserLocationContext } from "./../app/(tabs)/Context/UserLocationContext";
 import fetchNearbyRestaurants from "./../components/FetchNearbyRestaurants";
+import RestaurantMarker from './../components/RestaurantMarker';
 
 export default function AppMappView() {
   const { location } = useContext(UserLocationContext);
@@ -70,7 +71,9 @@ export default function AppMappView() {
                 latitude: restaurant.geometry.location.lat,
                 longitude: restaurant.geometry.location.lng,
               }}
+              title={restaurant.name}
             >
+              <RestaurantMarker rating={restaurant.rating ?? 'N/A'} />
               {/*Information on Restaurant*/}
               <Callout>
                 <View style={styles.calloutContainer}>
