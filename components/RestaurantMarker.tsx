@@ -4,28 +4,29 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface RestaurantMarkerProps {
   rating: number | string;
+  selected: boolean;
 }
 
-const RestaurantMarker: React.FC<RestaurantMarkerProps> = ({ rating }) => {
-  const [pressed, setPressed] = useState(false);
-
-  // Define styles that change when the marker is pressed
-  const bubbleStyle = pressed ? styles.bubblePressed : styles.bubble;
-  const iconCircleStyle = pressed ? styles.iconCirclePressed : styles.iconCircle;
-  const pointerStyle = pressed ? styles.pointerPressed : styles.pointer;
-
+const RestaurantMarker: React.FC<RestaurantMarkerProps> = ({ rating, selected }) => {
+  // No need to manage pressed state here if selection is managed by the parent
+  const bubbleStyle = selected ? styles.bubbleSelected : styles.bubble;
+  const iconCircleStyle = selected ? styles.iconCircleSelected : styles.iconCircle;
+  const pointerStyle = selected ? styles.pointerSelected : styles.pointer;
+  
   return (
-    <TouchableOpacity onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)}>
-      <View style={styles.markerContainer}>
-        <View style={bubbleStyle}>
-          <View style={iconCircleStyle}>
-            <MaterialCommunityIcons name="silverware-fork-knife" size={14} color={pressed ? "#e46860" : "black"} />
-          </View>
-          <Text style={styles.rating}>{rating}</Text>
+    <View style={styles.markerContainer}>
+      <View style={bubbleStyle}>
+        <View style={iconCircleStyle}>
+          <MaterialCommunityIcons
+            name="silverware-fork-knife"
+            size={14}
+            color={selected ? "#e46860" : "black"} // Change color conditionally
+          />
         </View>
-        <View style={pointerStyle} />
+        <Text style={styles.rating}>{rating}</Text>
       </View>
-    </TouchableOpacity>
+      <View style={pointerStyle} />
+    </View>
   );
 };
 
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     borderLeftColor: 'transparent',
     marginTop: -1,
   },
-  bubblePressed: {
+  bubbleSelected: {
     flexDirection: "row",
     backgroundColor: "#e46860", 
     paddingLeft: 3,
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  iconCirclePressed: {
+  iconCircleSelected: {
     backgroundColor: 'white', 
     borderRadius: 10,
     width: 20,
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 5,
   },
-  pointerPressed: {
+  pointerSelected: {
     width: 0,
     height: 0,
     backgroundColor: 'transparent',

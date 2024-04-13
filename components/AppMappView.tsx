@@ -14,6 +14,7 @@ import RestaurantMarker from './../components/RestaurantMarker';
 export default function AppMappView() {
   const { location } = useContext(UserLocationContext);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -66,14 +67,23 @@ export default function AppMappView() {
           {/* Render markers for each nearby restaurant */}
           {restaurants.map((restaurant, index) => (
             <Marker
-              key={index}
+              key={`${index}`}
               coordinate={{
                 latitude: restaurant.geometry.location.lat,
                 longitude: restaurant.geometry.location.lng,
               }}
-              title={restaurant.name}
+              onPress={() => {
+                if (selectedMarkerId === index) {
+                  setSelectedMarkerId(null); // Deselect if the same marker is clicked
+                } else {
+                  setSelectedMarkerId(index); // Select new marker
+                }
+              }}
             >
-              <RestaurantMarker rating={restaurant.rating ?? 'N/A'} />
+              <RestaurantMarker 
+              rating={restaurant.rating ?? 'N/A'} 
+              selected={selectedMarkerId === index}
+              />
               {/*Information on Restaurant*/}
               <Callout>
                 <View style={styles.calloutContainer}>
