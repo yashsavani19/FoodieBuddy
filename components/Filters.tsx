@@ -26,27 +26,38 @@ const Filters: React.FC = () => {
     };
 
     return (
-                <Picker
-                    selectedValue={selectedFilters}
-                    // onValueChange={(itemValue) => handleFilterChange(itemValue as string)}
-                    mode="dialog"
-                    style={styles.picker}
-                    dropdownIconColor="#000"
-                >
-                    {filterOptions.map((option) => (
-                        <Picker.Item key={option.value} label={option.label} value={option.value} />
-                    ))}
-                </Picker>
+        <View style={styles.container}>
+            <Picker
+                selectedValue={selectedFilters}
+                mode="dialog"
+                style={styles.picker}
+                dropdownIconColor="#000"
+            >
+                {filterOptions.map((option) => (
+                    <Picker.Item key={option.value} label={option.label} value={option.value} style={styles.pickerItem} />
+                ))}
+            </Picker>
+        </View>
     );
 };
 
 export default Filters;
 
 const styles = StyleSheet.create({
-    picker: {
-        width: '50%',
-        backgroundColor: '#fff',
-        borderRadius: 5,
+    container: {
+        width: '45%',
+        borderRadius: 20, // Adjust border radius to make it look like a pill
+        overflow: 'hidden', // Ensure contents stay within the rounded borders
         marginBottom: 10,
+        marginTop: 10,
+        height: '40%',
+        justifyContent: 'center'
+    },
+    picker: {
+        width: '100%',
+        backgroundColor: '#fff',
+    },
+    pickerItem: {
+        fontSize: 12, // Adjust the font size as needed
     },
 });
