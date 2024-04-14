@@ -20,22 +20,22 @@ export default function HeaderComponents({
   }
   if (searchBar) {
     return (
-        <View style={styles.container}>
-            <SearchBar />
-            <View style={styles.filters}>
-                <Categories />
-                <Filters />
-            </View>
+      <View style={styles.container}>
+        <SearchBar />
+        <View style={styles.filters}>
+          <Categories />
+          <Filters />
         </View>
-        );
+      </View>
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding:10,
-    marginTop:15,
+    padding: 10,
+    marginTop: 15,
   },
   title: {
     width: "70%",
@@ -67,5 +67,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingRight: 10,
-  }
+  },
 });
