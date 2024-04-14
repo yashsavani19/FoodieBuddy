@@ -2,15 +2,25 @@ import Colors from "@/constants/Colors";
 import React, { useState } from "react";
 import { View, TextInput, Text, StyleSheet } from "react-native";
 
-const SearchBar: React.FC = () => {
+interface SearchBarProps {
+  onSearchSubmit: (searchTerm: string) => void;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearchSubmit = (newSearchTerm: string) => {
+    console.log(`Search term: ${searchTerm}`);
+    setSearchTerm(newSearchTerm);
+    onSearchSubmit(searchTerm);
+  };
 
   return (
     <TextInput
       style={styles.input}
       placeholder="Search..."
       value={searchTerm}
-      onChangeText={setSearchTerm}
+      onChangeText={() => handleSearchSubmit(searchTerm)}
     />
   );
 };

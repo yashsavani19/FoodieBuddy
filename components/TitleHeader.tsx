@@ -7,10 +7,10 @@ import Filters from "@/components/Filters";
 import images from "@/assets/data/images";
 import HeaderComponents from "./HeaderComponents";
 
-// Add additional properties here if required
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
+  onSearchSubmit?: (searchTerm: string) => void; // This will be called when the user submits the search term
 }
 
 /**
@@ -18,17 +18,23 @@ interface TitleHeaderProps {
  * @param param0 String title for the header
  * @returns Title header component
  */
-
-
-export default function TitleHeader({ title, searchBar }: TitleHeaderProps) {
+export default function TitleHeader({ title, searchBar, onSearchSubmit }: TitleHeaderProps) {
   const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchSubmit = (searchTerm: string) => {
+    console.log(`Search term: ${searchTerm}`);
+    if (onSearchSubmit) {
+      onSearchSubmit(searchTerm);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Image
         source={{ uri: images.logo }}
         style={styles.image}
       />
-      <HeaderComponents title={title} searchBar={searchBar} />
+      <HeaderComponents title={title} searchBar={searchBar} onSearchSubmit={handleSearchSubmit} />
     </View>
   );
 }
