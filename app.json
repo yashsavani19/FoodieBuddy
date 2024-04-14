@@ -30,9 +30,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-<<<<<<< HEAD
-      "expo-router"
-=======
       "expo-router",
       [
         "expo-location",
@@ -40,7 +37,6 @@
           "locationAlwaysAndWhenInUsePermission": "Allow FoodieBuddy to use your location."
         }
       ]
->>>>>>> main
     ],
     "experiments": {
       "typedRoutes": true
