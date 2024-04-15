@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { StyleSheet, View, Text, Image, TextInput } from "react-native";
 import Colors from "@/constants/Colors";
 import SearchBar from "@/components/SearchBar";
@@ -6,11 +6,15 @@ import Categories from "@/components/Categories";
 import Filters from "@/components/Filters";
 import images from "@/assets/data/images";
 import HeaderComponents from "./HeaderComponents";
+import { Category } from "@/model/Category";
+import { Filter } from "@/model/Filter";
 
-// Add additional properties here if required
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
+  onSearchSubmit?: (searchTerm: string) => void; // This will be called when the user submits the search term
+  onCategorySelect?: (category: Category) => void; // This will be called when the user selects a category
+  onFilterSelect?: (filter: Filter[]) => void; // This will be called when the user selects a filter
 }
 
 /**
@@ -18,17 +22,44 @@ interface TitleHeaderProps {
  * @param param0 String title for the header
  * @returns Title header component
  */
+export default function TitleHeader({
+  title,
+  searchBar,
+  onSearchSubmit,
+  onCategorySelect,
+  onFilterSelect,
+}: TitleHeaderProps) {
+  const handleSearchSubmit = (searchTerm: string) => {
+    console.log(`Title Header Search term: ${searchTerm}`);
+    if (onSearchSubmit) {
+      onSearchSubmit(searchTerm);
+    }
+  };
 
+  const handleCategorySelect = (category: Category) => {
+    console.log(`Category selected: ${category}`);
+    if (onCategorySelect) {
+      onCategorySelect(category);
+    }
+  };
 
-export default function TitleHeader({ title, searchBar }: TitleHeaderProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const handleFilterSelect = (filter: Filter[]) => {
+    console.log(`Filter selected: ${filter}`);
+    if (onFilterSelect) {
+      onFilterSelect(filter);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Image
-        source={{ uri: images.logo }}
-        style={styles.image}
+      <Image source={{ uri: images.logo }} style={styles.image} />
+      <HeaderComponents
+        title={title}
+        searchBar={searchBar}
+        onSearchSubmit={handleSearchSubmit}
+        onCategorySelect={handleCategorySelect}
+        onFilterSelect={handleFilterSelect}
       />
-      <HeaderComponents title={title} searchBar={searchBar} />
     </View>
   );
 }
