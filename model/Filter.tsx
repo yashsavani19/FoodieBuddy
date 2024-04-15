@@ -1,4 +1,4 @@
 export interface Filter {
-  filter: string;
-  selected: boolean;
-}
+  filter?: string;
+  selected?: boolean;
+} 

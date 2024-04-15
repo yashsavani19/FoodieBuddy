@@ -2,37 +2,42 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Category } from "@/model/Category";
-
+import { categories } from "@/assets/data/categories";
 
 interface CategorySelectProps {
   onCategorySelect: (category: Category) => void;
 }
 
 const Categories: React.FC<CategorySelectProps> = ({ onCategorySelect }) => {
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category>(
+    {} as Category
+  );
 
-  const handleFilterChange = (value: string) => {
-    if (selectedFilters.includes(value)) {
-      setSelectedFilters(selectedFilters.filter((filter) => filter !== value));
-    } else {
-      setSelectedFilters([...selectedFilters, value]);
+  const sortedCategories = categories.sort((a, b) =>
+    a.name && b.name ? a.name.localeCompare(b.name) : 0
+  );
+
+  const handleCategoryChange = (value: Category) => {
+    if (value) {
+      setSelectedCategory(value);
+      onCategorySelect(selectedCategory);
     }
-    onCategorySelect(selectedFilters);
   };
 
   return (
     <View style={styles.container}>
       <Picker
-        selectedValue={selectedFilters}
+        selectedValue={selectedCategory ? selectedCategory : categories[0]}
         mode="dropdown"
         style={styles.picker}
         dropdownIconColor="#000"
+        onValueChange={(itemValue) => handleCategoryChange(itemValue)}
       >
-        {filterOptions.map((option) => (
+        {sortedCategories.map((option) => (
           <Picker.Item
-            key={option.value}
-            label={option.label}
-            value={option.value}
+            key={option.id}
+            label={option.name}
+            value={option}
             style={styles.pickerItem}
           />
         ))}
@@ -45,12 +50,12 @@ export default Categories;
 
 const styles = StyleSheet.create({
   container: {
-    width: "45%",
+    width: "50%",
     borderRadius: 20, // Adjust border radius to make it look like a pill
     overflow: "hidden", // Ensure contents stay within the rounded borders
-    marginBottom: 10,
+    // marginBottom: 10,
     marginTop: 10,
-    height: "40%",
+    height: "50%",
     justifyContent: "center",
   },
   picker: {

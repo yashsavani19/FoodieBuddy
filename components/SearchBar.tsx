@@ -1,6 +1,20 @@
 import Colors from "@/constants/Colors";
+import { FontAwesome } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { View, TextInput, Text, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof FontAwesome>["name"];
+  color: string;
+}) {
+  return <FontAwesome size={18} style={{ marginRight: 12 }} {...props} />;
+}
 
 interface SearchBarProps {
   onSearchSubmit: (searchTerm: string) => void;
@@ -9,19 +23,40 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearchSubmit = (newSearchTerm: string) => {
-    console.log(`Search term: ${searchTerm}`);
-    setSearchTerm(newSearchTerm);
+  const handleSearchSubmit = () => {
     onSearchSubmit(searchTerm);
   };
 
+  const handleSearchClear = () => {
+    setSearchTerm("");
+    onSearchSubmit("");
+  };
+
   return (
-    <TextInput
-      style={styles.input}
-      placeholder="Search..."
-      value={searchTerm}
-      onChangeText={() => handleSearchSubmit(searchTerm)}
-    />
+    <View style={styles.container}>
+      <View style={{ flex: 1, flexDirection: "row" }}>
+        <TextInput
+          style={styles.input}
+          placeholder="Search..."
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+        />
+        {searchTerm && (
+          <TouchableOpacity
+            style={{ justifyContent: "center" }}
+            onPress={() => handleSearchClear()}
+          >
+            <TabBarIcon name="close" color={Colors.dark.iconColor} />
+          </TouchableOpacity>
+        )}
+      </View>
+      <TouchableOpacity
+        style={{ justifyContent: "center" }}
+        onPress={() => handleSearchSubmit()}
+      >
+        <TabBarIcon name="search" color={Colors.dark.iconColor} />
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -30,6 +65,14 @@ export default SearchBar;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 15,
+    marginRight: 10,
+    paddingLeft: 10,
+    backgroundColor: Colors.light.background,
   },
   messagesList: {
     flex: 1,
@@ -41,11 +84,5 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 15,
-    marginRight: 10,
-    paddingLeft: 10,
-    backgroundColor: Colors.light.background,
   },
 });
