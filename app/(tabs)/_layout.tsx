@@ -2,17 +2,25 @@ import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import { Pressable } from 'react-native';
-
+import { Image } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import images from '@/assets/data/images';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
+  name?: React.ComponentProps<typeof FontAwesome>['name'];
+  imageSelected?: string;
+  image?: string;
+  color?: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  if (props.image) {
+    const isSelected = props.image.includes('Selected');
+    return <Image source={{ uri: props.image }} style={{ width: '100%', aspectRatio: isSelected ? '2.6' : '3.6', resizeMode: 'contain', top: 6.5 }} />
+  } else {
+    return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  }
 }
 
 export default function TabLayout() {
@@ -34,15 +42,19 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
+          tabBarLabel: '',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: ({ color, focused }) => 
+            <TabBarIcon image={focused ? images.homeSelectedIcon : images.homeIcon} />,
         }}
       />
       <Tabs.Screen
         name="Map"
         options={{
           title: 'Map',
-          tabBarIcon: ({ color }) => <TabBarIcon name="map" color={color} />,
+          tabBarLabel: '',
+          tabBarIcon: ({ color, focused }) => 
+            <TabBarIcon image={focused ? images.mapSelectedIcon : images.mapIcon} />,
           headerShown: false,
         }}
       />
@@ -50,7 +62,9 @@ export default function TabLayout() {
         name="ChatView"
         options={{
           title: 'Chat',
-          tabBarIcon: ({ color }) => <TabBarIcon name="comment" color={color} />,
+          tabBarLabel: '',
+          tabBarIcon: ({ color, focused }) => 
+            <TabBarIcon image={focused ? images.chatSelectedIcon : images.chatIcon} />,
           headerShown: false,
         }}
       />
@@ -58,7 +72,9 @@ export default function TabLayout() {
         name="ProfileView"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarLabel: '',
+          tabBarIcon: ({ color, focused }) => 
+            <TabBarIcon image={focused ? images.profileSelectedIcon : images.profileIcon} />,
         }}
       />
     </Tabs>
