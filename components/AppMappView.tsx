@@ -12,6 +12,7 @@ import fetchNearbyRestaurants from "./../components/FetchNearbyRestaurants";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
+import { Restaurant } from "@/model/Restaurant";
 
 export default function AppMappView() {
   const { location } = useContext(UserLocationContext);
@@ -97,7 +98,7 @@ export default function AppMappView() {
               <Callout>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
-                  <StarRating rating={restaurant.rating}/>
+                  {restaurant.rating !== undefined && <StarRating rating={restaurant.rating} />}
                   <Text>Distance: {restaurant.distance} km</Text>
                   <WebView
                     style={styles.webViewStyle}
