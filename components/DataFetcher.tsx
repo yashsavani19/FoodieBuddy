@@ -6,6 +6,7 @@ export const DataFetcher = () => {
     useContext(AppContext);
   useEffect(() => {
     (async () => {
+        console.log("Calling setRestaurants from DataFetcher");
       await setRestaurants();
       // await setFavourites();
       // await setBookmarks();
