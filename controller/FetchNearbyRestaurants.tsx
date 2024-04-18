@@ -1,13 +1,14 @@
 import { GOOGLE_API_KEY } from '@env';
 import axios from 'axios';
 import { getDistanceFromLatLonInKm } from '../app/Utils/distanceCalculator';
+import { LocationObjectCoords } from 'expo-location';
 
 // Update the fetchNearbyRestaurants function to construct the photo URL
-const fetchNearbyRestaurants = async (latitude: number, longitude: number): Promise<any[]> => {
+const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Promise<any[]> => {
   try {
     console.log("Fetching nearby restaurants...");
     const response = await axios.get<any>(
-      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=5000&type=restaurant&key=${GOOGLE_API_KEY}`
+      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location?.latitude || 0},${location?.longitude || 0}&radius=5000&type=restaurant&key=${GOOGLE_API_KEY}`
     );
     console.log("Response from API:", response.data);
 
@@ -20,8 +21,8 @@ const fetchNearbyRestaurants = async (latitude: number, longitude: number): Prom
         : null;
 
         const distance = getDistanceFromLatLonInKm(
-          latitude,
-          longitude,
+          location?.latitude || 0,
+          location?.longitude || 0,
           result.geometry.location.lat,
           result.geometry.location.lng
         );
