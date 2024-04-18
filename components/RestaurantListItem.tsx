@@ -3,6 +3,11 @@ import { StyleSheet, Image, Pressable, Animated } from 'react-native';
 import { Text, View } from './Themed';
 import images from "@/assets/data/images";
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/constants/navigationTypes';
+import StarRating from "./StarRating";
+
 
 type RestaurantListItemProps = {
   restaurant: Restaurant; 
@@ -11,6 +16,10 @@ type RestaurantListItemProps = {
 const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
+  const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
+
+  //const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
@@ -30,6 +39,7 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     ]).start();
   };
 
+
   return (
     <Pressable style={styles.container}> 
       <Image 
@@ -38,16 +48,27 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         resizeMode='cover'
       />
       <View style={styles.textContainer}>
-        <View style={styles.iconContainer}>
-          <Image 
-            source={{ uri: images.mapMarker }} 
-            style={styles.mapIcon} 
-          />
-          <Text style={styles.findOnMap}>Find on map</Text>
-        </View>
+        <Pressable onPress= {() => {
+          setFindOnMapPressed(!isFindOnMapPressed)
+          navigation.navigate('Map', { geometry: restaurant.geometry });
+          console.log(restaurant.geometry)
+          console.log("Find on map pressed")
+          }}>
+          <View style={styles.iconContainer}>
+            <Image 
+              source={{ uri: images.mapMarker }} 
+              style={styles.mapIcon} 
+            />
+            <Text style={styles.findOnMap}>Find on map</Text>
+          </View>
+        </Pressable>
         <View style={styles.textInfo}>
           <Text style={styles.title}>{restaurant.name}</Text>
-          <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{fontWeight: 'bold'}}>Rating: </Text>
+            {restaurant.rating !== undefined && (<StarRating rating={restaurant.rating ?? "N/A"} />)}
+            <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
+          </View>
         </View>
 
         <View style={styles.iconContainer}>
@@ -109,6 +130,7 @@ const styles = StyleSheet.create({
   distance: {
     fontWeight: 'bold',
     textAlign: 'left',
+    paddingLeft: 10,
   },
   findOnMap: {
     fontWeight: 'bold',
@@ -123,12 +145,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   icon: {
-    width: 30,
+    width: 27,
     aspectRatio: 1,
     resizeMode: "contain",
+    marginLeft: 2,
   },
   mapIcon: {
-    width: 35,
+    width: 32,
     aspectRatio: 1,
     resizeMode: "contain",
   }
