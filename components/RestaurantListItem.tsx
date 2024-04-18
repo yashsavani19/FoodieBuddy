@@ -1,13 +1,35 @@
 import { Restaurant } from "@/model/Restaurant";
-import { StyleSheet, Image, Pressable } from 'react-native';
+import { StyleSheet, Image, Pressable, Animated } from 'react-native';
 import { Text, View } from './Themed';
 import images from "@/assets/data/images";
+import React, { useState } from 'react';
 
 type RestaurantListItemProps = {
   restaurant: Restaurant; 
 };
 
 const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
+  const [isBookmarkPressed, setBookmarkPressed] = useState(false);
+  const [isFavePressed, setFavePressed] = useState(false);
+
+  const bookmarkScale = useState(new Animated.Value(1))[0];
+  const faveScale = useState(new Animated.Value(1))[0];
+
+  const animateIcon = (scale: Animated.Value) => {
+    Animated.sequence([
+      Animated.timing(scale, {
+        toValue: 1.2,
+        duration: 70,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 70,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   return (
     <Pressable style={styles.container}> 
       <Image 
@@ -29,17 +51,27 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         </View>
 
         <View style={styles.iconContainer}>
-          <Image 
-            source={{ uri: images.bookmarkIcon }} 
-            style={styles.icon} 
-          />
+          <Pressable onPress={() => { if (isFavePressed) { setFavePressed(false); }
+            setBookmarkPressed(!isBookmarkPressed); animateIcon(bookmarkScale);  }}>
+              
+            <Animated.Image 
+              source={{ uri: isBookmarkPressed ? images.bookmarkSelectedIcon : images.bookmarkIcon }} 
+              style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]} 
+            />
+
+          </Pressable>
         </View>
 
         <View style={styles.iconContainer}>
-          <Image 
-            source={{ uri: images.faveIcon }} 
-            style={styles.icon} 
-          />
+          <Pressable onPress={() => { if (isBookmarkPressed) { setBookmarkPressed(false); }
+            setFavePressed(!isFavePressed); animateIcon(faveScale); }}>
+
+            <Animated.Image 
+              source={{ uri: isFavePressed ? images.faveSelectedIcon : images.faveIcon }} 
+              style={[styles.icon, { transform: [{ scale: faveScale }] }]} 
+            />
+            
+          </Pressable>
         </View>
 
       </View>
