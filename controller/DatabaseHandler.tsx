@@ -1,6 +1,7 @@
 import { Preference } from "@/model/Preference";
 import { collection, doc, addDoc, getDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 import { db, auth } from "@/services/FirestoreServices";
+import { Saved } from "@/model/Saved";
 /**
  * Getters and setters for user data
  * Schema:
@@ -76,7 +77,7 @@ export const removeFavourite = async (placeId: string) => {
 export const fetchFavourites = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, favouriteCollection));
-    const favourites: string[] = [];
+    const favourites: Saved[] = [];
     querySnapshot.forEach((doc) => {
       favourites.push(doc.data().placeId);
     });

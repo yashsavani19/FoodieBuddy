@@ -21,6 +21,7 @@ export type AppContextType = {
   setVisited: (visited: Saved[]) => void;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
+  updateLocation: (location: LocationObjectCoords | null) => void;
 };
 
 interface ContextProviderProps {
@@ -37,6 +38,7 @@ export const AppContext = createContext<AppContextType>({
   visited: [],
   setVisited: async () => {},
   location: null,
+  updateLocation: async () => {},
   updateLocation: async () => {},
 });
 
