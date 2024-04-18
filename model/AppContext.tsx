@@ -1,10 +1,14 @@
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
 import { Restaurant } from "./Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "./Saved";
 import fetchNearbyRestaurants from "@/controller/FetchNearbyRestaurants";
-import { fetchBookmarks, fetchFavourites, fetchVisited } from "@/controller/DatabaseHandler";
-import * as Location from 'expo-location';
+import {
+  fetchBookmarks,
+  fetchFavourites,
+  fetchVisited,
+} from "@/controller/DatabaseHandler";
+import * as Location from "expo-location";
 
 export type AppContextType = {
   localRestaurants: Restaurant[];
@@ -16,6 +20,7 @@ export type AppContextType = {
   visited: Saved[];
   setVisited: (visited: Saved[]) => void;
   location: LocationObjectCoords | null;
+  updateLocation: (location: LocationObjectCoords | null) => void;
   updateLocation: (location: LocationObjectCoords | null) => void;
 };
 
@@ -34,6 +39,7 @@ export const AppContext = createContext<AppContextType>({
   setVisited: async () => {},
   location: null,
   updateLocation: async () => {},
+  updateLocation: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -43,20 +49,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [favourites, setFavouritesArray] = useState<Saved[]>([]);
   const [bookmarks, setBookmarksArray] = useState<Saved[]>([]);
   const [visited, setVisitedArray] = useState<Saved[]>([]);
-  const [location, setLocationArray] = useState<LocationObjectCoords | null>(null);
-
-  const setRestaurants = async () => {
-    try {
-      await updateLocation();
-      await setRestaurantsArray(await fetchNearbyRestaurants(location));
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const [location, setLocationArray] = useState<LocationObjectCoords | null>(
+    null
+  );
 
   const setFavourites = async () => {
     try {
-      // await setFavouritesArray(await fetchFavourites())
+      //setFavouritesArray(await fetchFavourites());
     } catch (error) {
       console.log(error);
     }
@@ -64,7 +63,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setBookmarks = async () => {
     try {
-      // await setBookmarksArray(await fetchBookmarks())
+      //setBookmarksArray(await fetchBookmarks());
     } catch (error) {
       console.log(error);
     }
@@ -72,30 +71,48 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setVisited = async () => {
     try {
-      // await setVisitedArray(await fetchVisited())
+      //setVisitedArray(await fetchVisited());
     } catch (error) {
       console.log(error);
     }
   };
 
-  const updateLocation= async () => {
+  const updateLocation = async () => {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
         return;
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setLocationArray(location.coords); 
-
+      setLocationArray(location.coords);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const setRestaurants = async () => {
+    try {
+      if (!location) await updateLocation();
+      if (location) {
+        const restaurants = await fetchNearbyRestaurants(
+          location.latitude,
+          location.longitude
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const contextValue = {
+  useEffect(() => {
+    updateLocation(); // Initial location fetch on mount
+  }, []);
+
+  return (
+    <AppContext.Provider
+      value={{
         localRestaurants,
         setRestaurants,
         favourites,
@@ -106,9 +123,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setVisited,
         location,
         updateLocation,
-    };
-
-    return (
-      <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
-    );
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 };
