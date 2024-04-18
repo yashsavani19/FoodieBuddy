@@ -22,9 +22,7 @@ import { Link, Navigator } from "expo-router";
 
 export default function LoginView() {
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   return (
     <View style={styles.container}>
@@ -90,15 +88,15 @@ export default function LoginView() {
         </View>
         {/*  */}
         {/* Forgot Password */}
-        <Pressable>
+        <Link href={"/ResetPasswordView"}>
           <Text style={styles.clickableText}> Forgot Password?</Text>
-        </Pressable>
+        </Link>
         {/*  */}
         {/* Create Account Button*/}
         <View style={styles.createAccountContainer}>
           <Text style={styles.textStyle}>Don't Have an Account yet?</Text>
           <Link href={"/RegisterView"}>
-              <Text style={styles.clickableText}> Register Now!</Text>
+            <Text style={styles.clickableText}> Register Now!</Text>
           </Link>
         </View>
       </SafeAreaView>
