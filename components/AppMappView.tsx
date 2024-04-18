@@ -10,8 +10,7 @@ import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
-import { Restaurant } from "@/model/Restaurant";
-import { AppContext } from "@/model/AppContext";
+import { AppContext } from "./../model/AppContext";
 
 export default function AppMappView() {
   const { location, localRestaurants } = useContext(AppContext);
