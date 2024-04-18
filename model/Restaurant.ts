@@ -13,7 +13,7 @@ export interface Restaurant {
     rating?: number;
     displayAddress?: string;
     phone?: string;
-    distance: number;
+    distance: string;
     isClosed?: boolean;
     
     isFavourite?: boolean;
