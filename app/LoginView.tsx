@@ -1,14 +1,24 @@
-import { StyleSheet, TextInput, Button, SafeAreaView } from "react-native";
-// import {
-//   register,
-//   login,
-//   authenticate,
-//   logout
-// } from "@/controller/FirebaseHandler";
+import {
+  StyleSheet,
+  TextInput,
+  Button,
+  SafeAreaView,
+  Image,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
+import {
+  handleLogin,
+  handleRegister,
+  handleResetPassword,
+} from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
+
+const buddyLogo = require("@/assets/images/title-logo.png");
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
+import { Link, Navigator } from "expo-router";
 
 export default function LoginView() {
   const [email, setEmail] = useState("");
@@ -16,57 +26,89 @@ export default function LoginView() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // const handleRegister = () => {
-  //   if (password !== confirmPassword) {
-  //     // handle password mismatch error
-  //     return;
-  //   }
-
-  //   register(email, username, password, confirmPassword)
-  //     .then(() => {
-  //       console.log("User registered");
-  //     })
-  //     .catch((error) => {
-  //       console.log("Registration failed:", error);
-  //     });
-  // };
-
   return (
-    <SafeAreaView style={styles.container}>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Confirm Password"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
-      {/* <Button title="Register" onPress={handleRegister} /> */}
-    </SafeAreaView>
+    <View style={styles.container}>
+      {/* Main Logo */}
+      <Image source={buddyLogo} style={styles.logo} />
+      {/*  */}
+      {/* Main Inner Container that displays all the content */}
+      <SafeAreaView style={styles.innerContainer}>
+        {/*  */}
+        {/* Google Login */}
+        <TouchableOpacity style={styles.googleLoginContainer}>
+          <Image
+            source={require("@/assets/images/google-icon.png")}
+            style={styles.inputLogo}
+          />
+          <Text
+            style={styles.googleText}
+            // onPress={}
+          >
+            Login With Google
+          </Text>
+        </TouchableOpacity>
+        {/*  */}
+        {/* Input Fields */}
+        <View style={styles.inputContainer}>
+          <Image
+            source={require("@/assets/images/mail-logo.png")}
+            style={styles.inputLogo}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <Image
+            source={require("@/assets/images/lock-logo.png")}
+            style={styles.inputLogo}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
+        {/*  */}
+        {/* Login Button */}
+        <View style={styles.buttonContainer}>
+          <Pressable style={styles.loginButton}>
+            <Button
+              title="Login"
+              color="white"
+              // onPress={handleRectangleButtonPress}
+            />
+          </Pressable>
+          <TouchableOpacity
+          // onPress={handleImageButtonPress}
+          ></TouchableOpacity>
+        </View>
+        {/*  */}
+        {/* Forgot Password */}
+        <Pressable>
+          <Text style={styles.clickableText}> Forgot Password?</Text>
+        </Pressable>
+        {/*  */}
+        {/* Create Account Button*/}
+        <View style={styles.createAccountContainer}>
+          <Text style={styles.textStyle}>Don't Have an Account yet?</Text>
+          <Link href={"/RegisterView"}>
+              <Text style={styles.clickableText}> Register Now!</Text>
+          </Link>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#f26722",
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
@@ -80,12 +122,92 @@ const styles = StyleSheet.create({
     height: 1,
     width: "80%",
   },
+
+  googleLoginContainer: {
+    width: 300,
+    height: 50,
+    borderRadius: 15,
+    margin: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#373737",
+    marginBottom: 50,
+  },
+  googleText: {
+    color: "white",
+    width: 190,
+    fontSize: 20,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "right",
+  },
+
+  innerContainer: {
+    marginTop: 50,
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "#f26722",
+  },
+  inputContainer: {
+    width: 300,
+    height: 50,
+    borderRadius: 15,
+    margin: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
   input: {
-    width: "80%",
-    height: 40,
-    borderColor: "gray",
+    flex: 1,
+    height: 50,
+    borderColor: "transparent",
     borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+  },
+
+  inputLogo: {
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
+    margin: 15,
+  },
+
+  logo: {
+    width: "100%",
+    height: 300,
+    marginTop: 75,
+    resizeMode: "contain",
+  },
+
+  buttonContainer: {
+    backgroundColor: "#f26722",
+  },
+
+  loginButton: {
+    width: 100,
+    borderRadius: 20,
+    backgroundColor: "#3383FF",
+    marginTop: 20,
+    marginBottom: 15,
+  },
+
+  clickableText: {
+    color: "blue",
+    textDecorationLine: "underline",
+    fontSize: 15,
+  },
+
+  textStyle: {
+    fontSize: 15,
+    color: "white",
+    fontWeight: "bold",
+  },
+
+  createAccountContainer: {
+    backgroundColor: "#f26722",
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    margin: 10,
   },
 });

@@ -10,4 +10,6 @@ declare module "@env" {
   export const FIREBASE_MEASUREMENT_ID: string;
   export const FIREBASE_DATABASE_URL: string;
   export const FIREBASE_PROJECT_URL: string;
+  export const FIREBASE_WEB_CLIENT_ID: string;
+  export const FIREBASE_WEB_CLIENT_SECRET: string;
 }
