@@ -7,37 +7,16 @@ import MapView, {
   PROVIDER_GOOGLE,
 } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
-import { UserLocationContext } from "./../app/(tabs)/Context/UserLocationContext";
-import fetchNearbyRestaurants from "./../components/FetchNearbyRestaurants";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
 import { Restaurant } from "@/model/Restaurant";
+import { AppContext } from "@/model/AppContext";
 
 export default function AppMappView() {
-  const { location } = useContext(UserLocationContext);
+  const { location } = useContext(AppContext);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
-
-  useEffect(() => {
-    const fetchRestaurants = async () => {
-      if (location) {
-        try {
-          console.log("Fetching nearby restaurants...");
-          const results = await fetchNearbyRestaurants(
-            location.latitude,
-            location.longitude
-          );
-          console.log("Nearby restaurants:", results);
-          setRestaurants(results);
-        } catch (error) {
-          console.error("Error fetching nearby restaurants:", error);
-        }
-      }
-    };
-
-    fetchRestaurants();
-  }, [location]);
 
   const handleMapPress = () => {
     if (selectedMarkerId !== null) {

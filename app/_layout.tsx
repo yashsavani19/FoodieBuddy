@@ -9,7 +9,7 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { UserLocationProvider } from "./(tabs)/Context/UserLocationContext";
+import { ContextProvider } from "@/model/AppContext";
 import { useColorScheme } from "@/components/useColorScheme";
 
 export {
@@ -52,9 +52,9 @@ export default function RootLayout() {
 
 
   return (
-    <UserLocationProvider>
+    <ContextProvider>
       <RootLayoutNav />
-    </UserLocationProvider>
+    </ContextProvider>
   );
 
 }
