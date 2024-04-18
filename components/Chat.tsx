@@ -9,6 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  ScrollView,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Message, { MessageProps } from "./Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -25,7 +27,7 @@ import RestaurantListItem from "./RestaurantListItem";
  */
 const Chat: React.FC = () => {
   const { localRestaurants } = useContext(AppContext);
-  const { sendMessage } = useOpenAIHandler();
+  const { sendMessage, resetMessages } = useOpenAIHandler();
   const [messages, setMessages] = useState<MessageProps[]>([
     initialBuddyMessage,
   ]);
@@ -138,10 +140,8 @@ const Chat: React.FC = () => {
   };
 
   const resetChatMessages = () => {
-    const { resetMessages } = useOpenAIHandler();
     console.log("Resetting messages");
     resetMessages();
-    setMessages([initialBuddyMessage]);
   };
 
   /**
@@ -151,45 +151,54 @@ const Chat: React.FC = () => {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} // You might need to adjust this offset based on your header height or other UI elements
     >
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={({ item }) => (
-          <Message
-            id={item.id}
-            text={item.text}
-            imageUrl={item.imageUrl}
-            type={item.type}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.innerContainer}>
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={({ item }) => (
+              <Message
+                id={item.id}
+                text={item.text}
+                imageUrl={item.imageUrl}
+                type={item.type}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+            style={styles.messagesList}
+            contentContainerStyle={{ paddingBottom: 10 }}
+            ListHeaderComponent={<View style={{ height: 10 }} />}
+            ListFooterComponent={
+              recommendedRestaurant ? (
+                <RestaurantListItem restaurant={recommendedRestaurant} />
+              ) : null
+            }
           />
-        )}
-        keyExtractor={(item) => item.id}
-        style={styles.messagesList}
-        ListHeaderComponent={<View style={{ height: 10 }} />}
-        ListFooterComponent={
-          recommendedRestaurant ? (
-            <RestaurantListItem restaurant={recommendedRestaurant} />
-          ) : null
-        }
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={currentMessage}
-          onChangeText={setCurrentMessage}
-          placeholder="Type a message..."
-        />
-        <View style={{}}>
-          <TouchableOpacity onPress={sendMessageFromUser}>
-            <FontAwesome name="send" size={24} color={Colors.light.iconColor} />
-          </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={currentMessage}
+              onChangeText={setCurrentMessage}
+              placeholder="Type a message..."
+            />
+            <TouchableOpacity onPress={sendMessageFromUser}>
+              <FontAwesome
+                name="send"
+                size={24}
+                color={Colors.light.iconColor}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <View style={{ position: "absolute", top: 10, right: 15 }}>
-        <TouchableOpacity onPress={resetChatMessages}>
-          <FontAwesome name="repeat" size={24} color="grey" />
-        </TouchableOpacity>
-      </View>
+      </TouchableWithoutFeedback>
+      <TouchableOpacity
+        onPress={resetChatMessages}
+        style={{ position: "absolute", top: 10, right: 15 }}
+      >
+        <FontAwesome name="repeat" size={24} color="grey" />
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 };
@@ -199,6 +208,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingLeft: 5,
     paddingRight: 5,
+  },
+  innerContainer: {
+    flex: 1,
+    justifyContent: "space-between",
   },
   messagesList: {
     flex: 1,
