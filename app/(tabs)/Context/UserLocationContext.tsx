@@ -1,10 +1,10 @@
 // UserLocationContext.tsx
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import * as Location from 'expo-location';
-import {LocationObjectCoords } from 'expo-location';
+import { LocationObjectCoords } from 'expo-location';
 
 // Define the context's value type
-type UserLocationContextType = {
+interface UserLocationContextType {
   location: LocationObjectCoords | null;
   setLocation: (location: LocationObjectCoords | null) => void;
 };
@@ -15,8 +15,8 @@ export const UserLocationContext = createContext<UserLocationContextType>({
   setLocation: () => {}, // Placeholder function
 });
 
-// Define the type for the props of the UserLocationProvider component
-type UserLocationProviderProps = {
+// Define the interface for the props of the UserLocationProvider component
+interface UserLocationProviderProps {
   children: ReactNode; // This type can be ReactNode, ReactElement, JSX.Element, etc., based on your preference
 };
 
@@ -38,7 +38,6 @@ export const UserLocationProvider: React.FC<UserLocationProviderProps> = ({ chil
     })();
   }, []);
 
-  // Now, TypeScript knows the shape of value and won't throw an error
   return (
     <UserLocationContext.Provider value={{ location, setLocation }}>
       {children}
