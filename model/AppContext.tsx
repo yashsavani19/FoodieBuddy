@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useEffect, useState } from "react";
+import { ReactNode, createContext, useState } from "react";
 import { Restaurant } from "./Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "./Saved";
@@ -9,6 +9,8 @@ import {
   fetchVisited,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
+import { IMessage } from "./AITypes";
+import { DefaultAISystemPrompt } from "./DefaultAISystemPrompt";
 
 export type AppContextType = {
   localRestaurants: Restaurant[];
@@ -21,6 +23,10 @@ export type AppContextType = {
   setVisited: (visited: Saved[]) => void;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
+  defaultMessage: IMessage;
+  resetToDefaultMessage: () => void;
+  chatMessages: IMessage[];
+  addChatMessage: (message: IMessage) => void;
 };
 
 interface ContextProviderProps {
@@ -38,6 +44,10 @@ export const AppContext = createContext<AppContextType>({
   setVisited: async () => {},
   location: null,
   updateLocation: async () => {},
+  defaultMessage: {},
+  resetToDefaultMessage: async () => {},
+  chatMessages: [],
+  addChatMessage: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -50,10 +60,26 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
     null
   );
+  const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
+  const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
+
+  const setRestaurants = async () => {
+    try {
+      await updateLocation().then(async (locationCoords) => {
+        console.log("Location before fetching:", locationCoords);
+        const nearbyRestaurants = await fetchNearbyRestaurants(
+          locationCoords as LocationObjectCoords
+        );
+        setRestaurantsArray(nearbyRestaurants);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const setFavourites = async () => {
     try {
-      //setFavouritesArray(await fetchFavourites());
+      // await setFavouritesArray(await fetchFavourites())
     } catch (error) {
       console.log(error);
     }
@@ -61,7 +87,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setBookmarks = async () => {
     try {
-      //setBookmarksArray(await fetchBookmarks());
+      // await setBookmarksArray(await fetchBookmarks())
     } catch (error) {
       console.log(error);
     }
@@ -69,70 +95,64 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setVisited = async () => {
     try {
-      //setVisitedArray(await fetchVisited());
+      // await setVisitedArray(await fetchVisited())
     } catch (error) {
       console.log(error);
     }
   };
 
   const updateLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.error("Permission to access location was denied");
-        return;
+    return new Promise(async (resolve, reject) => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          console.error("Permission to access location was denied");
+          reject("Permission denied");
+          return;
+        }
+        let location = await Location.getCurrentPositionAsync({});
+        setLocationArray(location.coords);
+        console.log("Location updated:", location);
+        resolve(location.coords);
+      } catch (error) {
+        console.error("Error updating location:", error);
+        reject(error);
       }
+    });
+  };
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocationArray(location.coords);
-      console.log("Location updated:", location.coords);
-    } catch (error) {
-      console.error("Error updating location:", error);
+  const resetToDefaultMessage = () => {
+    setDefaultMessage({
+      role: "system",
+      message: DefaultAISystemPrompt(localRestaurants),
+    } as IMessage);
+  };
+
+  const addChatMessage = (message: IMessage) => {
+    setChatMessages([...chatMessages, message]);
+    if (chatMessages.length > 11) {
+      chatMessages.splice(1, chatMessages.length - 11);
     }
   };
 
-  const setRestaurants = async () => {
-    try {
-      if (!location) {
-        console.log("Location is not available yet.");
-        return;
-      }
-      console.log("Fetching restaurants for location:", location);
-      const restaurants = await fetchNearbyRestaurants(location);
-      setRestaurantsArray(restaurants);
-      console.log("Restaurants fetched:", restaurants);
-    } catch (error) {
-      console.error("Error fetching restaurants:", error);
-    }
+  const contextValue = {
+    localRestaurants,
+    setRestaurants,
+    favourites,
+    setFavourites,
+    bookmarks,
+    setBookmarks,
+    visited,
+    setVisited,
+    location,
+    updateLocation,
+    defaultMessage,
+    resetToDefaultMessage,
+    chatMessages,
+    addChatMessage,
   };
-
-  useEffect(() => {
-    updateLocation(); // This will only update the location
-  }, []);
-
-  // Separate useEffect to handle actions that depend on the updated location
-  useEffect(() => {
-    if (location) {
-      setRestaurants(); // Fetch restaurants once the location is updated
-    }
-  }, [location]); // This effect depends on `location
 
   return (
-    <AppContext.Provider
-      value={{
-        localRestaurants,
-        setRestaurants,
-        favourites,
-        setFavourites,
-        bookmarks,
-        setBookmarks,
-        visited,
-        setVisited,
-        location,
-        updateLocation,
-      }}
-    >
-      {children}
-    </AppContext.Provider>
+    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
   );
 };
