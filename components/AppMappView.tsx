@@ -14,15 +14,23 @@ import { Restaurant } from "@/model/Restaurant";
 import { AppContext } from "@/model/AppContext";
 
 export default function AppMappView() {
-  const { location } = useContext(AppContext);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  
+  const appContext = useContext(AppContext);
+  if (!appContext) throw new Error("AppContext must be used within ContextProvider");
+
+  const { location, localRestaurants } = appContext;
+
+  useEffect(() => {
+    if (!localRestaurants.length && location) {
+      appContext.setRestaurants(); // Fetch restaurants if not already loaded
+    }
+  }, [location, appContext.setRestaurants]);
+
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
 
-  const handleMapPress = () => {
-    if (selectedMarkerId !== null) {
-      setSelectedMarkerId(null); 
-    }
-  };
+  const handleMapPress = () => setSelectedMarkerId(null);
+
+  if (!location) return null; // Render nothing if no location is available
 
   return (
     location &&
@@ -54,7 +62,7 @@ export default function AppMappView() {
           />
 
           {/* Render markers for each nearby restaurant */}
-          {restaurants.map((restaurant, index) => (
+          {localRestaurants.map((restaurant, index) => (
             <Marker
               key={`${index}`}
               coordinate={{
