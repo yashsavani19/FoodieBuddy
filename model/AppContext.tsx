@@ -1,4 +1,4 @@
-import { ReactNode, createContext } from "react";
+import { ReactNode, createContext, useState } from "react";
 import { Restaurant } from "./Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "./Saved";
@@ -16,8 +16,7 @@ export type AppContextType = {
   visited: Saved[];
   setVisited: (visited: Saved[]) => void;
   location: LocationObjectCoords | null;
-  setLocation: (location: LocationObjectCoords | null) => void;
-  fetchRestaurants: () => Promise<void>;
+  updateLocation: (location: LocationObjectCoords | null) => void;
 };
 
 interface ContextProviderProps {
@@ -34,8 +33,7 @@ export const AppContext = createContext<AppContextType>({
   visited: [],
   setVisited: async () => {},
   location: null,
-  setLocation: async () => {},
-  fetchRestaurants: async () => {},
+  updateLocation: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -58,7 +56,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setFavourites = async () => {
     try {
-      await setFavouritesArray(await fetchFavourites())
+      // await setFavouritesArray(await fetchFavourites())
     } catch (error) {
       console.log(error);
     }
@@ -66,7 +64,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setBookmarks = async () => {
     try {
-      await setBookmarksArray(await fetchBookmarks())
+      // await setBookmarksArray(await fetchBookmarks())
     } catch (error) {
       console.log(error);
     }
@@ -74,7 +72,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setVisited = async () => {
     try {
-      await setVisitedArray(await fetchVisited())
+      // await setVisitedArray(await fetchVisited())
     } catch (error) {
       console.log(error);
     }
@@ -107,7 +105,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         visited,
         setVisited,
         location,
-        setLocation,
+        updateLocation,
     };
 
     return (

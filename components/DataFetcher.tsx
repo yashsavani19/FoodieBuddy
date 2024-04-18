@@ -7,9 +7,9 @@ export const DataFetcher = () => {
   useEffect(() => {
     (async () => {
       await setRestaurants();
-      await setFavourites();
-      await setBookmarks();
-      await setVisited();
+      // await setFavourites();
+      // await setBookmarks();
+      // await setVisited();
     })();
   }, []);
 
