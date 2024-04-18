@@ -79,34 +79,46 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.log("Permission to access location was denied");
+        console.error("Permission to access location was denied");
         return;
       }
 
       let location = await Location.getCurrentPositionAsync({});
       setLocationArray(location.coords);
+      console.log("Location updated:", location.coords);
     } catch (error) {
-      console.log(error);
+      console.error("Error updating location:", error);
     }
   };
 
   const setRestaurants = async () => {
     try {
-      if (!location) await updateLocation();
-      if (location) {
-        const restaurants = await fetchNearbyRestaurants(
-          location.latitude,
-          location.longitude
-        );
+      if (!location) {
+        console.log("Location is not available yet.");
+        return;
       }
+      console.log("Fetching restaurants for location:", location);
+      const restaurants = await fetchNearbyRestaurants(
+        location.latitude,
+        location.longitude
+      );
+      setRestaurantsArray(restaurants);
+      console.log("Restaurants fetched:", restaurants);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching restaurants:", error);
     }
   };
 
   useEffect(() => {
-    updateLocation(); // Initial location fetch on mount
+    updateLocation(); // This will only update the location
   }, []);
+
+  // Separate useEffect to handle actions that depend on the updated location
+  useEffect(() => {
+    if (location) {
+      setRestaurants(); // Fetch restaurants once the location is updated
+    }
+  }, [location]); // This effect depends on `location
 
   return (
     <AppContext.Provider
