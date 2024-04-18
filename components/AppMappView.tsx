@@ -14,17 +14,15 @@ import { Restaurant } from "@/model/Restaurant";
 import { AppContext } from "@/model/AppContext";
 
 export default function AppMappView() {
-  
-  const appContext = useContext(AppContext);
-  if (!appContext) throw new Error("AppContext must be used within ContextProvider");
+  const { location, localRestaurants } = useContext(AppContext);
+  // if (!appContext)
+  //   throw new Error("AppContext must be used within ContextProvider");
 
-  const { location, localRestaurants } = appContext;
-
-  useEffect(() => {
-    if (!localRestaurants.length && location) {
-      appContext.setRestaurants(); // Fetch restaurants if not already loaded
-    }
-  }, [location, appContext.setRestaurants]);
+  // useEffect(() => {
+  //   if (!localRestaurants.length && location) {
+  //     appContext.setRestaurants(); // Fetch restaurants if not already loaded
+  //   }
+  // }, [location, appContext.setRestaurants]);
 
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
 
@@ -71,9 +69,9 @@ export default function AppMappView() {
               }}
               onPress={() => {
                 if (selectedMarkerId === index) {
-                  setSelectedMarkerId(null); 
+                  setSelectedMarkerId(null);
                 } else {
-                  setSelectedMarkerId(index); 
+                  setSelectedMarkerId(index);
                 }
               }}
             >
@@ -85,7 +83,9 @@ export default function AppMappView() {
               <Callout>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
-                  {restaurant.rating !== undefined && <StarRating rating={restaurant.rating} />}
+                  {restaurant.rating !== undefined && (
+                    <StarRating rating={restaurant.rating} />
+                  )}
                   <Text>Distance: {restaurant.distance} km</Text>
                   <WebView
                     style={styles.webViewStyle}
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   webViewStyle: {
-    height: 100, 
-    width: 190, 
+    height: 100,
+    width: 190,
   },
 });

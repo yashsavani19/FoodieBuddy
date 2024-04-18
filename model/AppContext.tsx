@@ -98,10 +98,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         return;
       }
       console.log("Fetching restaurants for location:", location);
-      const restaurants = await fetchNearbyRestaurants(
-        location.latitude,
-        location.longitude
-      );
+      const restaurants = await fetchNearbyRestaurants(location);
       setRestaurantsArray(restaurants);
       console.log("Restaurants fetched:", restaurants);
     } catch (error) {
