@@ -1,15 +1,20 @@
 import { createContext } from "react";
 import { Restaurant } from "./Restaurant";
+import { LocationObjectCoords } from "expo-location";
+import { Saved } from "./Saved";
 
 export type AppContextType = {
   localRestaurants: Restaurant[];
   setRestaurants: (localRestaurants: Restaurant[]) => void;
-  favourites: Restaurant[];
-  setFavourites: (favourites: Restaurant[]) => void;
-  bookmarks: Restaurant[];
-  setBookmarks: (bookmarks: Restaurant[]) => void;
-  visited: Restaurant[];
-  setVisited: (visited: Restaurant[]) => void;
+  favourites: Saved[];
+  setFavourites: (favourites: Saved[]) => void;
+  bookmarks: Saved[];
+  setBookmarks: (bookmarks: Saved[]) => void;
+  visited: Saved[];
+  setVisited: (visited: Saved[]) => void;
+  location: LocationObjectCoords | null;
+  setLocation: (location: LocationObjectCoords | null) => void;
+  fetchRestaurants: () => Promise<void>;
 };
 
 export const AppContext = createContext<AppContextType>({
@@ -21,4 +26,7 @@ export const AppContext = createContext<AppContextType>({
   setBookmarks: () => {},
   visited: [],
   setVisited: () => {},
+  location: null,
+  setLocation: () => {},
+  fetchRestaurants: async () => {},
 });
