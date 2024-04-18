@@ -3,19 +3,10 @@ import { StyleSheet, Text, View } from "react-native";
 import AppMappView from "@/components/AppMappView";
 import TitleHeader from "@/components/TitleHeader";
 import * as Location from 'expo-location';
-import { AppContext } from "@/model/AppContext";
+import { UserLocationContext } from "./Context/UserLocationContext";
 
 export default function Map() {
-  const { location } = useContext(AppContext);
-
-   // React components should check for the existence of context data before rendering dependent components
-   if (!location) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading location data...</Text>
-      </View>
-    );
-  }
+   const { location, setLocation } = useContext(UserLocationContext);
 
   return (
     <View style={styles.container}>
