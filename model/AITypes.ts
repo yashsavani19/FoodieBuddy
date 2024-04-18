@@ -1,6 +1,6 @@
 export interface IMessage {
-    role: 'user' | 'assistant' | 'system';
-    content: string;
+    role?: 'user' | 'assistant' | 'system';
+    content?: string;
 };
 
 export interface IOpenAIRequestPayload {
