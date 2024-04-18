@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // padding: 10,
-    marginTop:25,
+    marginTop: 14
   },
   title: {
     width: "70%",
@@ -74,14 +74,6 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
     margin: "auto",
     paddingHorizontal: "17%",
-    paddingTop: 10,
-  },
-  image: {
-    width: 110,
-    height: 110,
-    resizeMode: "contain",
-    margin: 20,
-    marginTop: 15,
   },
   input: {
     flex: 1,
