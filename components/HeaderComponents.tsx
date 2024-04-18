@@ -3,39 +3,69 @@ import Categories from "./Categories";
 import SearchBar from "./SearchBar";
 import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
-import Colors from "../constants/Colors";
+import { Category } from "@/model/Category";
+import { Filter } from "@/model/Filter";
+import Constants from "expo-constants";
 
 interface HeaderComponentsProps {
   title?: string;
   searchBar?: boolean;
+  onSearchSubmit?: (searchTerm: string) => void;
+  onCategorySelect?: (category: Category) => void;
+  onFilterSelect?: (filter: Filter[]) => void;
 }
 
-export default function HeaderComponents({
+const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   title,
   searchBar,
-}: HeaderComponentsProps) {
-  const [searchTerm, setSearchTerm] = useState("");
+  onSearchSubmit,
+  onCategorySelect,
+  onFilterSelect,
+}) => {
+  const handleSearchSubmit = (searchTerm: string) => {
+    // console.log(`Header Search term: ${searchTerm}`);
+    if (onSearchSubmit) {
+      onSearchSubmit(searchTerm);
+    }
+  };
+
+  const handleCategorySelect = (category: Category) => {
+    console.log(`Category selected: ${category}`);
+    if (onCategorySelect) {
+      onCategorySelect(category);
+    }
+  };
+
+  const handleFilterSelect = (filter: Filter[]) => {
+    console.log(`Filter selected: ${filter}`);
+    if (onFilterSelect) {
+      onFilterSelect(filter);
+    }
+  };
+
   if (title) {
     return <Text style={styles.title}>{title}</Text>;
   }
   if (searchBar) {
     return (
-        <View style={styles.container}>
-            <SearchBar />
-            <View style={styles.filters}>
-                <Categories />
-                <Filters />
-            </View>
+      <View style={styles.container}>
+        <SearchBar onSearchSubmit={handleSearchSubmit} />
+        <View style={styles.filters}>
+          <Categories onCategorySelect={handleCategorySelect} />
+          <Filters onFilterSelect={handleFilterSelect} />
         </View>
-        );
+      </View>
+    );
   }
-}
+};
+
+export default HeaderComponents;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding:10,
-    marginTop:15,
+    // padding: 10,
+    marginTop: 14
   },
   title: {
     width: "70%",
@@ -45,14 +75,6 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
     margin: "auto",
     paddingHorizontal: "17%",
-    paddingTop: 10,
-  },
-  image: {
-    width: 110,
-    height: 110,
-    resizeMode: "contain",
-    margin: 20,
-    marginTop: 15,
   },
   input: {
     flex: 1,
@@ -67,5 +89,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingRight: 10,
-  }
+  },
 });

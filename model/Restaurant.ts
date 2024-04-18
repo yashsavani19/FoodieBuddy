@@ -1,4 +1,10 @@
 export interface Restaurant {
+    geometry: {
+        location: {
+          lat: number;
+          lng: number;
+        };
+      };    
     id: string;
     name: string;
     image: string | null;
