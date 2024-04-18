@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Category } from "@/model/Category";
 import { Filter } from "@/model/Filter";
+import Constants from "expo-constants";
 
 interface HeaderComponentsProps {
   title?: string;
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // padding: 10,
-    marginTop:25,
+    marginTop: 14
   },
   title: {
     width: "70%",
@@ -74,14 +75,6 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
     margin: "auto",
     paddingHorizontal: "17%",
-    paddingTop: 10,
-  },
-  image: {
-    width: 110,
-    height: 110,
-    resizeMode: "contain",
-    margin: 20,
-    marginTop: 15,
   },
   input: {
     flex: 1,

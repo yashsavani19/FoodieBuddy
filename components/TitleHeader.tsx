@@ -8,6 +8,7 @@ import images from "@/assets/data/images";
 import HeaderComponents from "./HeaderComponents";
 import { Category } from "@/model/Category";
 import { Filter } from "@/model/Filter";
+import Constants from "expo-constants";
 
 interface TitleHeaderProps {
   title?: string;
@@ -68,12 +69,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "absolute",
-    top: 0,
     height: 120,
     width: "100%",
     flexDirection: "row",
     justifyContent: "flex-start",
     backgroundColor: Colors.light.headerBackground,
+    alignItems: "center",
+    borderTopWidth: Constants.statusBarHeight,
+    borderTopColor: Colors.light.headerBackground,
+    paddingHorizontal: 3,
   },
   title: {
     width: "70%",
@@ -81,24 +85,14 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     textAlignVertical: "center",
-    margin: "auto",
+    margin: 0,
     paddingHorizontal: "17%",
-    paddingTop: 10,
   },
   image: {
     width: 110,
     height: 110,
     resizeMode: "contain",
-    marginLeft: 15,
-    margin: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 15,
-    marginRight: 10,
-    paddingLeft: 10,
+    marginHorizontal: 8,
+    marginRight: 15,
   },
 });
