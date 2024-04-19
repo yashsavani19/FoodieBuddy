@@ -89,9 +89,9 @@ const firebaseConfig = {
 const provider = new GoogleAuthProvider();
 
 export const app = initializeApp(firebaseConfig);
-export const auth = initializeAuth(app,{
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage),});
-
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
 
 // Handlers
 
@@ -220,8 +220,12 @@ export const handleResetPassword = async (email: string): Promise<void> => {
 
 //Handle Logout
 export const handleLogout = () => {
+  try {
   logout();
-  console.log("User logged out");
+    alert("Logout successful!");
+  } catch (error: any) {
+    alert(`Logout failed: ${error.message}`);
+  }
 };
 
 // Methods
@@ -241,12 +245,8 @@ const register = async (email: string, password: string): Promise<void> => {
 //Authenticate by sending email link
 
 //Logout
-const logout = async () => {
-  try {
-    const response = await signOut(getAuth());
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
+const logout = async (): Promise<void> => {
+  await signOut(auth);
 };
 
 //Reset Password
