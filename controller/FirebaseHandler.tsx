@@ -25,7 +25,6 @@ import {
   getReactNativePersistence,
 } from "firebase/auth";
 
-
 import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -221,7 +220,7 @@ export const handleResetPassword = async (email: string): Promise<void> => {
 //Handle Logout
 export const handleLogout = () => {
   try {
-  logout();
+    logout();
     alert("Logout successful!");
   } catch (error: any) {
     alert(`Logout failed: ${error.message}`);
@@ -229,7 +228,6 @@ export const handleLogout = () => {
 };
 
 // Methods
-
 //login
 const login = async (email: string, password: string): Promise<void> => {
   await signInWithEmailAndPassword(auth, email, password);
