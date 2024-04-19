@@ -2,72 +2,74 @@ import axios from "axios";
 import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
 import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
 import { IMessage } from "@/model/AITypes";
-import { preferenceList, restaurantList } from "@/constants/AITestData";
+import { useCallback, useContext, useState } from "react";
+import { AppContext } from "@/model/AppContext";
 
-/**
- * Handler for OpenAI API, sends and receives messages to OpenAI
- * @param apiKey API key for OpenAI
- * @param completionURL URL for OpenAI completions
- * @param organisation Organisation ID for OpenAI
- * @param restaurantList List of restaurants
- * @param preferenceList List of preferences
- * @returns Message received from OpenAI
- * @throws Error if message cannot be sent to OpenAI
- */
-class OpenAIHandler {
-  private apiKey: string = OPENAI_API_KEY;
-  private completionURL: string = "https://api.openai.com/v1/chat/completions";
-  private organisation: string = OPENAI_ORG_ID;
-  private messages: IMessage[] = [];
-
-  constructor() {
-    this.messages.push({
+export function useOpenAIHandler() {
+  const { localRestaurants } = useContext(AppContext);
+  const [messages, setMessages] = useState<IMessage[]>([
+    {
       role: "system",
-      content: DefaultAISystemPrompt(restaurantList, preferenceList),
-    });
-  }
+      content: DefaultAISystemPrompt(localRestaurants),
+    },
+  ]);
 
-  public resetMessages() {
-    this.messages = [];
-    this.messages.push({
-      role: "system",
-      content: DefaultAISystemPrompt(restaurantList, preferenceList),
-    });
-  }
+  const resetMessages = useCallback(() => {
+    setMessages([
+      {
+        role: "system",
+        content: DefaultAISystemPrompt(localRestaurants),
+      },
+    ]);
+  }, [localRestaurants]);
 
-  async sendMessage(message: string): Promise<string> {
-    this.messages.push({ role: "user", content: message });
-    if (this.messages.length > 11) {
-      this.messages = [this.messages[0], ...this.messages.slice(-10)];
-    }
+  const sendMessage = useCallback(
+    async (message: string): Promise<string> => {
+      try {
+        const userMessage: IMessage = { role: "user", content: message };
 
-    try {
-      const response = await axios.post(
-        `${this.completionURL}`,
-        {
-          model: "gpt-3.5-turbo",
-          messages: this.messages,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.apiKey}`,
-            ...(this.organisation && {
-              "OpenAI-Organization": this.organisation,
-            }),
+        // Update to use functional update to always get the latest messages
+        setMessages((prevMessages) => {
+          const newMessages = [...prevMessages, userMessage];
+          if (newMessages.length > 11) {
+            return [newMessages[0], ...newMessages.slice(-10)];
+          }
+          return newMessages;
+        });
+
+        const response = await axios.post(
+          `https://api.openai.com/v1/chat/completions`,
+          {
+            model: "gpt-3.5-turbo",
+            messages: [...(await messages), userMessage], // Ensure you capture the latest state
           },
-        }
-      );
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${OPENAI_API_KEY}`,
+              ...(OPENAI_ORG_ID && {
+                "OpenAI-Organization": OPENAI_ORG_ID,
+              }),
+            },
+          }
+        );
 
-      const messageReceived = response.data.choices[0].message.content;
-      this.messages.push({ role: "assistant", content: messageReceived });
-      console.log("All messages", this.messages);
-      return messageReceived;
-    } catch (error) {
-      console.error("Error sending messsage to OpenAI", error);
-      return "There was an error communicating with AI. Please try again.";
-    }
-  }
+        const messageReceived = response.data.choices[0].message.content;
+        // Use functional update form to avoid stale closure issues
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: messageReceived },
+        ]);
+        return messageReceived;
+      } catch (error) {
+        console.error("Error sending message to OpenAI", error);
+        throw new Error(
+          "There was an error communicating with AI. Please try again."
+        );
+      }
+    },
+    [] // Removed messages from dependencies
+  );
+
+  return { messages, sendMessage, resetMessages };
 }
-
-export default OpenAIHandler;

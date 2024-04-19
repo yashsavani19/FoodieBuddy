@@ -47,7 +47,7 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         </View>
         <View style={styles.textInfo}>
           <Text style={styles.title}>{restaurant.name}</Text>
-          <Text style={styles.distance}>{restaurant.distance.toFixed(1)}km</Text>
+          <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
         </View>
 
         <View style={styles.iconContainer}>

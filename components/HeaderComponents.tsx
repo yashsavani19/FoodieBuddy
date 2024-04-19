@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Category } from "@/model/Category";
 import { Filter } from "@/model/Filter";
-import Constants from "expo-constants";
 
 interface HeaderComponentsProps {
   title?: string;
