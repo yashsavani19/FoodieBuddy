@@ -11,9 +11,6 @@ import { useEffect } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { DataFetcher } from "@/components/DataFetcher";
 import { AppContext, ContextProvider } from "@/model/AppContext";
-import LoginView from "@/app/LoginView";
-import RegisterView from "@/app/RegisterView";
-import ResetPasswordView from "@/app/ResetPasswordView";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -22,7 +19,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: 'LoginView',
+  initialRouteName: "LoginView",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -59,16 +56,16 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        
-        
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="RegisterView" options={{ headerShown: false }} />
-        <Stack.Screen name="ResetPasswordView" options={{ headerShown: false }} />
-        <Stack.Screen name="LoginView" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <ContextProvider>
+        <DataFetcher />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="LoginView" options={{ headerShown: false }} />
+          <Stack.Screen name="RegisterView" options={{ headerShown: false }} />
+          <Stack.Screen name="ResetPasswordView" options={{ headerShown: false }} />
+        </Stack>
+      </ContextProvider>
     </ThemeProvider>
   );
 }
