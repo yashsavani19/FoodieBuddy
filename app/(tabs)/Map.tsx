@@ -2,15 +2,12 @@ import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import AppMappView from "@/components/AppMappView";
 import TitleHeader from "@/components/TitleHeader";
-import * as Location from 'expo-location';
-import { UserLocationContext } from "./Context/UserLocationContext";
 
 export default function Map() {
-   const { location, setLocation } = useContext(UserLocationContext);
 
   return (
     <View style={styles.container}>
-      <TitleHeader searchBar/>
+      <TitleHeader searchBar={true} />
       <View style={styles.mapContainer}>
         <AppMappView />
       </View>
