@@ -24,7 +24,7 @@ export default function LoginView() {
       {/* Main Logo */}
       <Image source={buddyLogo} style={styles.logo} />
       {/*  */}
-      {/* Main Inner Container that displays all the content */}
+      {/* Main Inner Container that displays all the content*/}
       <ScrollView>
         <SafeAreaView style={styles.innerContainer}>
           {/*  */}

@@ -23,7 +23,7 @@ export default function RegisterView() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  
   return (
     <View style={styles.container}>
       {/* Main Logo */}

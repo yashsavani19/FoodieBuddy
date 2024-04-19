@@ -13,6 +13,7 @@ import {
   handleRegister,
   handleResetPassword,
 } from "@/controller/FirebaseHandler";
+
 import React, { useState } from "react";
 
 const buddyLogo = require("@/assets/images/title-logo.png");
@@ -30,7 +31,7 @@ export default function LoginView() {
       {/* Main Logo */}
       <Image source={buddyLogo} style={styles.logo} />
       {/*  */}
-      {/* Main Inner Container that displays all the content */}
+      {/* Main Inner Container that displays all the content*/}
       <ScrollView>
         <SafeAreaView style={styles.innerContainer}>
           {/*  */}

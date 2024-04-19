@@ -89,49 +89,52 @@ const app = initializeApp(firebaseConfig);
 // Handlers
 
 //Handle login
-export const handleLogin = async (email: string, password: string): Promise<void> => {
+export const handleLogin = async (
+  email: string,
+  password: string
+): Promise<void> => {
   // Validate input fields
   if (!email || !password) {
-      alert("Please enter both email and password.");
-      return;
+    alert("Please enter both email and password.");
+    return;
   }
 
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
-      return;
+    alert("Please enter a valid email address.");
+    return;
   }
 
   try {
-      // Attempt to login
-      await login(email, password);
-      alert("Login successful!");
+    // Attempt to login
+    await login(email, password);
+    alert("Login successful!");
   } catch (error: any) {
-      // Cast the error to AuthError to access the code and message properties
-      const authError = error as AuthError;
-      
-      // Handle specific errors based on the error code
-      switch (authError.code) {
-          case 'auth/user-not-found':
-              alert("No user found with this email.");
-              break;
-          case 'auth/wrong-password':
-              alert("Incorrect password. Please try again.");
-              break;
-          case 'auth/too-many-requests':
-              alert("Too many unsuccessful login attempts. Please try again later.");
-              break;
-          case 'auth/invalid-email':
-              alert("The email address is not valid.");
-              break;
-          case 'auth/invalid-credential':
-            alert("The email or password is incorrect.");
-            break;
-          default:
-              alert(`Login failed: ${authError.message}`);
-              break;
-      }
+    // Cast the error to AuthError to access the code and message properties
+    const authError = error as AuthError;
+
+    // Handle specific errors based on the error code
+    switch (authError.code) {
+      case "auth/user-not-found":
+        alert("No user found with this email.");
+        break;
+      case "auth/wrong-password":
+        alert("Incorrect password. Please try again.");
+        break;
+      case "auth/too-many-requests":
+        alert("Too many unsuccessful login attempts. Please try again later.");
+        break;
+      case "auth/invalid-email":
+        alert("The email address is not valid.");
+        break;
+      case "auth/invalid-credential":
+        alert("The email or password is incorrect.");
+        break;
+      default:
+        alert(`Login failed: ${authError.message}`);
+        break;
+    }
   }
 };
 
@@ -185,11 +188,11 @@ export const handleRegister = async (
 //Handle Reset Password
 export const handleResetPassword = async (email: string): Promise<void> => {
   // Check if the email is not empty
-  if (email.replaceAll(" ", "").length === 0){
+  if (email.replaceAll(" ", "").length === 0) {
     alert("Please enter your email address.");
     return;
   }
-  
+
   try {
     // Attempt to send a password reset email
     await resetPassword(email);
@@ -198,7 +201,7 @@ export const handleResetPassword = async (email: string): Promise<void> => {
     // Handle different types of errors here
     const authError = error as AuthError; // Assuming AuthError is the type imported from 'firebase/auth'
     switch (authError.code) {
-      case 'auth/invalid-email':
+      case "auth/invalid-email":
         alert("Please enter a valid email address.");
         break;
       default:
@@ -208,14 +211,11 @@ export const handleResetPassword = async (email: string): Promise<void> => {
   }
 };
 
-
 //Handle Logout
 export const handleLogout = () => {
   logout();
   console.log("User logged out");
 };
-
-
 
 // Methods
 
@@ -287,6 +287,3 @@ export const loginWithGoogle = async () => {
   //   // ...
   // });
 };
-
-
-
