@@ -88,8 +88,8 @@ const firebaseConfig = {
 
 const provider = new GoogleAuthProvider();
 
-const app = initializeApp(firebaseConfig);
-const auth = initializeAuth(app,{
+export const app = initializeApp(firebaseConfig);
+export const auth = initializeAuth(app,{
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),});
 
 
@@ -251,7 +251,6 @@ const logout = async () => {
 
 //Reset Password
 const resetPassword = async (email: string) => {
-  const auth = getAuth();
   await sendPasswordResetEmail(auth, email);
 };
 
