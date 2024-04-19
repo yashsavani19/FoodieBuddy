@@ -77,14 +77,12 @@ export default function LoginView() {
           </View>
           {/*  */}
           {/* Login Button */}
-          <View style={styles.buttonContainer}>
-            <Pressable style={styles.loginButton}>
+          <View style={styles.loginButton}>
               <Button
                 title="Login"
                 color="white"
                 onPress={()=>{handleLogin(email, password)}}
               />
-            </Pressable>
             <TouchableOpacity
             // onPress={handleImageButtonPress}
             ></TouchableOpacity>

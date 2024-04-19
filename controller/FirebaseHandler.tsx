@@ -22,9 +22,13 @@ import {
   signOut,
   sendPasswordResetEmail,
   AuthError,
+  getReactNativePersistence,
 } from "firebase/auth";
 
+
 import { initializeApp } from "firebase/app";
+
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 import { addUserInfo, fetchUser } from "./DatabaseHandler";
 
@@ -85,6 +89,9 @@ const firebaseConfig = {
 const provider = new GoogleAuthProvider();
 
 const app = initializeApp(firebaseConfig);
+const auth = initializeAuth(app,{
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),});
+
 
 // Handlers
 
@@ -221,7 +228,6 @@ export const handleLogout = () => {
 
 //login
 const login = async (email: string, password: string): Promise<void> => {
-  const auth = getAuth(app);
   await signInWithEmailAndPassword(auth, email, password);
 };
 
@@ -229,7 +235,6 @@ const login = async (email: string, password: string): Promise<void> => {
 
 //Register
 const register = async (email: string, password: string): Promise<void> => {
-  const auth = getAuth(app);
   await createUserWithEmailAndPassword(auth, email, password);
 };
 

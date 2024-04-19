@@ -11,6 +11,9 @@ import { useEffect } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { DataFetcher } from "@/components/DataFetcher";
 import { AppContext, ContextProvider } from "@/model/AppContext";
+import LoginView from "@/app/LoginView";
+import RegisterView from "@/app/RegisterView";
+import ResetPasswordView from "@/app/ResetPasswordView";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -58,11 +61,13 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="LoginView" options={{ headerShown: false }} />
+        
+        
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="RegisterView" options={{ headerShown: false }} />
         <Stack.Screen name="ResetPasswordView" options={{ headerShown: false }} />
-        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
-        {/* <Stack.Screen name="modal" options={{ presentation: 'modal' }} /> */}
+        <Stack.Screen name="LoginView" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );
