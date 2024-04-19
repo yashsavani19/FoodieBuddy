@@ -6,15 +6,13 @@ import {
   Image,
   TouchableOpacity,
   Pressable,
+  ScrollView,
 } from "react-native";
 import {
-  handleLogin,
   handleRegister,
-  handleResetPassword,
 } from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
-import { Link, Navigator } from "expo-router";
-
+import { Link } from "expo-router";
 
 const buddyLogo = require("@/assets/images/title-logo.png");
 
@@ -30,12 +28,13 @@ export default function RegisterView() {
     <View style={styles.container}>
       {/* Main Logo */}
       <Image source={buddyLogo} style={styles.logo} />
-{/*  */}
+      {/*  */}
       {/* Main Inner Container that displays all the content */}
-      <SafeAreaView style={styles.innerContainer}>
-{/*  */}
-        {/* Google Register */}
-        <TouchableOpacity style={styles.googleRegisterContainer}>
+      <ScrollView>
+        <SafeAreaView style={styles.innerContainer}>
+          {/*  */}
+          {/* Google Register */}
+          {/* <TouchableOpacity style={styles.googleRegisterContainer}>
           <Image
             source={require("@/assets/images/google-icon.png")}
             style={styles.inputLogo}
@@ -46,83 +45,86 @@ export default function RegisterView() {
           >
             Register With Google
           </Text>
-        </TouchableOpacity>
-{/*  */}
-        {/* Input Fields */}
-        <View style={styles.inputContainer}>
-          <Image
-            source={require("@/assets/images/username-logo.png")}
-            style={styles.inputLogo}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Image
-            source={require("@/assets/images/mail-logo.png")}
-            style={styles.inputLogo}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Image
-            source={require("@/assets/images/lock-logo.png")}
-            style={styles.inputLogo}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Image
-            source={require("@/assets/images/lock-logo.png")}
-            style={styles.inputLogo}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-          />
-        </View>
-{/*  */}
-        {/* Register Button */}
-        <View style={styles.buttonContainer}>
-          <Pressable style={styles.registerButton}>
-            <Button
-              title="Register"
-              color="white"
-              // onPress={handleRectangleButtonPress}
+        </TouchableOpacity> */}
+          {/*  */}
+          {/* Input Fields */}
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/username-logo.png")}
+              style={styles.inputLogo}
             />
-          </Pressable>
-          <TouchableOpacity
-          // onPress={handleImageButtonPress}
-          ></TouchableOpacity>
-        </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/mail-logo.png")}
+              style={styles.inputLogo}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/lock-logo.png")}
+              style={styles.inputLogo}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/lock-logo.png")}
+              style={styles.inputLogo}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+          </View>
+          {/*  */}
+          {/* Register Button */}
+          <View style={styles.buttonContainer}>
+            <Pressable style={styles.registerButton}>
+              <Button
+                title="Register"
+                color="white"
+                onPress={() => {
+                  handleRegister(email, username, password, confirmPassword);
+                }}
+              />
+            </Pressable>
+            <TouchableOpacity
+            // onPress={handleImageButtonPress}
+            ></TouchableOpacity>
+          </View>
 
-{/*  */}
-        {/* Create Account Button*/}
-        <View style={styles.createAccountContainer}>
-          <Text style={styles.textStyle}>Already Have an Account?</Text>
+          {/*  */}
+          {/* Login Button*/}
+          <View style={styles.createAccountContainer}>
+            <Text style={styles.textStyle}>Already Have an Account?</Text>
             <Link href={"/LoginView"}>
-            <Text style={styles.clickableText}> Login Now!</Text>
+              <Text style={styles.clickableText}> Login Now!</Text>
             </Link>
-        </View>
-      </SafeAreaView>
+          </View>
+        </SafeAreaView>
+      </ScrollView>
     </View>
   );
 }
@@ -232,4 +234,3 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
-

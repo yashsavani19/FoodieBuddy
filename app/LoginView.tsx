@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Pressable,
+  ScrollView,
 } from "react-native";
 import {
   handleLogin,
@@ -30,10 +31,11 @@ export default function LoginView() {
       <Image source={buddyLogo} style={styles.logo} />
       {/*  */}
       {/* Main Inner Container that displays all the content */}
-      <SafeAreaView style={styles.innerContainer}>
-        {/*  */}
-        {/* Google Login */}
-        <TouchableOpacity style={styles.googleLoginContainer}>
+      <ScrollView>
+        <SafeAreaView style={styles.innerContainer}>
+          {/*  */}
+          {/* Google Login */}
+          {/* <TouchableOpacity style={styles.googleLoginContainer}>
           <Image
             source={require("@/assets/images/google-icon.png")}
             style={styles.inputLogo}
@@ -44,62 +46,63 @@ export default function LoginView() {
           >
             Login With Google
           </Text>
-        </TouchableOpacity>
-        {/*  */}
-        {/* Input Fields */}
-        <View style={styles.inputContainer}>
-          <Image
-            source={require("@/assets/images/mail-logo.png")}
-            style={styles.inputLogo}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Image
-            source={require("@/assets/images/lock-logo.png")}
-            style={styles.inputLogo}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
-        {/*  */}
-        {/* Login Button */}
-        <View style={styles.buttonContainer}>
-          <Pressable style={styles.loginButton}>
-            <Button
-              title="Login"
-              color="white"
-              // onPress={handleRectangleButtonPress}
+        </TouchableOpacity> */}
+          {/*  */}
+          {/* Input Fields */}
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/mail-logo.png")}
+              style={styles.inputLogo}
             />
-          </Pressable>
-          <TouchableOpacity
-          // onPress={handleImageButtonPress}
-          ></TouchableOpacity>
-        </View>
-        {/*  */}
-        {/* Forgot Password */}
-        <Link href={"/ResetPasswordView"}>
-          <Text style={styles.clickableText}> Forgot Password?</Text>
-        </Link>
-        {/*  */}
-        {/* Create Account Button*/}
-        <View style={styles.createAccountContainer}>
-          <Text style={styles.textStyle}>Don't Have an Account yet?</Text>
-          <Link href={"/RegisterView"}>
-            <Text style={styles.clickableText}> Register Now!</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/lock-logo.png")}
+              style={styles.inputLogo}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+          {/*  */}
+          {/* Login Button */}
+          <View style={styles.buttonContainer}>
+            <Pressable style={styles.loginButton}>
+              <Button
+                title="Login"
+                color="white"
+                onPress={()=>{handleLogin(email, password)}}
+              />
+            </Pressable>
+            <TouchableOpacity
+            // onPress={handleImageButtonPress}
+            ></TouchableOpacity>
+          </View>
+          {/*  */}
+          {/* Forgot Password */}
+          <Link href={"/ResetPasswordView"}>
+            <Text style={styles.clickableText}> Forgot Password?</Text>
           </Link>
-        </View>
-      </SafeAreaView>
+          {/*  */}
+          {/* Create Account Button*/}
+          <View style={styles.createAccountContainer}>
+            <Text style={styles.textStyle}>Don't Have an Account yet?</Text>
+            <Link href={"/RegisterView"}>
+              <Text style={styles.clickableText}> Register Now!</Text>
+            </Link>
+          </View>
+        </SafeAreaView>
+      </ScrollView>
     </View>
   );
 }
@@ -114,11 +117,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
   },
 
   googleLoginContainer: {
