@@ -51,7 +51,6 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         <Pressable onPress= {() => {
           setFindOnMapPressed(!isFindOnMapPressed)
           navigation.navigate('Map', { geometry: restaurant.geometry });
-          console.log(restaurant.geometry)
           console.log("Find on map pressed")
           }}>
           <View style={styles.iconContainer}>

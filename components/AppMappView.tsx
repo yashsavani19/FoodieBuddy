@@ -25,19 +25,11 @@ interface AppMappViewProps {
 
 export default function AppMappView({ geometry }: AppMappViewProps) {
   const { location, localRestaurants } = useContext(AppContext);
-  // if (!appContext)
-  //   throw new Error("AppContext must be used within ContextProvider");
-
-  // useEffect(() => {
-  //   if (!localRestaurants.length && location) {
-  //     appContext.setRestaurants(); // Fetch restaurants if not already loaded
-  //   }
-  // }, [location, appContext.setRestaurants]);
-
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
   const handleMapPress = () => setSelectedMarkerId(null);
   const markerRefs = useRef<(Marker | null)[]>([]);
+  const [mapReady, setMapReady] = useState(false);
 
   if (!location) return null; // Render nothing if no location is available
 
@@ -51,7 +43,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
         longitudeDelta: 0.01,
       }, 1000); 
     }
-  }, [geometry]);
+  }, [geometry, mapReady]);
 
   // check if geometry is available then show the callout (restaurant details) of the selected restaurant
   useEffect(() => {
@@ -67,7 +59,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
         setSelectedMarkerId(markerIndex);
       }
     }
-  }, [geometry, localRestaurants]);
+  }, [geometry, mapReady, localRestaurants]);
 
   return (
     location &&
@@ -86,6 +78,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           }}
           onPress={handleMapPress}
           ref={mapRef}
+          onMapReady={() => setMapReady(true)}
         >
           {/* Blue transparent circle around the user's current location */}
           <Circle
