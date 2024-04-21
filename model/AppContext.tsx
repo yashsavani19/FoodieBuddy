@@ -27,6 +27,8 @@ export type AppContextType = {
   resetToDefaultMessage: () => void;
   chatMessages: IMessage[];
   addChatMessage: (message: IMessage) => void;
+  user: any;
+  setUser: () => Promise<void>;
 };
 
 interface ContextProviderProps {
@@ -48,6 +50,8 @@ export const AppContext = createContext<AppContextType>({
   resetToDefaultMessage: async () => {},
   chatMessages: [],
   addChatMessage: async () => {},
+  user: {},
+  setUser: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -62,6 +66,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   );
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
+  const [user, setUserObject] = useState<any>({});
 
   const setRestaurants = async () => {
     try {
@@ -79,7 +84,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setFavourites = async () => {
     try {
-      // await setFavouritesArray(await fetchFavourites())
+      // await setFavouritesArray(await fetchFavourites());
     } catch (error) {
       console.log(error);
     }
@@ -87,7 +92,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setBookmarks = async () => {
     try {
-      // await setBookmarksArray(await fetchBookmarks())
+      // await setBookmarksArray(await fetchBookmarks());
     } catch (error) {
       console.log(error);
     }
@@ -95,11 +100,19 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setVisited = async () => {
     try {
-      // await setVisitedArray(await fetchVisited())
+      // await setVisitedArray(await fetchVisited());
     } catch (error) {
       console.log(error);
     }
   };
+
+  const setUser = async () => {
+    try {
+      // await setUserObject(await fetchUser());
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const updateLocation = async () => {
     return new Promise(async (resolve, reject) => {
@@ -150,6 +163,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     resetToDefaultMessage,
     chatMessages,
     addChatMessage,
+    user,
+    setUser,
   };
 
   return (
