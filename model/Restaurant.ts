@@ -14,7 +14,7 @@ export interface Restaurant {
     displayAddress?: string;
     phone?: string;
     distance: string;
-    isClosed?: boolean;
+    isClosed?: string;
     
     isFavourite?: boolean;
     isBookmarked?: boolean;

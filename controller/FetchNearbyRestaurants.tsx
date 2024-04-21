@@ -39,10 +39,16 @@ const fetchNearbyRestaurants = async (
         // Return restaurant data including photo URL
         return {
           geometry: result.geometry,
+          id: result.place_id,
           name: result.name,
-          rating: result.rating,
           image: photoUrl,
+          categories: result.types,
+          price: result.price_level,
+          rating: result.rating,
+          displayAddress: result.vicinity,
+          phone: result.formatted_phone_number,
           distance: distance.toFixed(2),
+          isClosed: result.business_status,
         };
       })
     );

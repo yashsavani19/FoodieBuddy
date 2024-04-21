@@ -4,7 +4,7 @@ import { Restaurant } from "./Restaurant";
  * Default AI System Prompt for Buddy that is used when a user submits a request
  */
 const NAME =
-  "Your name is Buddy. You are a helpful foodie expert that can help me find the best places to eat. ";
+  "Your name is Buddy. You are a helpful and enthusiastic foodie expert that can help me find the best places to eat. ";
 const PRE_LIST =
   "Here is a list of local restaurants that you can choose from based on the users preferences below and the users request: ";
 const POST_LIST = ". Here are the users preferences: ";
@@ -18,7 +18,7 @@ export function DefaultAISystemPrompt(
   const stringRestaurants = restaurantList
     .map(
       (restaurant) =>
-        `${restaurant.name} is a ${restaurant.categories} restaurant located at ${restaurant.displayAddress} with a rating of ${restaurant.rating}`
+        `${restaurant.name} is a ${restaurant.categories} located at ${restaurant.displayAddress} with a rating of ${restaurant.rating} and a price level of ${restaurant.price} and a distance of ${restaurant.distance}km away.`
     )
     .join(", ");
   const stringPreferences = "undefined";

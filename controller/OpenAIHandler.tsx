@@ -36,12 +36,13 @@ export function useOpenAIHandler() {
           }
           return newMessages;
         });
+        console.log("Sent Messages:", messages);
 
         const response = await axios.post(
           `https://api.openai.com/v1/chat/completions`,
           {
             model: "gpt-3.5-turbo",
-            messages: [...(await messages), userMessage], // Ensure you capture the latest state
+            messages: [...messages, userMessage],
           },
           {
             headers: {
