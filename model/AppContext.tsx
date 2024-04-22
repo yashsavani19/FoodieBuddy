@@ -75,7 +75,12 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         const nearbyRestaurants = await fetchNearbyRestaurants(
           locationCoords as LocationObjectCoords
         );
-        setRestaurantsArray(nearbyRestaurants);
+
+        // Sort restaurants by distance (May need improving in future)
+        const distanceSortedRestaurants = nearbyRestaurants.sort(
+          (a, b) => a.distance - b.distance
+        );
+        setRestaurantsArray(distanceSortedRestaurants);
       });
     } catch (error) {
       console.log(error);
@@ -112,7 +117,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const updateLocation = async () => {
     return new Promise(async (resolve, reject) => {
