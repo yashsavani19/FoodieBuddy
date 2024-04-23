@@ -5,6 +5,7 @@ import MapView, {
   Callout,
   Circle,
   PROVIDER_GOOGLE,
+  MapMarker,
 } from "react-native-maps";
 
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
@@ -30,7 +31,7 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
   const handleMapPress = () => setSelectedMarkerId(null);
-  const markerRefs = useRef<(Marker | null)[]>([]);
+  const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
 
   if (!location) return null; // Render nothing if no location is available
@@ -70,7 +71,7 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
 
       // remember to try start the map beforehand so it doesn't start from the user's location instead of the restaurant
       if (markerIndex !== -1 && markerRefs.current[markerIndex]) { 
-        markerRefs.current[markerIndex].showCallout();
+        markerRefs.current[markerIndex]?.showCallout();
         setSelectedMarkerId(markerIndex);
       }
     }
