@@ -71,12 +71,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ProfileView"
         options={{
-          title: 'Profile',
+          title: 'Profile', // This will be the title if needed
           tabBarLabel: '',
-          tabBarIcon: ({ color, focused }) => 
+          tabBarIcon: ({ color, focused }) =>
             <TabBarIcon image={focused ? images.profileSelectedIcon : images.profileIcon} />,
+          headerShown: false, // This removes the default header
         }}
       />
     </Tabs>
   );
 }
+

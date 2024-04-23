@@ -29,7 +29,7 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
           source={require("../assets/images/buddy-icon.png")}
           style={styles.image}
         />
-        <View style={styles.receivedTextBox}>
+        <View testID="loading-view" style={styles.receivedTextBox}>
           {/* <Text style={styles.text}>...</Text> */}
           <View style={[styles.loading]}></View>
           <View style={[styles.loading, {width: 12, height: 12, borderRadius: 12}]}></View>
@@ -53,17 +53,17 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
       >
         {type === "received" ? (
           <>
-            <Image source={imageUrl} style={styles.image} />
+            <Image testID="message-image" source={imageUrl} style={styles.image} />
             <View style={styles.receivedTextBox}>
               <Text style={styles.text}>{text}</Text>
             </View>
           </>
         ) : (
           <>
-            <View style={styles.sentTextBox}>
+            <View style={styles.sentTextBox} testID="sentTextBox">
               <Text style={styles.text}>{text}</Text>
             </View>
-            <Image source={imageUrl} style={styles.image} />
+            <Image testID="message-image" source={imageUrl} style={styles.image} />
           </>
         )}
       </View>

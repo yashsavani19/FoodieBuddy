@@ -1,48 +1,61 @@
-import { GOOGLE_API_KEY } from "@env";
-import axios from "axios";
-import { getDistanceFromLatLonInKm } from "../app/Utils/distanceCalculator";
-import { LocationObjectCoords } from "expo-location";
+import { GOOGLE_API_KEY } from '@env';
+import axios from 'axios';
+import { getDistanceFromLatLonInKm } from '../app/Utils/distanceCalculator';
+import { LocationObjectCoords } from 'expo-location';
 
-// Update the fetchNearbyRestaurants function to construct the photo URL
-const fetchNearbyRestaurants = async (
-  location: LocationObjectCoords | null
-): Promise<any[]> => {
+// Configurable parameters for the API request
+const photoWidth = 700;
+const photoHeight = 700;
+const searchRadius = 5000; // Search radius in meters
+const placeType = 'restaurant'; // Type of place to search
+
+/**
+ * Fetches nearby restaurants based on the provided location.
+ * @param location - The geographic coordinates where to look for restaurants.
+ * @returns A promise that resolves to an array of restaurant objects.
+ */
+const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Promise<any[]> => {
+  if (!location) {
+    console.error("Location data is null.");
+    return [];
+  }
+
   try {
     console.log("Fetching nearby restaurants...");
-    console.log("Location:", location);
-    const response = await axios.get<any>(
-      `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${
-        location?.latitude || 0
-      },${
-        location?.longitude || 0
-      }&radius=5000&type=restaurant&key=${GOOGLE_API_KEY}`
-    );
+    // Construct the API URL with query parameters
+    const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
+    const response = await axios.get<any>(apiUrl);
     console.log("Response from API:", response.data);
 
-    // Check if results are returned
+    // Process each result to create restaurant data
     const results = response.data.results || [];
-    const restaurants = await Promise.all(
-      results.map(async (result: any) => {
-        // Fetch the photo URL for each restaurant
-        const photoUrl =
-          result.photos && result.photos[0] && result.photos[0].photo_reference
-            ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&maxheight=300&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
-            : null;
+    const restaurants = await Promise.all(results.map(async (result: any) => {
+      // Construct URL for the restaurant's main photo if available
+      const photoUrl = result.photos && result.photos[0] && result.photos[0].photo_reference
+        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${photoWidth}&maxheight=${photoHeight}&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
+        : null;
 
-        const distance = getDistanceFromLatLonInKm(
-          location?.latitude || 0,
-          location?.longitude || 0,
-          result.geometry.location.lat,
-          result.geometry.location.lng
-        );
+      // Calculate the distance from the provided location to the restaurant
+      const distance = getDistanceFromLatLonInKm(
+        location.latitude,
+        location.longitude,
+        result.geometry.location.lat,
+        result.geometry.location.lng
+      )
 
         // Return restaurant data including photo URL
         return {
           geometry: result.geometry,
+          id: result.place_id,
           name: result.name,
-          rating: result.rating,
           image: photoUrl,
+          categories: result.types,
+          price: result.price_level,
+          rating: result.rating,
+          displayAddress: result.vicinity,
+          phone: result.formatted_phone_number,
           distance: distance.toFixed(2),
+          isClosed: result.business_status,
         };
       })
     );

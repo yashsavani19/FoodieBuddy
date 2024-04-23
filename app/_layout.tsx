@@ -7,10 +7,11 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { DataFetcher } from "@/components/DataFetcher";
 import { AppContext, ContextProvider } from "@/model/AppContext";
+import Loading from "./Loading";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,24 +48,24 @@ export default function RootLayout() {
     return null;
   }
 
-  return (
-      <RootLayoutNav />
-  );
+  return <RootLayoutNav />;
 }
 
 function RootLayoutNav() {
+  const [isLoading, setLoading] = useState(true);
   const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <ContextProvider>
-        <DataFetcher />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="LoginView" options={{ headerShown: false }} />
-          <Stack.Screen name="RegisterView" options={{ headerShown: false }} />
-          <Stack.Screen name="ResetPasswordView" options={{ headerShown: false }} />
-        </Stack>
+        <DataFetcher onLoading={setLoading} />
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        )}
       </ContextProvider>
     </ThemeProvider>
   );
