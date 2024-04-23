@@ -41,17 +41,24 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
         location.longitude,
         result.geometry.location.lat,
         result.geometry.location.lng
-      ).toFixed(2); // Format distance to 2 decimal places
+      )
 
-      // Return a structured object with restaurant details
-      return {
-        geometry: result.geometry,
-        name: result.name,
-        rating: result.rating,
-        image: photoUrl,
-        distance
-      };
-    }));
+        // Return restaurant data including photo URL
+        return {
+          geometry: result.geometry,
+          id: result.place_id,
+          name: result.name,
+          image: photoUrl,
+          categories: result.types,
+          price: result.price_level,
+          rating: result.rating,
+          displayAddress: result.vicinity,
+          phone: result.formatted_phone_number,
+          distance: distance.toFixed(2),
+          isClosed: result.business_status,
+        };
+      })
+    );
 
     return restaurants;
   } catch (error) {
