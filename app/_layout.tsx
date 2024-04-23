@@ -63,6 +63,10 @@ function RootLayoutNav() {
           <Loading />
         ) : (
           <Stack>
+
+            <Stack.Screen name="LoginView" options={{ headerShown: false }} />
+            <Stack.Screen name="RegisterView" options={{ headerShown: false }} />
+            <Stack.Screen name="ResetPasswordView" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           </Stack>
         )}

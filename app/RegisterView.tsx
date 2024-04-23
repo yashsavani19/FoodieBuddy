@@ -8,9 +8,7 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import {
-  handleRegister,
-} from "@/controller/FirebaseHandler";
+import { handleRegister } from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
 import { Link } from "expo-router";
 
@@ -23,14 +21,14 @@ export default function RegisterView() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+
   return (
     <View style={styles.container}>
-      {/* Main Logo */}
-      <Image source={buddyLogo} style={styles.logo} />
-      {/*  */}
       {/* Main Inner Container that displays all the content */}
       <ScrollView>
+        {/* Main Logo */}
+        {/*  */}
+        <Image source={buddyLogo} style={styles.logo} />
         <SafeAreaView style={styles.innerContainer}>
           {/*  */}
           {/* Google Register */}
@@ -196,7 +194,7 @@ const styles = StyleSheet.create({
 
   logo: {
     width: "100%",
-    height: 300,
+    height:200,
     marginTop: 75,
     resizeMode: "contain",
   },
