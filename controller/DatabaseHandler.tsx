@@ -1,5 +1,13 @@
 import { Preference } from "@/model/Preference";
-import { collection, doc, addDoc, getDoc, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  addDoc,
+  getDoc,
+  getDocs,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import { db, auth } from "@/services/FirestoreServices";
 import { Saved } from "@/model/Saved";
 /**
@@ -35,6 +43,8 @@ import { Saved } from "@/model/Saved";
  *     },
  * }
  */
+
+
 
 const userCollection = `users/${auth.currentUser?.uid}`;
 const favouriteCollection = `users/${auth.currentUser?.uid}/favourites`;
@@ -181,6 +191,21 @@ export const fetchVisited = async () => {
 };
 
 /**
+ * Adds user info to database
+ */
+export const addUserInfo = async (email: string, username: string) => {
+  try {
+    const docRef = await addDoc(collection(db, "users"), {
+      email: email,
+      username: username,
+    });
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+};
+
+/**
  * Fetches user data
  */
 export const fetchUser = async () => {
@@ -205,7 +230,11 @@ export const fetchUser = async () => {
  */
 export const updateUsername = async (newUsername: string) => {
   try {
-    await setDoc(doc(db, userCollection), { username: newUsername }, { merge: true });
+    await setDoc(
+      doc(db, userCollection),
+      { username: newUsername },
+      { merge: true }
+    );
   } catch (e) {
     console.error("Error updating document: ", e);
     alert("Internal error updating username. Please try again later.");
@@ -232,7 +261,11 @@ export const updateEmail = async (newEmail: string) => {
  */
 export const updateProfilePicture = async (newProfilePictureUrl: string) => {
   try {
-    await setDoc(doc(db, userCollection), { profilePicture: newProfilePictureUrl }, { merge: true });
+    await setDoc(
+      doc(db, userCollection),
+      { profilePicture: newProfilePictureUrl },
+      { merge: true }
+    );
   } catch (e) {
     console.error("Error updating document: ", e);
     alert("Internal error updating profile picture. Please try again later.");

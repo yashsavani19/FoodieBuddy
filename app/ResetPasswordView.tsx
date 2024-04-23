@@ -4,27 +4,20 @@ import {
   Button,
   SafeAreaView,
   Image,
-  TouchableOpacity,
   Pressable,
   ScrollView,
 } from "react-native";
-import {
-  handleLogin,
-  handleRegister,
-  handleResetPassword,
-} from "@/controller/FirebaseHandler";
-
+import { handleResetPassword } from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
 
 const buddyLogo = require("@/assets/images/title-logo.png");
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
-import { Link, Navigator } from "expo-router";
+import { Link } from "expo-router";
 
 export default function LoginView() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
   return (
     <View style={styles.container}>
@@ -35,20 +28,6 @@ export default function LoginView() {
       <ScrollView>
         <SafeAreaView style={styles.innerContainer}>
           {/*  */}
-          {/* Google Login */}
-          {/* <TouchableOpacity style={styles.googleLoginContainer}>
-          <Image
-            source={require("@/assets/images/google-icon.png")}
-            style={styles.inputLogo}
-          />
-          <Text
-            style={styles.googleText}
-            // onPress={}
-          >
-            Login With Google
-          </Text>
-        </TouchableOpacity> */}
-          {/*  */}
           {/* Input Fields */}
           <View style={styles.inputContainer}>
             <Image
@@ -57,47 +36,28 @@ export default function LoginView() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Email"
+              placeholder="Enter Email To Reset Password"
               value={email}
               onChangeText={setEmail}
             />
           </View>
-          <View style={styles.inputContainer}>
-            <Image
-              source={require("@/assets/images/lock-logo.png")}
-              style={styles.inputLogo}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-            />
-          </View>
           {/*  */}
-          {/* Login Button */}
-          <View style={styles.loginButton}>
+          {/* Reset Button */}
+          <View style={styles.buttonContainer}>
+            <Pressable style={styles.resetButton}>
               <Button
-                title="Login"
+                title="Send Link to Email"
                 color="white"
-                onPress={()=>{handleLogin(email, password)}}
+                onPress={() => handleResetPassword(email)}
               />
-            <TouchableOpacity
-            // onPress={handleImageButtonPress}
-            ></TouchableOpacity>
+            </Pressable>
           </View>
           {/*  */}
-          {/* Forgot Password */}
-          <Link href={"/ResetPasswordView"}>
-            <Text style={styles.clickableText}> Forgot Password?</Text>
-          </Link>
-          {/*  */}
-          {/* Create Account Button*/}
-          <View style={styles.createAccountContainer}>
-            <Text style={styles.textStyle}>Don't Have an Account yet?</Text>
-            <Link href={"/RegisterView"}>
-              <Text style={styles.clickableText}> Register Now!</Text>
+          {/* Login Button*/}
+          <View style={styles.loginAgainContainer}>
+            <Text style={styles.textStyle}>Password Reset Done?</Text>
+            <Link href={"/LoginView"}>
+              <Text style={styles.clickableText}> Login Again!</Text>
             </Link>
           </View>
         </SafeAreaView>
@@ -116,26 +76,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-  },
-
-  googleLoginContainer: {
-    width: 300,
-    height: 50,
-    borderRadius: 15,
-    margin: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#373737",
-    marginBottom: 50,
-  },
-  googleText: {
-    color: "white",
-    width: 190,
-    fontSize: 20,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "right",
   },
 
   innerContainer: {
@@ -177,8 +117,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#f26722",
   },
 
-  loginButton: {
-    width: 100,
+  resetButton: {
+    width: 200,
     borderRadius: 20,
     backgroundColor: "#3383FF",
     marginTop: 20,
@@ -197,7 +137,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  createAccountContainer: {
+  loginAgainContainer: {
     backgroundColor: "#f26722",
     width: "100%",
     flexDirection: "row",

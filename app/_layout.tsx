@@ -6,12 +6,16 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { DataFetcher } from "@/components/DataFetcher";
 import { AppContext, ContextProvider } from "@/model/AppContext";
 import Loading from "./Loading";
+import { isAuthenticated } from "@/controller/FirebaseHandler";
+
+const authenticated = isAuthenticated();
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -20,7 +24,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "LoginView",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -53,6 +57,7 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const [isLoading, setLoading] = useState(true);
+
   const colorScheme = useColorScheme();
 
   return (
@@ -62,9 +67,34 @@ function RootLayoutNav() {
         {isLoading ? (
           <Loading />
         ) : (
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
+            <Stack
+              initialRouteName={authenticated ? "(tabs)" : "LoginView"}
+            >
+              {authenticated ? (
+                // Stack navigator for authenticated users
+                <>
+                  {/* Define the screens/components for your authenticated user flow */}
+                  {/* <Stack.Screen name="(tabs)" component={TabsComponent} options={{ headerShown: false }} /> */}
+                </>
+              ) : (
+                // Stack navigator for authentication flows
+                <>
+                  <Stack.Screen
+                    name="LoginView"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="RegisterView"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="ResetPasswordView"
+                    options={{ headerShown: false }}
+                  />
+                  {/* Add other screens for your authentication flow as needed */}
+                </>
+              )}
+            </Stack>
         )}
       </ContextProvider>
     </ThemeProvider>
