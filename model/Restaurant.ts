@@ -1,4 +1,5 @@
 export interface Restaurant {
+    website: any;
     geometry: {
         location: {
           lat: number;
@@ -15,7 +16,6 @@ export interface Restaurant {
     phone?: string;
     distance: string;
     isClosed?: string;
-    
     isFavourite?: boolean;
     isBookmarked?: boolean;
     isVisited?: boolean;

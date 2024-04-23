@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { StyleSheet, View, Text, Image } from "react-native";
+import { StyleSheet, View, Text, Linking} from "react-native";
 import MapView, {
   Marker,
   Callout,
@@ -15,6 +15,7 @@ import StarRating from "./StarRating";
 import { AppContext } from "./../model/AppContext";
 import images from "@/assets/data/images";
 
+// Define the props for the AppMapView component
 interface AppMappViewProps {
   searchTerm?: string;
   geometry?: {
@@ -25,17 +26,20 @@ interface AppMappViewProps {
   };
 }
 
+// Define the AppMapView component
 export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) {
-  const { location, localRestaurants } = useContext(AppContext);
+  const { location, localRestaurants } = useContext(AppContext);  
   const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
   const handleMapPress = () => setSelectedMarkerId(null);
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
+  
+  // Return nothing if no location is available
+  if (!location) return null; 
 
-  if (!location) return null; // Render nothing if no location is available
-
+  // Effect to filter restaurants based on search term
   useEffect(() => {
     if(!searchTerm){
       setFilteredRestaurants(localRestaurants);
@@ -49,7 +53,7 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
     }
   },[searchTerm])
 
-  // check if geometry is available and if the mapRef is available then move the map to the location of the selected restaurant
+ // Effect to animate map to selected restaurant's location
   useEffect(() => {
     if (geometry && mapRef.current) {
       mapRef.current.animateToRegion({
@@ -61,15 +65,13 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
     }
   }, [geometry, mapReady]);
 
-  // check if geometry is available then show the callout (restaurant details) of the selected restaurant
+  // Effect to show callout for selected restaurant
   useEffect(() => {
     if (geometry) {
       const markerIndex = filteredRestaurants.findIndex(
         restaurant => restaurant.geometry.location.lat === geometry.location.lat &&
                       restaurant.geometry.location.lng === geometry.location.lng
       );
-
-      // remember to try start the map beforehand so it doesn't start from the user's location instead of the restaurant
       if (markerIndex !== -1 && markerRefs.current[markerIndex]) { 
         markerRefs.current[markerIndex]?.showCallout();
         setSelectedMarkerId(markerIndex);
@@ -77,6 +79,18 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
     }
   }, [geometry, mapReady, filteredRestaurants]);
 
+  const handleCalloutPress = (websiteUrl: string) => {
+    if (websiteUrl) {
+      // Open the restaurant's website in the device's browser
+      Linking.openURL(websiteUrl);
+      // Log a message to the console
+      console.log(`Opening website: ${websiteUrl}`);
+    } else {
+      console.log("No website URL provided.");
+    }
+  };
+  
+  // Render the component
   return (
     location &&
     location.latitude && (
@@ -130,7 +144,7 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
                 selected={selectedMarkerId === index}
               />
               {/*Information on Restaurant*/}
-              <Callout>
+              <Callout onPress={() => handleCalloutPress(restaurant.website)}>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   {restaurant.rating !== undefined && (
