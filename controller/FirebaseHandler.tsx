@@ -23,6 +23,7 @@ import {
   sendPasswordResetEmail,
   AuthError,
   getReactNativePersistence,
+  onAuthStateChanged,
 } from "firebase/auth";
 
 import { initializeApp } from "firebase/app";
@@ -91,6 +92,21 @@ export const app = initializeApp(firebaseConfig);
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
+
+export const useIsAuthenticated = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+    });
+
+    // Cleanup the subscription
+    return unsubscribe;
+  }, []);
+
+  return isAuthenticated;
+};
 
 // Handlers
 
