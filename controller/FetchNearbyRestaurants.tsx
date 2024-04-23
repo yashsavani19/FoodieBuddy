@@ -30,6 +30,10 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     // Process each result to create restaurant data
     const results = response.data.results || [];
     const restaurants = await Promise.all(results.map(async (result: any) => {
+      // Skip if the restaurant is not operational
+      if (result.business_status !== 'OPERATIONAL') {
+        return null;
+      }
       // Construct URL for the restaurant's main photo if available
       const photoUrl = result.photos && result.photos[0] && result.photos[0].photo_reference
         ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${photoWidth}&maxheight=${photoHeight}&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
@@ -60,7 +64,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
       })
     );
 
-    return restaurants;
+    return restaurants.filter(restaurant => restaurant !== null);
   } catch (error) {
     console.error("Error fetching nearby restaurants:", error);
     return [];
