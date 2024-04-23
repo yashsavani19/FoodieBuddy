@@ -13,11 +13,16 @@ export default function Map() {
   const route = useRoute<RouteProp<RootStackParamList, 'Map'>>();
   const { geometry } = route.params || {};
 
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  useEffect(() => { 
+    console.log(searchTerm)
+  },[searchTerm]) 
+
   return (
     <View style={styles.container}>
-      <TitleHeader searchBar={true} />
+      <TitleHeader searchBar={true} onSearchSubmit={setSearchTerm}/>
       <View style={styles.mapContainer}>
-        <AppMappView geometry={geometry} />
+        <AppMappView geometry={geometry} searchTerm={searchTerm}/>
       </View>
       <View style={styles.placeListContainer}>
 
