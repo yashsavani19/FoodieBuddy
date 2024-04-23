@@ -13,7 +13,7 @@ type RestaurantListItemProps = {
   restaurant: Restaurant; 
 };
 
-const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
+export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
@@ -43,6 +43,7 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   return (
     <Pressable style={styles.container}> 
       <Image 
+        testID="restaurant-image"
         source={{ uri: restaurant.image || images.defaultRestaurantImage }} 
         style={styles.image} 
         resizeMode='cover'
@@ -64,8 +65,9 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         <View style={styles.textInfo}>
           <Text style={styles.title}>{restaurant.name}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{fontWeight: 'bold'}}>Rating: </Text>
-            {restaurant.rating !== undefined && (<StarRating rating={restaurant.rating ?? "N/A"} />)}
+            <Text style={{fontWeight: 'bold'}}>
+              Rating: {restaurant.rating !== undefined ? <StarRating rating={restaurant.rating} /> : "N/A"}
+            </Text>
             <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
           </View>
         </View>
