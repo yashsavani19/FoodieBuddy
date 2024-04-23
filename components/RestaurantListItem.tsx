@@ -39,6 +39,13 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     ]).start();
   };
 
+  function displayPriceLevel(priceLevel: number): string {
+    let price = '';
+    for (let i = 0; i < priceLevel; i++) {
+      price += '$';
+    }
+    return price;
+  }
 
   return (
     <Pressable style={styles.container}> 
@@ -69,6 +76,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
               Rating: {restaurant.rating !== undefined ? <StarRating rating={restaurant.rating} /> : "N/A"}
             </Text>
             <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
+            <Text style={styles.distance}>{restaurant.price !== undefined ? displayPriceLevel(parseInt(restaurant.price)) : ""}</Text>
           </View>
         </View>
 
