@@ -6,7 +6,7 @@ import { LocationObjectCoords } from 'expo-location';
 // Configurable parameters for the API request
 const photoWidth = 700;
 const photoHeight = 700;
-const searchRadius = 5000; // Search radius in meters
+const searchRadius = 10000; // Search radius in meters
 const placeType = 'restaurant'; // Type of place to search
 
 /**
@@ -25,6 +25,8 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     // Construct the API URL with query parameters
     const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
     const response = await axios.get<any>(apiUrl);
+    // We want to exclude places that are not restaurants, such as motels
+    const excludeKeywords = ["hotel", "motel", "inn", "lodge", "resort", "hostel", "cinema"];
     console.log("Response from API:", response.data);
 
     // Process each result to create restaurant data
@@ -34,6 +36,12 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
       if (result.business_status !== 'OPERATIONAL') {
         return null;
       }
+
+      // Skip if the restaurant name contains any of the exclude keywords
+      if (excludeKeywords.some(keyword => result.name.toLowerCase().includes(keyword))) {
+        return null;
+      }
+
       // Construct URL for the restaurant's main photo if available
       const photoUrl = result.photos && result.photos[0] && result.photos[0].photo_reference
         ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${photoWidth}&maxheight=${photoHeight}&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Category } from "@/model/Category";
-import { categories } from "@/assets/data/categories";
+import { categories } from "@/assets/data/categories-picker";
 
 interface CategorySelectProps {
   onCategorySelect: (category: Category) => void;
@@ -20,7 +20,7 @@ const Categories: React.FC<CategorySelectProps> = ({ onCategorySelect }) => {
   const handleCategoryChange = (value: Category) => {
     if (value) {
       setSelectedCategory(value);
-      onCategorySelect(selectedCategory);
+      onCategorySelect(value);
     }
   };
 
