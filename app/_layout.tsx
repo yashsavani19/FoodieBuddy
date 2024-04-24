@@ -13,6 +13,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { DataFetcher } from "@/components/DataFetcher";
 import { AppContext, ContextProvider } from "@/model/AppContext";
 import Loading from "./Loading";
+import { auth } from "@/controller/FirebaseHandler";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -56,37 +57,26 @@ function RootLayoutNav() {
   const [isLoading, setLoading] = useState(true);
   const [userAuthenticated, setUserAuthenticated] = useState(false);
 
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserAuthenticated(true);
+      } else {
+        setUserAuthenticated(false);
+      }
+    });
+  }, [auth.currentUser]);
+
   const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <ContextProvider>
-        {!userAuthenticated ? (
-          <Stack>
-            <Stack.Screen name="LoginView" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="RegisterView"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="ResetPasswordView"
-              options={{ headerShown: false }}
-            />
-          </Stack>
-        ) : (
-          <DataFetcher onLoading={setLoading} />
-            {isLoading ? (
-              <Loading />
-            ) : (
-              <Stack>
-                <Stack.Screen
-                  name="(tabs)"
-                  component={TabsComponent}
-                  options={{ headerShown: false }}
-                />
-              </Stack>
-            )}
-        )}
+
+        <Stack>
+          <Stack.Screen name="LoginView" options={{ headerShown: false }} />
+        </Stack>
+
       </ContextProvider>
     </ThemeProvider>
   );

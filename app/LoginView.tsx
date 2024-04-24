@@ -20,7 +20,7 @@ const buddyLogo = require("@/assets/images/title-logo.png");
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
-import { Link, Navigator } from "expo-router";
+import { Link } from "expo-router";
 
 export default function LoginView() {
   const [email, setEmail] = useState("");
