@@ -15,6 +15,7 @@ export default function HomeView() {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<Category>();
   
+  // Handle filtering of restaurants based on search term and selected category
   useEffect(() => {
     let result = localRestaurants;
   
