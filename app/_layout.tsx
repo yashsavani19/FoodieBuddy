@@ -6,14 +6,12 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
-import { NavigationContainer } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { DataFetcher } from "@/components/DataFetcher";
 import { AppContext, ContextProvider } from "@/model/AppContext";
 import Loading from "./Loading";
-import { auth } from "@/controller/FirebaseHandler";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -22,7 +20,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "LoginView",
+  initialRouteName: "(tabs)",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -55,28 +53,19 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const [isLoading, setLoading] = useState(true);
-  const [userAuthenticated, setUserAuthenticated] = useState(false);
-
-  useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUserAuthenticated(true);
-      } else {
-        setUserAuthenticated(false);
-      }
-    });
-  }, [auth.currentUser]);
-
   const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <ContextProvider>
-
-        <Stack>
-          <Stack.Screen name="LoginView" options={{ headerShown: false }} />
-        </Stack>
-
+        <DataFetcher onLoading={setLoading} />
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        )}
       </ContextProvider>
     </ThemeProvider>
   );
