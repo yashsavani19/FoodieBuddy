@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'rea
 import TitleHeader from "@/components/TitleHeader";
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { NavigationProp } from '@react-navigation/native';
+import { handleLogout } from '@/controller/FirebaseHandler';
 
 export default function UserProfileView() {
   const username = "Param Patel"; // Example username
@@ -31,7 +32,7 @@ export default function UserProfileView() {
             <TouchableOpacity style={styles.editButton}>
               <Text style={{fontSize:20}}>Edit Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleLogout}>
               <Text style={{fontSize:20}}>Logout</Text>
             </TouchableOpacity>
           </View>
