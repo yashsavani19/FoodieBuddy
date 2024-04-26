@@ -104,7 +104,7 @@ export default function RegisterView() {
             <Pressable style={styles.registerButton}>
               <Button
                 title="Register"
-                color="white"
+                color="black"
                 onPress={() => {
                   signUp(email, username, password, confirmPassword);
                 }}
