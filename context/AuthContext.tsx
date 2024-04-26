@@ -43,7 +43,7 @@ export function AuthProvider(props: ProviderProps) {
   const useProtectedRoute = (user: Auth.User | null) => {
     const segments = useSegments();
     const router = useRouter();
-
+    
     const [isNavigationReady, setIsNavigationReady] = useState(false);
     const rootNavigation = useNavigationContainerRef();
 
@@ -84,7 +84,6 @@ export function AuthProvider(props: ProviderProps) {
         console.error("Error getting user: ", error);
         setAuthUser(null);
       }
-
       setAuthInitialised(true);
       console.log("Auth initialised", user);
     })();
@@ -99,56 +98,49 @@ export function AuthProvider(props: ProviderProps) {
     password: string
   ): Promise<void> => {
     setAuthInitialised(false);
-    // Validate input fields
-    if (!email || !password) {
-      alert("Please enter both email and password.");
-      setAuthInitialised(true);
-      return;
-    }
-    
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
-      setAuthInitialised(true);
-      return;
-    }
-
     try {
-      // Attempt to login
+      if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+
       await login(email, password);
       const currentUser = Auth.getAuth().currentUser;
-
-      // alert("Login successful!");
       setAuthUser(currentUser);
-      setAuthInitialised(true);
-    } catch (error: any) {
-      // Cast the error to AuthError to access the code and message properties
-      const authError = error as Auth.AuthError;
 
-      // Handle specific errors based on the error code
-      switch (authError.code) {
-        case "auth/user-not-found":
-          alert("No user found with this email.");
-          break;
-        case "auth/wrong-password":
-          alert("Incorrect password. Please try again.");
-          break;
-        case "auth/too-many-requests":
-          alert(
-            "Too many unsuccessful login attempts. Please try again later."
-          );
-          break;
-        case "auth/invalid-email":
-          alert("The email address is not valid.");
-          break;
-        case "auth/invalid-credential":
-          alert("The email or password is incorrect.");
-          break;
-        default:
-          alert(`Login failed: ${authError.message}`);
-          break;
-      }
+    } catch (error: any) {
+      handleAuthError(error);
+    } finally {
+      setAuthInitialised(true);
+    }
+  };
+
+  const handleAuthError = (error: Auth.AuthError) => {
+    switch (error.code) {
+      case "auth/user-not-found":
+        alert("No user found with this email.");
+        break;
+      case "auth/wrong-password":
+        alert("Incorrect password. Please try again.");
+        break;
+      case "auth/too-many-requests":
+        alert("Too many unsuccessful login attempts. Please try again later.");
+        break;
+      case "auth/invalid-email":
+        alert("The email address is not valid.");
+        break;
+      case "auth/invalid-credential":
+        alert("The email or password is incorrect.");
+        break;
+      default:
+        alert(`Login failed: ${error.message}`);
+        break;
     }
   };
 

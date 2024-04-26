@@ -47,7 +47,7 @@ export default function LoginView() {
             <Pressable style={styles.resetButton}>
               <Button
                 title="Send Link to Email"
-                color="white"
+                color="black"
                 onPress={() => handleResetPassword(email)}
               />
             </Pressable>
