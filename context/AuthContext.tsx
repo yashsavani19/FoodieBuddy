@@ -101,12 +101,14 @@ export function AuthProvider(props: ProviderProps) {
     try {
       if (!email || !password) {
         alert("Please enter both email and password.");
+        setAuthInitialised(true);
         return;
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         alert("Please enter a valid email address.");
+        setAuthInitialised(true);
         return;
       }
 
