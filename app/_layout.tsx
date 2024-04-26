@@ -7,11 +7,12 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
-import { DataFetcher } from "@/components/DataFetcher";
-import { AppContext, ContextProvider } from "@/model/AppContext";
+// import { DataFetcher } from "@/components/DataFetcher";
+import { ContextProvider } from "@/context/AppContext";
 import Loading from "./Loading";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -45,28 +46,30 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null;
+    return <Loading />;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AuthProvider>
+      <ContextProvider>
+        <RootLayoutNav />
+      </ContextProvider>
+    </AuthProvider>
+  );
 }
 
 function RootLayoutNav() {
-  const [isLoading, setLoading] = useState(true);
   const colorScheme = useColorScheme();
+  const { authInitialised, user } = useAuth();
+
+  if (!authInitialised) return <Loading />;
+  if (!user && !authInitialised) return null;
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <ContextProvider>
-        <DataFetcher onLoading={setLoading} />
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-        )}
-      </ContextProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+      </Stack>
     </ThemeProvider>
   );
 }

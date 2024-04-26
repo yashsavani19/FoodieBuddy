@@ -12,7 +12,7 @@ import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
-import { AppContext } from "./../model/AppContext";
+import { AppContext } from "../context/AppContext";
 import images from "@/assets/data/images";
 
 interface AppMappViewProps {
@@ -39,13 +39,13 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
   useEffect(() => {
     if(!searchTerm){
       setFilteredRestaurants(localRestaurants);
-      console.log(localRestaurants);
+      // console.log(localRestaurants);
     }
     else {
       setFilteredRestaurants(localRestaurants.filter((restaurants) => {
         return restaurants.name.toLowerCase().includes(searchTerm.toLowerCase());
       }))
-      console.log(filteredRestaurants);
+      // console.log(filteredRestaurants);
     }
   },[searchTerm])
 

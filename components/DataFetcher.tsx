@@ -1,18 +1,18 @@
-import { AppContext } from "@/model/AppContext";
+import { AppContext } from "@/context/AppContext";
 import { useContext, useEffect } from "react";
 
 interface DataFetcherProps {
-  onLoading: (isLoading: boolean) => void;
+  onLoading?: (isLoading: boolean) => void;
 }
 
 export const DataFetcher: React.FC<DataFetcherProps> = ({ onLoading }) => {
-  const { setRestaurants, setFavourites, setBookmarks, setVisited } =
+  const { setRestaurants } =
     useContext(AppContext);
 
   useEffect(() => {
     (async () => {
       try {
-        onLoading(true);
+        if(onLoading) onLoading(true);
         console.log("Calling setRestaurants from DataFetcher");
         await setRestaurants();
         // await setUser();
@@ -22,7 +22,7 @@ export const DataFetcher: React.FC<DataFetcherProps> = ({ onLoading }) => {
       } catch (error) {
         console.error("DataFetcher error", error);
       } finally {
-        onLoading(false);
+        if(onLoading) onLoading(false);
       }
     })();
   }, []);
