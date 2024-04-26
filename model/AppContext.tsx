@@ -11,6 +11,7 @@ import {
 import * as Location from "expo-location";
 import { IMessage } from "./AITypes";
 import { DefaultAISystemPrompt } from "./DefaultAISystemPrompt";
+import React from 'react';
 
 export type AppContextType = {
   localRestaurants: Restaurant[];
