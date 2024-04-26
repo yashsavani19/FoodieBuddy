@@ -125,6 +125,7 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
           {/* Render markers for each nearby restaurant */}
           {filteredRestaurants.map((restaurant, index) => (
             <Marker
+              testID='Marker'
               key={`${index}`}
               ref={ref => markerRefs.current[index] = ref}
               coordinate={{

@@ -1,14 +1,14 @@
-import React from 'react';
-import renderer from 'react-test-renderer'; // Import necessary testing utilities
-import AppMappView from '../AppMappView'; // Import the component to be tested
+import React from "react";
+import renderer from "react-test-renderer";
+import AppMappView from "../AppMappView";
 
 // Mocked localRestaurants data
 const mockedLocalRestaurants = [
   {
-    name: 'Restaurant 1',
+    name: "Restaurant 1",
     rating: 4.5,
     distance: 2,
-    website: 'https://www.restaurant1.com',
+    website: "https://www.restaurant1.com",
     geometry: {
       location: {
         lat: 1.2345,
@@ -17,10 +17,10 @@ const mockedLocalRestaurants = [
     },
   },
   {
-    name: 'Restaurant 2',
+    name: "Restaurant 2",
     rating: 3.8,
     distance: 3,
-    website: 'https://www.restaurant2.com',
+    website: "https://www.restaurant2.com",
     geometry: {
       location: {
         lat: 2.3456,
@@ -31,8 +31,8 @@ const mockedLocalRestaurants = [
 ];
 
 // Mocking react-native-maps components
-jest.mock('react-native-maps', () => {
-  const { View } = require('react-native');
+jest.mock("react-native-maps", () => {
+  const { View } = require("react-native");
   return {
     __esModule: true,
     default: (props) => {
@@ -47,28 +47,29 @@ jest.mock('react-native-maps', () => {
     Circle: (props) => {
       return <View {...props} />;
     },
-    PROVIDER_GOOGLE: 'PROVIDER_GOOGLE',
+    PROVIDER_GOOGLE: "PROVIDER_GOOGLE",
   };
 });
 
-// Test suite for the AppMappView component
-describe('<AppMappView />', () => {
-  // Test for rendering the component without crashing
-  test('renders without crashing', () => {
-    const tree = renderer.create(<AppMappView />).toJSON(); // Render the component
-    expect(tree).toMatchSnapshot(); // Check if the rendered tree matches the snapshot
+describe("<AppMappView />", () => {
+  test("renders without crashing", () => {
+    const tree = renderer.create(<AppMappView />).toJSON();
+    expect(tree).toMatchSnapshot();
   });
 
-  // Test for filtering restaurants based on search term
-  test('filters restaurants based on search term', () => {
+  test("filters restaurants based on search term", () => {
     const tree = renderer
-      .create(<AppMappView searchTerm="Restaurant 1" localRestaurants={mockedLocalRestaurants} />) // Render the component with search term
+      .create(
+        <AppMappView
+          searchTerm="Restaurant 1"
+          localRestaurants={mockedLocalRestaurants}
+        />
+      )
       .toJSON();
-    expect(tree).toMatchSnapshot(); // Check if the rendered tree matches the snapshot
+    expect(tree).toMatchSnapshot();
   });
 
-  // Test for animating to selected restaurant location
-  test('animates to selected restaurant location', () => {
+  test("animates to selected restaurant location", () => {
     const tree = renderer
       .create(
         <AppMappView
@@ -77,11 +78,10 @@ describe('<AppMappView />', () => {
         />
       )
       .toJSON();
-    expect(tree).toMatchSnapshot(); // Check if the rendered tree matches the snapshot
+    expect(tree).toMatchSnapshot();
   });
 
-  // Test for showing callout for selected restaurant
-  test('shows callout for selected restaurant', () => {
+  test("shows callout for selected restaurant", () => {
     const tree = renderer
       .create(
         <AppMappView
@@ -90,6 +90,69 @@ describe('<AppMappView />', () => {
         />
       )
       .toJSON();
-    expect(tree).toMatchSnapshot(); // Check if the rendered tree matches the snapshot
+    expect(tree).toMatchSnapshot();
+  });
+
+  test("renders correctly when no local restaurants are provided", () => {
+    const tree = renderer.create(<AppMappView />).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  test("renders correctly when no search term is provided", () => {
+    const tree = renderer
+      .create(<AppMappView localRestaurants={mockedLocalRestaurants} />)
+      .toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  test("renders correctly when no restaurant is selected", () => {
+    const tree = renderer
+      .create(
+        <AppMappView
+          localRestaurants={mockedLocalRestaurants}
+          geometry={{ location: null }}
+        />
+      )
+      .toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  test("renders correctly with different restaurant ratings", () => {
+    const localRestaurantsWithDifferentRatings = [
+      {
+        name: "Restaurant 1",
+        rating: 5.0,
+        distance: 1.5,
+      },
+      {
+        name: "Restaurant 2",
+        rating: 3.0,
+        distance: 2.3,
+      },
+    ];
+    const tree = renderer
+      .create(
+        <AppMappView
+          localRestaurants={localRestaurantsWithDifferentRatings}
+          // Other props...
+        />
+      )
+      .toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  test("calls a function when a marker is pressed", () => {
+    const handleMarkerPress = jest.fn(); // Mock function to be called when marker is pressed
+    const tree = renderer
+      .create(
+        // Use create method to render the component
+        <AppMappView
+          localRestaurants={mockedLocalRestaurants}
+          onMarkerPress={handleMarkerPress} // Pass the mock function as prop
+        />
+      )
+      .toJSON();
+
+    expect(tree).toMatchSnapshot();
   });
 });
