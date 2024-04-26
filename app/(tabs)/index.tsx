@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, Text} from 'react-native';
 import RestaurantListItem from '@/components/RestaurantListItem'
 import restaurants from '@/assets/data/restaurants';
 import { View } from '@/components/Themed';
@@ -36,6 +36,7 @@ export default function HomeView() {
           data={filteredRestaurants}
           renderItem={({ item }) => < RestaurantListItem restaurant={item} />}
           contentContainerStyle={{ gap: 3 }}
+          ListEmptyComponent={<View style={styles.noMatches}><Text>No Results</Text></View>}
         />
       </View>
     </View>
@@ -47,5 +48,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.backgroundColor,
     marginTop: 120,
+  },
+  noMatches: {
+    textAlign: 'center',
+    marginTop: 50,
+    fontSize: 18,
+    color: 'grey',
   },
 });
