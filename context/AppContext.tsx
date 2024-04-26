@@ -1,34 +1,31 @@
 import { ReactNode, createContext, useState } from "react";
-import { Restaurant } from "./Restaurant";
+import { Restaurant } from "../model/Restaurant";
 import { LocationObjectCoords } from "expo-location";
-import { Saved } from "./Saved";
+import { Saved } from "../model/Saved";
 import fetchNearbyRestaurants from "@/controller/FetchNearbyRestaurants";
 import {
   fetchBookmarks,
   fetchFavourites,
   fetchVisited,
+  fetchUser,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
-import { IMessage } from "./AITypes";
-import { DefaultAISystemPrompt } from "./DefaultAISystemPrompt";
+import { IMessage } from "../model/AITypes";
+import { DefaultAISystemPrompt } from "../model/DefaultAISystemPrompt";
+import { User } from "@/model/User";
+import { auth } from "@/controller/FirebaseHandler";
 
 export type AppContextType = {
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
-  favourites: Saved[];
-  setFavourites: (favourites: Saved[]) => void;
-  bookmarks: Saved[];
-  setBookmarks: (bookmarks: Saved[]) => void;
-  visited: Saved[];
-  setVisited: (visited: Saved[]) => void;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
   defaultMessage: IMessage;
   resetToDefaultMessage: () => void;
   chatMessages: IMessage[];
   addChatMessage: (message: IMessage) => void;
-  user: any;
-  setUser: () => Promise<void>;
+  user: User;
+  setUser: (username: string, uid: string) => Promise<void>;
 };
 
 interface ContextProviderProps {
@@ -38,12 +35,6 @@ interface ContextProviderProps {
 export const AppContext = createContext<AppContextType>({
   localRestaurants: [],
   setRestaurants: async () => {},
-  favourites: [],
-  setFavourites: async () => {},
-  bookmarks: [],
-  setBookmarks: async () => {},
-  visited: [],
-  setVisited: async () => {},
   location: null,
   updateLocation: async () => {},
   defaultMessage: {},
@@ -58,15 +49,12 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   children,
 }) => {
   const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
-  const [favourites, setFavouritesArray] = useState<Saved[]>([]);
-  const [bookmarks, setBookmarksArray] = useState<Saved[]>([]);
-  const [visited, setVisitedArray] = useState<Saved[]>([]);
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
     null
   );
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
-  const [user, setUserObject] = useState<any>({});
+  const [user, setUserObject] = useState<User>({});
 
   const setRestaurants = async () => {
     try {
@@ -82,38 +70,25 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         );
         setRestaurantsArray(distanceSortedRestaurants);
       });
-    } catch (error) {
+    } catch (error) { 
       console.log(error);
     }
   };
 
-  const setFavourites = async () => {
+  const setUser = async (username: string) => {
     try {
-      // await setFavouritesArray(await fetchFavourites());
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const setBookmarks = async () => {
-    try {
-      // await setBookmarksArray(await fetchBookmarks());
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const setVisited = async () => {
-    try {
-      // await setVisitedArray(await fetchVisited());
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const setUser = async () => {
-    try {
-      // await setUserObject(await fetchUser());
+      const uid = auth.currentUser?.uid;
+      const favourites = await fetchFavourites();
+      console.log("Favourites:", favourites);
+      // const bookmarks = await fetchBookmarks();
+      // const visited = await fetchVisited();
+      setUserObject({
+        username: username,
+        uid: uid,
+        favourites: favourites,
+        bookmarks: null,
+        visited: null,
+      } as User);
     } catch (error) {
       console.log(error);
     }
@@ -156,12 +131,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const contextValue = {
     localRestaurants,
     setRestaurants,
-    favourites,
-    setFavourites,
-    bookmarks,
-    setBookmarks,
-    visited,
-    setVisited,
     location,
     updateLocation,
     defaultMessage,

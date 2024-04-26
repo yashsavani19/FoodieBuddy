@@ -8,35 +8,33 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import {
-  handleLogin,
-  handleRegister,
-  handleResetPassword,
-} from "@/controller/FirebaseHandler";
-
 import React, { useState } from "react";
+import { Link } from "expo-router";
 
 const buddyLogo = require("@/assets/images/title-logo.png");
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
-import { Link } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
 
-export default function LoginView() {
+export default function RegisterView() {
+  const { signUp } = useAuth();
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   return (
     <View style={styles.container}>
-      {/* Main Logo */}
-      <Image source={buddyLogo} style={styles.logo} />
-      {/*  */}
-      {/* Main Inner Container that displays all the content*/}
+      {/* Main Inner Container that displays all the content */}
       <ScrollView>
+        {/* Main Logo */}
+        {/*  */}
+        <Image source={buddyLogo} style={styles.logo} />
         <SafeAreaView style={styles.innerContainer}>
           {/*  */}
-          {/* Google Login */}
-          {/* <TouchableOpacity style={styles.googleLoginContainer}>
+          {/* Google Register */}
+          {/* <TouchableOpacity style={styles.googleRegisterContainer}>
           <Image
             source={require("@/assets/images/google-icon.png")}
             style={styles.inputLogo}
@@ -45,11 +43,23 @@ export default function LoginView() {
             style={styles.googleText}
             // onPress={}
           >
-            Login With Google
+            Register With Google
           </Text>
         </TouchableOpacity> */}
           {/*  */}
           {/* Input Fields */}
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/username-logo.png")}
+              style={styles.inputLogo}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+            />
+          </View>
           <View style={styles.inputContainer}>
             <Image
               source={require("@/assets/images/mail-logo.png")}
@@ -75,29 +85,42 @@ export default function LoginView() {
               onChangeText={setPassword}
             />
           </View>
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/images/lock-logo.png")}
+              style={styles.inputLogo}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+          </View>
           {/*  */}
-          {/* Login Button */}
-          <View style={styles.loginButton}>
+          {/* Register Button */}
+          <View style={styles.buttonContainer}>
+            <Pressable style={styles.registerButton}>
               <Button
-                title="Login"
+                title="Register"
                 color="white"
-                onPress={()=>{handleLogin(email, password)}}
+                onPress={() => {
+                  signUp(email, username, password, confirmPassword);
+                }}
               />
+            </Pressable>
             <TouchableOpacity
             // onPress={handleImageButtonPress}
             ></TouchableOpacity>
           </View>
+
           {/*  */}
-          {/* Forgot Password */}
-          <Link href={"/ResetPasswordView"}>
-            <Text style={styles.clickableText}> Forgot Password?</Text>
-          </Link>
-          {/*  */}
-          {/* Create Account Button*/}
+          {/* Login Button*/}
           <View style={styles.createAccountContainer}>
-            <Text style={styles.textStyle}>Don't Have an Account yet?</Text>
-            <Link href={"/RegisterView"}>
-              <Text style={styles.clickableText}> Register Now!</Text>
+            <Text style={styles.textStyle}>Already Have an Account?</Text>
+            <Link href={"/LoginView"}>
+              <Text style={styles.clickableText}> Login Now!</Text>
             </Link>
           </View>
         </SafeAreaView>
@@ -117,16 +140,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  separator: {
+    marginVertical: 30,
+    height: 1,
+    width: "80%",
+  },
 
-  googleLoginContainer: {
+  googleRegisterContainer: {
     width: 300,
     height: 50,
     borderRadius: 15,
-    margin: 10,
+    margin: 0,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#373737",
-    marginBottom: 50,
+    marginBottom: 30,
   },
   googleText: {
     color: "white",
@@ -139,7 +167,7 @@ const styles = StyleSheet.create({
   },
 
   innerContainer: {
-    marginTop: 50,
+    marginTop: 30,
     flex: 1,
     alignItems: "center",
     backgroundColor: "#f26722",
@@ -177,7 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f26722",
   },
 
-  loginButton: {
+  registerButton: {
     width: 100,
     borderRadius: 20,
     backgroundColor: "#3383FF",

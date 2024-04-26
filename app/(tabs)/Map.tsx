@@ -5,7 +5,7 @@ import TitleHeader from "@/components/TitleHeader";
 import * as Location from 'expo-location';
 import { UserLocationContext } from "./Context/UserLocationContext";
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { AppContext } from '@/model/AppContext';
+import { AppContext } from '@/context/AppContext';
 import { MapRouteParams, RootStackParamList } from "@/constants/navigationTypes";
 import MapView from 'react-native-maps';
 
