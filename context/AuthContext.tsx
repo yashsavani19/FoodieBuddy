@@ -102,13 +102,15 @@ export function AuthProvider(props: ProviderProps) {
     // Validate input fields
     if (!email || !password) {
       alert("Please enter both email and password.");
+      setAuthInitialised(true);
       return;
     }
-
+    
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       alert("Please enter a valid email address.");
+      setAuthInitialised(true);
       return;
     }
 
