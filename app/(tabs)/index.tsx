@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text} from "react-native";
+import { Alert, FlatList, StyleSheet, Text} from "react-native";
 import RestaurantListItem from "@/components/RestaurantListItem";
 import restaurants from "@/assets/data/restaurants";
 import { View } from "@/components/Themed";
@@ -16,18 +16,27 @@ export default function HomeView() {
   useEffect(() => {
     if (!searchTerm) {
       setFilteredRestaurants(localRestaurants);
-      console.log(localRestaurants);
     } else {
-      setFilteredRestaurants(
-        localRestaurants.filter((restaurants) => {
-          return restaurants.name
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase());
-        })
+      const filtered = localRestaurants.filter((restaurant) =>
+        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      console.log(filteredRestaurants);
+      setFilteredRestaurants(filtered);
+
+      // Show alert if no matching results
+      if (filtered.length === 0) {
+        Alert.alert('No Results', 'No matching restaurants found.', [
+          {
+            text: 'OK',
+            onPress: () => setSearchTerm('') // Clear search term
+          }
+        ]);
+      }
     }
-  }, [searchTerm]);
+  }, [searchTerm, localRestaurants]);
+
+  useEffect(() => {
+    setFilteredRestaurants(localRestaurants);
+  }, [localRestaurants]);
 
   useEffect(() => {
     setFilteredRestaurants(localRestaurants);
@@ -41,6 +50,7 @@ export default function HomeView() {
           data={filteredRestaurants}
           renderItem={({ item }) => <RestaurantListItem restaurant={item} />}
           contentContainerStyle={{ gap: 3 }}
+          
         />
       </View>
     </View>
