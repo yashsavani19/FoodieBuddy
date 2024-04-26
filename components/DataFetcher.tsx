@@ -24,7 +24,7 @@ export const DataFetcher: React.FC<DataFetcherProps> = ({ onLoading }) => {
       } finally {
         onLoading(false);
       }
-    })();
+    })(), [];
   }, []);
 
   return null;

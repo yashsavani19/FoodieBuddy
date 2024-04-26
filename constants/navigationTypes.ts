@@ -8,6 +8,7 @@ export type RootStackParamList = {
     };
   }; };
   ChatView: undefined;
+  DetailsView: { id: string };
 };
 
 export type MapRouteParams = {

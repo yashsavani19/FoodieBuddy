@@ -6,16 +6,14 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { DataFetcher } from "@/components/DataFetcher";
 import { AppContext, ContextProvider } from "@/model/AppContext";
 import Loading from "./Loading";
-import { isAuthenticated } from "@/controller/FirebaseHandler";
 
-const authenticated = isAuthenticated();
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -67,34 +65,10 @@ function RootLayoutNav() {
         {isLoading ? (
           <Loading />
         ) : (
-            <Stack
-              initialRouteName={authenticated ? "(tabs)" : "LoginView"}
-            >
-              {authenticated ? (
-                // Stack navigator for authenticated users
-                <>
-                  {/* Define the screens/components for your authenticated user flow */}
-                  {/* <Stack.Screen name="(tabs)" component={TabsComponent} options={{ headerShown: false }} /> */}
-                </>
-              ) : (
-                // Stack navigator for authentication flows
-                <>
-                  <Stack.Screen
-                    name="LoginView"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="RegisterView"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="ResetPasswordView"
-                    options={{ headerShown: false }}
-                  />
-                  {/* Add other screens for your authentication flow as needed */}
-                </>
-              )}
-            </Stack>
+          <Stack>
+            <Stack.Screen name="DetailsView" />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
         )}
       </ContextProvider>
     </ThemeProvider>

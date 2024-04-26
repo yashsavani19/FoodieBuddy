@@ -1,19 +1,19 @@
 import { Restaurant } from "@/model/Restaurant";
-import { StyleSheet, Image, Pressable, Animated } from 'react-native';
-import { Text, View } from './Themed';
+import { StyleSheet, Image, Pressable, Animated } from "react-native";
+import { Text, View } from "./Themed";
 import images from "@/assets/data/images";
-import React, { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '@/constants/navigationTypes';
+import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
 import StarRating from "./StarRating";
 
-
 type RestaurantListItemProps = {
-  restaurant: Restaurant; 
+  restaurant: Restaurant;
 };
 
-const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
+export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
+  
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
@@ -39,108 +39,129 @@ const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     ]).start();
   };
 
-
   return (
-    <Pressable style={styles.container}> 
-      <Image 
-        source={{ uri: restaurant.image || images.defaultRestaurantImage }} 
-        style={styles.image} 
-        resizeMode='cover'
+    <Pressable
+      style={styles.container}
+      onPress={() => navigation.navigate("DetailsView", { id: restaurant.id })}
+    >
+      <Image
+        source={{ uri: restaurant.image || images.defaultRestaurantImage }}
+        style={styles.image}
+        resizeMode="cover"
       />
       <View style={styles.textContainer}>
-        <Pressable onPress= {() => {
-          setFindOnMapPressed(!isFindOnMapPressed)
-          navigation.navigate('Map', { geometry: restaurant.geometry });
-          console.log("Find on map pressed")
-          }}>
+        <Pressable
+          onPress={() => {
+            setFindOnMapPressed(!isFindOnMapPressed);
+            navigation.navigate("Map", { geometry: restaurant.geometry });
+            console.log("Find on map pressed");
+          }}
+        >
           <View style={styles.iconContainer}>
-            <Image 
-              source={{ uri: images.mapMarker }} 
-              style={styles.mapIcon} 
-            />
+            <Image source={{ uri: images.mapMarker }} style={styles.mapIcon} />
             <Text style={styles.findOnMap}>Find on map</Text>
           </View>
         </Pressable>
         <View style={styles.textInfo}>
           <Text style={styles.title}>{restaurant.name}</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{fontWeight: 'bold'}}>Rating: </Text>
-            {restaurant.rating !== undefined && (<StarRating rating={restaurant.rating ?? "N/A"} />)}
-            <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={{ fontWeight: "bold" }}>Rating: </Text>
+            {restaurant.rating !== undefined && (
+              <StarRating rating={restaurant.rating ?? "N/A"} />
+            )}
+            <Text style={styles.distance}>
+              {parseFloat(restaurant.distance).toFixed(1)}km
+            </Text>
           </View>
         </View>
 
         <View style={styles.iconContainer}>
-          <Pressable onPress={() => { if (isFavePressed) { setFavePressed(false); }
-            setBookmarkPressed(!isBookmarkPressed); animateIcon(bookmarkScale);  }}>
-              
-            <Animated.Image 
-              source={{ uri: isBookmarkPressed ? images.bookmarkSelectedIcon : images.bookmarkIcon }} 
-              style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]} 
+          <Pressable
+            onPress={() => {
+              if (isFavePressed) {
+                setFavePressed(false);
+              }
+              setBookmarkPressed(!isBookmarkPressed);
+              animateIcon(bookmarkScale);
+            }}
+          >
+            <Animated.Image
+              source={{
+                uri: isBookmarkPressed
+                  ? images.bookmarkSelectedIcon
+                  : images.bookmarkIcon,
+              }}
+              style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
             />
-
           </Pressable>
         </View>
 
         <View style={styles.iconContainer}>
-          <Pressable onPress={() => { if (isBookmarkPressed) { setBookmarkPressed(false); }
-            setFavePressed(!isFavePressed); animateIcon(faveScale); }}>
-
-            <Animated.Image 
-              source={{ uri: isFavePressed ? images.faveSelectedIcon : images.faveIcon }} 
-              style={[styles.icon, { transform: [{ scale: faveScale }] }]} 
+          <Pressable
+            onPress={() => {
+              if (isBookmarkPressed) {
+                setBookmarkPressed(false);
+              }
+              setFavePressed(!isFavePressed);
+              animateIcon(faveScale);
+            }}
+          >
+            <Animated.Image
+              source={{
+                uri: isFavePressed ? images.faveSelectedIcon : images.faveIcon,
+              }}
+              style={[styles.icon, { transform: [{ scale: faveScale }] }]}
             />
-            
           </Pressable>
         </View>
-
       </View>
     </Pressable>
   );
 };
 
+
 export default RestaurantListItem;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 10,
     //borderRadius: 10,
   },
   textContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 8,
     paddingRight: 4,
   },
   iconContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   textInfo: {
     flex: 1,
   },
   title: {
     fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'left',
-    flexWrap: 'wrap',
+    fontWeight: "600",
+    textAlign: "left",
+    flexWrap: "wrap",
   },
   distance: {
-    fontWeight: 'bold',
-    textAlign: 'left',
+    fontWeight: "bold",
+    textAlign: "left",
     paddingLeft: 10,
   },
   findOnMap: {
-    fontWeight: 'bold',
-    textAlignVertical: 'center',
-    width: 50, 
+    fontWeight: "bold",
+    textAlignVertical: "center",
+    width: 50,
     marginRight: 8,
-    textAlign: 'left',
+    textAlign: "left",
   },
   image: {
-    width: '100%',
-    aspectRatio: 2.5/1,
+    width: "100%",
+    aspectRatio: 2.5 / 1,
     borderRadius: 10,
   },
   icon: {
@@ -153,5 +174,5 @@ const styles = StyleSheet.create({
     width: 32,
     aspectRatio: 1,
     resizeMode: "contain",
-  }
+  },
 });

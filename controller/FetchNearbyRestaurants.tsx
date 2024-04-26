@@ -67,4 +67,43 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
   }
 };
 
+export const fetchRestaurantById = async (id: string): Promise<any> => {
+  try {
+    console.log(`Fetching restaurant with ID: ${id}`);
+    // Construct the API URL with query parameters
+    const apiUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${id}&key=${GOOGLE_API_KEY}`;
+    const response = await axios.get<any>(apiUrl);
+    console.log("Response from API:", response.data);
+    // Process the result to create restaurant data
+    const result = response.data.result;
+    // Construct URL for the restaurant's main photo if available
+    const photoUrl = result.photos && result.photos[0] && result.photos[0].photo_reference
+      ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${photoWidth}&maxheight=${photoHeight}&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
+      : null;
+    // Calculate the distance from the provided location to the restaurant
+    // const distance = getDistanceFromLatLonInKm(
+    //   ((location as unknown) as LocationObjectCoords).latitude,
+    //   ((location as unknown) as LocationObjectCoords).longitude,
+    //   result.geometry.location.lat,
+    //   result.geometry.location.lng
+    // );
+    // Return restaurant data including photo URL
+    return {
+      geometry: result.geometry,
+      id: result.place_id,
+      name: result.name,
+      image: photoUrl,
+      categories: result.types,
+      price: result.price_level,
+      rating: result.rating,
+      displayAddress: result.vicinity,
+      phone: result.formatted_phone_number,
+      // distance: distance.toFixed(2),
+      isClosed: result.business_status,
+    };
+  } catch (error) {
+    console.error(`Error fetching restaurant with ID ${id}:`, error);
+    return null;
+  }
+};
 export default fetchNearbyRestaurants;
