@@ -3,7 +3,9 @@ import { StyleSheet, Text, View } from "react-native";
 import AppMappView from "@/components/AppMappView";
 import TitleHeader from "@/components/TitleHeader";
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from "@/constants/navigationTypes";
+import { AppContext } from '@/context/AppContext';
+import { MapRouteParams, RootStackParamList } from "@/constants/navigationTypes";
+import MapView from 'react-native-maps';
 
 export default function Map() {
   const route = useRoute<RouteProp<RootStackParamList, 'Map'>>();

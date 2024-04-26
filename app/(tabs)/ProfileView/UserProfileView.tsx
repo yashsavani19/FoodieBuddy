@@ -1,17 +1,40 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import React, { useContext } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
 import TitleHeader from "@/components/TitleHeader";
-import images from '@/assets/data/images';
-import { AntDesign, FontAwesome5 } from '@expo/vector-icons';
+import { AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { NavigationProp } from "@react-navigation/native";
+import { handleLogout } from "@/controller/FirebaseHandler";
+import { useAuth } from "@/context/AuthContext";
+import { AppContext } from "@/context/AppContext";
+import { fetchFavourites, addFavourite } from "@/controller/DatabaseHandler";
 
 export default function UserProfileView() {
-  const username = "Param Patel"; // Example username
+  const { user, signOut } = useAuth();
+  // const { setFavourites } = useContext(AppContext);
+
   const menuItems = [
-    { name: 'Favorite Eating Spots', icon: 'heart', iconType: 'AntDesign' },
-    { name: 'Bookmarked Eating Spots', icon: 'bookmark', iconType: 'FontAwesome5' },
-    { name: 'Visited Eating Spots', icon: 'map-marker-alt', iconType: 'FontAwesome5' }
+    { name: "Favorite Spots" },
+    { name: "  Bookmarked Spots" },
+    { name: "Visited Spots" },
   ];
 
+  const handleFetchFavourites = async () => {
+    const favourites = await fetchFavourites();
+    console.log("Favourites from profile:", favourites);
+  };
+
+  const handleAddFavourite = async () => {
+    console.log("Adding fav...");
+    await addFavourite("testFav");
+    console.log("Added fav!");
+  };
 
   return (
     <View style={styles.container}>
@@ -20,31 +43,45 @@ export default function UserProfileView() {
         <View style={styles.profileSection}>
           <View style={styles.profilePictureWrapper}>
             <Image
-              source={require('@/assets/images/user-icon.png')} // Correct image path
+              source={require("@/assets/images/user-icon.png")} // Correct image path
               style={styles.profilePicture}
             />
           </View>
-          <Text style={styles.username}>{username}</Text>
+          <Text style={styles.username}>{user?.displayName || ""}</Text>
           <View style={styles.accountActions}>
-            <TouchableOpacity style={styles.editButton}>
-              <Text style={{fontSize:20}}>Edit Account</Text>
+            <TouchableOpacity
+              onPress={handleAddFavourite}
+              style={styles.editButton}
+            >
+              <Text style={{ fontSize: 20 }}>Edit Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={{fontSize:20}}>Logout</Text>
+            <TouchableOpacity onPress={signOut}>
+              <Text style={{ fontSize: 20 }}>Logout</Text>
             </TouchableOpacity>
           </View>
         </View>
+
         <View style={styles.menuItemsSection}>
           {menuItems.map((item, index) => (
             <TouchableOpacity key={index} style={styles.menuItem}>
-              {item.iconType === 'AntDesign' ? (
-                <AntDesign name={item.icon} size={30} color="black" />
-              ) : (
-                <FontAwesome5 name={item.icon} size={30} color="black" />
+              {index === 0 && (
+                <FontAwesome name="heart" size={35} color="red" />
               )}
+              {index === 1 && (
+                <FontAwesome name="bookmark" size={35} color="orange" />
+              )}
+              {index === 2 && (
+                <MaterialIcons
+                  name="add-location-alt"
+                  size={35}
+                  color="green"
+                />
+              )}
+
               <Text style={styles.menuItemText}>{item.name}</Text>
+
+              {<AntDesign name="right" style={styles.rightArrow} />}
             </TouchableOpacity>
-            
           ))}
         </View>
       </ScrollView>
@@ -53,38 +90,42 @@ export default function UserProfileView() {
 }
 
 const styles = StyleSheet.create({
+  rightArrow: {
+    position: "absolute",
+    right: 20,
+    fontSize: 35,
+    color: "#ededed",
+  },
+
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollView: {
     marginTop: 120,
   },
 
-  
-  
   profileSection: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 50,
     paddingBottom: 20,
   },
   profilePictureWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   profilePicture: {
     width: 100,
     height: 100,
-    borderRadius: 50, // Circular shape
   },
   username: {
     fontSize: 25,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   accountActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     paddingVertical: 10,
   },
   editButton: {
@@ -95,21 +136,23 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 30,
+    marginVertical: 10,
     paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e1e1e1',
-    paddingLeft: 20,
+    padding: 20,
+    backgroundColor: "#363232",
+    fontSize: 10,
+    borderRadius: 20,
   },
   editAccountText: {
     fontSize: 15, // Font size for Edit Account
-    color: '#000', // Black text
+    color: "#000", // Black text
   },
   menuItemText: {
-    marginLeft: 10,
-    fontSize: 25,
+    marginLeft: 20,
+    fontSize: 19,
+    color: "#ededed",
   },
 });
-
-
