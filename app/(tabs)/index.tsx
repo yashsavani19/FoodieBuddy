@@ -15,28 +15,12 @@ export default function HomeView() {
     useState(localRestaurants);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<Category>();
-  
+  const [isLoading, setIsLoading] = useState(true);
+
   // Handle filtering of restaurants based on search term and selected category
   useEffect(() => {
+    setIsLoading(true);
     let result = localRestaurants;
-  
-    if (!searchTerm) {
-      setFilteredRestaurants(localRestaurants);
-    } else {
-      const filtered = localRestaurants.filter((restaurant) =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredRestaurants(filtered);
-
-    // Show alert if no matching results
-    if (filtered.length === 0) {
-      Alert.alert('No Results', 'No matching restaurants found.', [
-        {
-          text: 'OK',
-          onPress: () => setSearchTerm('') // Clear search term
-        }
-      ]);
-    }
 
     if (selectedCategory && selectedCategory.name !== "All") {
       if (selectedCategory && ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)) 
@@ -60,10 +44,21 @@ export default function HomeView() {
     }
   
     setFilteredRestaurants(result);
-  }
+    setIsLoading(false);
   }, [searchTerm, selectedCategory, localRestaurants]);
 
   useEffect(() => {
+
+    // Show alert if no matching results
+    if (!isLoading && filteredRestaurants.length === 0) 
+    {
+      Alert.alert('No Results', 'No matching restaurants found.', [
+        {
+          text: 'OK',
+          onPress: () => setSearchTerm('') // Clear search term
+        }
+      ]);
+    }
     console.log(filteredRestaurants === undefined ? 'No restaurants found' : filteredRestaurants.length + ' restaurants found');
   }, [filteredRestaurants]);
   return (

@@ -26,7 +26,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
     const response = await axios.get<any>(apiUrl);
     // We want to exclude places that are not restaurants, such as motels
-    const excludeKeywords = ["hotel", "motel", "inn", "lodge", "resort", "hostel", "cinema"];
+    const excludeKeywords = ["cinema"];
     console.log("Response from API:", response.data);
 
     // Process each result to create restaurant data
@@ -34,6 +34,11 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     const restaurants = await Promise.all(results.map(async (result: any) => {
       // Skip if the restaurant is not operational
       if (result.business_status !== 'OPERATIONAL') {
+        return null;
+      }
+
+      // Exclude lodging (hotels, hostels, motels, etc.)
+      if (result.types.includes('lodging')) {
         return null;
       }
 
@@ -78,6 +83,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
       })
     );
 
+    console.log("Fetched nearby restaurants:", restaurants.filter(restaurant => restaurant !== null));
     return restaurants.filter(restaurant => restaurant !== null);
   } catch (error) {
     console.error("Error fetching nearby restaurants:", error);
