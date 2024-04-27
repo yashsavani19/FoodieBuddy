@@ -1,15 +1,16 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import TitleHeader from "@/components/TitleHeader";
-import images from '@/assets/data/images';
-import { AntDesign, FontAwesome5 } from '@expo/vector-icons';
+import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { NavigationProp } from '@react-navigation/native';
 
 export default function UserProfileView() {
   const username = "Param Patel"; // Example username
+  
   const menuItems = [
-    { name: 'Favorite Eating Spots', icon: 'heart', iconType: 'AntDesign' },
-    { name: 'Bookmarked Eating Spots', icon: 'bookmark', iconType: 'FontAwesome5' },
-    { name: 'Visited Eating Spots', icon: 'map-marker-alt', iconType: 'FontAwesome5' }
+    { name: 'Favorite Spots'},
+    { name: '  Bookmarked Spots'},
+    { name: 'Visited Spots'}
   ];
 
 
@@ -17,6 +18,7 @@ export default function UserProfileView() {
     <View style={styles.container}>
       <TitleHeader title="Profile" />
       <ScrollView style={styles.scrollView}>
+
         <View style={styles.profileSection}>
           <View style={styles.profilePictureWrapper}>
             <Image
@@ -34,25 +36,40 @@ export default function UserProfileView() {
             </TouchableOpacity>
           </View>
         </View>
+
+
         <View style={styles.menuItemsSection}>
+          
           {menuItems.map((item, index) => (
             <TouchableOpacity key={index} style={styles.menuItem}>
-              {item.iconType === 'AntDesign' ? (
-                <AntDesign name={item.icon} size={30} color="black" />
-              ) : (
-                <FontAwesome5 name={item.icon} size={30} color="black" />
-              )}
-              <Text style={styles.menuItemText}>{item.name}</Text>
+              
+            {index === 0 && <FontAwesome name="heart" size={35} color="red" />}
+            {index === 1 && <FontAwesome name="bookmark" size={35} color="orange" />}
+            {index === 2 && <MaterialIcons name="add-location-alt" size={35} color="green" />}
+             
+            <Text style={styles.menuItemText}>{item.name}</Text>
+
+            {<AntDesign name="right" style={styles.rightArrow} />}
+   
             </TouchableOpacity>
             
           ))}
         </View>
+
+
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  rightArrow: {
+  position: 'absolute',
+  right: 20,
+  fontSize: 35,
+  color: '#ededed', 
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -60,8 +77,6 @@ const styles = StyleSheet.create({
   scrollView: {
     marginTop: 120,
   },
-
-  
   
   profileSection: {
     alignItems: 'center',
@@ -75,7 +90,7 @@ const styles = StyleSheet.create({
   profilePicture: {
     width: 100,
     height: 100,
-    borderRadius: 50, // Circular shape
+
   },
   username: {
     fontSize: 25,
@@ -97,18 +112,23 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginHorizontal: 30,
+    marginVertical: 10,
     paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e1e1e1',
-    paddingLeft: 20,
+    padding: 20,
+    backgroundColor: '#363232',
+    fontSize: 10,
+    borderRadius: 20,
+    
   },
   editAccountText: {
     fontSize: 15, // Font size for Edit Account
     color: '#000', // Black text
   },
   menuItemText: {
-    marginLeft: 10,
-    fontSize: 25,
+    marginLeft: 20,
+    fontSize: 19,
+    color: '#ededed',
   },
 });
 
