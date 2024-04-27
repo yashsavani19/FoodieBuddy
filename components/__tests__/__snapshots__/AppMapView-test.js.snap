@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AppMappView /> animates to selected restaurant location 1`] = `null`;
+
+exports[`<AppMappView /> calls a function when a marker is pressed 1`] = `null`;
+
+exports[`<AppMappView /> filters restaurants based on search term 1`] = `null`;
+
+exports[`<AppMappView /> renders correctly when no local restaurants are provided 1`] = `null`;
+
+exports[`<AppMappView /> renders correctly when no restaurant is selected 1`] = `null`;
+
+exports[`<AppMappView /> renders correctly when no search term is provided 1`] = `null`;
+
+exports[`<AppMappView /> renders correctly with different restaurant ratings 1`] = `null`;
+
+exports[`<AppMappView /> renders without crashing 1`] = `null`;
+
+exports[`<AppMappView /> shows callout for selected restaurant 1`] = `null`;

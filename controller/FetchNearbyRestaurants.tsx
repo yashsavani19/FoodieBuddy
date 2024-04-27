@@ -47,6 +47,11 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
         ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${photoWidth}&maxheight=${photoHeight}&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
         : null;
 
+      // Fetch additional details about the place, including the website URL
+      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${result.place_id}&fields=website&key=${GOOGLE_API_KEY}`;
+      const detailsResponse = await axios.get<any>(detailsUrl);
+      const websiteUrl = detailsResponse.data.result && detailsResponse.data.result.website;
+
       // Calculate the distance from the provided location to the restaurant
       const distance = getDistanceFromLatLonInKm(
         location.latitude,
@@ -68,6 +73,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
           phone: result.formatted_phone_number,
           distance: distance.toFixed(2),
           isClosed: result.business_status,
+          website: websiteUrl,
         };
       })
     );

@@ -3,7 +3,7 @@ import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
 import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
 import { IMessage } from "@/model/AITypes";
 import { useCallback, useContext, useState } from "react";
-import { AppContext } from "@/model/AppContext";
+import { AppContext } from "@/context/AppContext";
 
 export function useOpenAIHandler() {
   const { localRestaurants } = useContext(AppContext);
