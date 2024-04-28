@@ -16,6 +16,8 @@ import { User } from "@/model/User";
 import { auth } from "@/controller/FirebaseHandler";
 
 export type AppContextType = {
+  dataLoading: boolean;
+  setDataLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
   location: LocationObjectCoords | null;
@@ -33,6 +35,8 @@ interface ContextProviderProps {
 }
 
 export const AppContext = createContext<AppContextType>({
+  dataLoading: true,
+  setDataLoading: () => {},
   localRestaurants: [],
   setRestaurants: async () => {},
   location: null,
@@ -48,6 +52,7 @@ export const AppContext = createContext<AppContextType>({
 export const ContextProvider: React.FC<ContextProviderProps> = ({
   children,
 }) => {
+  const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
     null
@@ -57,6 +62,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [user, setUserObject] = useState<User>({});
 
   const setRestaurants = async () => {
+    setDataLoading(true);
     try {
       await updateLocation().then(async (locationCoords) => {
         console.log("Location before fetching:", locationCoords);
@@ -72,6 +78,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       });
     } catch (error) { 
       console.log(error);
+    } finally {
+      setDataLoading(false);
     }
   };
 
@@ -129,6 +137,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
 
   const contextValue = {
+    dataLoading,
+    setDataLoading,
     localRestaurants,
     setRestaurants,
     location,

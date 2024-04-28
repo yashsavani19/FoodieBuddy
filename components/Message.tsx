@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   ImageSourcePropType,
+  ActivityIndicator,
 } from "react-native";
 
 // Message props interface
@@ -31,9 +32,14 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
         />
         <View testID="loading-view" style={styles.receivedTextBox}>
           {/* <Text style={styles.text}>...</Text> */}
-          <View style={[styles.loading]}></View>
+          {/* <View style={[styles.loading]}></View>
           <View style={[styles.loading, {width: 12, height: 12, borderRadius: 12}]}></View>
-          <View style={[styles.loading]}></View>
+          <View style={[styles.loading]}></View> */}
+          <ActivityIndicator
+            style={{ margin: 5 }}
+            size="small"
+            color="white"
+          />
         </View>
       </View>
     );
@@ -53,7 +59,11 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
       >
         {type === "received" ? (
           <>
-            <Image testID="message-image" source={imageUrl} style={styles.image} />
+            <Image
+              testID="message-image"
+              source={imageUrl}
+              style={styles.image}
+            />
             <View style={styles.receivedTextBox}>
               <Text style={styles.text}>{text}</Text>
             </View>
@@ -63,7 +73,11 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
             <View style={styles.sentTextBox} testID="sentTextBox">
               <Text style={styles.text}>{text}</Text>
             </View>
-            <Image testID="message-image" source={imageUrl} style={styles.image} />
+            <Image
+              testID="message-image"
+              source={imageUrl}
+              style={styles.image}
+            />
           </>
         )}
       </View>

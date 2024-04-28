@@ -14,9 +14,10 @@ import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
 import { categories } from "@/assets/data/categories-picker";
 import { Category } from "@/model/Category";
+import Loading from "../Loading";
 
 export default function HomeView() {
-  const { localRestaurants } = useContext(AppContext);
+  const { localRestaurants, dataLoading } = useContext(AppContext);
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -82,6 +83,7 @@ export default function HomeView() {
         : filteredRestaurants.length + " restaurants found"
     );
   }, [filteredRestaurants]);
+
   return (
     <View style={{ flex: 1 }}>
       <TitleHeader
@@ -90,10 +92,10 @@ export default function HomeView() {
         onCategorySelect={setSelectedCategory}
       />
       <View style={styles.background}>
-        {isLoading || filteredRestaurants.length === 0 ? (
+        {isLoading || dataLoading ? (
           <View
             style={{
-              backgroundColor: "#00000000",
+              backgroundColor: Colors.light.headerBackground,
               justifyContent: "center",
               flex: 1,
             }}
