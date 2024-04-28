@@ -86,12 +86,13 @@ const Chat: React.FC = () => {
     return () => {
       keyboardDidShowListener.remove();
     };
-  }, []);
+  }, []);    
 
   /**
    * Send message to Buddy and get response from AI
    */
   const sendMessageFromUser = () => {
+    setRecommendedRestaurant(null);
     if (currentMessage.trim()) {
       const newMessage: MessageProps = {
         id: Date.now().toString(),
@@ -142,6 +143,8 @@ const Chat: React.FC = () => {
   const resetChatMessages = () => {
     console.log("Resetting messages");
     resetMessages();
+    setMessages([initialBuddyMessage]);
+    setRecommendedRestaurant(null);
   };
 
   /**
