@@ -30,7 +30,7 @@ import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-import { addUserInfo, fetchUser } from "./DatabaseHandler";
+import { addUser, fetchUser } from "./DatabaseHandler";
 
 import {
   GoogleSignin,
@@ -80,7 +80,8 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
-  projectId: FIREBASE_APP_ID,
+  databaseURL: FIREBASE_DATABASE_URL,
+  projectId: FIREBASE_PROJECT_URL,
   storageBucket: FIREBASE_STORAGE_BUCKET,
   messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
   appId: FIREBASE_APP_ID,

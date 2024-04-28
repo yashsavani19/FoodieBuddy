@@ -25,17 +25,6 @@ export default function UserProfileView() {
     { name: "Visited Spots" },
   ];
 
-  const handleFetchFavourites = async () => {
-    const favourites = await fetchFavourites();
-    console.log("Favourites from profile:", favourites);
-  };
-
-  const handleAddFavourite = async () => {
-    console.log("Adding fav...");
-    await addFavourite("testFav");
-    console.log("Added fav!");
-  };
-
   return (
     <View style={styles.container}>
       <TitleHeader title="Profile" />
@@ -50,7 +39,7 @@ export default function UserProfileView() {
           <Text style={styles.username}>{user?.displayName || ""}</Text>
           <View style={styles.accountActions}>
             <TouchableOpacity
-              onPress={handleAddFavourite}
+              // onPress={{}}
               style={styles.editButton}
             >
               <Text style={{ fontSize: 20 }}>Edit Account</Text>

@@ -8,12 +8,14 @@ import {
   fetchFavourites,
   fetchVisited,
   fetchUser,
+  addUser,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
 import { DefaultAISystemPrompt } from "../model/DefaultAISystemPrompt";
 import { User } from "@/model/User";
-import { auth } from "@/controller/FirebaseHandler";
+import { User as AuthUser } from "firebase/auth";
+import { useAuth } from "./AuthContext";
 
 export type AppContextType = {
   dataLoading: boolean;
@@ -26,8 +28,8 @@ export type AppContextType = {
   resetToDefaultMessage: () => void;
   chatMessages: IMessage[];
   addChatMessage: (message: IMessage) => void;
-  user: User;
-  setUser: (username: string, uid: string) => Promise<void>;
+  userObject: User;
+  setUser: () => Promise<void>;
 };
 
 interface ContextProviderProps {
@@ -45,13 +47,14 @@ export const AppContext = createContext<AppContextType>({
   resetToDefaultMessage: async () => {},
   chatMessages: [],
   addChatMessage: async () => {},
-  user: {},
+  userObject: {},
   setUser: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
   children,
 }) => {
+  const { user } = useAuth();
   const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
@@ -59,7 +62,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   );
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
-  const [user, setUserObject] = useState<User>({});
+  const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
+  const [userObject, setUserObject] = useState<User>({});
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -76,27 +80,27 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         );
         setRestaurantsArray(distanceSortedRestaurants);
       });
-    } catch (error) { 
+    } catch (error) {
       console.log(error);
     } finally {
       setDataLoading(false);
     }
   };
 
-  const setUser = async (username: string) => {
+  const setUser = async () => {
     try {
-      const uid = auth.currentUser?.uid;
-      const favourites = await fetchFavourites();
-      console.log("Favourites:", favourites);
-      // const bookmarks = await fetchBookmarks();
-      // const visited = await fetchVisited();
+      setAuthUser(user as AuthUser);
+      const uid = user?.uid;
+      // console.log("User UID:", uid);
+      if (!uid) return;
+      const favourites = await fetchFavourites(uid);
+      const bookmarks = await fetchBookmarks(uid);
+      const visited = await fetchVisited(uid);
       setUserObject({
-        username: username,
-        uid: uid,
-        favourites: favourites,
-        bookmarks: null,
-        visited: null,
-      } as User);
+        ...userObject,
+        favouriteRestaurants: favourites,
+        bookmarkedRestaurants: bookmarks,
+        visitedRestaurants: visited,});
     } catch (error) {
       console.log(error);
     }
@@ -147,7 +151,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     resetToDefaultMessage,
     chatMessages,
     addChatMessage,
-    user,
+    userObject,
     setUser,
   };
 
