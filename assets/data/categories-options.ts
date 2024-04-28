@@ -83,7 +83,7 @@ export const categories: Category[] = [
   },
   {
     id: 21,
-    name: "Hamburger",
+    name: "Burger",
   },
   {
     id: 22,
