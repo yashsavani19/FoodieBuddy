@@ -14,10 +14,12 @@ import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
 import { AppContext } from "../context/AppContext";
 import images from "@/assets/data/images";
+import { Category } from "@/model/Category";
 
 // Define the props for the AppMapView component
 interface AppMappViewProps {
   searchTerm?: string;
+  selectedCategory?: Category;
   geometry?: {
     location: {
       lat: number;
@@ -27,7 +29,7 @@ interface AppMappViewProps {
 }
 
 // Define the AppMapView component
-export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) {
+export default function AppMappView({ searchTerm, selectedCategory, geometry }: AppMappViewProps) {
   const { location, localRestaurants } = useContext(AppContext);  
   const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
@@ -39,19 +41,34 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
   // Return nothing if no location is available
   if (!location) return null; 
 
-  // Effect to filter restaurants based on search term
+  // Handle filtering of restaurants based on search term and selected category
   useEffect(() => {
-    if(!searchTerm){
-      setFilteredRestaurants(localRestaurants);
-      // console.log(localRestaurants);
+    let result = localRestaurants;
+  
+    if (selectedCategory && selectedCategory.name !== "All") {
+      if (selectedCategory && ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)) 
+      {
+        result = result.filter((restaurant) => {
+          return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(selectedCategory.name.toLowerCase());
+        });
+      }
+      else 
+      {
+        result = result.filter((restaurant) => {
+          return restaurant.name && restaurant.name.toLowerCase().includes(selectedCategory.name.toLowerCase());
+        });
+      }
     }
-    else {
-      setFilteredRestaurants(localRestaurants.filter((restaurants) => {
-        return restaurants.name.toLowerCase().includes(searchTerm.toLowerCase());
-      }))
-      // console.log(filteredRestaurants);
+  
+    if (searchTerm) {
+      result = result.filter((restaurant) => {
+        return restaurant.name && restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
+      });
     }
-  },[searchTerm])
+  
+    setFilteredRestaurants(result);
+    
+  },[searchTerm, selectedCategory, localRestaurants])
 
  // Effect to animate map to selected restaurant's location
   useEffect(() => {

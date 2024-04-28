@@ -6,7 +6,7 @@ import { LocationObjectCoords } from 'expo-location';
 // Configurable parameters for the API request
 const photoWidth = 700;
 const photoHeight = 700;
-const searchRadius = 5000; // Search radius in meters
+const searchRadius = 10000; // Search radius in meters
 const placeType = 'restaurant'; // Type of place to search
 
 /**
@@ -25,11 +25,28 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     // Construct the API URL with query parameters
     const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
     const response = await axios.get<any>(apiUrl);
+    // We want to exclude places that are not restaurants, such as cinemas
+    const excludeKeywords = ["cinema"];
     console.log("Response from API:", response.data);
 
     // Process each result to create restaurant data
     const results = response.data.results || [];
     const restaurants = await Promise.all(results.map(async (result: any) => {
+      // Skip if the restaurant is not operational
+      if (result.business_status !== 'OPERATIONAL') {
+        return null;
+      }
+
+      // Exclude lodging (hotels, hostels, motels, etc.)
+      if (result.types.includes('lodging')) {
+        return null;
+      }
+
+      // Skip if the restaurant name contains any of the exclude keywords
+      if (excludeKeywords.some(keyword => result.name.toLowerCase().includes(keyword))) {
+        return null;
+      }
+
       // Construct URL for the restaurant's main photo if available
       const photoUrl = result.photos && result.photos[0] && result.photos[0].photo_reference
         ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${photoWidth}&maxheight=${photoHeight}&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
@@ -66,7 +83,8 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
       })
     );
 
-    return restaurants;
+    console.log("Fetched nearby restaurants:", restaurants.filter(restaurant => restaurant !== null));
+    return restaurants.filter(restaurant => restaurant !== null);
   } catch (error) {
     console.error("Error fetching nearby restaurants:", error);
     return [];
