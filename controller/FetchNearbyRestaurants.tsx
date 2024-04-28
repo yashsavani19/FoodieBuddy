@@ -25,7 +25,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     // Construct the API URL with query parameters
     const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
     const response = await axios.get<any>(apiUrl);
-    // We want to exclude places that are not restaurants, such as motels
+    // We want to exclude places that are not restaurants, such as cinemas
     const excludeKeywords = ["cinema"];
     console.log("Response from API:", response.data);
 
