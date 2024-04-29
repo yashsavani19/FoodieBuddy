@@ -12,7 +12,6 @@ import Colors from "@/constants/Colors";
 import TitleHeader from "@/components/TitleHeader";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
-import Loading from "../Loading";
 import { categories } from '@/assets/data/categories-options';
 import { Category } from '@/model/Category';
 

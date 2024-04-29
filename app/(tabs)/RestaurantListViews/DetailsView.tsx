@@ -7,28 +7,30 @@ import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import index from "./index";
 import { Restaurant } from "@/model/Restaurant";
-// import { fetchRestaurantById } from "@/controller/FetchNearbyRestaurants";
+import { RootStackParamList } from '@/constants/navigationTypes';
+import { RouteProp } from '@react-navigation/native';
+
+type DetailsViewRouteProp = RouteProp<RootStackParamList, 'DetailsView'>;
 
 export default function DetailsView() {
-  const route = useRoute();
-  // const Restaurant = route.params as { restaurant: Restaurant }; // Get the 'id' passed as parameter
-  // const RestaurantInfo = Restaurant.restaurant;
-  // const restaurant = fetchRestaurantById(id);
-  // console.log((restaurant as any).name);
+  // Retrieve the route object
+  const route = useRoute<DetailsViewRouteProp>();
+  // Extract the restaurant object from route.params
+  const { Restaurant } = route.params;
+  alert(Restaurant.name);
 
-  // console.log(Restaurant.restaurant.id);
-  // if (!RestaurantInfo) {
-  //   return (
-  //     <View style={styles.centered}>
-  //       <Text>Nothing Found</Text>
-  //     </View>
-  //   ); // or handle the case when restaurant is not available
-  // }
+  // Use the restaurant object directly in your JSX
+  if (!Restaurant) {
+    return (
+      <View style={styles.centered}>
+        <Text> Something Restaurant not found.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {/* <Text style={styles.title}>{Restaurant.restaurant.name}</Text>
-      <Text>ID: {Restaurant.restaurant.id}</Text> */}
+      <Text style={styles.title}>{Restaurant.name}</Text>
     </View>
   );
 }

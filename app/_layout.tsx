@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { ContextProvider } from "@/context/AppContext";
 import Loading from "./Loading";
+import { DataFetcher } from "@/components/DataFetcher";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
@@ -88,20 +89,8 @@ function RootLayoutNav() {
   // Provide a theme based on the color scheme and setup the navigation stack
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <ContextProvider>
-        <DataFetcher onLoading={setLoading} />
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <Stack>
-            <Stack.Screen name="DetailsView" />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-        )}
-      </ContextProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="DetailsView" />
-        <Stack.Screen name="(tabs)" />
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );
