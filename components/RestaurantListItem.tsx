@@ -42,7 +42,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   return (
     <Pressable
       style={styles.container}
-      onPress={() => navigation.navigate("DetailsView", { id: restaurant.id })}
+      onPress={() => navigation.navigate("DetailsView", { Restaurant: restaurant })}
     >
       <Image
         source={{ uri: restaurant.image || images.defaultRestaurantImage }}

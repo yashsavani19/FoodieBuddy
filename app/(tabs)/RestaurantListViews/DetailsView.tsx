@@ -2,40 +2,33 @@ import { StyleSheet, Image, Pressable, ActivityIndicator } from "react-native";
 import { useState, useEffect } from "react";
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
-import { useRoute} from '@react-navigation/native';
-import { useLocalSearchParams, useRouter, Stack} from "expo-router";
+import { useRoute } from "@react-navigation/native";
+import { useLocalSearchParams, useRouter, Stack } from "expo-router";
 import { RestaurantListItem } from "@/components/RestaurantListItem";
 import index from "./index";
-import { fetchRestaurantById } from "@/controller/FetchNearbyRestaurants";
-
-
+import { Restaurant } from "@/model/Restaurant";
+// import { fetchRestaurantById } from "@/controller/FetchNearbyRestaurants";
 
 export default function DetailsView() {
- 
-
   const route = useRoute();
-  const { id } = route.params as { id: string }; // Get the 'id' passed as parameter
+  // const Restaurant = route.params as { restaurant: Restaurant }; // Get the 'id' passed as parameter
+  // const RestaurantInfo = Restaurant.restaurant;
+  // const restaurant = fetchRestaurantById(id);
+  // console.log((restaurant as any).name);
 
-  const restaurant = fetchRestaurantById(id);
-  console.log((restaurant as any).name);
-
-
-  if (!restaurant) {
-    return (
-      <View style={styles.centered}>
-        <Text>{id} </Text>
-        <Text>Nothing Found</Text>
-      </View>
-
-    ); // or handle the case when restaurant is not available
-  }
+  // console.log(Restaurant.restaurant.id);
+  // if (!RestaurantInfo) {
+  //   return (
+  //     <View style={styles.centered}>
+  //       <Text>Nothing Found</Text>
+  //     </View>
+  //   ); // or handle the case when restaurant is not available
+  // }
 
   return (
     <View style={styles.container}>
-      
-      <Image source={{ uri: (restaurant as any).image }} style={styles.image} />
-      <Text style={styles.title}>{(restaurant as any).name}</Text>
-      <Text>ID: {(restaurant as any).id}</Text>
+      {/* <Text style={styles.title}>{Restaurant.restaurant.name}</Text>
+      <Text>ID: {Restaurant.restaurant.id}</Text> */}
     </View>
   );
 }
