@@ -40,13 +40,14 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const { setRestaurants } = useContext(AppContext);
+  const { setRestaurants, setUser } = useContext(AppContext);
 
   useEffect(() => {
     if (user) {
       setIsLoading(true);
       const fetchData = async () => {
         await setRestaurants();
+        await setUser();
         setIsLoading(false);
       };
 
@@ -55,6 +56,8 @@ export default function TabLayout() {
       setIsLoading(false);
     }
   }, []);
+
+  if(isLoading) return <Loading />;
 
   return (
     <Tabs

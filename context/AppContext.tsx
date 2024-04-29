@@ -8,27 +8,35 @@ import {
   fetchFavourites,
   fetchVisited,
   fetchUser,
+  addUser,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
 import { DefaultAISystemPrompt } from "../model/DefaultAISystemPrompt";
 import { User } from "@/model/User";
-import { auth } from "@/controller/FirebaseHandler";
+import { User as AuthUser } from "firebase/auth";
+import { useAuth } from "./AuthContext";
 import { Category } from "@/model/Category";
 import { categories } from "@/assets/data/categories-options";
 import { Alert } from "react-native";
 
 export type AppContextType = {
+  dataLoading: boolean;
+  setDataLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
+  favouriteRestaurants: Restaurant[];
+  bookmarkedRestaurants: Restaurant[];
+  visitedRestaurants: Restaurant[];
+  updateSaved: () => Promise<void>;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
   defaultMessage: IMessage;
   resetToDefaultMessage: () => void;
   chatMessages: IMessage[];
   addChatMessage: (message: IMessage) => void;
-  user: User;
-  setUser: (username: string, uid: string) => Promise<void>;
+  userObject: User;
+  setUser: () => Promise<void>;
 
   selectedCategory: Category;
   setSelectedCategory: (category: Category) => void;
@@ -46,15 +54,21 @@ interface ContextProviderProps {
 }
 
 export const AppContext = createContext<AppContextType>({
+  dataLoading: true,
+  setDataLoading: () => {},
   localRestaurants: [],
   setRestaurants: async () => {},
+  favouriteRestaurants: [],
+  bookmarkedRestaurants: [],
+  visitedRestaurants: [],
+  updateSaved: async () => {},
   location: null,
   updateLocation: async () => {},
   defaultMessage: {},
   resetToDefaultMessage: async () => {},
   chatMessages: [],
   addChatMessage: async () => {},
-  user: {},
+  userObject: {},
   setUser: async () => {},
 
   selectedCategory: categories[0],
@@ -71,21 +85,32 @@ export const AppContext = createContext<AppContextType>({
 export const ContextProvider: React.FC<ContextProviderProps> = ({
   children,
 }) => {
-  const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
+  const { user } = useAuth();
+  const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
     null
   );
+  const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
+  const [favouriteRestaurants, setFavouriteRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(
+    []
+  );
+
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
-  const [user, setUserObject] = useState<User>({});
+  const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
+  const [userObject, setUserObject] = useState<User>({});
 
   const [selectedCategory, setSelectedCategory] = useState<Category>(/* initial value */);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
-  const [isLoading, setIsLoading] = useState(true);
-  
   const setRestaurants = async () => {
-    setIsLoading(true);
+    setDataLoading(true);
     try {
       await updateLocation().then(async (locationCoords) => {
         console.log("Location before fetching:", locationCoords);
@@ -102,26 +127,26 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       });
     } catch (error) { 
       console.log(error);
-    }
-    finally {
-      setIsLoading(false);
+    } finally {
+      setDataLoading(false);
     }
   };
 
-  const setUser = async (username: string) => {
+  const setUser = async () => {
     try {
-      const uid = auth.currentUser?.uid;
-      const favourites = await fetchFavourites();
-      console.log("Favourites:", favourites);
-      // const bookmarks = await fetchBookmarks();
-      // const visited = await fetchVisited();
+      setAuthUser(user as AuthUser);
+      const uid = user?.uid;
+      // console.log("User UID:", uid);
+      if (!uid) return;
+      const favourites = await fetchFavourites(uid);
+      const bookmarks = await fetchBookmarks(uid);
+      const visited = await fetchVisited(uid);
       setUserObject({
-        username: username,
-        uid: uid,
-        favourites: favourites,
-        bookmarks: null,
-        visited: null,
-      } as User);
+        ...userObject,
+        favouriteRestaurants: favourites,
+        bookmarkedRestaurants: bookmarks,
+        visitedRestaurants: visited,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -215,15 +240,21 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   } 
 
   const contextValue = {
+    dataLoading,
+    setDataLoading,
     localRestaurants,
     setRestaurants,
     location,
     updateLocation,
+    favouriteRestaurants,
+    bookmarkedRestaurants,
+    visitedRestaurants,
+    updateSaved,
     defaultMessage,
     resetToDefaultMessage,
     chatMessages,
     addChatMessage,
-    user,
+    userObject,
     setUser,
     selectedCategory: selectedCategory || {} as Category,
     setSearchTerm,

@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { StyleSheet, View, Text, Linking} from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Linking,
+  ActivityIndicator,
+} from "react-native";
 import MapView, {
   Marker,
   Callout,
@@ -15,6 +21,7 @@ import StarRating from "./StarRating";
 import { AppContext } from "../context/AppContext";
 import images from "@/assets/data/images";
 import { Category } from "@/model/Category";
+import Colors from "@/constants/Colors";
 
 // Define the props for the AppMapView component
 interface AppMappViewProps {
@@ -37,17 +44,20 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   const { location, filteredRestaurants } = useContext(AppContext);
 
   // Return nothing if no location is available
-  if (!location) return null; 
+  if (!location) return null;
 
  // Effect to animate map to selected restaurant's location
   useEffect(() => {
     if (geometry && mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: geometry.location.lat,
-        longitude: geometry.location.lng,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }, 1000); 
+      mapRef.current.animateToRegion(
+        {
+          latitude: geometry.location.lat,
+          longitude: geometry.location.lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000
+      );
     }
   }, [geometry, mapReady]);
 
@@ -55,10 +65,11 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   useEffect(() => {
     if (geometry) {
       const markerIndex = filteredRestaurants.findIndex(
-        restaurant => restaurant.geometry.location.lat === geometry.location.lat &&
-                      restaurant.geometry.location.lng === geometry.location.lng
+        (restaurant) =>
+          restaurant.geometry.location.lat === geometry.location.lat &&
+          restaurant.geometry.location.lng === geometry.location.lng
       );
-      if (markerIndex !== -1 && markerRefs.current[markerIndex]) { 
+      if (markerIndex !== -1 && markerRefs.current[markerIndex]) {
         markerRefs.current[markerIndex]?.showCallout();
         setSelectedMarkerId(markerIndex);
       }
@@ -75,7 +86,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
       console.log("No website URL provided.");
     }
   };
-  
+
   // Render the component
   return (
     location &&
@@ -111,9 +122,9 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           {/* Render markers for each nearby restaurant */}
           {filteredRestaurants.map((restaurant, index) => (
             <Marker
-              testID='Marker'
+              testID="Marker"
               key={`${index}`}
-              ref={ref => markerRefs.current[index] = ref}
+              ref={(ref) => (markerRefs.current[index] = ref)}
               coordinate={{
                 latitude: restaurant.geometry.location.lat,
                 longitude: restaurant.geometry.location.lng,
@@ -143,7 +154,11 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                     source={{
                       html: `
                         <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center"">
-                          <img src="${restaurant.image != null ? restaurant.image : images.defaultRestaurantImage}" style="width: 100%; object-fit: cover;"/>
+                          <img src="${
+                            restaurant.image != null
+                              ? restaurant.image
+                              : images.defaultRestaurantImage
+                          }" style="width: 100%; object-fit: cover;"/>
                         </div>
                       `,
                     }}
