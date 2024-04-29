@@ -1,8 +1,6 @@
 import { Restaurant } from "@/model/Restaurant";
 import { StyleSheet, Image, Pressable, Animated } from "react-native";
 import { Text, View } from "./Themed";
-import { StyleSheet, Image, Pressable, Animated } from "react-native";
-import { Text, View } from "./Themed";
 import images from "@/assets/data/images";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -18,7 +16,6 @@ import {
 import { AppContext } from "@/context/AppContext";
 
 type RestaurantListItemProps = {
-  restaurant: Restaurant;
   restaurant: Restaurant;
 };
 
@@ -121,15 +118,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             console.log("Find on map pressed");
           }}
         >
-        <Pressable
-          onPress={() => {
-            setFindOnMapPressed(!isFindOnMapPressed);
-            navigation.navigate("Map", { geometry: restaurant.geometry });
-            console.log("Find on map pressed");
-          }}
-        >
           <View style={styles.iconContainer}>
-            <Image source={{ uri: images.mapMarker }} style={styles.mapIcon} />
             <Image source={{ uri: images.mapMarker }} style={styles.mapIcon} />
             <Text style={styles.findOnMap}>Find on map</Text>
           </View>
@@ -184,12 +173,10 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   );
 };
 
-
 export default RestaurantListItem;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
     backgroundColor: "#fff",
     padding: 10,
     //borderRadius: 10,
@@ -197,14 +184,10 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: "row",
     alignItems: "center",
-    flexDirection: "row",
-    alignItems: "center",
     marginTop: 8,
     paddingRight: 4,
   },
   iconContainer: {
-    flexDirection: "row",
-    alignItems: "center",
     flexDirection: "row",
     alignItems: "center",
   },
@@ -216,13 +199,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "left",
     flexWrap: "wrap",
-    fontWeight: "600",
-    textAlign: "left",
-    flexWrap: "wrap",
   },
   distance: {
-    fontWeight: "bold",
-    textAlign: "left",
     fontWeight: "bold",
     textAlign: "left",
     paddingLeft: 10,
@@ -231,16 +209,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlignVertical: "center",
     width: 50,
-    fontWeight: "bold",
-    textAlignVertical: "center",
-    width: 50,
     marginRight: 8,
-    textAlign: "left",
     textAlign: "left",
   },
   image: {
-    width: "100%",
-    aspectRatio: 2.5 / 1,
     width: "100%",
     aspectRatio: 2.5 / 1,
     borderRadius: 10,
@@ -255,6 +227,5 @@ const styles = StyleSheet.create({
     width: 32,
     aspectRatio: 1,
     resizeMode: "contain",
-  },
   },
 });
