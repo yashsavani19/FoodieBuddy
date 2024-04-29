@@ -1,3 +1,28 @@
+// export default {
+//     logo: encodeURI("@/assets/images/Logo.png"),
+//     defaultRestaurantImage: "@/assets/images/default_pic.png",
+    
+//     // Save icons
+//     mapMarker: "@/assets/images/mapMarker.png",
+//     faveIcon: "@/assets/images/fave-icon.png",
+//     bookmarkIcon: "@/assets/images/bookmark-icon.png",
+
+//     bookmarkSelectedIcon: "@/assets/images/bookmark-Selected.png",
+//     faveSelectedIcon: "@/assets/images/fave-Selected.png",
+
+//     // Tab bar icons
+//     homeIcon: "@/assets/images/TabBarIcons/Home.png",
+//     mapIcon: "@/assets/images/TabBarIcons/Map.png",
+//     chatIcon: "@/assets/images/TabBarIcons/chat.png",
+//     profileIcon: "@/assets/images/TabBarIcons/profile.png",
+
+//     homeSelectedIcon: "@/assets/images/TabBarIcons/homeSelected.png",
+//     mapSelectedIcon: "@/assets/images/TabBarIcons/MapSelected.png",
+//     chatSelectedIcon: "@/assets/images/TabBarIcons/chatSelected.png",
+//     profileSelectedIcon: "@/assets/images/TabBarIcons/profileSelected.png",
+
+// };
+
 export default {
     logo: "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/Logo.png?alt=media&token=fa4c875d-e7e3-4e22-9f21-97330cf40124",
     defaultRestaurantImage: "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/default_pic.png?alt=media&token=a77e9db5-5a42-4cf8-b6f5-38a2193815c2",

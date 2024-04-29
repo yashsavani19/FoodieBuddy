@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Platform,
+  Button,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Filter } from "@/model/Filter";
 import { filterOptions } from "@/assets/data/filters";
@@ -15,6 +23,7 @@ interface FiltersProps {
 }
 
 const Filters: React.FC<FiltersProps> = ({ onFilterSelect }) => {
+  const [modalVisible, setModalVisible] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<Filter[]>([]);
 
   const handleFilterChange = (filters: Filter[]) => {
@@ -26,22 +35,55 @@ const Filters: React.FC<FiltersProps> = ({ onFilterSelect }) => {
 
   return (
     <View style={styles.container}>
-      <Picker
-        selectedValue={selectedFilters}
-        mode="dialog"
-        style={styles.picker}
-        dropdownIconColor="#000"
-        onValueChange={(itemValue) => handleFilterChange(itemValue)}
-      >
-        {filterOptions.map((option) => (
-          <Picker.Item
-            key={option.filter}
-            label={option.filter}
-            value={option}
-            style={styles.pickerItem}
-          />
-        ))}
-      </Picker>
+      {Platform.OS === "android" ? (
+        <Picker
+          selectedValue={selectedFilters}
+          mode="dialog"
+          style={styles.picker}
+          dropdownIconColor="#000"
+          onValueChange={(itemValue) => handleFilterChange(itemValue)}
+        >
+          {filterOptions.map((option) => (
+            <Picker.Item
+              key={option.filter}
+              label={option.filter}
+              value={option}
+              style={styles.pickerItem}
+            />
+          ))}
+        </Picker>
+      ) : (
+        <>
+          <View style={styles.loginButton}>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Text>{selectedFilters[0]?.filter || "Filter"}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Modal
+            animationType="slide"
+            style={styles.modal}
+            transparent={false}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setSelectedFilters([filterOptions[0]]);
+            }}
+          >
+            <View>
+              {filterOptions.map((option) => (
+                <Button
+                  key={option.filter}
+                  title={option.filter || "Filter"}
+                  onPress={() => {
+                    handleFilterChange([option]);
+                    setModalVisible(false);
+                  }}
+                />
+              ))}
+            </View>
+          </Modal>
+        </>
+      )}
     </View>
   );
 };
@@ -51,8 +93,8 @@ export default Filters;
 const styles = StyleSheet.create({
   container: {
     width: "45%",
-    borderRadius: 20, // Adjust border radius to make it look like a pill
-    overflow: "hidden", // Ensure contents stay within the rounded borders
+    borderRadius: 20,
+    overflow: "hidden",
     marginTop: 10,
     height: "50%",
     justifyContent: "center",
@@ -62,6 +104,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   pickerItem: {
-    fontSize: 12, // Adjust the font size as needed
+    fontSize: 12,
+  },
+  loginButton: {
+    height: "100%",
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    backgroundColor: "white",
+    margin: 40,
   },
 });
