@@ -7,7 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/constants/navigationTypes';
 import StarRating from "./StarRating";
-
+import { formatDistance } from "@/app/Utils/FormatDistance";
+import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 
 type RestaurantListItemProps = {
   restaurant: Restaurant; 
@@ -39,14 +40,6 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     ]).start();
   };
 
-  function displayPriceLevel(priceLevel: number): string {
-    let price = '';
-    for (let i = 0; i < priceLevel; i++) {
-      price += '$';
-    }
-    return price;
-  }
-
   return (
     <Pressable style={styles.container}> 
       <Image 
@@ -75,7 +68,9 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             <Text style={{fontWeight: 'bold'}}>
               Rating: {restaurant.rating !== undefined ? <StarRating rating={restaurant.rating} /> : "N/A"}
             </Text>
-            <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
+            <Text style={styles.distance}>
+              {formatDistance(restaurant.distance)}
+            </Text>
             <Text style={styles.distance}>{restaurant.price !== undefined ? displayPriceLevel(parseInt(restaurant.price)) : ""}</Text>
           </View>
         </View>

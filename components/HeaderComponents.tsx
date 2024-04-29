@@ -1,7 +1,6 @@
 import Filters from "./Filters";
 import Categories from "./Categories";
 import SearchBar from "./SearchBar";
-import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { Category } from "@/model/Category";
 import { Filter } from "@/model/Filter";
@@ -12,6 +11,8 @@ interface HeaderComponentsProps {
   onSearchSubmit?: (searchTerm: string) => void;
   onCategorySelect?: (category: Category) => void;
   onFilterSelect?: (filter: Filter[]) => void;
+  searchTerm?: string; 
+  selectedCategory?: Category; 
 }
 
 const HeaderComponents: React.FC<HeaderComponentsProps> = ({
@@ -29,7 +30,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   };
 
   const handleCategorySelect = (category: Category) => {
-    console.log(`Category selected: ${category}`);
+    console.log(`Category selected: ${category.name}`);
     if (onCategorySelect) {
       onCategorySelect(category);
     }
@@ -48,9 +49,13 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   if (searchBar) {
     return (
       <View style={styles.container}>
-        <SearchBar onSearchSubmit={handleSearchSubmit} />
+        <SearchBar 
+          onSearchSubmit={handleSearchSubmit} 
+        />
         <View style={styles.filters}>
-          <Categories onCategorySelect={handleCategorySelect} />
+          <Categories 
+            onCategorySelect={handleCategorySelect} 
+          />
           <Filters onFilterSelect={handleFilterSelect} />
         </View>
       </View>
