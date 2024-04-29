@@ -8,24 +8,32 @@ import {
   fetchFavourites,
   fetchVisited,
   fetchUser,
+  addUser,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
 import { DefaultAISystemPrompt } from "../model/DefaultAISystemPrompt";
 import { User } from "@/model/User";
-import { auth } from "@/controller/FirebaseHandler";
+import { User as AuthUser } from "firebase/auth";
+import { useAuth } from "./AuthContext";
 
 export type AppContextType = {
+  dataLoading: boolean;
+  setDataLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
+  favouriteRestaurants: Restaurant[];
+  bookmarkedRestaurants: Restaurant[];
+  visitedRestaurants: Restaurant[];
+  updateSaved: () => Promise<void>;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
   defaultMessage: IMessage;
   resetToDefaultMessage: () => void;
   chatMessages: IMessage[];
   addChatMessage: (message: IMessage) => void;
-  user: User;
-  setUser: (username: string, uid: string) => Promise<void>;
+  userObject: User;
+  setUser: () => Promise<void>;
 };
 
 interface ContextProviderProps {
@@ -33,30 +41,50 @@ interface ContextProviderProps {
 }
 
 export const AppContext = createContext<AppContextType>({
+  dataLoading: true,
+  setDataLoading: () => {},
   localRestaurants: [],
   setRestaurants: async () => {},
+  favouriteRestaurants: [],
+  bookmarkedRestaurants: [],
+  visitedRestaurants: [],
+  updateSaved: async () => {},
   location: null,
   updateLocation: async () => {},
   defaultMessage: {},
   resetToDefaultMessage: async () => {},
   chatMessages: [],
   addChatMessage: async () => {},
-  user: {},
+  userObject: {},
   setUser: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
   children,
 }) => {
-  const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
+  const { user } = useAuth();
+  const [dataLoading, setDataLoading] = useState<boolean>(true);
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
     null
   );
+  const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
+  const [favouriteRestaurants, setFavouriteRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(
+    []
+  );
+
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
-  const [user, setUserObject] = useState<User>({});
+  const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
+  const [userObject, setUserObject] = useState<User>({});
 
   const setRestaurants = async () => {
+    setDataLoading(true);
     try {
       await updateLocation().then(async (locationCoords) => {
         console.log("Location before fetching:", locationCoords);
@@ -70,25 +98,61 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         );
         setRestaurantsArray(distanceSortedRestaurants);
       });
-    } catch (error) { 
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const updateSaved = async () => {
+    try {
+      if (!user || !userObject) return;
+      if (userObject.favouriteRestaurants) {
+        const favourites = userObject.favouriteRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setFavouriteRestaurants([...favouriteRestaurants, newRestaurant]);
+            // setFavouriteRestaurants(favourites);
+          }
+        );
+      }
+      if (userObject.bookmarkedRestaurants) {
+        const bookmarks = userObject.bookmarkedRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setBookmarkedRestaurants([...bookmarkedRestaurants, newRestaurant]);
+            // setBookmarkedRestaurants(bookmarks);
+          }
+        );
+      }
+      if (userObject.visitedRestaurants) {
+        const visited = userObject.visitedRestaurants.forEach((restaurant) => {
+          // const newRestaurant = getRestaurantById(restaurant.placeId);
+          // setVisitedRestaurants([...visitedRestaurants, newRestaurant]);
+          // setVisitedRestaurants(visited);
+        });
+      }
+    } catch (error) {
       console.log(error);
     }
   };
 
-  const setUser = async (username: string) => {
+  const setUser = async () => {
     try {
-      const uid = auth.currentUser?.uid;
-      const favourites = await fetchFavourites();
-      console.log("Favourites:", favourites);
-      // const bookmarks = await fetchBookmarks();
-      // const visited = await fetchVisited();
+      setAuthUser(user as AuthUser);
+      const uid = user?.uid;
+      // console.log("User UID:", uid);
+      if (!uid) return;
+      const favourites = await fetchFavourites(uid);
+      const bookmarks = await fetchBookmarks(uid);
+      const visited = await fetchVisited(uid);
       setUserObject({
-        username: username,
-        uid: uid,
-        favourites: favourites,
-        bookmarks: null,
-        visited: null,
-      } as User);
+        ...userObject,
+        favouriteRestaurants: favourites,
+        bookmarkedRestaurants: bookmarks,
+        visitedRestaurants: visited,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -129,15 +193,21 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
 
   const contextValue = {
+    dataLoading,
+    setDataLoading,
     localRestaurants,
     setRestaurants,
     location,
     updateLocation,
+    favouriteRestaurants,
+    bookmarkedRestaurants,
+    visitedRestaurants,
+    updateSaved,
     defaultMessage,
     resetToDefaultMessage,
     chatMessages,
     addChatMessage,
-    user,
+    userObject,
     setUser,
   };
 

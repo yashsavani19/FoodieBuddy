@@ -2,6 +2,7 @@ import { useNavigationContainerRef, useRouter, useSegments } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import * as Auth from "firebase/auth";
 import { auth } from "../controller/FirebaseHandler";
+import { addUser } from "@/controller/DatabaseHandler";
 
 interface SignInResponse {
   data: Auth.User | undefined;
@@ -205,6 +206,7 @@ export function AuthProvider(props: ProviderProps) {
   ): Promise<void> => {
     await Auth.createUserWithEmailAndPassword(auth, email, password);
     const currentAuth = Auth.getAuth();
+    await addUser(Auth.getAuth().currentUser?.uid || "", email, username);
     if (currentAuth.currentUser === null) {
       alert("Error registering user");
       return;

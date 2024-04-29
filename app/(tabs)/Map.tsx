@@ -1,32 +1,41 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import AppMappView from "@/components/AppMappView";
 import TitleHeader from "@/components/TitleHeader";
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { AppContext } from '@/context/AppContext';
-import { MapRouteParams, RootStackParamList } from "@/constants/navigationTypes";
-import MapView from 'react-native-maps';
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { AppContext } from "@/context/AppContext";
+import {
+  MapRouteParams,
+  RootStackParamList,
+} from "@/constants/navigationTypes";
+import MapView from "react-native-maps";
 import { Category } from "@/model/Category";
 
 export default function Map() {
-  const route = useRoute<RouteProp<RootStackParamList, 'Map'>>();
+  const route = useRoute<RouteProp<RootStackParamList, "Map">>();
   const { geometry } = route.params || {};
-  
+
   const [selectedCategory, setSelectedCategory] = useState<Category>();
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  useEffect(() => { 
-    console.log(searchTerm)
-  },[searchTerm]) 
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  useEffect(() => {
+    console.log(searchTerm);
+  }, [searchTerm]);
 
   return (
     <View style={styles.container}>
-      <TitleHeader searchBar={true} onSearchSubmit={setSearchTerm} onCategorySelect={setSelectedCategory}/>
+      <TitleHeader
+        searchBar={true}
+        onSearchSubmit={setSearchTerm}
+        onCategorySelect={setSelectedCategory}
+      />
       <View style={styles.mapContainer}>
-        <AppMappView geometry={geometry} searchTerm={searchTerm} selectedCategory={selectedCategory}/>
+        <AppMappView
+          geometry={geometry}
+          searchTerm={searchTerm}
+          selectedCategory={selectedCategory}
+        />
       </View>
-      <View style={styles.placeListContainer}>
-
-      </View>
+      <View style={styles.placeListContainer}></View>
     </View>
   );
 }
@@ -37,12 +46,12 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    marginTop: 120, 
+    marginTop: 120,
   },
   placeListContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     zIndex: 10,
-    width: '100%'
-  }
+    width: "100%",
+  },
 });
