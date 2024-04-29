@@ -77,7 +77,7 @@ export default function TabLayout() {
             <TabBarIcon image={focused ? images.profileSelectedIcon : images.profileIcon} />,
           headerShown: false, // This removes the default header
         }}
-      />
+      />    
     </Tabs>
   );
 }

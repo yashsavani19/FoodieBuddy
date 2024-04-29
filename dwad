@@ -1,0 +1,176 @@
+* [33m5364b29[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/param[m[33m, [m[1;32mparam[m[33m)[m Updated Profile Section Updated the profile icon Added arrows and icons with colors. updated the css design
+[31m|[m * [33md9feb18[m[33m ([m[1;31morigin/Fran[m[33m)[m Show price level of each restaurant listing
+[31m|[m * [33m2f39490[m Filter out temporarily and permanently closed restaurants on fetch
+[31m|[m * [33m42af08c[m Complete Restaurant List rendering test
+[31m|[m[31m/[m  
+[31m|[m * [33mc76019a[m[33m ([m[1;31morigin/Lucas[m[33m)[m Can now press enter for search
+[31m|[m * [33m69586dc[m Website link when callout is pressed
+[31m|[m[31m/[m  
+[31m|[m * [33mcbce903[m[33m ([m[1;31morigin/Yash[m[33m)[m isAuthenticated not working
+[31m|[m * [33m948fa53[m Smaller Logo in Auth Screens
+[31m|[m *   [33mda34c63[m Merge remote-tracking branch 'origin/main' into Yash
+[31m|[m [35m|[m[31m\[m  
+[31m|[m [35m|[m[31m/[m  
+[31m|[m[31m/[m[35m|[m   
+* [35m|[m [33m973add7[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix Marker Bug - Josh MVP
+* [35m|[m   [33m9c4802b[m Merge pull request #12 from yashsavani19/Lucas
+[1;31m|[m[1;32m\[m [35m\[m  
+[1;31m|[m * [35m|[m [33m938e0e2[m Search Filter
+[1;31m|[m * [35m|[m   [33m6b82cf8[m merge main to lucas
+[1;31m|[m [1;33m|[m[1;31m\[m [35m\[m  
+[1;31m|[m [1;33m|[m[1;31m/[m [35m/[m  
+[1;31m|[m[1;31m/[m[1;33m|[m [35m|[m   
+* [1;33m|[m [35m|[m   [33m82fed18[m Merge pull request #10 from yashsavani19/param
+[1;35m|[m[1;36m\[m [1;33m\[m [35m\[m  
+[1;35m|[m * [1;33m|[m [35m|[m [33mec68c67[m restaurant list in home now pulls from the localRestaurants context variable Updated the profile section and added some colors in Color.ts file.
+* [1;36m|[m [1;33m|[m [35m|[m   [33meec6447[m Merge pull request #9 from yashsavani19/Josh
+[31m|[m[32m\[m [1;36m\[m [1;33m\[m [35m\[m  
+* [32m\[m [1;36m\[m [1;33m\[m [35m\[m   [33m14b5d62[m Merge pull request #8 from yashsavani19:Josh
+[33m|[m[34m\[m [32m\[m [1;36m\[m [1;33m\[m [35m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m * [35m\[m   [33md5b18b2[m Merge branch 'main' into Lucas
+[33m|[m [34m|[m [32m|[m [1;36m|[m [35m|[m[36m\[m [35m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [35m|[m * [35m|[m [33m6f80bf0[m variables for fetchnearbyrestaurants
+[33m|[m [34m|[m [32m|[m [1;36m|[m [35m|[m * [35m|[m   [33m06fdfe4[m Merge branch 'main' of https://github.com/yashsavani19/FoodieBuddy
+[33m|[m [34m|[m [32m|[m [1;36m|[m [35m|[m [1;31m|[m[1;32m\[m [35m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m * [1;31m|[m [1;32m|[m [35m|[m [33mc3209d0[m Merged with main
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;33m|[m[1;31m\[m[1;31m|[m [1;32m|[m [35m|[m 
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;33m|[m * [1;32m|[m [35m|[m   [33m9eaa524[m Config param for API request FetchNearbyRestaurants
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;33m|[m [1;35m|[m[1;36m\[m [1;32m\[m [35m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;33m|[m[1;36m_[m[1;35m|[m[1;36m/[m [1;32m/[m [35m/[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m[1;36m/[m[1;33m|[m [1;35m|[m [1;32m|[m [35m|[m   
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;33m|[m * [1;32m|[m [35m|[m [33m89355f8[m Enlarge Images fetched
+[33m|[m [34m|[m [32m|[m [1;36m|[m * [1;36m|[m [1;32m|[m [35m|[m [33m7050b17[m Displaying Markers
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33m361535b[m Fixed Logout Function
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33m1963092[m Fixed Logout Function
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m *   [33m55f6289[m Merge branch 'Yash' of https://github.com/yashsavani19/FoodieBuddy into Yash
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [31m|[m[32m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [31m|[m * [33mbdac30f[m _Layout reset
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [32m|[m [33m4796aec[m Firebase Auth init fixed
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [32m|[m[32m/[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33mea3c678[m Added Persistence, for Login
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m *   [33m0546444[m Merge remote-tracking branch 'origin/main' into Yash
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [33m|[m[1;32m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [33m|[m[1;32m/[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m[1;32m/[m[33m|[m   
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33mb130dfa[m Login, Register and Reset Password Functional
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33m6aaf33f[m Your commit message
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m *   [33m60f863a[m Merge remote-tracking branch 'origin/main' into Yash
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [35m|[m[1;36m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m[1;36m_[m[1;32m|[m[1;36m_[m[35m|[m[1;36m/[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m[1;36m/[m[1;36m|[m [1;32m|[m [35m|[m   
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33m6606799[m ResetPasswordView Added
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33m48a7e0e[m Login/Register View Design
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [33m76a643e[m Fixed Errors
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m *   [33m8254332[m Merge remote-tracking branch 'origin/main' into Yash
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;31m|[m[1;32m\[m  
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [1;32m|[m [33m5e8bbdf[m Errors :(
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m * [1;32m|[m [33m04285b5[m Error with packages
+[33m|[m [34m|[m [32m|[m [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;32m|[m * [33m2a03712[m[33m ([m[1;31morigin/Josh[m[33m)[m Improved AI chat prompt
+[33m|[m [34m|[m [32m|[m [1;36m|[m[32m_[m[1;36m|[m[32m_[m[1;36m|[m[32m_[m[1;32m|[m[32m_[m[1;32m|[m[32m_[m[1;32m|[m[32m/[m  
+[33m|[m [34m|[m [32m|[m[32m/[m[1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;32m|[m   
+[33m|[m [34m|[m * [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;32m|[m [33ma3a2429[m Updated buddy chat prompt. Included extra fields in Google API call for Restaurant types.
+[33m|[m [34m|[m[34m/[m [1;36m/[m [1;36m/[m [1;36m/[m [1;32m/[m [1;32m/[m [1;32m/[m  
+[33m|[m * [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;32m|[m [33m0478455[m Added branded splash image and config
+[33m|[m * [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;32m|[m [33medbcf23[m Added loading screen and user object to context
+[33m|[m[33m/[m [1;36m/[m [1;36m/[m [1;36m/[m [1;32m/[m [1;32m/[m [1;32m/[m  
+* [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;32m|[m [33ma620681[m Find on Map bug fixed using onMapReady
+* [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [1;32m|[m [33md9d3b2c[m Add ratings & find on map to home restaurant list
+[1;32m|[m [1;36m|[m[1;32m_[m[1;36m|[m[1;32m_[m[1;36m|[m[1;32m/[m [1;32m/[m [1;32m/[m  
+[1;32m|[m[1;32m/[m[1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m   
+* [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [33m3119a31[m Merge branch 'main' of https://github.com/yashsavani19/FoodieBuddy
+* [1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m [33m07fdb2d[m Merge branch 'main' of https://github.com/yashsavani19/FoodieBuddy
+[1;34m|[m[1;36m\[m[1;36m|[m [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m 
+[1;34m|[m * [1;36m|[m [1;36m|[m [1;32m|[m [1;32m|[m   [33m4dc627d[m Merge branch 'Josh'
+[1;34m|[m [1;36m|[m[31m\[m [1;36m\[m [1;36m\[m [1;32m\[m [1;32m\[m  
+[1;34m|[m [1;36m|[m [31m|[m[1;36m_[m[1;36m|[m[1;36m/[m [1;32m/[m [1;32m/[m  
+[1;34m|[m [1;36m|[m[1;36m/[m[31m|[m [1;36m|[m [1;32m|[m [1;32m|[m   
+[1;34m|[m [1;36m|[m * [1;36m|[m [1;32m|[m [1;32m|[m [33m66137fe[m Fixed chat reset messages and List Item now appears if found
+[1;34m|[m [1;36m|[m * [1;36m|[m [1;32m|[m [1;32m|[m [33m881d915[m Fixed context and started fixing chat
+[1;34m|[m [1;36m|[m * [1;36m|[m [1;32m|[m [1;32m|[m [33m9987d7d[m Merge branch 'main' into Josh
+[1;34m|[m [1;36m|[m [32m|[m[1;36m\[m[1;36m|[m [1;32m|[m [1;32m|[m 
+[1;34m|[m [1;36m|[m * [1;36m|[m [1;32m|[m [1;32m|[m   [33m5e24501[m Merge pull request #7 from yashsavani19/revert-6-Lucas
+[1;34m|[m [1;36m|[m [34m|[m[35m\[m [1;36m\[m [1;32m\[m [1;32m\[m  
+[1;34m|[m [1;36m|[m [34m|[m * [1;36m|[m [1;32m|[m [1;32m|[m [33m4456be2[m Revert "Removed duplicate Restaurant.tsx"
+[1;34m|[m [1;36m|[m [34m|[m[34m/[m [1;36m/[m [1;32m/[m [1;32m/[m  
+[1;34m|[m [1;36m|[m * [1;36m|[m [1;32m|[m [1;32m|[m   [33m8353c49[m Merge pull request #6 from yashsavani19:Lucas
+[1;34m|[m [1;36m|[m [36m|[m[1;31m\[m [1;36m\[m [1;32m\[m [1;32m\[m  
+* [1;36m|[m [36m|[m [1;31m|[m [1;36m|[m [1;32m|[m [1;32m|[m [33m86ad737[m Repair last commit
+[1;36m|[m[1;36m/[m [36m/[m [1;31m/[m [1;36m/[m [1;32m/[m [1;32m/[m  
+* [36m|[m [1;31m|[m [1;36m/[m [1;32m/[m [1;32m/[m [33me1c1d3c[m restaurant list in home now pulls from the localRestaurants context variable
+[1;36m|[m [36m|[m[1;36m_[m[1;31m|[m[1;36m/[m [1;32m/[m [1;32m/[m  
+[1;36m|[m[1;36m/[m[36m|[m [1;31m|[m [1;32m|[m [1;32m|[m   
+* [36m|[m [1;31m|[m [1;32m|[m [1;32m|[m [33m66ef767[m Fixed context
+* [36m|[m [1;31m|[m [1;32m|[m [1;32m|[m   [33m1eaadb9[m Merge errors resolved
+[1;32m|[m[1;31m\[m [36m\[m [1;31m\[m [1;32m\[m [1;32m\[m  
+[1;32m|[m [1;31m|[m [36m|[m[1;31m/[m [1;32m/[m [1;32m/[m  
+[1;32m|[m [1;31m|[m[1;31m/[m[36m|[m [1;32m|[m [1;32m|[m   
+[1;32m|[m * [36m|[m [1;32m|[m [1;32m|[m [33md319d4b[m Merge branch 'Josh' into Lucas
+[1;32m|[m [1;34m|[m[36m\[m[36m|[m [1;32m|[m [1;32m|[m 
+[1;32m|[m [1;34m|[m * [1;32m|[m [1;32m|[m [33mf16b3bc[m Added DataFetcher
+[1;32m|[m [1;34m|[m * [1;32m|[m [1;32m|[m   [33m1a71b3a[m Merge pull request #5 from yashsavani19:Lucas
+[1;32m|[m [1;34m|[m [1;36m|[m[31m\[m [1;32m\[m [1;32m\[m  
+[1;32m|[m [1;34m|[m * [31m|[m [1;32m|[m [1;32m|[m [33m2b79a26[m Data fetch
+[1;32m|[m [1;34m|[m * [31m|[m [1;32m|[m [1;32m|[m   [33m39eb2e7[m Merge pull request #4 from yashsavani19/main
+[1;32m|[m [1;34m|[m [32m|[m[33m\[m [31m\[m [1;32m\[m [1;32m\[m  
+* [1;34m|[m [32m|[m [33m|[m [31m|[m [1;32m|[m [1;32m|[m [33m4203d58[m AppContext updated
+[1;34m|[m[1;34m/[m [32m/[m [33m/[m [31m/[m [1;32m/[m [1;32m/[m  
+* [32m|[m [33m|[m [31m|[m [1;32m|[m [1;32m|[m   [33m884f92d[m App Loadable After Context Adjustments
+[34m|[m[35m\[m [32m\[m [33m\[m [31m\[m [1;32m\[m [1;32m\[m  
+[34m|[m * [32m|[m [33m|[m [31m|[m [1;32m|[m [1;32m|[m [33mc5b858f[m App Loadable
+[34m|[m * [32m|[m [33m|[m [31m|[m [1;32m|[m [1;32m|[m [33m9dc7213[m Resolved Errors
+[34m|[m [31m|[m [32m|[m[31m_[m[33m|[m[31m/[m [1;32m/[m [1;32m/[m  
+[34m|[m [31m|[m[31m/[m[32m|[m [33m|[m [1;32m|[m [1;32m|[m   
+[34m|[m * [32m|[m [33m|[m [1;32m|[m [1;32m|[m [33m7bfc115[m FetchNearbyRestaurants updated to work with context
+[34m|[m * [32m|[m [33m|[m [1;32m|[m [1;32m|[m [33m7e0362c[m AppContext Update
+[34m|[m * [32m|[m [33m|[m [1;32m|[m [1;32m|[m [33mf380c69[m AppContext Changes
+* [35m|[m [32m|[m [33m|[m [1;32m|[m [1;32m|[m   [33m9b9729d[m Merge branch 'main' of https://github.com/yashsavani19/FoodieBuddy
+[35m|[m[1;31m\[m [35m\[m [32m\[m [33m\[m [1;32m\[m [1;32m\[m  
+[35m|[m [1;31m|[m[35m/[m [32m/[m [33m/[m [1;32m/[m [1;32m/[m  
+[35m|[m[35m/[m[1;31m|[m [32m|[m [33m|[m [1;32m|[m [1;32m|[m   
+[35m|[m * [32m|[m [33m|[m [1;32m|[m [1;32m|[m [33ma99273b[m use constant status bar height for phone compatability - prevent header overlapping
+[35m|[m * [32m|[m [33m|[m [1;32m|[m [1;32m|[m [33ma26fb3a[m Made bookmark and fave buttons clickable and change state
+[35m|[m [33m|[m [32m|[m[33m/[m [1;32m/[m [1;32m/[m  
+[35m|[m [33m|[m[33m/[m[32m|[m [1;32m|[m [1;32m|[m   
+* [33m/[m [32m|[m [1;32m|[m [1;32m|[m [33m4b7a69a[m Removed duplicate Restaurant.tsx
+[33m|[m[33m/[m [32m/[m [1;32m/[m [1;32m/[m  
+* [32m|[m [1;32m|[m [1;32m|[m [33m3a71be4[m updated tab bar icons to match mockup (selected and unselected style)
+* [32m|[m [1;32m|[m [1;32m|[m [33ma0045ea[m Merge pull request #3 from yashsavani19/Josh
+[1;32m|[m[32m\[m[32m|[m [1;32m|[m [1;32m|[m 
+[1;32m|[m * [1;32m|[m [1;32m|[m [33mb4d2863[m Title bar functionality and clean up
+[1;32m|[m * [1;32m|[m [1;32m|[m [33m8818911[m Begun filter and category components
+[1;32m|[m * [1;32m|[m [1;32m|[m   [33mbec78c5[m Merge pull request #2 from yashsavani19/main
+[1;32m|[m [1;32m|[m[1;32m\[m [1;32m\[m [1;32m\[m  
+[1;32m|[m [1;32m|[m[1;32m/[m [1;32m/[m [1;32m/[m  
+[1;32m|[m[1;32m/[m[1;32m|[m [1;32m|[m [1;32m/[m   
+[1;32m|[m [1;32m|[m [1;32m|[m[1;32m/[m    
+[1;32m|[m [1;32m|[m[1;32m/[m[1;32m|[m     
+* [1;32m|[m [1;32m|[m [33m7f6e8cc[m Added logo to the app.json file
+* [1;32m|[m [1;32m|[m [33m2cc51ff[m package-lock.json update
+* [1;32m|[m [1;32m|[m [33m07c41d5[m Removed MapView
+* [1;32m|[m [1;32m|[m [33m5cfebb8[m Successful Merge
+* [1;32m|[m [1;32m|[m   [33m4f0e43a[m Merge pull request #1 from yashsavani19/Lucas
+[1;32m|[m[31m\[m [1;32m\[m [1;32m\[m  
+[1;32m|[m [31m|[m[1;32m/[m [1;32m/[m  
+[1;32m|[m[1;32m/[m[31m|[m [1;32m|[m   
+[1;32m|[m * [1;32m|[m   [33m30c3bed[m Merged
+[1;32m|[m [32m|[m[33m\[m [1;32m\[m  
+[1;32m|[m [32m|[m * [1;32m|[m [33mc6c6cd1[m StarRating calc adjust
+[1;32m|[m [32m|[m * [1;32m|[m [33m28acda0[m Distance in km
+[1;32m|[m [32m|[m * [1;32m|[m [33m23130d7[m Distance added
+[1;32m|[m [32m|[m * [1;32m|[m [33md52e568[m Star Ratings
+[1;32m|[m [32m|[m * [1;32m|[m [33m03ebbf3[m Deselect Marker
+[1;32m|[m [32m|[m * [1;32m|[m [33mecdc7d2[m Added Images to Callout
+[1;32m|[m [32m|[m * [1;32m|[m [33m8cb393b[m Marker onPress
+[1;32m|[m [32m|[m * [1;32m|[m [33m771f7bc[m Update Markers
+[1;32m|[m [32m|[m * [1;32m|[m [33m4468c26[m Added Custom Marker
+[1;32m|[m [32m|[m * [1;32m|[m [33me418d7e[m Image not displaying
+[1;32m|[m [32m|[m * [1;32m|[m [33m5275519[m Fetched images
+[1;32m|[m [32m|[m * [1;32m|[m [33mfccbcc0[m Added nearby restaurant
+[1;32m|[m [32m|[m * [1;32m|[m [33m9ea17b1[m Add PlaceListView
+[1;32m|[m [32m|[m * [1;32m|[m [33m686644f[m Api fectching
+[1;32m|[m [32m|[m * [1;32m|[m [33m0e883f2[m New
+[1;32m|[m [32m|[m * [1;32m|[m [33m7c91c41[m New Icons
+[1;32m|[m [32m|[m * [1;32m|[m [33me7ef009[m Added Center on Me
+[1;32m|[m [32m|[m * [1;32m|[m [33m21ae648[m Added nearby restaurants
+[1;32m|[m [32m|[m * [1;32m|[m [33mbdfbdd0[m Zoom working
+[1;32m|[m [32m|[m * [1;32m|[m [33maa4974c[m Added +-Zoom
