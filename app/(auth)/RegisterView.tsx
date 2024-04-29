@@ -8,7 +8,6 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import { handleRegister } from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
 import { Link } from "expo-router";
 
@@ -16,7 +15,10 @@ const buddyLogo = require("@/assets/images/title-logo.png");
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
+import { useAuth } from "@/context/AuthContext";
+
 export default function RegisterView() {
+  const { signUp } = useAuth();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -102,9 +104,9 @@ export default function RegisterView() {
             <Pressable style={styles.registerButton}>
               <Button
                 title="Register"
-                color="white"
+                color="black"
                 onPress={() => {
-                  handleRegister(email, username, password, confirmPassword);
+                  signUp(email, username, password, confirmPassword);
                 }}
               />
             </Pressable>
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
 
   logo: {
     width: "100%",
-    height:200,
+    height: 200,
     marginTop: 75,
     resizeMode: "contain",
   },

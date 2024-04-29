@@ -13,6 +13,7 @@ import {
   handleRegister,
   handleResetPassword,
 } from "@/controller/FirebaseHandler";
+import { Platform } from "react-native";
 
 import React, { useState } from "react";
 
@@ -20,19 +21,21 @@ const buddyLogo = require("@/assets/images/title-logo.png");
 
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
-import { Link, Navigator } from "expo-router";
+import { Link } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginView() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { signIn } = useAuth();
 
   return (
     <View style={styles.container}>
       {/* Main Logo */}
-      <Image source={buddyLogo} style={styles.logo} />
       {/*  */}
       {/* Main Inner Container that displays all the content*/}
       <ScrollView>
+        <Image source={buddyLogo} style={styles.logo} />
         <SafeAreaView style={styles.innerContainer}>
           {/*  */}
           {/* Google Login */}
@@ -59,6 +62,8 @@ export default function LoginView() {
               style={styles.input}
               placeholder="Email"
               value={email}
+              autoCapitalize="none"
+              keyboardType="email-address"
               onChangeText={setEmail}
             />
           </View>
@@ -71,6 +76,7 @@ export default function LoginView() {
               style={styles.input}
               placeholder="Password"
               secureTextEntry
+              autoCapitalize="none"
               value={password}
               onChangeText={setPassword}
             />
@@ -78,11 +84,13 @@ export default function LoginView() {
           {/*  */}
           {/* Login Button */}
           <View style={styles.loginButton}>
-              <Button
-                title="Login"
-                color="white"
-                onPress={()=>{handleLogin(email, password)}}
-              />
+            <Button
+              title="Login"
+              color={Platform.OS === "ios" ? "white" : "black"}
+              onPress={() => {
+                signIn(email, password);
+              }}
+            />
             <TouchableOpacity
             // onPress={handleImageButtonPress}
             ></TouchableOpacity>

@@ -25,13 +25,13 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
   return (
     <View style={{ flexDirection: 'row' }}>
       {[...Array(fullStars + additionalFullStar)].map((_, index) => (
-        <Icon key={`full-${index}`} name="star" size={14} color="#ffd700" />
+        <Icon testID="full-star" key={`full-${index}`} name="star" size={14} color="#ffd700" />
       ))}
       {halfStar > 0 && (
-        <Icon key="half-1" name="star-half-o" size={14} color="#ffd700" />
+        <Icon testID="half-star" key="half-1" name="star-half-o" size={14} color="#ffd700" />
       )}
       {[...Array(noStars)].map((_, index) => (
-        <Icon key={`empty-${index}`} name="star-o" size={14} color="#ffd700" />
+        <Icon testID="empty-star" key={`empty-${index}`} name="star-o" size={14} color="#ffd700" />
       ))}
     </View>
   );

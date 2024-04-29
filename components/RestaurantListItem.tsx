@@ -13,7 +13,6 @@ type RestaurantListItemProps = {
 };
 
 export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
-  
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
@@ -39,15 +38,23 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     ]).start();
   };
 
+  function displayPriceLevel(priceLevel: number): string {
+    let price = '';
+    for (let i = 0; i < priceLevel; i++) {
+      price += '$';
+    }
+    return price;
+  }
+
   return (
-    <Pressable
-      style={styles.container}
-      onPress={() => navigation.navigate("DetailsView", { Restaurant: restaurant })}
-    >
-      <Image
-        source={{ uri: restaurant.image || images.defaultRestaurantImage }}
-        style={styles.image}
-        resizeMode="cover"
+    <Pressable style={styles.container} onPress={() => navigation.navigate("DetailsView", { Restaurant: restaurant })}
+    > 
+      <Image 
+        testID="restaurant-image"
+        source={{ uri: restaurant.image || images.defaultRestaurantImage }} 
+        style={styles.image} 
+        resizeMode='cover'
+        
       />
       <View style={styles.textContainer}>
         <Pressable
@@ -64,14 +71,12 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         </Pressable>
         <View style={styles.textInfo}>
           <Text style={styles.title}>{restaurant.name}</Text>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={{ fontWeight: "bold" }}>Rating: </Text>
-            {restaurant.rating !== undefined && (
-              <StarRating rating={restaurant.rating ?? "N/A"} />
-            )}
-            <Text style={styles.distance}>
-              {parseFloat(restaurant.distance).toFixed(1)}km
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{fontWeight: 'bold'}}>
+              Rating: {restaurant.rating !== undefined ? <StarRating rating={restaurant.rating} /> : "N/A"}
             </Text>
+            <Text style={styles.distance}>{parseFloat(restaurant.distance).toFixed(1)}km</Text>
+            <Text style={styles.distance}>{restaurant.price !== undefined ? displayPriceLevel(parseInt(restaurant.price)) : ""}</Text>
           </View>
         </View>
 

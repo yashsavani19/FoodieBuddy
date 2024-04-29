@@ -1,18 +1,17 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Link, Stack, Tabs, Route } from "expo-router";
+import { Link, Tabs } from "expo-router";
 import { Pressable } from "react-native";
 import { Image } from "react-native";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import images from "@/assets/data/images";
+import { useAuth } from "@/context/AuthContext";
+import Loading from "../Loading";
+import { AppContext } from "@/context/AppContext";
 
-import { createStackNavigator } from "@react-navigation/stack";
-
-import index from "./RestaurantListViews/index";
-
-
+// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name?: React.ComponentProps<typeof FontAwesome>["name"];
   imageSelected?: string;
@@ -39,6 +38,23 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const { setRestaurants } = useContext(AppContext);
+
+  useEffect(() => {
+    if (user) {
+      setIsLoading(true);
+      const fetchData = async () => {
+        await setRestaurants();
+        setIsLoading(false);
+      };
+
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
 
   return (
     <Tabs
@@ -89,7 +105,6 @@ export default function TabLayout() {
               image={focused ? images.chatSelectedIcon : images.chatIcon}
             />
           ),
-
           headerShown: false,
         }}
       />

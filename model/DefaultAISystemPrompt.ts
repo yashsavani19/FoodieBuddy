@@ -9,7 +9,7 @@ const PRE_LIST =
   "Here is a list of local restaurants that you can choose from based on the users preferences below and the users request: ";
 const POST_LIST = ". Here are the users preferences: ";
 const POST_PREFERENCES =
-  ". The user would prefer one of the options mentioned to be recommended based on their preferences. If the restaurant list is empty please don't recommend anything. If the user asks about a topic not relevant to food, eating or restaurants, please avoid recommending a restaurant and instead let them know you can't help with that.";
+  ". The user would prefer one of the options mentioned to be recommended based on their preferences. If the restaurant list is empty please don't recommend anything. If the user asks about a topic not relevant to food, eating or restaurants, please avoid recommending a restaurant and instead let them know you can't help with that. If the users request is ambiguos, assume they are talking about food or are asking for a restaurant recommendation.";
 
 export function DefaultAISystemPrompt(
   restaurantList: Restaurant[]

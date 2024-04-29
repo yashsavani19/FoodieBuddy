@@ -39,6 +39,7 @@ import {
 
 import { Use } from "react-native-svg";
 import React, { useEffect, useState } from "react";
+import { getFirestore } from "firebase/firestore";
 
 //Google sign in configure
 // export const googleSignIn = () => {
@@ -92,6 +93,7 @@ export const app = initializeApp(firebaseConfig);
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
+export const db = getFirestore(app);
 
 export const useIsAuthenticated = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

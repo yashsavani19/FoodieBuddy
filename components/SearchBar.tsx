@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import {
   View,
   TextInput,
-  Text,
   StyleSheet,
   TouchableOpacity,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData,
 } from "react-native";
 
 function TabBarIcon(props: {
@@ -32,6 +33,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
     onSearchSubmit("");
   };
 
+  const handleKeyPress = (event: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+    if (event.nativeEvent.key === "Enter") {
+      handleSearchSubmit();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={{ flex: 1, flexDirection: "row" }}>
@@ -40,6 +47,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
           placeholder="Search..."
           value={searchTerm}
           onChangeText={setSearchTerm}
+          onSubmitEditing={handleSearchSubmit}
+          onKeyPress={handleKeyPress}
         />
         {searchTerm && (
           <TouchableOpacity
