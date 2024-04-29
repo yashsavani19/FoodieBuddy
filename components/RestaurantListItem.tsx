@@ -136,14 +136,6 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
               )}
             </Text>
             <Text style={styles.distance}>
-              {parseFloat(restaurant.distance).toFixed(1)}km
-            </Text>
-            <Text style={styles.distance}>
-              {restaurant.price !== undefined
-                ? displayPriceLevel(parseInt(restaurant.price))
-                : ""}
-            </Text>
-            <Text style={styles.distance}>
               {formatDistance(restaurant.distance)}
             </Text>
             <Text style={styles.distance}>{restaurant.price !== undefined ? displayPriceLevel(parseInt(restaurant.price)) : ""}</Text>

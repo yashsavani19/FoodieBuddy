@@ -15,24 +15,25 @@ import Loading from "../Loading";
 import { Category } from '@/model/Category';
 
 export default function HomeView() {
-  const { searchFilterRestaurants, categoryFilterRestaurants, showNoRestaurantsFoundAlert, selectedCategory, searchTerm, setSelectedCategory, setSearchTerm, filteredRestaurants, dataLoading } = useContext(AppContext);
-  const [isLoading, setIsLoading] = useState(true);
+  const { 
+    searchFilterRestaurants, 
+    categoryFilterRestaurants, 
+    showNoRestaurantsFoundAlert, 
+    selectedCategory, setSelectedCategory,
+    searchTerm, setSearchTerm,
+    filteredRestaurants, 
+    dataLoading, restaurantListIsLoading } = useContext(AppContext);
 
   // Handle filtering of restaurants based on search term and selected category
   useEffect(() => {
-    setIsLoading(true);
     categoryFilterRestaurants();
-    setIsLoading(false);
   }, [selectedCategory]);
 
   useEffect(() => {
-    setIsLoading(true);
     searchFilterRestaurants();
-    setIsLoading(false);
   }, [searchTerm]);
 
   useEffect(() => {
-  
     showNoRestaurantsFoundAlert();
   }, [filteredRestaurants]);
 
@@ -40,14 +41,14 @@ export default function HomeView() {
   return (
     <View style={{ flex: 1 }}>
       <TitleHeader
-          searchBar={true} 
-          onSearchSubmit={setSearchTerm}
-          onCategorySelect={setSelectedCategory}
+        searchBar={true} 
+        onSearchSubmit={setSearchTerm}
+        onCategorySelect={setSelectedCategory}
         searchTerm={searchTerm}
         selectedCategory={selectedCategory}
       />
       <View style={styles.background}>
-        {isLoading || dataLoading ? (
+        {restaurantListIsLoading || dataLoading ? (
           <View
             style={{
               backgroundColor: Colors.light.headerBackground,

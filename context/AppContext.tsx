@@ -23,6 +23,8 @@ import { Alert } from "react-native";
 export type AppContextType = {
   dataLoading: boolean;
   setDataLoading: (loading: boolean) => void;
+  restaurantListIsLoading: boolean;
+  setRestaurantListIsLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
   favouriteRestaurants: Restaurant[];
@@ -47,6 +49,8 @@ export type AppContextType = {
   showNoRestaurantsFoundAlert: () => void;
   searchFilterRestaurants: () => void;
   categoryFilterRestaurants: () => void;
+  isInputDisabled: boolean;
+  setIsInputDisabled: (disabled: boolean) => void;
 };
 
 interface ContextProviderProps {
@@ -56,6 +60,8 @@ interface ContextProviderProps {
 export const AppContext = createContext<AppContextType>({
   dataLoading: true,
   setDataLoading: () => {},
+  restaurantListIsLoading: true,
+  setRestaurantListIsLoading: () => {},
   localRestaurants: [],
   setRestaurants: async () => {},
   favouriteRestaurants: [],
@@ -80,6 +86,8 @@ export const AppContext = createContext<AppContextType>({
   showNoRestaurantsFoundAlert: async () => {},
   searchFilterRestaurants: async () => {},
   categoryFilterRestaurants: async () => {},
+  isInputDisabled: false,
+  setIsInputDisabled: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -109,6 +117,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<Category>(/* initial value */);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
+  const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
+
   const setRestaurants = async () => {
     setDataLoading(true);
     try {
@@ -129,6 +140,39 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       console.log(error);
     } finally {
       setDataLoading(false);
+    }
+  };
+
+  const updateSaved = async () => {
+    try {
+      if (!user || !userObject) return;
+      if (userObject.favouriteRestaurants) {
+        const favourites = userObject.favouriteRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setFavouriteRestaurants([...favouriteRestaurants, newRestaurant]);
+            // setFavouriteRestaurants(favourites);
+          }
+        );
+      }
+      if (userObject.bookmarkedRestaurants) {
+        const bookmarks = userObject.bookmarkedRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setBookmarkedRestaurants([...bookmarkedRestaurants, newRestaurant]);
+            // setBookmarkedRestaurants(bookmarks);
+          }
+        );
+      }
+      if (userObject.visitedRestaurants) {
+        const visited = userObject.visitedRestaurants.forEach((restaurant) => {
+          // const newRestaurant = getRestaurantById(restaurant.placeId);
+          // setVisitedRestaurants([...visitedRestaurants, newRestaurant]);
+          // setVisitedRestaurants(visited);
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -188,22 +232,33 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   // Handle filtering of restaurants based on search term and selected category
   const searchFilterRestaurants = () => {
-    setIsLoading(true);
+    setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
     if (searchTerm) {
       result = result.filter((restaurant) => {
-        return restaurant.name && restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
+        return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
       });
     }
-  
+
+    if (selectedCategory && selectedCategory.name !== "All") {
+      result = result.filter((restaurant) => {
+        return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(selectedCategory.name.toLowerCase());
+      });
+    } 
+    // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
+    // This happened before another category was selected...
+    else if (!selectedCategory) {
+      setSelectedCategory(categories[0]);
+    }
+
     setFilteredRestaurants(result);
-    setIsLoading(false);
-  } 
+    setRestaurantListIsLoading(false);
+  };
 
   // Handle filtering of restaurants based on search term and selected category
   const categoryFilterRestaurants = () => {
-    setIsLoading(true);
+    setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
     if (selectedCategory && selectedCategory.name !== "All") {
@@ -222,19 +277,29 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   
     setFilteredRestaurants(result);
-    setIsLoading(false);
+    setRestaurantListIsLoading(false);
   } 
+
+  const [alertShown, setAlertShown] = useState(false);
+  //const [lastValidSearchTerm, setLastValidSearchTerm] = useState('');
 
   const showNoRestaurantsFoundAlert = () => {
     // Show alert if no matching results
-    if (!isLoading && filteredRestaurants.length === 0)
+    if (!restaurantListIsLoading && filteredRestaurants.length === 0 && !alertShown)
     {
       Alert.alert('No Results', 'No matching restaurants found.', [
         {
           text: 'OK',
-          onPress: () => setSearchTerm('') // Clear search term
+          //onPress: () => setSearchTerm(lastValidSearchTerm) // Clear search term
         }
       ]);
+      //setIsInputDisabled(true);
+      setAlertShown(true);
+    }   
+    else if (filteredRestaurants.length > 0) {
+      //setIsInputDisabled(false);
+      //setLastValidSearchTerm(searchTerm);
+      setAlertShown(false);
     }
     console.log(filteredRestaurants === undefined ? 'No restaurants found' : filteredRestaurants.length + ' restaurants found');
   } 
@@ -242,6 +307,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const contextValue = {
     dataLoading,
     setDataLoading,
+    restaurantListIsLoading,
+    setRestaurantListIsLoading,
     localRestaurants,
     setRestaurants,
     location,
@@ -265,6 +332,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     searchFilterRestaurants,
     categoryFilterRestaurants,
     showNoRestaurantsFoundAlert,
+    isInputDisabled,
+    setIsInputDisabled,
   };
 
   return (

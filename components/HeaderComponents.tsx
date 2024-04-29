@@ -4,6 +4,7 @@ import SearchBar from "./SearchBar";
 import { Text, View, StyleSheet } from "react-native";
 import { Category } from "@/model/Category";
 import { Filter } from "@/model/Filter";
+import React from "react";
 
 interface HeaderComponentsProps {
   title?: string;
@@ -22,12 +23,12 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   onCategorySelect,
   onFilterSelect,
 }) => {
-  const handleSearchSubmit = (searchTerm: string) => {
+  const handleSearchSubmit = React.useCallback((searchTerm: string) => {
     // console.log(`Header Search term: ${searchTerm}`);
     if (onSearchSubmit) {
       onSearchSubmit(searchTerm);
     }
-  };
+  }, [onSearchSubmit]);
 
   const handleCategorySelect = (category: Category) => {
     console.log(`Category selected: ${category.name}`);
