@@ -3,12 +3,10 @@ import { useState, useEffect } from "react";
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { useRoute } from "@react-navigation/native";
-import { useLocalSearchParams, useRouter, Stack } from "expo-router";
-import { RestaurantListItem } from "@/components/RestaurantListItem";
-import index from "./index";
-import { Restaurant } from "@/model/Restaurant";
+import TitleHeader from "@/components/TitleHeader";
 import { RootStackParamList } from '@/constants/navigationTypes';
 import { RouteProp } from '@react-navigation/native';
+import DetailsViewComponents from "@/components/DetailsViewComponents";
 
 type DetailsViewRouteProp = RouteProp<RootStackParamList, 'DetailsView'>;
 
@@ -17,7 +15,6 @@ export default function DetailsView() {
   const route = useRoute<DetailsViewRouteProp>();
   // Extract the restaurant object from route.params
   const { Restaurant } = route.params;
-  alert(Restaurant.name);
 
   // Use the restaurant object directly in your JSX
   if (!Restaurant) {
@@ -29,8 +26,11 @@ export default function DetailsView() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{Restaurant.name}</Text>
+    <View style={{ flex: 1 }}>
+      <TitleHeader title="Details"/>
+      <DetailsViewComponents restaurant={Restaurant} />
+
+      
     </View>
   );
 }
