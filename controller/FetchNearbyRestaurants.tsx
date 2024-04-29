@@ -91,4 +91,5 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
   }
 };
 
+
 export default fetchNearbyRestaurants;

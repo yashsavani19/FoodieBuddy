@@ -1,3 +1,5 @@
+import { Restaurant } from "@/model/Restaurant";
+
 // Navigation types to prevent "No overload matches this call" error when using navigation 
 export type RootStackParamList = {
   index: undefined;
@@ -8,6 +10,7 @@ export type RootStackParamList = {
     };
   }; };
   ChatView: undefined;
+  DetailsView: { Restaurant: Restaurant };
 };
 
 export type MapRouteParams = {

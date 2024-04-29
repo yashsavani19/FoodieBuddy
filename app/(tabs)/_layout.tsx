@@ -73,7 +73,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="RestaurantListViews"
         options={{
           title: "Home",
           tabBarLabel: "",
@@ -124,6 +124,8 @@ export default function TabLayout() {
           headerShown: false, // This removes the default header
         }}
       />
+
+      
     </Tabs>
   );
 }
