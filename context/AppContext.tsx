@@ -22,6 +22,10 @@ export type AppContextType = {
   setDataLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
+  favouriteRestaurants: Restaurant[];
+  bookmarkedRestaurants: Restaurant[];
+  visitedRestaurants: Restaurant[];
+  updateSaved: () => Promise<void>;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
   defaultMessage: IMessage;
@@ -41,6 +45,10 @@ export const AppContext = createContext<AppContextType>({
   setDataLoading: () => {},
   localRestaurants: [],
   setRestaurants: async () => {},
+  favouriteRestaurants: [],
+  bookmarkedRestaurants: [],
+  visitedRestaurants: [],
+  updateSaved: async () => {},
   location: null,
   updateLocation: async () => {},
   defaultMessage: {},
@@ -56,10 +64,20 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 }) => {
   const { user } = useAuth();
   const [dataLoading, setDataLoading] = useState<boolean>(true);
-  const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
     null
   );
+  const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
+  const [favouriteRestaurants, setFavouriteRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(
+    []
+  );
+
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
@@ -87,6 +105,39 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
+  const updateSaved = async () => {
+    try {
+      if (!user || !userObject) return;
+      if (userObject.favouriteRestaurants) {
+        const favourites = userObject.favouriteRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setFavouriteRestaurants([...favouriteRestaurants, newRestaurant]);
+            // setFavouriteRestaurants(favourites);
+          }
+        );
+      }
+      if (userObject.bookmarkedRestaurants) {
+        const bookmarks = userObject.bookmarkedRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setBookmarkedRestaurants([...bookmarkedRestaurants, newRestaurant]);
+            // setBookmarkedRestaurants(bookmarks);
+          }
+        );
+      }
+      if (userObject.visitedRestaurants) {
+        const visited = userObject.visitedRestaurants.forEach((restaurant) => {
+          // const newRestaurant = getRestaurantById(restaurant.placeId);
+          // setVisitedRestaurants([...visitedRestaurants, newRestaurant]);
+          // setVisitedRestaurants(visited);
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const setUser = async () => {
     try {
       setAuthUser(user as AuthUser);
@@ -100,7 +151,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         ...userObject,
         favouriteRestaurants: favourites,
         bookmarkedRestaurants: bookmarks,
-        visitedRestaurants: visited,});
+        visitedRestaurants: visited,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -147,6 +199,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     setRestaurants,
     location,
     updateLocation,
+    favouriteRestaurants,
+    bookmarkedRestaurants,
+    visitedRestaurants,
+    updateSaved,
     defaultMessage,
     resetToDefaultMessage,
     chatMessages,
