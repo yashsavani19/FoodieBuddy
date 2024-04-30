@@ -25,8 +25,6 @@ import Colors from "@/constants/Colors";
 
 // Define the props for the AppMapView component
 interface AppMappViewProps {
-  searchTerm?: string;
-  selectedCategory?: Category;
   geometry?: {
     location: {
       lat: number;
@@ -36,14 +34,8 @@ interface AppMappViewProps {
 }
 
 // Define the AppMapView component
-export default function AppMappView({
-  searchTerm,
-  selectedCategory,
-  geometry,
-}: AppMappViewProps) {
-  const { location, localRestaurants } = useContext(AppContext);
-  const [filteredRestaurants, setFilteredRestaurants] =
-    useState(localRestaurants);
+export default function AppMappView({ geometry }: AppMappViewProps) {
+  const { location, filteredRestaurants } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
   const handleMapPress = () => setSelectedMarkerId(null);
@@ -52,47 +44,6 @@ export default function AppMappView({
 
   // Return nothing if no location is available
   if (!location) return null;
-
-  // Handle filtering of restaurants based on search term and selected category
-  useEffect(() => {
-    let result = localRestaurants;
-
-    if (selectedCategory && selectedCategory.name !== "All") {
-      if (
-        selectedCategory &&
-        ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)
-      ) {
-        result = result.filter((restaurant) => {
-          return (
-            restaurant.categories &&
-            restaurant.categories
-              .map((category) => category.toLowerCase())
-              .includes(selectedCategory.name.toLowerCase())
-          );
-        });
-      } else {
-        result = result.filter((restaurant) => {
-          return (
-            restaurant.name &&
-            restaurant.name
-              .toLowerCase()
-              .includes(selectedCategory.name.toLowerCase())
-          );
-        });
-      }
-    }
-
-    if (searchTerm) {
-      result = result.filter((restaurant) => {
-        return (
-          restaurant.name &&
-          restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      });
-    }
-
-    setFilteredRestaurants(result);
-  }, [searchTerm, selectedCategory, localRestaurants]);
 
   // Effect to animate map to selected restaurant's location
   useEffect(() => {

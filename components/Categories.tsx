@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, StyleSheet, Platform, Text, Button, Modal, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Category } from "@/model/Category";
 import { categories } from "@/assets/data/categories-options";
+import { AppContext } from "@/context/AppContext";
 
 interface CategorySelectProps {
   onCategorySelect: (category: Category) => void;
@@ -10,9 +11,8 @@ interface CategorySelectProps {
 
 const Categories: React.FC<CategorySelectProps> = ({ onCategorySelect }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category>(
-    {} as Category
-  );
+  
+  const { selectedCategory, setSelectedCategory } = useContext(AppContext);
 
   const sortedCategories = categories.sort((a, b) =>
     a.name && b.name ? a.name.localeCompare(b.name) : 0
