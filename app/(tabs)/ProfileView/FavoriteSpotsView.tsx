@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 interface FavouriteSpot {
   id: number;
@@ -11,9 +12,10 @@ interface FavouriteSpot {
 const favouriteSpots: FavouriteSpot[] = [
   { id: 1, name: 'Sensational Chicken Mount St', image: 'https://via.placeholder.com/150' },
   { id: 2, name: 'Delicious Pizza Place', image: 'https://via.placeholder.com/150' },
-];
+]; 
 
-const FavouriteSpotsView: React.FC = ({ navigation }) => {
+const FavouriteSpotsView: React.FC = () => {
+  const navigation = useNavigation();
   const renderItem = ({ item }: { item: FavouriteSpot }) => (
     <View style={styles.itemContainer}>
       <Image source={{ uri: item.image }} style={styles.image} />

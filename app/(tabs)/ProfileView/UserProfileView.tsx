@@ -1,35 +1,40 @@
-import React, { useContext } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-} from "react-native";
+import React from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, GestureResponderEvent } from 'react-native';
 import TitleHeader from "@/components/TitleHeader";
-import { AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import { NavigationProp } from "@react-navigation/native";
-import { handleLogout } from "@/controller/FirebaseHandler";
-import { useAuth } from "@/context/AuthContext";
-import { AppContext } from "@/context/AppContext";
-import { fetchFavourites, addFavourite } from "@/controller/DatabaseHandler";
+import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 
 export default function UserProfileView() {
-  const { user, signOut } = useAuth();
-  // const { setFavourites } = useContext(AppContext);
-
+  const navigation = useNavigation(); // Use navigation hook here
+  const username = "Param Patel";
+  
   const menuItems = [
-    { name: "Favorite Spots" },
-    { name: "  Bookmarked Spots" },
-    { name: "Visited Spots" },
+    
+    { name: '  Bookmarked Spots'},
+    { name: 'Visited Spots'}
   ];
+
+
+  function navigateToFavouriteSpots(event: GestureResponderEvent): void {
+    // Assuming 'navigation' is already defined using the useNavigation hook
+    navigation.navigate('FavoriteSpotsView');
+  }
+
+  function navigateToBookmarkedSpots(event: GestureResponderEvent): void {
+    // Assuming 'navigation' is already defined using the useNavigation hook
+    navigation.navigate('BookmarkedSpotsView');
+  }
+  
+  function navigateToVisitedSpots(event: GestureResponderEvent): void {
+    // Assuming 'navigation' is already defined using the useNavigation hook
+    navigation.navigate('VisitedSpotsView');
+  }
 
   return (
     <View style={styles.container}>
       <TitleHeader title="Profile" />
       <ScrollView style={styles.scrollView}>
-        <View style={styles.profileSection}>
+      <View style={styles.profileSection}>
           <View style={styles.profilePictureWrapper}>
             <Image
               source={require("@/assets/images/user-icon.png")} // Correct image path
@@ -51,32 +56,27 @@ export default function UserProfileView() {
         </View>
 
         <View style={styles.menuItemsSection}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity key={index} style={styles.menuItem}>
-              {index === 0 && (
-                <FontAwesome name="heart" size={35} color="red" />
-              )}
-              {index === 1 && (
-                <FontAwesome name="bookmark" size={35} color="orange" />
-              )}
-              {index === 2 && (
-                <MaterialIcons
-                  name="add-location-alt"
-                  size={35}
-                  color="green"
-                />
-              )}
-
-              <Text style={styles.menuItemText}>{item.name}</Text>
-
-              {<AntDesign name="right" style={styles.rightArrow} />}
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity onPress={navigateToFavouriteSpots} style={styles.menuItem}>
+            <FontAwesome name="heart" size={35} color="red" />
+            <Text style={styles.menuItemText}>Favorite Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={navigateToBookmarkedSpots} style={styles.menuItem}>
+            <FontAwesome name="bookmark" size={35} color="orange" />
+            <Text style={styles.menuItemText}>Bookmarked Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={navigateToVisitedSpots} style={styles.menuItem}>
+            <MaterialIcons name="add-location-alt" size={35} color="green" />
+            <Text style={styles.menuItemText}>Visited Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   rightArrow: {

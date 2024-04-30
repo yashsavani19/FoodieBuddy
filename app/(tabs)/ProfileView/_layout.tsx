@@ -25,6 +25,10 @@ export default function TabLayout() {
     <Stack>
       <Stack.Screen name="UserProfileView" options={{ headerShown: false }} />
       <Stack.Screen name="SaveListView" options={{ headerShown: false }} />
+      <Stack.Screen name="FavoriteSpotsView"  options={{ headerShown: false }} />  
+      <Stack.Screen name="BookmarkedSpotsView"  options={{ headerShown: false }} />  
+      <Stack.Screen name="VisitedSpotsView"  options={{ headerShown: false }} />  
     </Stack>
+    
   );
 }
