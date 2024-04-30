@@ -35,18 +35,22 @@ interface AppMappViewProps {
 
 // Define the AppMapView component
 export default function AppMappView({ geometry }: AppMappViewProps) {
-  const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
-  const mapRef = useRef<MapView>(null);
-  const handleMapPress = () => setSelectedMarkerId(null);
-  const markerRefs = useRef<(MapMarker | null)[]>([]);
-  const [mapReady, setMapReady] = useState(false);
+=======
+export default function AppMappView({
+  searchTerm,
+  selectedCategory,
+  geometry,
+}: AppMappViewProps) {
+  const { location, localRestaurants } = useContext(AppContext);
+  const [filteredRestaurants, setFilteredRestaurants] =
+    useState(localRestaurants);
 
   const { location, filteredRestaurants } = useContext(AppContext);
 
   // Return nothing if no location is available
   if (!location) return null;
 
- // Effect to animate map to selected restaurant's location
+  // Effect to animate map to selected restaurant's location
   useEffect(() => {
     if (geometry && mapRef.current) {
       mapRef.current.animateToRegion(

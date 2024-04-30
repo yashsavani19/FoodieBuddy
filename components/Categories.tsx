@@ -11,6 +11,7 @@ interface CategorySelectProps {
 
 const Categories: React.FC<CategorySelectProps> = ({ onCategorySelect }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  
   const { selectedCategory, setSelectedCategory } = useContext(AppContext);
 
   const sortedCategories = categories.sort((a, b) =>
