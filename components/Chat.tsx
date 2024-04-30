@@ -17,7 +17,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
 import Colors from "@/constants/Colors";
-import { AppContext } from "@/model/AppContext";
+import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
 import RestaurantListItem from "./RestaurantListItem";
 
@@ -86,12 +86,13 @@ const Chat: React.FC = () => {
     return () => {
       keyboardDidShowListener.remove();
     };
-  }, []);
+  }, []);    
 
   /**
    * Send message to Buddy and get response from AI
    */
   const sendMessageFromUser = () => {
+    setRecommendedRestaurant(null);
     if (currentMessage.trim()) {
       const newMessage: MessageProps = {
         id: Date.now().toString(),
@@ -142,6 +143,8 @@ const Chat: React.FC = () => {
   const resetChatMessages = () => {
     console.log("Resetting messages");
     resetMessages();
+    setMessages([initialBuddyMessage]);
+    setRecommendedRestaurant(null);
   };
 
   /**

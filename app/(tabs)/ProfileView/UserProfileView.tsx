@@ -37,17 +37,20 @@ export default function UserProfileView() {
       <View style={styles.profileSection}>
           <View style={styles.profilePictureWrapper}>
             <Image
-              source={require('@/assets/images/user-icon.png')} // Correct image path
+              source={require("@/assets/images/user-icon.png")} // Correct image path
               style={styles.profilePicture}
             />
           </View>
-          <Text style={styles.username}>{username}</Text>
+          <Text style={styles.username}>{user?.displayName || ""}</Text>
           <View style={styles.accountActions}>
-            <TouchableOpacity style={styles.editButton}>
-              <Text style={{fontSize:20}}>Edit Account</Text>
+            <TouchableOpacity
+              // onPress={{}}
+              style={styles.editButton}
+            >
+              <Text style={{ fontSize: 20 }}>Edit Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={{fontSize:20}}>Logout</Text>
+            <TouchableOpacity onPress={signOut}>
+              <Text style={{ fontSize: 20 }}>Logout</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -77,42 +80,41 @@ export default function UserProfileView() {
 
 const styles = StyleSheet.create({
   rightArrow: {
-  position: 'absolute',
-  right: 20,
-  fontSize: 35,
-  color: '#ededed', 
+    position: "absolute",
+    right: 20,
+    fontSize: 35,
+    color: "#ededed",
   },
 
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollView: {
     marginTop: 120,
   },
-  
+
   profileSection: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 50,
     paddingBottom: 20,
   },
   profilePictureWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   profilePicture: {
     width: 100,
     height: 100,
-
   },
   username: {
     fontSize: 25,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   accountActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     paddingVertical: 10,
   },
   editButton: {
@@ -123,26 +125,23 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginHorizontal: 30,
     marginVertical: 10,
     paddingVertical: 15,
     padding: 20,
-    backgroundColor: '#363232',
+    backgroundColor: "#363232",
     fontSize: 10,
     borderRadius: 20,
-    
   },
   editAccountText: {
     fontSize: 15, // Font size for Edit Account
-    color: '#000', // Black text
+    color: "#000", // Black text
   },
   menuItemText: {
     marginLeft: 20,
     fontSize: 19,
-    color: '#ededed',
+    color: "#ededed",
   },
 });
-
-

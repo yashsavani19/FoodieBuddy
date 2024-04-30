@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { StyleSheet, View, Text, Image } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Linking,
+  ActivityIndicator,
+} from "react-native";
 import MapView, {
   Marker,
   Callout,
@@ -12,11 +18,13 @@ import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
-import { AppContext } from "./../model/AppContext";
+import { AppContext } from "../context/AppContext";
 import images from "@/assets/data/images";
+import { Category } from "@/model/Category";
+import Colors from "@/constants/Colors";
 
+// Define the props for the AppMapView component
 interface AppMappViewProps {
-  searchTerm?: string;
   geometry?: {
     location: {
       lat: number;
@@ -25,58 +33,60 @@ interface AppMappViewProps {
   };
 }
 
-export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) {
-  const { location, localRestaurants } = useContext(AppContext);
-  const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
+// Define the AppMapView component
+export default function AppMappView({ geometry }: AppMappViewProps) {
+  const { location, filteredRestaurants } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
   const handleMapPress = () => setSelectedMarkerId(null);
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
 
-  if (!location) return null; // Render nothing if no location is available
+  // Return nothing if no location is available
+  if (!location) return null;
 
-  useEffect(() => {
-    if(!searchTerm){
-      setFilteredRestaurants(localRestaurants);
-      console.log(localRestaurants);
-    }
-    else {
-      setFilteredRestaurants(localRestaurants.filter((restaurants) => {
-        return restaurants.name.toLowerCase().includes(searchTerm.toLowerCase());
-      }))
-      console.log(filteredRestaurants);
-    }
-  },[searchTerm])
-
-  // check if geometry is available and if the mapRef is available then move the map to the location of the selected restaurant
+  // Effect to animate map to selected restaurant's location
   useEffect(() => {
     if (geometry && mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: geometry.location.lat,
-        longitude: geometry.location.lng,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }, 1000); 
+      mapRef.current.animateToRegion(
+        {
+          latitude: geometry.location.lat,
+          longitude: geometry.location.lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000
+      );
     }
   }, [geometry, mapReady]);
 
-  // check if geometry is available then show the callout (restaurant details) of the selected restaurant
+  // Effect to show callout for selected restaurant
   useEffect(() => {
     if (geometry) {
       const markerIndex = filteredRestaurants.findIndex(
-        restaurant => restaurant.geometry.location.lat === geometry.location.lat &&
-                      restaurant.geometry.location.lng === geometry.location.lng
+        (restaurant) =>
+          restaurant.geometry.location.lat === geometry.location.lat &&
+          restaurant.geometry.location.lng === geometry.location.lng
       );
-
-      // remember to try start the map beforehand so it doesn't start from the user's location instead of the restaurant
-      if (markerIndex !== -1 && markerRefs.current[markerIndex]) { 
+      if (markerIndex !== -1 && markerRefs.current[markerIndex]) {
         markerRefs.current[markerIndex]?.showCallout();
         setSelectedMarkerId(markerIndex);
       }
     }
   }, [geometry, mapReady, filteredRestaurants]);
 
+  const handleCalloutPress = (websiteUrl: string) => {
+    if (websiteUrl) {
+      // Open the restaurant's website in the device's browser
+      Linking.openURL(websiteUrl);
+      // Log a message to the console
+      console.log(`Opening website: ${websiteUrl}`);
+    } else {
+      console.log("No website URL provided.");
+    }
+  };
+
+  // Render the component
   return (
     location &&
     location.latitude && (
@@ -111,8 +121,9 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
           {/* Render markers for each nearby restaurant */}
           {filteredRestaurants.map((restaurant, index) => (
             <Marker
+              testID="Marker"
               key={`${index}`}
-              ref={ref => markerRefs.current[index] = ref}
+              ref={(ref) => (markerRefs.current[index] = ref)}
               coordinate={{
                 latitude: restaurant.geometry.location.lat,
                 longitude: restaurant.geometry.location.lng,
@@ -130,7 +141,7 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
                 selected={selectedMarkerId === index}
               />
               {/*Information on Restaurant*/}
-              <Callout>
+              <Callout onPress={() => handleCalloutPress(restaurant.website)}>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   {restaurant.rating !== undefined && (
@@ -142,7 +153,11 @@ export default function AppMappView({ searchTerm, geometry }: AppMappViewProps) 
                     source={{
                       html: `
                         <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center"">
-                          <img src="${restaurant.image != null ? restaurant.image : images.defaultRestaurantImage}" style="width: 100%; object-fit: cover;"/>
+                          <img src="${
+                            restaurant.image != null
+                              ? restaurant.image
+                              : images.defaultRestaurantImage
+                          }" style="width: 100%; object-fit: cover;"/>
                         </div>
                       `,
                     }}

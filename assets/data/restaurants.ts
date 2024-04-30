@@ -5,6 +5,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipOycLuzZSL_ZXFkc3VVEAs_9AUfe1Btt9hhL8Xs=w408-h345-k-no',
       distance: 5,
+      rating: 3.5,
     },
     {
       id: '2',

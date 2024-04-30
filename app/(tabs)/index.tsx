@@ -1,42 +1,65 @@
-import { FlatList, StyleSheet } from 'react-native';
-import RestaurantListItem from '@/components/RestaurantListItem'
-import restaurants from '@/assets/data/restaurants';
-import { View } from '@/components/Themed';
-import Colors from '@/constants/Colors';
-import TitleHeader from '@/components/TitleHeader';
-import { useContext, useEffect, useState } from 'react';
-import { AppContext } from '@/model/AppContext';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+} from "react-native";
+import RestaurantListItem from "@/components/RestaurantListItem";
+import { View } from "@/components/Themed";
+import Colors from "@/constants/Colors";
+import TitleHeader from "@/components/TitleHeader";
+import { useContext, useEffect, useState } from "react";
+import { AppContext } from "@/context/AppContext";
+import Loading from "../Loading";
+import { Category } from '@/model/Category';
 
 export default function HomeView() {
-  const { localRestaurants } = useContext(AppContext);
-  const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const { 
+    searchFilterRestaurants, 
+    categoryFilterRestaurants, 
+    showNoRestaurantsFoundAlert, 
+    selectedCategory, setSelectedCategory,
+    searchTerm, setSearchTerm,
+    filteredRestaurants, 
+    dataLoading, restaurantListIsLoading } = useContext(AppContext);
+
+  // Handle filtering of restaurants based on search term and selected category
+  useEffect(() => {
+    categoryFilterRestaurants();
+  }, [selectedCategory]);
 
   useEffect(() => {
-    if(!searchTerm){
-      setFilteredRestaurants(localRestaurants);
-      console.log(localRestaurants);
-    }
-    else {
-      setFilteredRestaurants(localRestaurants.filter((restaurants) => {
-        return restaurants.name.toLowerCase().includes(searchTerm.toLowerCase());
-      }))
-      console.log(filteredRestaurants);
-    }
-  },[searchTerm])
-  
+    searchFilterRestaurants();
+  }, [searchTerm]);
+
   return (
-    <View style={{flex: 1}}>
-      <TitleHeader 
-      searchBar={true}
-      onSearchSubmit={setSearchTerm}
+    <View style={{ flex: 1 }}>
+      <TitleHeader
+        searchBar={true} 
+        onSearchSubmit={setSearchTerm}
+        onCategorySelect={setSelectedCategory}
+        searchTerm={searchTerm}
+        selectedCategory={selectedCategory}
       />
       <View style={styles.background}>
-        <FlatList 
-          data={filteredRestaurants}
-          renderItem={({ item }) => < RestaurantListItem restaurant={item} />}
-          contentContainerStyle={{ gap: 3 }}
-        />
+        {restaurantListIsLoading || dataLoading ? (
+          <View
+            style={{
+              backgroundColor: Colors.light.headerBackground,
+              justifyContent: "center",
+              flex: 1,
+            }}
+          >
+            <ActivityIndicator size="large" color="white" />
+          </View>
+        ) : (
+          <FlatList
+            data={filteredRestaurants}
+            renderItem={({ item }) => <RestaurantListItem restaurant={item} />}
+            contentContainerStyle={{ gap: 3 }}
+          />
+        )}
       </View>
     </View>
   );
@@ -48,4 +71,5 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundColor,
     marginTop: 120,
   },
+  noMatches: {},
 });

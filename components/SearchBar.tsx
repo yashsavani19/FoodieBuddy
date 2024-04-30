@@ -1,12 +1,14 @@
 import Colors from "@/constants/Colors";
+import { AppContext } from "@/context/AppContext";
 import { FontAwesome } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   TextInput,
-  Text,
   StyleSheet,
   TouchableOpacity,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData,
 } from "react-native";
 
 function TabBarIcon(props: {
@@ -21,7 +23,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm, setSearchTerm } = useContext(AppContext);
 
   const handleSearchSubmit = () => {
     onSearchSubmit(searchTerm);
@@ -32,6 +34,12 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
     onSearchSubmit("");
   };
 
+  const handleKeyPress = (event: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+    if (event.nativeEvent.key === "Enter") {
+      handleSearchSubmit();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={{ flex: 1, flexDirection: "row" }}>
@@ -40,6 +48,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
           placeholder="Search..."
           value={searchTerm}
           onChangeText={setSearchTerm}
+          onSubmitEditing={handleSearchSubmit}
+          onKeyPress={handleKeyPress}
         />
         {searchTerm && (
           <TouchableOpacity
