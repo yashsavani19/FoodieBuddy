@@ -39,7 +39,6 @@ export type AppContextType = {
   addChatMessage: (message: IMessage) => void;
   userObject: User;
   setUser: () => Promise<void>;
-
   selectedCategory: Category;
   setSelectedCategory: (category: Category) => void;
   searchTerm: string;
@@ -113,7 +112,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
   const [userObject, setUserObject] = useState<User>({});
-
   const [selectedCategory, setSelectedCategory] = useState<Category>(/* initial value */);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
@@ -136,7 +134,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setRestaurantsArray(distanceSortedRestaurants);
         setFilteredRestaurants(distanceSortedRestaurants);
       });
-    } catch (error) { 
+    } catch (error) {
       console.log(error);
     } finally {
       setDataLoading(false);

@@ -8,7 +8,8 @@ import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import StarRating from "./StarRating";
 import { formatDistance } from "@/app/Utils/FormatDistance";
-import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";import {
+import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
+import {
   addBookmark,
   addFavourite,
   removeBookmark,
