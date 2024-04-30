@@ -33,11 +33,6 @@ export default function HomeView() {
     searchFilterRestaurants();
   }, [searchTerm]);
 
-  useEffect(() => {
-    showNoRestaurantsFoundAlert();
-  }, [filteredRestaurants]);
-
-
   return (
     <View style={{ flex: 1 }}>
       <TitleHeader

@@ -235,17 +235,18 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
-    if (searchTerm) {
+    if (searchTerm && ["restaurant", "bar", "bakery", "cafe"].includes(searchTerm.toLowerCase())) {
+      result = result.filter((restaurant) => {
+        return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(searchTerm.toLowerCase());
+      });
+    } 
+
+    else if (searchTerm) {
       result = result.filter((restaurant) => {
         return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
       });
     }
-
-    if (selectedCategory && selectedCategory.name !== "All") {
-      result = result.filter((restaurant) => {
-        return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(selectedCategory.name.toLowerCase());
-      });
-    } 
+    
     // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
     // This happened before another category was selected...
     else if (!selectedCategory) {
