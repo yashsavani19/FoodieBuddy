@@ -50,7 +50,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
 
   useEffect(() => {
     userObject.bookmarkedRestaurants?.map((item) => {
-      if (item.placeId === restaurant.id) {
+      if (item.restaurant.id === restaurant.id) {
         setBookmarkPressed(true);
       }
     });
@@ -58,7 +58,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
 
   useEffect(() => {
     userObject.favouriteRestaurants?.map((item) => {
-      if (item.placeId === restaurant.id) {
+      if (item.restaurant.id === restaurant.id) {
         setFavePressed(true);
       }
     });
@@ -82,7 +82,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
       removeFavourite(restaurant.id);
       setFavePressed(false);
     } else {
-      addFavourite(restaurant.id);
+      addFavourite(restaurant);
       setFavePressed(true);
     }
     animateIcon(faveScale);

@@ -4,6 +4,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import { View } from "react-native";
 import { Restaurant } from "@/model/Restaurant";
@@ -43,21 +44,31 @@ const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
       : images.bookmarkSelectedIcon;
 
   return (
-    <View style={styles.itemContainer}>
-      <Image
-        source={{ uri: item.image || images.defaultRestaurantImage }}
-        style={styles.image}
-      />
-      <Text style={styles.spotName}>{item.name}</Text>
-      <Pressable onPress={handleListButtonPress}>
+    <TouchableOpacity>
+      <View style={styles.itemContainer}>
         <Image
-          source={{
-            uri: listIcon,
-          }}
-          style={styles.icon}
+          source={{ uri: item.image || images.defaultRestaurantImage }}
+          style={styles.image}
         />
-      </Pressable>
-    </View>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={styles.spotName}>{item.name}</Text>
+          <Pressable onPress={handleListButtonPress}>
+            <Image
+              source={{
+                uri: listIcon,
+              }}
+              style={styles.icon}
+            />
+          </Pressable>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 

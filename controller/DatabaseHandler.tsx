@@ -11,6 +11,7 @@ import {
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
 import { auth } from "@/controller/FirebaseHandler";
+import { Restaurant } from "@/model/Restaurant";
 // import { useAuth } from "@/context/AuthContext";
 /**
  * Getters and setters for user data
@@ -47,20 +48,37 @@ import { auth } from "@/controller/FirebaseHandler";
  */
 
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
+const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
+  const cleanedData: Partial<Restaurant> = restaurant;
+  if(restaurant.phone === undefined) delete cleanedData.phone;
+  if(restaurant.website === undefined) delete cleanedData.website;
+  if(restaurant.categories === undefined) delete cleanedData.categories;
+  if(restaurant.price === undefined) delete cleanedData.price;
+  if(restaurant.rating === undefined) delete cleanedData.rating;
+  if(restaurant.displayAddress === undefined) delete cleanedData.displayAddress;
+  if(restaurant.isClosed === undefined) delete cleanedData.isClosed;
+  if(restaurant.isFavourite === undefined) delete cleanedData.isFavourite;
+  if(restaurant.isBookmarked === undefined) delete cleanedData.isBookmarked;
+  if(restaurant.isVisited === undefined) delete cleanedData.isVisited;
+  return cleanedData;
+};
+
 
 /**
  * Adds favourite to user's favourites
  * @param placeId Maps API place id
  */
-export const addFavourite = async (placeId: string) => {
+export const addFavourite = async (restaurant: Restaurant) => {
   try {
     const uid = auth.currentUser?.uid;
     const favouriteCollection = `users/${uid}/favourites`;
-    const docRef = doc(db, favouriteCollection, placeId);
+    const newRestaurant = cleanRestaurantData(restaurant);
+    const docRef = doc(db, favouriteCollection, restaurant.id);
     await setDoc(
       docRef,
       {
         addedOn: new Date(),
+        restaurant: newRestaurant,
       },
       { merge: true }
     );
@@ -100,9 +118,12 @@ export const fetchFavourites = async (uid: string) => {
     const querySnapshot = await getDocs(collection(db, favouriteCollection));
     const favourites: Saved[] = [];
     querySnapshot.forEach((doc) => {
-      favourites.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
+      favourites.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
     });
-    // console.log("favourites", favourites);
+    console.error("favourites", favourites);
     return favourites;
   } catch (e) {
     console.error("Error getting documents: ", e);
@@ -161,9 +182,9 @@ export const fetchBookmarks = async (uid: string) => {
     const bookmarkCollection = `users/${uid}/bookmarks`;
     const querySnapshot = await getDocs(collection(db, bookmarkCollection));
     const bookmarks: Saved[] = [];
-    querySnapshot.forEach((doc) => {
-      bookmarks.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
-    });
+    // querySnapshot.forEach((doc) => {
+    //   bookmarks.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
+    // });
     // console.log("favourites", favourites);
     return bookmarks;
   } catch (e) {
@@ -176,15 +197,16 @@ export const fetchBookmarks = async (uid: string) => {
  * Adds visited to user's visited
  * @param placeId Maps API place id
  */
-export const addVisited = async (placeId: string) => {
+export const addVisited = async (restaurant: Restaurant) => {
   try {
     const uid = auth.currentUser?.uid;
     const visitedCollection = `users/${uid}/visited`;
-    const docRef = doc(db, visitedCollection, placeId);
+    const docRef = doc(db, visitedCollection, restaurant.id);
     await setDoc(
       docRef,
       {
         addedOn: new Date(),
+        restaurant: restaurant,
       },
       { merge: true }
     );
@@ -222,9 +244,9 @@ export const fetchVisited = async (uid: string) => {
     const visitedCollection = `users/${uid}/visited`;
     const querySnapshot = await getDocs(collection(db, visitedCollection));
     const visited: Saved[] = [];
-    querySnapshot.forEach((doc) => {
-      visited.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
-    });
+    // querySnapshot.forEach((doc) => {
+    //   visited.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
+    // });
     return visited;
   } catch (e) {
     console.error("Error getting documents: ", e);

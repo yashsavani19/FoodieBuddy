@@ -1,5 +1,5 @@
 export interface Restaurant {
-    website: any;
+    website: string;
     geometry: {
         location: {
           lat: number;
@@ -8,7 +8,7 @@ export interface Restaurant {
       };    
     id: string;
     name: string;
-    image: string | null;
+    image: string;
     categories?: string[];
     price?: string;
     rating?: number;
