@@ -176,13 +176,18 @@ export const fetchBookmarks = async (uid: string) => {
  * Adds visited to user's visited
  * @param placeId Maps API place id
  */
-export const addVisited = async (uid: string, placeId: string) => {
+export const addVisited = async (placeId: string) => {
   try {
+    const uid = auth.currentUser?.uid;
     const visitedCollection = `users/${uid}/visited`;
-    const docRef = await addDoc(collection(db, visitedCollection), {
-      placeId: placeId,
-      addedOn: new Date(),
-    });
+    const docRef = doc(db, visitedCollection, placeId);
+    await setDoc(
+      docRef,
+      {
+        addedOn: new Date(),
+      },
+      { merge: true }
+    );
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding visited. Please try again later.");
@@ -193,8 +198,9 @@ export const addVisited = async (uid: string, placeId: string) => {
  * Removes visited from user's visited
  * @param placeId Maps API place id
  */
-export const removeVisited = async (uid: string, placeId: string) => {
+export const removeVisited = async (placeId: string) => {
   try {
+    const uid = auth.currentUser?.uid;
     const visitedCollection = `users/${uid}/visited`;
     await deleteDoc(doc(db, visitedCollection, placeId));
   } catch (e) {
@@ -219,7 +225,6 @@ export const fetchVisited = async (uid: string) => {
     querySnapshot.forEach((doc) => {
       visited.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
     });
-    // console.log("favourites", favourites);
     return visited;
   } catch (e) {
     console.error("Error getting documents: ", e);
