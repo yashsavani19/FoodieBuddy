@@ -16,6 +16,8 @@ import { DefaultAISystemPrompt } from "../model/DefaultAISystemPrompt";
 import { User } from "@/model/User";
 import { User as AuthUser } from "firebase/auth";
 import { useAuth } from "./AuthContext";
+import { GOOGLE_API_KEY } from "@env";
+import axios from "axios";
 
 export type AppContextType = {
   dataLoading: boolean;
@@ -105,38 +107,96 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
+  const getRestaurantById = async (placeId: string): Promise<any | null> => {
+    try {
+      // Construct the URL for fetching restaurant details
+      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website&key=${GOOGLE_API_KEY}`;
+  
+      // Make a GET request to fetch restaurant details
+      const response = await axios.get<any>(detailsUrl);
+  
+      // Extract relevant data from the response
+      const restaurantDetails = response.data.result;
+      if (!restaurantDetails) {
+        console.error(`Restaurant details not found for place ID: ${placeId}`);
+        return null;
+      }
+  
+      // Construct the restaurant object with extracted data
+      const restaurant = {
+        id: placeId,
+        name: restaurantDetails.name,
+        displayAddress: restaurantDetails.formatted_address,
+        phone: restaurantDetails.formatted_phone_number,
+        website: restaurantDetails.website,
+      };
+  
+      return restaurant;
+    } catch (error) {
+      console.error(`Error fetching restaurant details for place ID: ${placeId}`, error);
+      return null;
+    }
+  };
+
   const updateSaved = async () => {
     try {
       if (!user || !userObject) return;
+  
+      // Update favourite restaurants
       if (userObject.favouriteRestaurants) {
-        const favourites = userObject.favouriteRestaurants.forEach(
-          (restaurant) => {
-            // const newRestaurant = getRestaurantById(restaurant.placeId);
-            // setFavouriteRestaurants([...favouriteRestaurants, newRestaurant]);
-            // setFavouriteRestaurants(favourites);
+        console.log("Updating favourite restaurants...");
+        const favouritePromises = userObject.favouriteRestaurants.map(async (restaurant) => {
+          try {
+            const newRestaurant = await getRestaurantById(restaurant.placeId);
+            return newRestaurant;
+          } catch (error) {
+            console.error("Error fetching favourite restaurant:", error);
+            return null;
           }
-        );
-      }
-      if (userObject.bookmarkedRestaurants) {
-        const bookmarks = userObject.bookmarkedRestaurants.forEach(
-          (restaurant) => {
-            // const newRestaurant = getRestaurantById(restaurant.placeId);
-            // setBookmarkedRestaurants([...bookmarkedRestaurants, newRestaurant]);
-            // setBookmarkedRestaurants(bookmarks);
-          }
-        );
-      }
-      if (userObject.visitedRestaurants) {
-        const visited = userObject.visitedRestaurants.forEach((restaurant) => {
-          // const newRestaurant = getRestaurantById(restaurant.placeId);
-          // setVisitedRestaurants([...visitedRestaurants, newRestaurant]);
-          // setVisitedRestaurants(visited);
         });
+        const favouriteRestaurants = await Promise.all(favouritePromises);
+        console.log("Favourite restaurants updated:", favouriteRestaurants);
+        setFavouriteRestaurants(favouriteRestaurants.filter((restaurant) => restaurant !== null));
+      }
+  
+      // Update bookmarked restaurants
+      if (userObject.bookmarkedRestaurants) {
+        console.log("Updating bookmarked restaurants...");
+        const bookmarkPromises = userObject.bookmarkedRestaurants.map(async (restaurant) => {
+          try {
+            const newRestaurant = await getRestaurantById(restaurant.placeId);
+            return newRestaurant;
+          } catch (error) {
+            console.error("Error fetching bookmarked restaurant:", error);
+            return null;
+          }
+        });
+        const bookmarkedRestaurants = await Promise.all(bookmarkPromises);
+        console.log("Bookmarked restaurants updated:", bookmarkedRestaurants);
+        setBookmarkedRestaurants(bookmarkedRestaurants.filter((restaurant) => restaurant !== null));
+      }
+  
+      // Update visited restaurants
+      if (userObject.visitedRestaurants) {
+        console.log("Updating visited restaurants...");
+        const visitedPromises = userObject.visitedRestaurants.map(async (restaurant) => {
+          try {
+            const newRestaurant = await getRestaurantById(restaurant.placeId);
+            return newRestaurant;
+          } catch (error) {
+            console.error("Error fetching visited restaurant:", error);
+            return null;
+          }
+        });
+        const visitedRestaurants = await Promise.all(visitedPromises);
+        console.log("Visited restaurants updated:", visitedRestaurants);
+        setVisitedRestaurants(visitedRestaurants.filter((restaurant) => restaurant !== null));
       }
     } catch (error) {
       console.log(error);
     }
   };
+  
 
   const setUser = async () => {
     try {

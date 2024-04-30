@@ -64,7 +64,7 @@ export const addFavourite = async (placeId: string) => {
       },
       { merge: true }
     );
-    console.log("Document written with ID: ", docRef.id);
+    console.log("Added to favourites:", placeId); // Log message for adding to favourites
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding favourite. Please try again later.");
@@ -80,6 +80,7 @@ export const removeFavourite = async (placeId: string) => {
     const uid = auth.currentUser?.uid;
     const favouriteCollection = `users/${uid}/favourites`;
     await deleteDoc(doc(db, favouriteCollection, placeId));
+    console.log("Removed from favourites:", placeId); // Log message for removing from favourites
   } catch (e) {
     console.error("Error removing document: ", e);
     alert("Internal error removing favourite. Please try again later.");
@@ -126,6 +127,7 @@ export const addBookmark = async (placeId: string) => {
       },
       { merge: true }
     );
+    console.log("Added to bookmarks:", placeId); // Log message for adding to bookmarks
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding bookmark. Please try again later.");
@@ -141,6 +143,7 @@ export const removeBookmark = async (placeId: string) => {
     const uid = auth.currentUser?.uid;
     const bookmarkCollection = `users/${uid}/bookmarks`;
     await deleteDoc(doc(db, bookmarkCollection, placeId));
+    console.log("Removed from bookmarks:", placeId); // Log message for removing from bookmarks
   } catch (e) {
     console.error("Error removing document: ", e);
     alert("Internal error removing bookmark. Please try again later.");
