@@ -13,23 +13,31 @@ import {
   removeFavourite,
   removeVisited,
 } from "@/controller/DatabaseHandler";
+import { Saved } from "@/model/Saved";
+import { AppContext } from "@/context/AppContext";
+import { useContext } from "react";
 
 interface SavedListItemProps {
-  item: Restaurant;
+  item: Saved;
   listType: "visited" | "favourite" | "bookmarked";
 }
 
 const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
+  const {
+    removeFavouriteContext,
+    removeBookmarkContext,
+    removeVisitedContext,
+  } = useContext(AppContext);
   const handleListButtonPress = () => {
     switch (listType) {
       case "visited":
-        removeVisited(item.id);
+        removeVisitedContext(item.restaurant.id);
         break;
       case "favourite":
-        removeFavourite(item.id);
+        removeFavouriteContext(item.restaurant.id);
         break;
       case "bookmarked":
-        removeBookmark(item.id);
+        removeBookmarkContext(item.restaurant.id);
         break;
       default:
         break;
@@ -47,7 +55,9 @@ const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
     <TouchableOpacity>
       <View style={styles.itemContainer}>
         <Image
-          source={{ uri: item.image || images.defaultRestaurantImage }}
+          source={{
+            uri: item.restaurant.image || images.defaultRestaurantImage,
+          }}
           style={styles.image}
         />
         <View
@@ -57,7 +67,7 @@ const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
             justifyContent: "space-between",
           }}
         >
-          <Text style={styles.spotName}>{item.name}</Text>
+          <Text style={styles.spotName}>{item.restaurant.name}</Text>
           <Pressable onPress={handleListButtonPress}>
             <Image
               source={{

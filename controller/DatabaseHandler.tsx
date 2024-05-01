@@ -50,19 +50,18 @@ import { Restaurant } from "@/model/Restaurant";
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   const cleanedData: Partial<Restaurant> = restaurant;
-  if(restaurant.phone === undefined) delete cleanedData.phone;
-  if(restaurant.website === undefined) delete cleanedData.website;
-  if(restaurant.categories === undefined) delete cleanedData.categories;
-  if(restaurant.price === undefined) delete cleanedData.price;
-  if(restaurant.rating === undefined) delete cleanedData.rating;
-  if(restaurant.displayAddress === undefined) delete cleanedData.displayAddress;
-  if(restaurant.isClosed === undefined) delete cleanedData.isClosed;
-  if(restaurant.isFavourite === undefined) delete cleanedData.isFavourite;
-  if(restaurant.isBookmarked === undefined) delete cleanedData.isBookmarked;
-  if(restaurant.isVisited === undefined) delete cleanedData.isVisited;
+  if (restaurant.phone === undefined) restaurant.phone = "";
+  if (restaurant.website === undefined) restaurant.website = "";
+  if (restaurant.categories === undefined) restaurant.categories = [];
+  if (restaurant.price === undefined) restaurant.price = "";
+  if (restaurant.rating === undefined) restaurant.rating = 0;
+  if (restaurant.displayAddress === undefined) restaurant.displayAddress = "";
+  if (restaurant.isClosed === undefined) restaurant.isClosed = "";
+  if (restaurant.isFavourite === undefined) restaurant.isFavourite = false;
+  if (restaurant.isBookmarked === undefined) restaurant.isBookmarked = false;
+  if (restaurant.isVisited === undefined) restaurant.isVisited = false;
   return cleanedData;
 };
-
 
 /**
  * Adds favourite to user's favourites
@@ -107,8 +106,9 @@ export const removeFavourite = async (placeId: string) => {
 /**
  * Fetches favourites from user
  */
-export const fetchFavourites = async (uid: string) => {
+export const fetchFavourites = async () => {
   try {
+    const uid = auth.currentUser?.uid;
     if (!uid) {
       console.error("User not authenticated");
       alert("You must be logged in to view favourites.");
@@ -123,7 +123,7 @@ export const fetchFavourites = async (uid: string) => {
         addedOn: doc.data().addedOn as Date,
       });
     });
-    console.error("favourites", favourites);
+    // console.error("favourites", favourites);
     return favourites;
   } catch (e) {
     console.error("Error getting documents: ", e);
@@ -135,14 +135,16 @@ export const fetchFavourites = async (uid: string) => {
  * Adds bookmark to user's bookmarks
  * @param placeId Maps API place id
  */
-export const addBookmark = async (placeId: string) => {
+export const addBookmark = async (restaurant: Restaurant) => {
   try {
     const uid = auth.currentUser?.uid;
     const bookmarkCollection = `users/${uid}/bookmarks`;
-    const docRef = doc(db, bookmarkCollection, placeId);
+    const newRestaurant = cleanRestaurantData(restaurant);
+    const docRef = doc(db, bookmarkCollection, restaurant.id);
     await setDoc(
       docRef,
       {
+        restaurant: newRestaurant,
         addedOn: new Date(),
       },
       { merge: true }
@@ -172,8 +174,9 @@ export const removeBookmark = async (placeId: string) => {
 /**
  * Fetches bookmarks from user
  */
-export const fetchBookmarks = async (uid: string) => {
+export const fetchBookmarks = async () => {
   try {
+    const uid = auth.currentUser?.uid;
     if (!uid) {
       console.error("User not authenticated");
       alert("You must be logged in to view bookmarks.");
@@ -182,10 +185,12 @@ export const fetchBookmarks = async (uid: string) => {
     const bookmarkCollection = `users/${uid}/bookmarks`;
     const querySnapshot = await getDocs(collection(db, bookmarkCollection));
     const bookmarks: Saved[] = [];
-    // querySnapshot.forEach((doc) => {
-    //   bookmarks.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
-    // });
-    // console.log("favourites", favourites);
+    querySnapshot.forEach((doc) => {
+      bookmarks.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
+    });
     return bookmarks;
   } catch (e) {
     console.error("Error getting documents: ", e);
@@ -201,12 +206,13 @@ export const addVisited = async (restaurant: Restaurant) => {
   try {
     const uid = auth.currentUser?.uid;
     const visitedCollection = `users/${uid}/visited`;
+    const newRestaurant = cleanRestaurantData(restaurant);
     const docRef = doc(db, visitedCollection, restaurant.id);
     await setDoc(
       docRef,
       {
         addedOn: new Date(),
-        restaurant: restaurant,
+        restaurant: newRestaurant,
       },
       { merge: true }
     );
@@ -234,8 +240,9 @@ export const removeVisited = async (placeId: string) => {
 /**
  * Fetches visited from user
  */
-export const fetchVisited = async (uid: string) => {
+export const fetchVisited = async () => {
   try {
+    const uid = auth.currentUser?.uid;
     if (!uid) {
       console.error("User not authenticated");
       alert("You must be logged in to view visited restaurants.");
@@ -244,9 +251,12 @@ export const fetchVisited = async (uid: string) => {
     const visitedCollection = `users/${uid}/visited`;
     const querySnapshot = await getDocs(collection(db, visitedCollection));
     const visited: Saved[] = [];
-    // querySnapshot.forEach((doc) => {
-    //   visited.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
-    // });
+    querySnapshot.forEach((doc) => {
+      visited.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
+    });
     return visited;
   } catch (e) {
     console.error("Error getting documents: ", e);

@@ -9,6 +9,7 @@ import {
   fetchVisited,
   fetchUser,
   addUser,
+  addFavourite,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
@@ -28,9 +29,15 @@ export type AppContextType = {
   setRestaurantListIsLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
-  favouriteRestaurants: Restaurant[];
-  bookmarkedRestaurants: Restaurant[];
-  visitedRestaurants: Restaurant[];
+  favouriteRestaurants: Saved[];
+  addFavouriteContext: (restaurant: Restaurant) => Promise<void>;
+  removeFavouriteContext: (placeId: string) => Promise<void>;
+  bookmarkedRestaurants: Saved[];
+  addBookmarkContext: (restaurant: Restaurant) => Promise<void>;
+  removeBookmarkContext: (placeId: string) => Promise<void>;
+  visitedRestaurants: Saved[];
+  addVisitedContext: (restaurant: Restaurant) => Promise<void>;
+  removeVisitedContext: (placeId: string) => Promise<void>;
   updateSaved: () => Promise<void>;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
@@ -65,8 +72,14 @@ export const AppContext = createContext<AppContextType>({
   localRestaurants: [],
   setRestaurants: async () => {},
   favouriteRestaurants: [],
+  addFavouriteContext: async () => {},
+  removeFavouriteContext: async () => {},
   bookmarkedRestaurants: [],
+  addBookmarkContext: async () => {},
+  removeBookmarkContext: async () => {},
   visitedRestaurants: [],
+  addVisitedContext: async () => {},
+  removeVisitedContext: async () => {},
   updateSaved: async () => {},
   location: null,
   updateLocation: async () => {},
@@ -99,15 +112,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     null
   );
   const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
-  const [favouriteRestaurants, setFavouriteRestaurants] = useState<
-    Restaurant[]
-  >([]);
-  const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<
-    Restaurant[]
-  >([]);
-  const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(
+  const [favouriteRestaurants, setFavouriteRestaurants] = useState<Saved[]>([]);
+  const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<Saved[]>(
     []
   );
+  const [visitedRestaurants, setVisitedRestaurants] = useState<Saved[]>([]);
 
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
@@ -190,6 +199,12 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Favourites updated:", favouriteRestaurants);
   }, [favouriteRestaurants]);
+  useEffect(() => {
+    console.log("Bookmarks updated:", bookmarkedRestaurants);
+  }, [bookmarkedRestaurants]);
+  useEffect(() => {
+    console.log("Visited updated:", visitedRestaurants);
+  }, [visitedRestaurants]);
 
   const setUser = async () => {
     try {
@@ -197,14 +212,20 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       const uid = user?.uid;
       // console.log("User UID:", uid);
       if (!uid) return;
-      const favourites = await fetchFavourites(uid);
+      const favourites = await fetchFavourites();
+      console.log("Favourites:", favourites);
       if (favourites) {
-        for (const favourite of favourites) {
-          setFavouriteRestaurants((prev) => [...prev, favourite.restaurant]);
-        }
+        setFavouriteRestaurants(favourites);
       }
-      const bookmarks = await fetchBookmarks(uid);
-      const visited = await fetchVisited(uid);
+      const bookmarks = await fetchBookmarks();
+      console.log("Bookmarks:", bookmarks);
+      if (bookmarks) {
+        setBookmarkedRestaurants(bookmarks);
+      }
+      const visited = await fetchVisited();
+      if (visited) {
+        setVisitedRestaurants(visited);
+      }
       setUserObject({
         ...userObject,
         favouriteRestaurants: favourites,
@@ -347,6 +368,88 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     );
   };
 
+  const addFavouriteContext = async (restaurant: Restaurant) => {
+    try {
+      if (!user || !userObject) return;
+      await addFavourite(restaurant);
+      const newFavourite = {
+        restaurant,
+        addedOn: new Date(),
+      };
+      setFavouriteRestaurants([...favouriteRestaurants, newFavourite]);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeFavouriteContext = async (placeId: string) => {
+    try {
+      if (!user || !userObject) return;
+      const newFavourites = favouriteRestaurants.filter(
+        (item) => item.restaurant.id !== placeId
+      );
+      setFavouriteRestaurants(newFavourites);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addBookmarkContext = async (restaurant: Restaurant) => {
+    try {
+      if (!user || !userObject) return;
+      const newBookmark = {
+        restaurant,
+        addedOn: new Date(),
+      };
+      setBookmarkedRestaurants([...bookmarkedRestaurants, newBookmark]);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeBookmarkContext = async (placeId: string) => {
+    try {
+      if (!user || !userObject) return;
+      const newBookmarks = bookmarkedRestaurants.filter(
+        (item) => item.restaurant.id !== placeId
+      );
+      setBookmarkedRestaurants(newBookmarks);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addVisitedContext = async (restaurant: Restaurant) => {
+    try {
+      if (!user || !userObject) return;
+      const newVisited = {
+        restaurant,
+        addedOn: new Date(),
+      };
+      setVisitedRestaurants([...visitedRestaurants, newVisited]);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeVisitedContext = async (placeId: string) => {
+    try {
+      if (!user || !userObject) return;
+      const newVisited = visitedRestaurants.filter(
+        (item) => item.restaurant.id !== placeId
+      );
+      setVisitedRestaurants(newVisited);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const contextValue = {
     dataLoading,
     setDataLoading,
@@ -357,8 +460,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     location,
     updateLocation,
     favouriteRestaurants,
+    addFavouriteContext,
+    removeFavouriteContext,
     bookmarkedRestaurants,
+    addBookmarkContext,
+    removeBookmarkContext,
     visitedRestaurants,
+    addVisitedContext,
+    removeVisitedContext,
     updateSaved,
     defaultMessage,
     resetToDefaultMessage,

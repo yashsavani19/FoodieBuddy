@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,14 +11,20 @@ import { useNavigation } from "@react-navigation/native";
 import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
 import SavedListItem from "@/components/SavedListItem";
+import { Saved } from "@/model/Saved";
 
 const FavouriteSpotsView: React.FC = () => {
   const { favouriteRestaurants } = useContext(AppContext);
+  const favouriteList = favouriteRestaurants.map((item) => item.restaurant);
   const navigation = useNavigation();
 
-  const renderItem = ({ item }: { item: Restaurant }) => (
+  const renderItem = ({ item }: { item: Saved }) => (
     <SavedListItem item={item} listType="favourite" />
   );
+
+  // useEffect(() => {
+  //   favouriteList = favouriteRestaurants.map((item) => item.restaurant);
+  // } , [favouriteRestaurants]);
 
   return (
     <View style={styles.container}>
@@ -33,7 +39,7 @@ const FavouriteSpotsView: React.FC = () => {
       </View>
       <FlatList
         data={favouriteRestaurants}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.restaurant.id.toString()}
         renderItem={renderItem}
       />
     </View>
