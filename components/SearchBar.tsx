@@ -1,6 +1,7 @@
 import Colors from "@/constants/Colors";
+import { AppContext } from "@/context/AppContext";
 import { FontAwesome } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   TextInput,
@@ -22,7 +23,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm, setSearchTerm } = useContext(AppContext);
 
   const handleSearchSubmit = () => {
     onSearchSubmit(searchTerm);

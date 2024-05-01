@@ -7,6 +7,8 @@ import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import StarRating from "./StarRating";
+import { formatDistance } from "@/app/Utils/FormatDistance";
+import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import {
   addBookmark,
   addFavourite,
@@ -135,13 +137,9 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
               )}
             </Text>
             <Text style={styles.distance}>
-              {parseFloat(restaurant.distance).toFixed(1)}km
+              {formatDistance(restaurant.distance)}
             </Text>
-            <Text style={styles.distance}>
-              {restaurant.price !== undefined
-                ? displayPriceLevel(parseInt(restaurant.price))
-                : ""}
-            </Text>
+            <Text style={styles.distance}>{restaurant.price !== undefined ? displayPriceLevel(parseInt(restaurant.price)) : ""}</Text>
           </View>
         </View>
 

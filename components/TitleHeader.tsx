@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { StyleSheet, View, Text, Image, TextInput } from "react-native";
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import { StyleSheet, View, Text, Image, TextInput, Alert } from "react-native";
 import Colors from "@/constants/Colors";
 import SearchBar from "@/components/SearchBar";
 import Categories from "@/components/Categories";
@@ -9,13 +9,16 @@ import HeaderComponents from "./HeaderComponents";
 import { Category } from "@/model/Category";
 import { Filter } from "@/model/Filter";
 import Constants from "expo-constants";
-
+import { Restaurant } from "@/model/Restaurant";
+import { AppContext } from "@/context/AppContext";
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
-  onSearchSubmit?: (searchTerm: string) => void; // This will be called when the user submits the search term
-  onCategorySelect?: (category: Category) => void; // This will be called when the user selects a category
-  onFilterSelect?: (filter: Filter[]) => void; // This will be called when the user selects a filter
+  onSearchSubmit?: (searchTerm: string) => void;
+  onCategorySelect?: (category: Category) => void;
+  onFilterSelect?: (filter: Filter[]) => void;
+  searchTerm?: string; 
+  selectedCategory?: Category;
 }
 
 /**
@@ -30,6 +33,8 @@ export default function TitleHeader({
   onCategorySelect,
   onFilterSelect,
 }: TitleHeaderProps) {
+  const { searchTerm, selectedCategory } = useContext(AppContext);
+
   const handleSearchSubmit = (searchTerm: string) => {
     console.log(`Title Header Search term: ${searchTerm}`);
     if (onSearchSubmit) {
@@ -38,7 +43,6 @@ export default function TitleHeader({
   };
 
   const handleCategorySelect = (category: Category) => {
-    console.log(`Category selected: ${category}`);
     if (onCategorySelect) {
       onCategorySelect(category);
     }
@@ -60,6 +64,8 @@ export default function TitleHeader({
         onSearchSubmit={handleSearchSubmit}
         onCategorySelect={handleCategorySelect}
         onFilterSelect={handleFilterSelect}
+        searchTerm={searchTerm} // Pass the current search term
+        selectedCategory={selectedCategory} // Pass the current selected category
       />
     </View>
   );

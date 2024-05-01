@@ -6,7 +6,7 @@ import { LocationObjectCoords } from 'expo-location';
 // Configurable parameters for the API request
 const photoWidth = 700;
 const photoHeight = 700;
-const searchRadius = 5000; // Search radius in meters
+const searchRadius = 1050; // Search radius in meters
 const placeType = 'restaurant'; // Type of place to search
 
 /**

@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useState } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
 import { Restaurant } from "../model/Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "../model/Saved";
@@ -16,12 +16,15 @@ import { DefaultAISystemPrompt } from "../model/DefaultAISystemPrompt";
 import { User } from "@/model/User";
 import { User as AuthUser } from "firebase/auth";
 import { useAuth } from "./AuthContext";
-import { GOOGLE_API_KEY } from "@env";
-import axios from "axios";
+import { Category } from "@/model/Category";
+import { categories } from "@/assets/data/categories-options";
+import { Alert } from "react-native";
 
 export type AppContextType = {
   dataLoading: boolean;
   setDataLoading: (loading: boolean) => void;
+  restaurantListIsLoading: boolean;
+  setRestaurantListIsLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
   favouriteRestaurants: Restaurant[];
@@ -36,6 +39,17 @@ export type AppContextType = {
   addChatMessage: (message: IMessage) => void;
   userObject: User;
   setUser: () => Promise<void>;
+  selectedCategory: Category;
+  setSelectedCategory: (category: Category) => void;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  filteredRestaurants: Restaurant[];
+  setFilteredRestaurants: (restaurants: Restaurant[]) => void;
+  showNoRestaurantsFoundAlert: () => void;
+  searchFilterRestaurants: () => void;
+  categoryFilterRestaurants: () => void;
+  isInputDisabled: boolean;
+  setIsInputDisabled: (disabled: boolean) => void;
 };
 
 interface ContextProviderProps {
@@ -45,6 +59,8 @@ interface ContextProviderProps {
 export const AppContext = createContext<AppContextType>({
   dataLoading: true,
   setDataLoading: () => {},
+  restaurantListIsLoading: true,
+  setRestaurantListIsLoading: () => {},
   localRestaurants: [],
   setRestaurants: async () => {},
   favouriteRestaurants: [],
@@ -59,6 +75,18 @@ export const AppContext = createContext<AppContextType>({
   addChatMessage: async () => {},
   userObject: {},
   setUser: async () => {},
+
+  selectedCategory: categories[0],
+  setSelectedCategory: async () => {},
+  searchTerm: "",
+  setSearchTerm: async () => {},
+  filteredRestaurants: [],
+  setFilteredRestaurants: async () => {},
+  showNoRestaurantsFoundAlert: async () => {},
+  searchFilterRestaurants: async () => {},
+  categoryFilterRestaurants: async () => {},
+  isInputDisabled: false,
+  setIsInputDisabled: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -84,6 +112,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
   const [userObject, setUserObject] = useState<User>({});
+  const [selectedCategory, setSelectedCategory] = useState<Category>(/* initial value */);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
+  const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -99,6 +132,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           (a, b) => a.distance - b.distance
         );
         setRestaurantsArray(distanceSortedRestaurants);
+        setFilteredRestaurants(distanceSortedRestaurants);
       });
     } catch (error) {
       console.log(error);
@@ -107,96 +141,38 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-  const getRestaurantById = async (placeId: string): Promise<any | null> => {
-    try {
-      // Construct the URL for fetching restaurant details
-      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,formatted_phone_number,website&key=${GOOGLE_API_KEY}`;
-  
-      // Make a GET request to fetch restaurant details
-      const response = await axios.get<any>(detailsUrl);
-  
-      // Extract relevant data from the response
-      const restaurantDetails = response.data.result;
-      if (!restaurantDetails) {
-        console.error(`Restaurant details not found for place ID: ${placeId}`);
-        return null;
-      }
-  
-      // Construct the restaurant object with extracted data
-      const restaurant = {
-        id: placeId,
-        name: restaurantDetails.name,
-        displayAddress: restaurantDetails.formatted_address,
-        phone: restaurantDetails.formatted_phone_number,
-        website: restaurantDetails.website,
-      };
-  
-      return restaurant;
-    } catch (error) {
-      console.error(`Error fetching restaurant details for place ID: ${placeId}`, error);
-      return null;
-    }
-  };
-
   const updateSaved = async () => {
     try {
       if (!user || !userObject) return;
-  
-      // Update favourite restaurants
       if (userObject.favouriteRestaurants) {
-        console.log("Updating favourite restaurants...");
-        const favouritePromises = userObject.favouriteRestaurants.map(async (restaurant) => {
-          try {
-            const newRestaurant = await getRestaurantById(restaurant.placeId);
-            return newRestaurant;
-          } catch (error) {
-            console.error("Error fetching favourite restaurant:", error);
-            return null;
+        const favourites = userObject.favouriteRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setFavouriteRestaurants([...favouriteRestaurants, newRestaurant]);
+            // setFavouriteRestaurants(favourites);
           }
-        });
-        const favouriteRestaurants = await Promise.all(favouritePromises);
-        console.log("Favourite restaurants updated:", favouriteRestaurants);
-        setFavouriteRestaurants(favouriteRestaurants.filter((restaurant) => restaurant !== null));
+        );
       }
-  
-      // Update bookmarked restaurants
       if (userObject.bookmarkedRestaurants) {
-        console.log("Updating bookmarked restaurants...");
-        const bookmarkPromises = userObject.bookmarkedRestaurants.map(async (restaurant) => {
-          try {
-            const newRestaurant = await getRestaurantById(restaurant.placeId);
-            return newRestaurant;
-          } catch (error) {
-            console.error("Error fetching bookmarked restaurant:", error);
-            return null;
+        const bookmarks = userObject.bookmarkedRestaurants.forEach(
+          (restaurant) => {
+            // const newRestaurant = getRestaurantById(restaurant.placeId);
+            // setBookmarkedRestaurants([...bookmarkedRestaurants, newRestaurant]);
+            // setBookmarkedRestaurants(bookmarks);
           }
-        });
-        const bookmarkedRestaurants = await Promise.all(bookmarkPromises);
-        console.log("Bookmarked restaurants updated:", bookmarkedRestaurants);
-        setBookmarkedRestaurants(bookmarkedRestaurants.filter((restaurant) => restaurant !== null));
+        );
       }
-  
-      // Update visited restaurants
       if (userObject.visitedRestaurants) {
-        console.log("Updating visited restaurants...");
-        const visitedPromises = userObject.visitedRestaurants.map(async (restaurant) => {
-          try {
-            const newRestaurant = await getRestaurantById(restaurant.placeId);
-            return newRestaurant;
-          } catch (error) {
-            console.error("Error fetching visited restaurant:", error);
-            return null;
-          }
+        const visited = userObject.visitedRestaurants.forEach((restaurant) => {
+          // const newRestaurant = getRestaurantById(restaurant.placeId);
+          // setVisitedRestaurants([...visitedRestaurants, newRestaurant]);
+          // setVisitedRestaurants(visited);
         });
-        const visitedRestaurants = await Promise.all(visitedPromises);
-        console.log("Visited restaurants updated:", visitedRestaurants);
-        setVisitedRestaurants(visitedRestaurants.filter((restaurant) => restaurant !== null));
       }
     } catch (error) {
       console.log(error);
     }
   };
-  
 
   const setUser = async () => {
     try {
@@ -252,9 +228,86 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
+  // Handle filtering of restaurants based on search term and selected category
+  const searchFilterRestaurants = () => {
+    setRestaurantListIsLoading(true);
+    let result = localRestaurants;
+
+    if (searchTerm && ["restaurant", "bar", "bakery", "cafe"].includes(searchTerm.toLowerCase())) {
+      result = result.filter((restaurant) => {
+        return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(searchTerm.toLowerCase());
+      });
+    } 
+
+    else if (searchTerm) {
+      result = result.filter((restaurant) => {
+        return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    }
+    
+    // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
+    // This happened before another category was selected...
+    else if (!selectedCategory) {
+      setSelectedCategory(categories[0]);
+    }
+
+    setFilteredRestaurants(result);
+    setRestaurantListIsLoading(false);
+  };
+
+  // Handle filtering of restaurants based on search term and selected category
+  const categoryFilterRestaurants = () => {
+    setRestaurantListIsLoading(true);
+    let result = localRestaurants;
+
+    if (selectedCategory && selectedCategory.name !== "All") {
+      if (selectedCategory && ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)) 
+      {
+        result = result.filter((restaurant) => {
+          return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(selectedCategory.name.toLowerCase());
+        });
+      }
+      else 
+      {
+        result = result.filter((restaurant) => {
+          return restaurant.name && restaurant.name.toLowerCase().includes(selectedCategory.name.toLowerCase());
+        });
+      }
+    }
+  
+    setFilteredRestaurants(result);
+    setRestaurantListIsLoading(false);
+  } 
+
+  const [alertShown, setAlertShown] = useState(false);
+  //const [lastValidSearchTerm, setLastValidSearchTerm] = useState('');
+
+  const showNoRestaurantsFoundAlert = () => {
+    // Show alert if no matching results
+    if (!restaurantListIsLoading && filteredRestaurants.length === 0 && !alertShown)
+    {
+      Alert.alert('No Results', 'No matching restaurants found.', [
+        {
+          text: 'OK',
+          //onPress: () => setSearchTerm(lastValidSearchTerm) // Clear search term
+        }
+      ]);
+      //setIsInputDisabled(true);
+      setAlertShown(true);
+    }   
+    else if (filteredRestaurants.length > 0) {
+      //setIsInputDisabled(false);
+      //setLastValidSearchTerm(searchTerm);
+      setAlertShown(false);
+    }
+    console.log(filteredRestaurants === undefined ? 'No restaurants found' : filteredRestaurants.length + ' restaurants found');
+  } 
+
   const contextValue = {
     dataLoading,
     setDataLoading,
+    restaurantListIsLoading,
+    setRestaurantListIsLoading,
     localRestaurants,
     setRestaurants,
     location,
@@ -269,9 +322,22 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     addChatMessage,
     userObject,
     setUser,
+    selectedCategory: selectedCategory || {} as Category,
+    setSearchTerm,
+    setSelectedCategory,
+    searchTerm,
+    filteredRestaurants,
+    setFilteredRestaurants,
+    searchFilterRestaurants,
+    categoryFilterRestaurants,
+    showNoRestaurantsFoundAlert,
+    isInputDisabled,
+    setIsInputDisabled,
   };
 
   return (
-    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
+    <AppContext.Provider value={contextValue}>
+      {children}
+    </AppContext.Provider>
   );
 };

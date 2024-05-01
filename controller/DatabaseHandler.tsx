@@ -64,7 +64,7 @@ export const addFavourite = async (placeId: string) => {
       },
       { merge: true }
     );
-    console.log("Added to favourites:", placeId); // Log message for adding to favourites
+    console.log("Document written with Place ID (Favourites): ", docRef.id);
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding favourite. Please try again later.");
@@ -127,7 +127,7 @@ export const addBookmark = async (placeId: string) => {
       },
       { merge: true }
     );
-    console.log("Added to bookmarks:", placeId); // Log message for adding to bookmarks
+    console.log("Document written with Place ID (Bookmark): ", docRef.id);
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding bookmark. Please try again later.");
