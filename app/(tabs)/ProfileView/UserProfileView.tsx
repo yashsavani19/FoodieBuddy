@@ -29,7 +29,7 @@ export default function UserProfileView() {
       <TitleHeader title="Profile" />
       <ScrollView style={styles.scrollView}>
       <View style={styles.profileSection}>
-          <View style={styles.profilePictureWrapper}>
+          <View style={styles.iconWrapper}>
             <Image
               source={require("@/assets/images/user-icon.png")} // Correct image path
               style={styles.profilePicture}
@@ -51,17 +51,26 @@ export default function UserProfileView() {
 
         <View style={styles.menuItemsSection}>
           <TouchableOpacity onPress={navigateToFavouriteSpots} style={styles.menuItem}>
-            <FontAwesome name="heart" size={35} color="red" />
+            <Image
+              source={require("@/assets/images/fave-Selected.png")} // Correct image path
+              style={styles.savedIcons}
+            />
             <Text style={styles.menuItemText}>Favorite Spots</Text>
             <AntDesign name="right" style={styles.rightArrow} />
           </TouchableOpacity>
           <TouchableOpacity onPress={navigateToBookmarkedSpots} style={styles.menuItem}>
-            <FontAwesome name="bookmark" size={35} color="orange" />
+            <Image
+              source={require("@/assets/images/bookmark-Selected.png")} // Correct image path
+              style={styles.savedIcons}
+            />
             <Text style={styles.menuItemText}>Bookmarked Spots</Text>
             <AntDesign name="right" style={styles.rightArrow} />
           </TouchableOpacity>
           <TouchableOpacity onPress={navigateToVisitedSpots} style={styles.menuItem}>
-            <MaterialIcons name="add-location-alt" size={35} color="green" />
+            <Image
+              source={require("@/assets/images/visited-Selected.png")} // Correct image path
+              style={styles.savedIcons}
+            />
             <Text style={styles.menuItemText}>Visited Spots</Text>
             <AntDesign name="right" style={styles.rightArrow} />
           </TouchableOpacity>
@@ -80,6 +89,13 @@ const styles = StyleSheet.create({
     color: "#ededed",
   },
 
+  savedIcons: {
+    width: 35,
+    height: 35,
+    resizeMode: "contain",
+    marginRight: 20,
+  },
+
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -93,7 +109,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 20,
   },
-  profilePictureWrapper: {
+  iconWrapper: {
     alignItems: "center",
     justifyContent: "center",
   },
