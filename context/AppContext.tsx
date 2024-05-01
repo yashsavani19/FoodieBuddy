@@ -10,6 +10,10 @@ import {
   fetchUser,
   addUser,
   addFavourite,
+  removeBookmark,
+  removeFavourite,
+  addBookmark,
+  addVisited,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
@@ -195,6 +199,12 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     //   console.log(error);
     // }
   };
+
+  useEffect(() => {
+    if (!user) {
+      setUserObject({});
+    }
+  }, [user]);
 
   useEffect(() => {
     console.log("Favourites updated:", favouriteRestaurants);
@@ -390,6 +400,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         (item) => item.restaurant.id !== placeId
       );
       setFavouriteRestaurants(newFavourites);
+      await removeFavourite(placeId);
       // setUser();
     } catch (error) {
       console.log(error);
@@ -399,6 +410,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const addBookmarkContext = async (restaurant: Restaurant) => {
     try {
       if (!user || !userObject) return;
+      await addBookmark(restaurant);
       const newBookmark = {
         restaurant,
         addedOn: new Date(),
@@ -417,6 +429,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         (item) => item.restaurant.id !== placeId
       );
       setBookmarkedRestaurants(newBookmarks);
+      await removeBookmark(placeId);
       // setUser();
     } catch (error) {
       console.log(error);
@@ -426,6 +439,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const addVisitedContext = async (restaurant: Restaurant) => {
     try {
       if (!user || !userObject) return;
+      await addVisited(restaurant);
       const newVisited = {
         restaurant,
         addedOn: new Date(),

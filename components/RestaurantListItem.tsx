@@ -57,19 +57,33 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   };
 
   useEffect(() => {
-    bookmarkedRestaurants?.map((item) => {
-      if (item.restaurant.id === restaurant.id) {
-        setBookmarkPressed(true);
+    if (bookmarkedRestaurants) {
+      for (let i = 0; i < bookmarkedRestaurants.length; i++) {
+        const item = bookmarkedRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setBookmarkPressed(true);
+          console.log(
+            "Bookmark: " + item.restaurant.name + " " + isBookmarkPressed
+          );
+          return;
+        }
       }
-    });
+      setBookmarkPressed(false);
+    }
   }, [bookmarkedRestaurants]);
 
   useEffect(() => {
-    favouriteRestaurants?.map((item) => {
-      if (item.restaurant.id === restaurant.id) {
-        setFavePressed(true);
+    if (favouriteRestaurants) {
+      for (let i = 0; i < favouriteRestaurants.length; i++) {
+        const item = favouriteRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setFavePressed(true);
+          console.log("Fave: " + item.restaurant.name + " " + isFavePressed);
+          return;
+        }
       }
-    });
+      setFavePressed(false);
+    }
   }, [favouriteRestaurants]);
 
   function displayPriceLevel(priceLevel: number): string {
