@@ -22,7 +22,15 @@ type RestaurantListItemProps = {
 };
 
 export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
-  const { userObject } = useContext(AppContext);
+  const {
+    userObject,
+    favouriteRestaurants,
+    bookmarkedRestaurants,
+    addBookmarkContext,
+    removeBookmarkContext,
+    addFavouriteContext,
+    removeFavouriteContext,
+  } = useContext(AppContext);
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
@@ -49,20 +57,34 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   };
 
   useEffect(() => {
-    userObject.bookmarkedRestaurants?.map((item) => {
-      if (item.placeId === restaurant.id) {
-        setBookmarkPressed(true);
+    if (bookmarkedRestaurants) {
+      for (let i = 0; i < bookmarkedRestaurants.length; i++) {
+        const item = bookmarkedRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setBookmarkPressed(true);
+          console.log(
+            "Bookmark: " + item.restaurant.name + " " + isBookmarkPressed
+          );
+          return;
+        }
       }
-    });
-  }, []);
+      setBookmarkPressed(false);
+    }
+  }, [bookmarkedRestaurants]);
 
   useEffect(() => {
-    userObject.favouriteRestaurants?.map((item) => {
-      if (item.placeId === restaurant.id) {
-        setFavePressed(true);
+    if (favouriteRestaurants) {
+      for (let i = 0; i < favouriteRestaurants.length; i++) {
+        const item = favouriteRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setFavePressed(true);
+          console.log("Fave: " + item.restaurant.name + " " + isFavePressed);
+          return;
+        }
       }
-    });
-  }, []);
+      setFavePressed(false);
+    }
+  }, [favouriteRestaurants]);
 
   function displayPriceLevel(priceLevel: number): string {
     let price = "";
@@ -76,13 +98,13 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   const handleFavouritePressed = () => {
     if (isBookmarkPressed) {
       setBookmarkPressed(false);
-      removeBookmark(restaurant.id);
+      removeBookmarkContext(restaurant.id);
     }
     if (isFavePressed) {
-      removeFavourite(restaurant.id);
+      removeFavouriteContext(restaurant.id);
       setFavePressed(false);
     } else {
-      addFavourite(restaurant.id);
+      addFavouriteContext(restaurant);
       setFavePressed(true);
     }
     animateIcon(faveScale);
@@ -92,13 +114,13 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   const handleBookmarkPressed = () => {
     if (isFavePressed) {
       setFavePressed(false);
-      removeFavourite(restaurant.id);
+      removeFavouriteContext(restaurant.id);
     }
     if (isBookmarkPressed) {
-      removeBookmark(restaurant.id);
+      removeBookmarkContext(restaurant.id);
       setBookmarkPressed(false);
     } else {
-      addBookmark(restaurant.id);
+      addBookmarkContext(restaurant);
       setBookmarkPressed(true);
     }
     animateIcon(bookmarkScale);
@@ -139,7 +161,11 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             <Text style={styles.distance}>
               {formatDistance(restaurant.distance)}
             </Text>
-            <Text style={styles.distance}>{restaurant.price !== undefined ? displayPriceLevel(parseInt(restaurant.price)) : ""}</Text>
+            <Text style={styles.distance}>
+              {restaurant.price !== undefined
+                ? displayPriceLevel(parseInt(restaurant.price))
+                : ""}
+            </Text>
           </View>
         </View>
 

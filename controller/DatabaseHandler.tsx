@@ -11,6 +11,7 @@ import {
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
 import { auth } from "@/controller/FirebaseHandler";
+import { Restaurant } from "@/model/Restaurant";
 // import { useAuth } from "@/context/AuthContext";
 /**
  * Getters and setters for user data
@@ -47,20 +48,36 @@ import { auth } from "@/controller/FirebaseHandler";
  */
 
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
+const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
+  const cleanedData: Partial<Restaurant> = restaurant;
+  if (restaurant.phone === undefined) restaurant.phone = "";
+  if (restaurant.website === undefined) restaurant.website = "";
+  if (restaurant.categories === undefined) restaurant.categories = [];
+  if (restaurant.price === undefined) restaurant.price = "";
+  if (restaurant.rating === undefined) restaurant.rating = 0;
+  if (restaurant.displayAddress === undefined) restaurant.displayAddress = "";
+  if (restaurant.isClosed === undefined) restaurant.isClosed = "";
+  if (restaurant.isFavourite === undefined) restaurant.isFavourite = false;
+  if (restaurant.isBookmarked === undefined) restaurant.isBookmarked = false;
+  if (restaurant.isVisited === undefined) restaurant.isVisited = false;
+  return cleanedData;
+};
 
 /**
  * Adds favourite to user's favourites
  * @param placeId Maps API place id
  */
-export const addFavourite = async (placeId: string) => {
+export const addFavourite = async (restaurant: Restaurant) => {
   try {
     const uid = auth.currentUser?.uid;
     const favouriteCollection = `users/${uid}/favourites`;
-    const docRef = doc(db, favouriteCollection, placeId);
+    const newRestaurant = cleanRestaurantData(restaurant);
+    const docRef = doc(db, favouriteCollection, restaurant.id);
     await setDoc(
       docRef,
       {
         addedOn: new Date(),
+        restaurant: newRestaurant,
       },
       { merge: true }
     );
@@ -80,7 +97,6 @@ export const removeFavourite = async (placeId: string) => {
     const uid = auth.currentUser?.uid;
     const favouriteCollection = `users/${uid}/favourites`;
     await deleteDoc(doc(db, favouriteCollection, placeId));
-    console.log("Removed from favourites:", placeId); // Log message for removing from favourites
   } catch (e) {
     console.error("Error removing document: ", e);
     alert("Internal error removing favourite. Please try again later.");
@@ -90,8 +106,9 @@ export const removeFavourite = async (placeId: string) => {
 /**
  * Fetches favourites from user
  */
-export const fetchFavourites = async (uid: string) => {
+export const fetchFavourites = async () => {
   try {
+    const uid = auth.currentUser?.uid;
     if (!uid) {
       console.error("User not authenticated");
       alert("You must be logged in to view favourites.");
@@ -101,9 +118,12 @@ export const fetchFavourites = async (uid: string) => {
     const querySnapshot = await getDocs(collection(db, favouriteCollection));
     const favourites: Saved[] = [];
     querySnapshot.forEach((doc) => {
-      favourites.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
+      favourites.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
     });
-    // console.log("favourites", favourites);
+    // console.error("favourites", favourites);
     return favourites;
   } catch (e) {
     console.error("Error getting documents: ", e);
@@ -115,14 +135,16 @@ export const fetchFavourites = async (uid: string) => {
  * Adds bookmark to user's bookmarks
  * @param placeId Maps API place id
  */
-export const addBookmark = async (placeId: string) => {
+export const addBookmark = async (restaurant: Restaurant) => {
   try {
     const uid = auth.currentUser?.uid;
     const bookmarkCollection = `users/${uid}/bookmarks`;
-    const docRef = doc(db, bookmarkCollection, placeId);
+    const newRestaurant = cleanRestaurantData(restaurant);
+    const docRef = doc(db, bookmarkCollection, restaurant.id);
     await setDoc(
       docRef,
       {
+        restaurant: newRestaurant,
         addedOn: new Date(),
       },
       { merge: true }
@@ -143,7 +165,6 @@ export const removeBookmark = async (placeId: string) => {
     const uid = auth.currentUser?.uid;
     const bookmarkCollection = `users/${uid}/bookmarks`;
     await deleteDoc(doc(db, bookmarkCollection, placeId));
-    console.log("Removed from bookmarks:", placeId); // Log message for removing from bookmarks
   } catch (e) {
     console.error("Error removing document: ", e);
     alert("Internal error removing bookmark. Please try again later.");
@@ -153,8 +174,9 @@ export const removeBookmark = async (placeId: string) => {
 /**
  * Fetches bookmarks from user
  */
-export const fetchBookmarks = async (uid: string) => {
+export const fetchBookmarks = async () => {
   try {
+    const uid = auth.currentUser?.uid;
     if (!uid) {
       console.error("User not authenticated");
       alert("You must be logged in to view bookmarks.");
@@ -164,9 +186,11 @@ export const fetchBookmarks = async (uid: string) => {
     const querySnapshot = await getDocs(collection(db, bookmarkCollection));
     const bookmarks: Saved[] = [];
     querySnapshot.forEach((doc) => {
-      bookmarks.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
+      bookmarks.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
     });
-    // console.log("favourites", favourites);
     return bookmarks;
   } catch (e) {
     console.error("Error getting documents: ", e);
@@ -178,13 +202,20 @@ export const fetchBookmarks = async (uid: string) => {
  * Adds visited to user's visited
  * @param placeId Maps API place id
  */
-export const addVisited = async (uid: string, placeId: string) => {
+export const addVisited = async (restaurant: Restaurant) => {
   try {
+    const uid = auth.currentUser?.uid;
     const visitedCollection = `users/${uid}/visited`;
-    const docRef = await addDoc(collection(db, visitedCollection), {
-      placeId: placeId,
-      addedOn: new Date(),
-    });
+    const newRestaurant = cleanRestaurantData(restaurant);
+    const docRef = doc(db, visitedCollection, restaurant.id);
+    await setDoc(
+      docRef,
+      {
+        addedOn: new Date(),
+        restaurant: newRestaurant,
+      },
+      { merge: true }
+    );
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding visited. Please try again later.");
@@ -195,8 +226,9 @@ export const addVisited = async (uid: string, placeId: string) => {
  * Removes visited from user's visited
  * @param placeId Maps API place id
  */
-export const removeVisited = async (uid: string, placeId: string) => {
+export const removeVisited = async (placeId: string) => {
   try {
+    const uid = auth.currentUser?.uid;
     const visitedCollection = `users/${uid}/visited`;
     await deleteDoc(doc(db, visitedCollection, placeId));
   } catch (e) {
@@ -208,8 +240,9 @@ export const removeVisited = async (uid: string, placeId: string) => {
 /**
  * Fetches visited from user
  */
-export const fetchVisited = async (uid: string) => {
+export const fetchVisited = async () => {
   try {
+    const uid = auth.currentUser?.uid;
     if (!uid) {
       console.error("User not authenticated");
       alert("You must be logged in to view visited restaurants.");
@@ -219,9 +252,11 @@ export const fetchVisited = async (uid: string) => {
     const querySnapshot = await getDocs(collection(db, visitedCollection));
     const visited: Saved[] = [];
     querySnapshot.forEach((doc) => {
-      visited.push({ placeId: doc.id, addedOn: doc.data().addedOn as Date });
+      visited.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
     });
-    // console.log("favourites", favourites);
     return visited;
   } catch (e) {
     console.error("Error getting documents: ", e);

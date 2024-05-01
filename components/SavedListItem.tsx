@@ -4,6 +4,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TouchableOpacity,
 } from "react-native";
 import { View } from "react-native";
 import { Restaurant } from "@/model/Restaurant";
@@ -12,23 +13,31 @@ import {
   removeFavourite,
   removeVisited,
 } from "@/controller/DatabaseHandler";
+import { Saved } from "@/model/Saved";
+import { AppContext } from "@/context/AppContext";
+import { useContext } from "react";
 
 interface SavedListItemProps {
-  item: Restaurant;
+  item: Saved;
   listType: "visited" | "favourite" | "bookmarked";
 }
 
 const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
+  const {
+    removeFavouriteContext,
+    removeBookmarkContext,
+    removeVisitedContext,
+  } = useContext(AppContext);
   const handleListButtonPress = () => {
     switch (listType) {
       case "visited":
-        removeVisited(item.id);
+        removeVisitedContext(item.restaurant.id);
         break;
       case "favourite":
-        removeFavourite(item.id);
+        removeFavouriteContext(item.restaurant.id);
         break;
       case "bookmarked":
-        removeBookmark(item.id);
+        removeBookmarkContext(item.restaurant.id);
         break;
       default:
         break;
@@ -43,21 +52,33 @@ const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
       : images.bookmarkSelectedIcon;
 
   return (
-    <View style={styles.itemContainer}>
-      <Image
-        source={{ uri: item.image || images.defaultRestaurantImage }}
-        style={styles.image}
-      />
-      <Text style={styles.spotName}>{item.name}</Text>
-      <Pressable onPress={handleListButtonPress}>
+    <TouchableOpacity>
+      <View style={styles.itemContainer}>
         <Image
           source={{
-            uri: listIcon,
+            uri: item.restaurant.image || images.defaultRestaurantImage,
           }}
-          style={styles.icon}
+          style={styles.image}
         />
-      </Pressable>
-    </View>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={styles.spotName}>{item.restaurant.name}</Text>
+          <Pressable onPress={handleListButtonPress}>
+            <Image
+              source={{
+                uri: listIcon,
+              }}
+              style={styles.icon}
+            />
+          </Pressable>
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 

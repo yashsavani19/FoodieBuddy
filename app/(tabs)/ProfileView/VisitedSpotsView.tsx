@@ -11,11 +11,12 @@ import { useNavigation } from "@react-navigation/native";
 import { Restaurant } from "@/model/Restaurant";
 import { AppContext } from "@/context/AppContext";
 import SavedListItem from "@/components/SavedListItem";
+import { Saved } from "@/model/Saved";
 
 const VisitedSpotsView: React.FC = () => {
   const { visitedRestaurants } = useContext(AppContext);
   const navigation = useNavigation();
-  const renderItem = ({ item }: { item: Restaurant }) => (
+  const renderItem = ({ item }: { item: Saved }) => (
     <SavedListItem item={item} listType="visited" />
   );
 
@@ -32,7 +33,7 @@ const VisitedSpotsView: React.FC = () => {
       </View>
       <FlatList
         data={visitedRestaurants}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.restaurant.id.toString()}
         renderItem={renderItem}
       />
     </View>
