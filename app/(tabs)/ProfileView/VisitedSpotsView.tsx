@@ -1,38 +1,37 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-interface VisitedSpot {
-  id: number;
-  name: string;
-  image: string;
-}
-
-const visitedSpots: VisitedSpot[] = [
-  { id: 1, name: 'Amazing Park View', image: 'https://via.placeholder.com/150' },
-  { id: 2, name: 'Historic Monument Site', image: 'https://via.placeholder.com/150' },
-  // Add more visited spots here
-];
+import React, { useContext } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+} from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { Restaurant } from "@/model/Restaurant";
+import { AppContext } from "@/context/AppContext";
+import SavedListItem from "@/components/SavedListItem";
 
 const VisitedSpotsView: React.FC = () => {
+  const { visitedRestaurants } = useContext(AppContext);
   const navigation = useNavigation();
-  const renderItem = ({ item }: { item: VisitedSpot }) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <Text style={styles.spotName}>{item.name}</Text>
-    </View>
+  const renderItem = ({ item }: { item: Restaurant }) => (
+    <SavedListItem item={item} listType="visited" />
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
           <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.title}>Visited Spots</Text>
       </View>
       <FlatList
-        data={visitedSpots}
+        data={visitedRestaurants}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
       />
@@ -43,30 +42,31 @@ const VisitedSpotsView: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginTop: 20,
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   backButton: {
     paddingHorizontal: 10,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     flex: 1, // added for title alignment
-    textAlign: 'center', // align the title
+    textAlign: "center", // align the title
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   image: {
     width: 50,

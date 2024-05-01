@@ -2,18 +2,12 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, GestureResponderEvent } from 'react-native';
 import TitleHeader from "@/components/TitleHeader";
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '@/context/AuthContext';
 
 export default function UserProfileView() {
   const navigation = useNavigation(); // Use navigation hook here
-  const username = "Param Patel";
-  
-  const menuItems = [
-    
-    { name: '  Bookmarked Spots'},
-    { name: 'Visited Spots'}
-  ];
-
+  const { user, signOut } = useAuth(); // Use auth hook here
 
   function navigateToFavouriteSpots(event: GestureResponderEvent): void {
     // Assuming 'navigation' is already defined using the useNavigation hook
@@ -91,7 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    marginTop: 100,
   },
 
   profileSection: {
@@ -122,7 +116,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   menuItemsSection: {
-    marginTop: 20,
+    marginTop: 5,
   },
   menuItem: {
     flexDirection: "row",
