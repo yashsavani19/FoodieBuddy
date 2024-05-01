@@ -1,38 +1,38 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-
-interface FavouriteSpot {
-  id: number;
-  name: string;
-  image: string;
-}
-
-const favouriteSpots: FavouriteSpot[] = [
-  { id: 1, name: 'Sensational Chicken Mount St', image: 'https://via.placeholder.com/150' },
-  { id: 2, name: 'Delicious Pizza Place', image: 'https://via.placeholder.com/150' },
-]; 
+import React, { useContext } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+} from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { AppContext } from "@/context/AppContext";
+import { Restaurant } from "@/model/Restaurant";
+import SavedListItem from "@/components/SavedListItem";
 
 const FavouriteSpotsView: React.FC = () => {
+  const { favouriteRestaurants } = useContext(AppContext);
   const navigation = useNavigation();
-  const renderItem = ({ item }: { item: FavouriteSpot }) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <Text style={styles.spotName}>{item.name}</Text>
-    </View>
+
+  const renderItem = ({ item }: { item: Restaurant }) => (
+    <SavedListItem item={item} listType="favourite" />
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
           <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.title}>Favorite Eating Spots</Text>
       </View>
       <FlatList
-        data={favouriteSpots}
+        data={favouriteRestaurants}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
       />
@@ -43,28 +43,29 @@ const FavouriteSpotsView: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   backButton: {
     paddingHorizontal: 10,
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   image: {
     width: 50,
@@ -78,4 +79,3 @@ const styles = StyleSheet.create({
 });
 
 export default FavouriteSpotsView;
-// Compare this snippet from app/%28tabs%29/ProfileView/UserProfileView.tsx:
