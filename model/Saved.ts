@@ -1,6 +1,6 @@
 import { Restaurant } from "./Restaurant";
 
 export interface Saved {
-    placeId: string;
+    restaurant: Restaurant;
     addedOn: Date;
 };

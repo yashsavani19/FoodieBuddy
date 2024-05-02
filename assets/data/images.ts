@@ -34,6 +34,7 @@ export default {
 
     bookmarkSelectedIcon: "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/bookmark-Selected.png?alt=media&token=2d8fbc34-9ed3-4000-b0d3-6e753723762a",
     faveSelectedIcon: "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/fave-Selected.png?alt=media&token=1f5e396e-0871-4e7a-8691-abc5b2921b37",
+    visitedSelectedIcon: "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/visited-Selected.png?alt=media&token=e8f5ec13-33ca-4a0e-b1c9-732315401d96",
 
     // Tab bar icons
     homeIcon: "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/Tab%20Bar%20Icons%2FHome.png?alt=media&token=7f332d98-afba-4c81-b5e0-8d4b910cd9de",

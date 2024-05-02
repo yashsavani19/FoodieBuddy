@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,18 +11,28 @@ import { useNavigation } from "@react-navigation/native";
 import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
 import SavedListItem from "@/components/SavedListItem";
+import { Saved } from "@/model/Saved";
 
 const FavouriteSpotsView: React.FC = () => {
   const { favouriteRestaurants } = useContext(AppContext);
+  const favouriteList = favouriteRestaurants.map((item) => item.restaurant);
   const navigation = useNavigation();
 
-  const renderItem = ({ item }: { item: Restaurant }) => (
+  const renderItem = ({ item }: { item: Saved }) => (
     <SavedListItem item={item} listType="favourite" />
   );
+
+  // useEffect(() => {
+  //   favouriteList = favouriteRestaurants.map((item) => item.restaurant);
+  // } , [favouriteRestaurants]);
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
@@ -33,7 +43,7 @@ const FavouriteSpotsView: React.FC = () => {
       </View>
       <FlatList
         data={favouriteRestaurants}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.restaurant.id.toString()}
         renderItem={renderItem}
       />
     </View>
@@ -44,13 +54,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    backgroundColor: "#fff",
   },
   header: {
     marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 15,
     borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
     borderBottomColor: "#ddd",
   },
   backButton: {
@@ -59,12 +74,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    fontWeight: "bold",
   },
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
     borderBottomColor: "#ddd",
   },
   image: {
@@ -79,3 +98,4 @@ const styles = StyleSheet.create({
 });
 
 export default FavouriteSpotsView;
+

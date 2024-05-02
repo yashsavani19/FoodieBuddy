@@ -9,6 +9,11 @@ import {
   fetchVisited,
   fetchUser,
   addUser,
+  addFavourite,
+  removeBookmark,
+  removeFavourite,
+  addBookmark,
+  addVisited,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
@@ -19,6 +24,7 @@ import { useAuth } from "./AuthContext";
 import { Category } from "@/model/Category";
 import { categories } from "@/assets/data/categories-options";
 import { Alert } from "react-native";
+import { getRestaurantById } from "@/controller/FetchRestaurantById";
 
 export type AppContextType = {
   dataLoading: boolean;
@@ -27,9 +33,15 @@ export type AppContextType = {
   setRestaurantListIsLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
-  favouriteRestaurants: Restaurant[];
-  bookmarkedRestaurants: Restaurant[];
-  visitedRestaurants: Restaurant[];
+  favouriteRestaurants: Saved[];
+  addFavouriteContext: (restaurant: Restaurant) => Promise<void>;
+  removeFavouriteContext: (placeId: string) => Promise<void>;
+  bookmarkedRestaurants: Saved[];
+  addBookmarkContext: (restaurant: Restaurant) => Promise<void>;
+  removeBookmarkContext: (placeId: string) => Promise<void>;
+  visitedRestaurants: Saved[];
+  addVisitedContext: (restaurant: Restaurant) => Promise<void>;
+  removeVisitedContext: (placeId: string) => Promise<void>;
   updateSaved: () => Promise<void>;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
@@ -64,8 +76,14 @@ export const AppContext = createContext<AppContextType>({
   localRestaurants: [],
   setRestaurants: async () => {},
   favouriteRestaurants: [],
+  addFavouriteContext: async () => {},
+  removeFavouriteContext: async () => {},
   bookmarkedRestaurants: [],
+  addBookmarkContext: async () => {},
+  removeBookmarkContext: async () => {},
   visitedRestaurants: [],
+  addVisitedContext: async () => {},
+  removeVisitedContext: async () => {},
   updateSaved: async () => {},
   location: null,
   updateLocation: async () => {},
@@ -98,23 +116,21 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     null
   );
   const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
-  const [favouriteRestaurants, setFavouriteRestaurants] = useState<
-    Restaurant[]
-  >([]);
-  const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<
-    Restaurant[]
-  >([]);
-  const [visitedRestaurants, setVisitedRestaurants] = useState<Restaurant[]>(
+  const [favouriteRestaurants, setFavouriteRestaurants] = useState<Saved[]>([]);
+  const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<Saved[]>(
     []
   );
+  const [visitedRestaurants, setVisitedRestaurants] = useState<Saved[]>([]);
 
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
   const [userObject, setUserObject] = useState<User>({});
-  const [selectedCategory, setSelectedCategory] = useState<Category>(/* initial value */);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filteredRestaurants, setFilteredRestaurants] = useState(localRestaurants);
+  const [selectedCategory, setSelectedCategory] =
+    useState<Category>(/* initial value */);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filteredRestaurants, setFilteredRestaurants] =
+    useState(localRestaurants);
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
@@ -142,37 +158,63 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
 
   const updateSaved = async () => {
-    try {
-      if (!user || !userObject) return;
-      if (userObject.favouriteRestaurants) {
-        const favourites = userObject.favouriteRestaurants.forEach(
-          (restaurant) => {
-            // const newRestaurant = getRestaurantById(restaurant.placeId);
-            // setFavouriteRestaurants([...favouriteRestaurants, newRestaurant]);
-            // setFavouriteRestaurants(favourites);
-          }
-        );
-      }
-      if (userObject.bookmarkedRestaurants) {
-        const bookmarks = userObject.bookmarkedRestaurants.forEach(
-          (restaurant) => {
-            // const newRestaurant = getRestaurantById(restaurant.placeId);
-            // setBookmarkedRestaurants([...bookmarkedRestaurants, newRestaurant]);
-            // setBookmarkedRestaurants(bookmarks);
-          }
-        );
-      }
-      if (userObject.visitedRestaurants) {
-        const visited = userObject.visitedRestaurants.forEach((restaurant) => {
-          // const newRestaurant = getRestaurantById(restaurant.placeId);
-          // setVisitedRestaurants([...visitedRestaurants, newRestaurant]);
-          // setVisitedRestaurants(visited);
-        });
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    // console.log("Updating saved restaurants...");
+    // try {
+    //   if (!user || !userObject) return;
+    //   console.log("Favorites:", userObject.favouriteRestaurants);
+    //   if (userObject.favouriteRestaurants) {
+    //     for (const restaurant of userObject.favouriteRestaurants) {
+    //       const newRestaurant = await getRestaurantById(
+    //         restaurant.placeId,
+    //         location
+    //       );
+    //       newRestaurant.isFavourite = true;
+    //       setFavouriteRestaurants((prev) => [...prev, newRestaurant]);
+    //     }
+    //     console.log("Favourite restaurants updated:", favouriteRestaurants);
+    //   }
+    //   console.log("Bookmarks:", userObject.bookmarkedRestaurants);
+    //   if (userObject.bookmarkedRestaurants) {
+    //     for (const restaurant of userObject.bookmarkedRestaurants) {
+    //       const newRestaurant = await getRestaurantById(
+    //         restaurant.placeId,
+    //         location
+    //       );
+    //       newRestaurant.isBookmarked = true;
+    //       setBookmarkedRestaurants((prev) => [...prev, newRestaurant]);
+    //     }
+    //   }
+    //   console.log("Visited:", userObject.visitedRestaurants);
+    //   if (userObject.visitedRestaurants) {
+    //     for (const restaurant of userObject.visitedRestaurants) {
+    //       const newRestaurant = await getRestaurantById(
+    //         restaurant.placeId,
+    //         location
+    //       );
+    //       newRestaurant.isVisited = true;
+    //       setVisitedRestaurants((prev) => [...prev, newRestaurant]);
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
+
+  useEffect(() => {
+    if (!user) {
+      setUserObject({});
+    }
+  }, [user]);
+
+  useEffect(() => {
+    console.log("Favourites updated:", favouriteRestaurants);
+  }, [favouriteRestaurants]);
+  useEffect(() => {
+    console.log("Bookmarks updated:", bookmarkedRestaurants);
+  }, [bookmarkedRestaurants]);
+  useEffect(() => {
+    console.log("Visited updated:", visitedRestaurants);
+  }, [visitedRestaurants]);
 
   const setUser = async () => {
     try {
@@ -180,9 +222,20 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       const uid = user?.uid;
       // console.log("User UID:", uid);
       if (!uid) return;
-      const favourites = await fetchFavourites(uid);
-      const bookmarks = await fetchBookmarks(uid);
-      const visited = await fetchVisited(uid);
+      const favourites = await fetchFavourites();
+      console.log("Favourites:", favourites);
+      if (favourites) {
+        setFavouriteRestaurants(favourites);
+      }
+      const bookmarks = await fetchBookmarks();
+      console.log("Bookmarks:", bookmarks);
+      if (bookmarks) {
+        setBookmarkedRestaurants(bookmarks);
+      }
+      const visited = await fetchVisited();
+      if (visited) {
+        setVisitedRestaurants(visited);
+      }
       setUserObject({
         ...userObject,
         favouriteRestaurants: favourites,
@@ -233,18 +286,24 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
-    if (searchTerm && ["restaurant", "bar", "bakery", "cafe"].includes(searchTerm.toLowerCase())) {
+    if (
+      searchTerm &&
+      ["restaurant", "bar", "bakery", "cafe"].includes(searchTerm.toLowerCase())
+    ) {
       result = result.filter((restaurant) => {
-        return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(searchTerm.toLowerCase());
+        return (
+          restaurant.categories &&
+          restaurant.categories
+            .map((category) => category.toLowerCase())
+            .includes(searchTerm.toLowerCase())
+        );
       });
-    } 
-
-    else if (searchTerm) {
+    } else if (searchTerm) {
       result = result.filter((restaurant) => {
         return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
       });
     }
-    
+
     // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
     // This happened before another category was selected...
     else if (!selectedCategory) {
@@ -261,47 +320,149 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     let result = localRestaurants;
 
     if (selectedCategory && selectedCategory.name !== "All") {
-      if (selectedCategory && ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)) 
-      {
+      if (
+        selectedCategory &&
+        ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)
+      ) {
         result = result.filter((restaurant) => {
-          return restaurant.categories && restaurant.categories.map(category => category.toLowerCase()).includes(selectedCategory.name.toLowerCase());
+          return (
+            restaurant.categories &&
+            restaurant.categories
+              .map((category) => category.toLowerCase())
+              .includes(selectedCategory.name.toLowerCase())
+          );
         });
-      }
-      else 
-      {
+      } else {
         result = result.filter((restaurant) => {
-          return restaurant.name && restaurant.name.toLowerCase().includes(selectedCategory.name.toLowerCase());
+          return (
+            restaurant.name &&
+            restaurant.name
+              .toLowerCase()
+              .includes(selectedCategory.name.toLowerCase())
+          );
         });
       }
     }
-  
+
     setFilteredRestaurants(result);
     setRestaurantListIsLoading(false);
-  } 
+  };
 
   const [alertShown, setAlertShown] = useState(false);
   //const [lastValidSearchTerm, setLastValidSearchTerm] = useState('');
 
   const showNoRestaurantsFoundAlert = () => {
     // Show alert if no matching results
-    if (!restaurantListIsLoading && filteredRestaurants.length === 0 && !alertShown)
-    {
-      Alert.alert('No Results', 'No matching restaurants found.', [
+    if (
+      !restaurantListIsLoading &&
+      filteredRestaurants.length === 0 &&
+      !alertShown
+    ) {
+      Alert.alert("No Results", "No matching restaurants found.", [
         {
-          text: 'OK',
+          text: "OK",
           //onPress: () => setSearchTerm(lastValidSearchTerm) // Clear search term
-        }
+        },
       ]);
       //setIsInputDisabled(true);
       setAlertShown(true);
-    }   
-    else if (filteredRestaurants.length > 0) {
+    } else if (filteredRestaurants.length > 0) {
       //setIsInputDisabled(false);
       //setLastValidSearchTerm(searchTerm);
       setAlertShown(false);
     }
-    console.log(filteredRestaurants === undefined ? 'No restaurants found' : filteredRestaurants.length + ' restaurants found');
-  } 
+    console.log(
+      filteredRestaurants === undefined
+        ? "No restaurants found"
+        : filteredRestaurants.length + " restaurants found"
+    );
+  };
+
+  const addFavouriteContext = async (restaurant: Restaurant) => {
+    try {
+      if (!user || !userObject) return;
+      await addFavourite(restaurant);
+      const newFavourite = {
+        restaurant,
+        addedOn: new Date(),
+      };
+      setFavouriteRestaurants([...favouriteRestaurants, newFavourite]);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeFavouriteContext = async (placeId: string) => {
+    try {
+      if (!user || !userObject) return;
+      const newFavourites = favouriteRestaurants.filter(
+        (item) => item.restaurant.id !== placeId
+      );
+      setFavouriteRestaurants(newFavourites);
+      await removeFavourite(placeId);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addBookmarkContext = async (restaurant: Restaurant) => {
+    try {
+      if (!user || !userObject) return;
+      await addBookmark(restaurant);
+      const newBookmark = {
+        restaurant,
+        addedOn: new Date(),
+      };
+      setBookmarkedRestaurants([...bookmarkedRestaurants, newBookmark]);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeBookmarkContext = async (placeId: string) => {
+    try {
+      if (!user || !userObject) return;
+      const newBookmarks = bookmarkedRestaurants.filter(
+        (item) => item.restaurant.id !== placeId
+      );
+      setBookmarkedRestaurants(newBookmarks);
+      await removeBookmark(placeId);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addVisitedContext = async (restaurant: Restaurant) => {
+    try {
+      if (!user || !userObject) return;
+      await addVisited(restaurant);
+      const newVisited = {
+        restaurant,
+        addedOn: new Date(),
+      };
+      setVisitedRestaurants([...visitedRestaurants, newVisited]);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeVisitedContext = async (placeId: string) => {
+    try {
+      if (!user || !userObject) return;
+      const newVisited = visitedRestaurants.filter(
+        (item) => item.restaurant.id !== placeId
+      );
+      setVisitedRestaurants(newVisited);
+      // setUser();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const contextValue = {
     dataLoading,
@@ -313,8 +474,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     location,
     updateLocation,
     favouriteRestaurants,
+    addFavouriteContext,
+    removeFavouriteContext,
     bookmarkedRestaurants,
+    addBookmarkContext,
+    removeBookmarkContext,
     visitedRestaurants,
+    addVisitedContext,
+    removeVisitedContext,
     updateSaved,
     defaultMessage,
     resetToDefaultMessage,
@@ -322,7 +489,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     addChatMessage,
     userObject,
     setUser,
-    selectedCategory: selectedCategory || {} as Category,
+    selectedCategory: selectedCategory || ({} as Category),
     setSearchTerm,
     setSelectedCategory,
     searchTerm,
@@ -336,8 +503,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
 
   return (
-    <AppContext.Provider value={contextValue}>
-      {children}
-    </AppContext.Provider>
+    <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
   );
 };
