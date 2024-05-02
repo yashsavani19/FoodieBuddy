@@ -29,6 +29,7 @@ const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location_pin-icon.png");
 
+
 // Props interface for the component
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
@@ -434,17 +435,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   restaurantInfoContainer: {
-    width: "50%",
+    width: "100%",
     paddingRight: 15,
-  },
-  mapViewContainer: {
-    marginLeft: 20,
-    width: "50%",
-    paddingRight: 20,
   },
   restaurantImage: {
     width: "100%",
-    height: 200, // Set a fixed height or make it responsive as needed
+    height: 200, 
     borderRadius: 10,
     marginTop: 8,
   },
@@ -486,9 +482,10 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   websiteContainer: {
-    marginVertical: 4,
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 4,
   },
   distanceContainer: {
     marginVertical: 4,
@@ -523,13 +520,13 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    borderRadius: 10, // Apply border radius
-    overflow: 'hidden', // Clip child elements to the rounded border
-    elevation: 5, // Add shadow (Android)
-    shadowColor: '#000', // Shadow color
-    shadowOffset: { width: 0, height: 2 }, // Shadow offset
-    shadowOpacity: 0.25, // Shadow opacity
-    shadowRadius: 3, // Shadow radius
+    borderRadius: 10, 
+    overflow: 'hidden',
+    elevation: 5, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.25, 
+    shadowRadius: 3, 
     height: 200, 
   },
 });
