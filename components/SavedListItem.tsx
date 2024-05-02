@@ -16,6 +16,10 @@ import {
 import { Saved } from "@/model/Saved";
 import { AppContext } from "@/context/AppContext";
 import { useContext } from "react";
+import { useNavigation } from "expo-router";
+import { NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import RestaurantListItem from "./RestaurantListItem";
 
 interface SavedListItemProps {
   item: Saved;
@@ -51,23 +55,27 @@ const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
       ? images.faveSelectedIcon
       : images.bookmarkSelectedIcon;
 
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    
   return (
-    <TouchableOpacity>
-      <View style={styles.itemContainer}>
-        <Image
-          source={{
-            uri: item.restaurant.image || images.defaultRestaurantImage,
-          }}
-          style={styles.image}
-        />
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
+    <TouchableOpacity onPress={() => {
+        navigation.navigate("DetailsView", { Restaurant: item.restaurant });
+      }}>
+      <View style={{ ...styles.itemContainer, flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={{
+              uri: item.restaurant.image || images.defaultRestaurantImage,
+            }}
+            style={{ ...styles.image, marginRight: 10 }}
+          />
+        </View>
+
+        <View style={{ flex: 1 }}>
           <Text style={styles.spotName}>{item.restaurant.name}</Text>
+        </View>
+        
+        <View style={{ marginLeft: 'auto' }}>
           <Pressable onPress={handleListButtonPress}>
             <Image
               source={{
@@ -86,11 +94,19 @@ export default SavedListItem;
 
 const styles = StyleSheet.create({
   itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+  },
+  textContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    paddingRight: 4,
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   image: {
     width: 50,

@@ -1,9 +1,7 @@
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   StyleSheet,
-  Text,
 } from "react-native";
 import RestaurantListItem from "@/components/RestaurantListItem";
 import { View } from "@/components/Themed";
@@ -11,14 +9,11 @@ import Colors from "@/constants/Colors";
 import TitleHeader from "@/components/TitleHeader";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
-import Loading from "../Loading";
-import { Category } from '@/model/Category';
 
 export default function HomeView() {
   const { 
     searchFilterRestaurants, 
     categoryFilterRestaurants, 
-    showNoRestaurantsFoundAlert, 
     selectedCategory, setSelectedCategory,
     searchTerm, setSearchTerm,
     filteredRestaurants, 

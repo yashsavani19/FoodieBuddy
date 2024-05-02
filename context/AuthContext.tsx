@@ -70,7 +70,7 @@ export function AuthProvider(props: ProviderProps) {
       if (!user && !inAuthGroup) {
         router.push("/LoginView");
       } else if (user && inAuthGroup) {
-        router.push("/");
+        router.push("/RestaurantListViews/");
       }
     }, [user, segments, authInitialised, isNavigationReady]);
   };

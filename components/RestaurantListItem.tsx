@@ -9,12 +9,6 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import StarRating from "./StarRating";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
-import {
-  addBookmark,
-  addFavourite,
-  removeBookmark,
-  removeFavourite,
-} from "@/controller/DatabaseHandler";
 import { AppContext } from "@/context/AppContext";
 
 type RestaurantListItemProps = {
@@ -23,7 +17,6 @@ type RestaurantListItemProps = {
 
 export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   const {
-    userObject,
     favouriteRestaurants,
     bookmarkedRestaurants,
     addBookmarkContext,
@@ -37,7 +30,6 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
 
   //const navigation = useNavigation();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
 
@@ -86,14 +78,6 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     }
   }, [favouriteRestaurants]);
 
-  function displayPriceLevel(priceLevel: number): string {
-    let price = "";
-    for (let i = 0; i < priceLevel; i++) {
-      price += "$";
-    }
-    return price;
-  }
-
   // Function to handle the favourite button press
   const handleFavouritePressed = () => {
     if (isBookmarkPressed) {
@@ -127,7 +111,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   };
 
   return (
-    <Pressable style={styles.container}>
+    <Pressable style={styles.container} onPress={()=>{navigation.navigate("DetailsView", {Restaurant: restaurant})}} >
       <Image
         testID="restaurant-image"
         source={{ uri: restaurant.image || images.defaultRestaurantImage }}
@@ -164,7 +148,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             <Text style={styles.distance}>
               {restaurant.price !== undefined
                 ? displayPriceLevel(parseInt(restaurant.price))
-                : ""}
+                : "" }
             </Text>
           </View>
         </View>
