@@ -106,10 +106,7 @@ export default function HomeView() {
           </View>
         ) : (
           <FlatList
-            //--------TEMPORARY CODE----------------
-            data={restaurants}
-            //--------TEMPORARY CODE----------------
-            // data={filteredRestaurants}
+            data={filteredRestaurants}
             renderItem={({ item }) => <RestaurantListItem restaurant={item} />}
             contentContainerStyle={{ gap: 3 }}
           />

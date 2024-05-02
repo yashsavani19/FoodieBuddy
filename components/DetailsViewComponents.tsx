@@ -53,16 +53,25 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     phone,
     website,
     distance,
-    isFavourite,
-    isBookmarked,
-    isVisited,
   } = restaurant;
 
-  const { userObject } = useContext(AppContext);
+  const {
+    userObject,
+    favouriteRestaurants,
+    bookmarkedRestaurants,
+    visitedRestaurants,
+    addBookmarkContext,
+    removeBookmarkContext,
+    addFavouriteContext,
+    removeFavouriteContext,
+    removeVisitedContext,
+    addVisitedContext,
+  } = useContext(AppContext);
+  const [isVisitedPressed, setVisitedPressed] = useState(false);
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
-  const [isVisitedPressed, setVisitedPressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
+
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
 
@@ -82,75 +91,94 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   };
 
   useEffect(() => {
-    userObject.bookmarkedRestaurants?.map((item) => {
-      if (item.placeId === restaurant.id) {
-        setBookmarkPressed(true);
+    if (bookmarkedRestaurants) {
+      for (let i = 0; i < bookmarkedRestaurants.length; i++) {
+        const item = bookmarkedRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setBookmarkPressed(true);
+          console.log(
+            "Bookmark: " + item.restaurant.name + " " + isBookmarkPressed
+          );
+          return;
+        }
       }
-    });
-  }, []);
+      setBookmarkPressed(false);
+    }
+  }, [bookmarkedRestaurants]);
 
   useEffect(() => {
-    userObject.favouriteRestaurants?.map((item) => {
-      if (item.placeId === restaurant.id) {
-        setFavePressed(true);
+    if (favouriteRestaurants) {
+      for (let i = 0; i < favouriteRestaurants.length; i++) {
+        const item = favouriteRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setFavePressed(true);
+          console.log("Fave: " + item.restaurant.name + " " + isFavePressed);
+          return;
+        }
       }
-    });
-  }, []);
+      setFavePressed(false);
+    }
+  }, [favouriteRestaurants]);
+
 
   useEffect(() => {
-    userObject.visitedRestaurants?.map((item) => {
-      if (item.placeId === restaurant.id) {
-        setVisitedPressed(true);
+    if (visitedRestaurants) {
+      for (let i = 0; i < visitedRestaurants.length; i++) {
+        const item = visitedRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setVisitedPressed(true);
+          console.log("Fave: " + item.restaurant.name + " " + visitedRestaurants);
+          return;
+        }
       }
-    });
-  }, []);
+      setFavePressed(false);
+    }
+  }, [favouriteRestaurants]);
 
   // Function stubs for handling button presses (to be implemented)
-  const handleFavoritePress = () => {
-    //----------------------TEMPORARYILY REMOVED------------------------
-    // if (isBookmarkPressed) {
-    //   setBookmarkPressed(false);
-    //   removeBookmark(restaurant.id);
-    // }
-    // if (isFavePressed) {
-    //   removeFavourite(restaurant.id);
-    //   setFavePressed(false);
-    // } else {
-    //   addFavourite(restaurant.id);
-    //   setFavePressed(true);
-    // }
+  const handleFavouritePress = () => {
+    console.log("Favourite pressed");
+    if (isBookmarkPressed) {
+      setBookmarkPressed(false);
+      removeBookmarkContext(restaurant.id);
+    }
+    if (isFavePressed) {
+      removeFavouriteContext(restaurant.id);
+      setFavePressed(false);
+    } else {
+      addFavouriteContext(restaurant);
+      setFavePressed(true);
+    }
     animateIcon(faveScale);
   };
 
+  // Function to handle the bookmark button press
   const handleBookmarkPress = () => {
     console.log("Bookmark pressed");
-
-    //----------------------TEMPORARYILY REMOVED------------------------
-    // if (isFavePressed) {
-    //   setFavePressed(false);
-    //   removeFavourite(restaurant.id);
-    // }
-    // if (isBookmarkPressed) {
-    //   removeBookmark(restaurant.id);
-    //   setBookmarkPressed(false);
-    // } else {
-    //   addBookmark(restaurant.id);
-    //   setBookmarkPressed(true);
-    // }
+    if (isFavePressed) {
+      setFavePressed(false);
+      removeFavouriteContext(restaurant.id);
+    }
+    if (isBookmarkPressed) {
+      removeBookmarkContext(restaurant.id);
+      setBookmarkPressed(false);
+    } else {
+      addBookmarkContext(restaurant);
+      setBookmarkPressed(true);
+    }
     animateIcon(bookmarkScale);
   };
 
   const handleVisitedPress = () => {
     console.log("Visited pressed");
-     //----------------------TEMPORARYILY REMOVED------------------------
-   
-     if (isVisitedPressed) {
+    if (isVisitedPressed) {
+      removeVisitedContext(restaurant.id);
       setVisitedPressed(false);
-      removeVisited(restaurant.id);
-    }else {
-      addBookmark(restaurant.id);
-      setBookmarkPressed(true);
+    } else {
+      addVisitedContext(restaurant);
+      setVisitedPressed(true);
     }
+    animateIcon(bookmarkScale);
   };
 
   // Function stub for handling map view press
@@ -193,7 +221,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               </TouchableOpacity>
             </View>
             <View style={styles.iconContainer}>
-              <TouchableOpacity onPress={handleFavoritePress}>
+              <TouchableOpacity onPress={handleFavouritePress}>
                 <Animated.Image
                   source={{
                     uri: isFavePressed

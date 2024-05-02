@@ -61,7 +61,7 @@ export default function DetailsView() {
   return (
     <View style={{ flex: 1 }}>
       
-      <DetailsViewComponents restaurant={dummyRestaurant} />
+      <DetailsViewComponents restaurant={Restaurant} />
 
       
     </View>
