@@ -33,10 +33,6 @@ const FavouriteSpotsView: React.FC = () => {
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
           <AntDesign name="arrowleft" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.title}>Favorite Eating Spots</Text>
@@ -54,18 +50,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    backgroundColor: "#fff",
   },
   header: {
     marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
     borderBottomColor: "#ddd",
   },
   backButton: {
@@ -74,16 +65,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    fontWeight: "bold",
   },
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
-    flexDirection: "row",
-    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
     borderBottomColor: "#ddd",
   },
   image: {
