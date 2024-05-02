@@ -1,24 +1,27 @@
+import React, { FC, useContext, useEffect } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   StyleSheet,
+  Text,
+  View
 } from "react-native";
 import RestaurantListItem from "@/components/RestaurantListItem";
-import { View } from "@/components/Themed";
+import { AppContext } from "@/context/AppContext";
 import Colors from "@/constants/Colors";
 import TitleHeader from "@/components/TitleHeader";
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from "@/context/AppContext";
 
-export default function HomeView() {
+const HomeView: FC = () => {
   const { 
     searchFilterRestaurants, 
     categoryFilterRestaurants, 
     selectedCategory, setSelectedCategory,
     searchTerm, setSearchTerm,
     filteredRestaurants, 
-    dataLoading, restaurantListIsLoading } = useContext(AppContext);
+    dataLoading, 
+    restaurantListIsLoading,
+    visitedRestaurants // Assuming you have a state for visited restaurants
+  } = useContext(AppContext);
 
   // Handle filtering of restaurants based on search term and selected category
   useEffect(() => {
@@ -29,22 +32,6 @@ export default function HomeView() {
     searchFilterRestaurants();
   }, [searchTerm]);
 
-  // Check if there are no matches and display an alert message
-  useEffect(() => {
-    if (!filteredRestaurants.length && !restaurantListIsLoading && !dataLoading && searchTerm.trim() !== "") {
-      Alert.alert(
-        "No Matches Found",
-        "Sorry, no restaurants match your search criteria. Showing all restaurants instead.",
-        [
-          {
-            text: "OK",
-            onPress: () => setSearchTerm("") // Clear the search term
-          }
-        ]
-      );
-    }
-  }, [filteredRestaurants, restaurantListIsLoading, dataLoading, searchTerm]);
-  
   return (
     <View style={{ flex: 1 }}>
       <TitleHeader
@@ -66,11 +53,18 @@ export default function HomeView() {
             <ActivityIndicator size="large" color="white" />
           </View>
         ) : (
-          <FlatList
-            data={filteredRestaurants}
-            renderItem={({ item }) => <RestaurantListItem restaurant={item} />}
-            contentContainerStyle={{ gap: 3 }}
-          />
+          <>
+            {filteredRestaurants.length === 0 && (
+              <View style={styles.noMatches}>
+                <Text style={styles.titleText}>No matching restaurants found</Text>
+              </View>
+            )}
+            <FlatList
+              data={filteredRestaurants}
+              renderItem={({ item }) => <RestaurantListItem restaurant={item} />}
+              contentContainerStyle={{ gap: 3 }}
+            />
+          </>
         )}
       </View>
     </View>
@@ -83,5 +77,16 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundColor,
     marginTop: 120,
   },
-  noMatches: {},
+  noMatches: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  titleText: {
+    fontSize: 20,
+    color: "#888",
+    fontWeight: "bold",
+  },
 });
+
+export default HomeView;
