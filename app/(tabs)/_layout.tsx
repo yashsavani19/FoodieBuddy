@@ -57,7 +57,7 @@ export default function TabLayout() {
     }
   }, []);
 
-  if(isLoading) return <Loading />;
+  if (isLoading) return <Loading />;
 
   return (
     <Tabs
@@ -124,8 +124,6 @@ export default function TabLayout() {
           headerShown: false, // This removes the default header
         }}
       />
-
-      
     </Tabs>
   );
 }

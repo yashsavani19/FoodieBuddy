@@ -192,8 +192,9 @@ export const addVisited = async (uid: string, placeId: string) => {
  * Removes visited from user's visited
  * @param placeId Maps API place id
  */
-export const removeVisited = async (uid: string, placeId: string) => {
+export const removeVisited = async (placeId: string) => {
   try {
+    const uid = auth.currentUser?.uid;
     const visitedCollection = `users/${uid}/visited`;
     await deleteDoc(doc(db, visitedCollection, placeId));
   } catch (e) {

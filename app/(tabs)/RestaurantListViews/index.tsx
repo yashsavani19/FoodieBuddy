@@ -23,6 +23,7 @@ export default function HomeView() {
   const [selectedCategory, setSelectedCategory] = useState<Category>();
   const [isLoading, setIsLoading] = useState(true);
 
+  
   // Handle filtering of restaurants based on search term and selected category
   useEffect(() => {
     setIsLoading(true);
@@ -83,6 +84,8 @@ export default function HomeView() {
     );
   }, [filteredRestaurants]);
 
+
+
   return (
     <View style={{ flex: 1 }}>
       <TitleHeader
@@ -103,7 +106,10 @@ export default function HomeView() {
           </View>
         ) : (
           <FlatList
-            data={filteredRestaurants}
+            //--------TEMPORARY CODE----------------
+            data={restaurants}
+            //--------TEMPORARY CODE----------------
+            // data={filteredRestaurants}
             renderItem={({ item }) => <RestaurantListItem restaurant={item} />}
             contentContainerStyle={{ gap: 3 }}
           />
