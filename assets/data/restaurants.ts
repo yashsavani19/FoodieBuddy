@@ -13,6 +13,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipMR-rQ2Ghjs0kQusZH3MCcorrRvbosQOAn5GRy-=w408-h306-k-no',
       distance: 5,
+      rating: 3.5,
     },
     {
       id: '3',
@@ -20,6 +21,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipOaXXpoTgTubxRQ_ljldRfze3DtyfWGFmbFyOnN=w412-h240-k-no',
       distance: 5,
+      rating: 3.5,
     },
     {
       id: '4',
@@ -27,6 +29,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipNuOTwULnxHIbcV_92M2Xk091XPOHamP-M112bh=w408-h306-k-no',
       distance: 9.9,
+      rating: 3.5,
     },
     {
       id: '5',
@@ -41,6 +44,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipNTTZzynDcdp2VTLMou8qdQhNELPFpZkc8pN1OV=w408-h306-k-no',
       distance: 10.5,
+      rating: 3.5,
     },
     {
       id: '7',
@@ -48,6 +52,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipN1kuECt1X67EnyHbsG1ORkNFJEKvgkOo66I2dp=w408-h306-k-no',
       distance: 16,
+      rating: 3.5,
     },
     {
       id: '8',
@@ -55,6 +60,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipMHckIcfcOEqnzKl_qztSvBySNw5WXZk3uWopH_=w450-h240-k-no',
       distance: 12,
+      rating: 3.5,
     },
     {
       id: '9',
@@ -62,6 +68,7 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipOjB3VU51yaB3ByhXvl0XjzEby5bpN8jbivbxwD=w408-h544-k-no',
       distance: 13,
+      rating: 3.5,
     },
     {
       id: '10',
@@ -69,12 +76,14 @@ const restaurants = [
       image:
         'https://lh5.googleusercontent.com/p/AF1QipPHnkcpOlQJlQUaSTaLs0iYVs2K5Ou5aegkuc1Y=w408-h306-k-no',
       distance: 13,
+      rating: 3.5,
     },
     {
         id: '11',
         name: "Fran's new Restaurant",
         image: null,
         distance: 0.5,
+        rating: 3.5,
       },
   ];
   
