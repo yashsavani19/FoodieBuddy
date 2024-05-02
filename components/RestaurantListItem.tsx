@@ -8,14 +8,30 @@ import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import StarRating from "./StarRating";
 import { formatDistance } from "@/app/Utils/FormatDistance";
-import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import { AppContext } from "@/context/AppContext";
-
 type RestaurantListItemProps = {
   restaurant: Restaurant;
 };
-
 export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
+  // Retrieve context for user-related data
+  const { visitedRestaurants } = useContext(AppContext);
+  // State variable for determining if restaurant is visited
+  const [isVisited, setIsVisited] = useState(false);
+  // Check if the restaurant is in visited list when component mounts
+  useEffect(() => {
+    if (visitedRestaurants) {
+      for (let i = 0; i < visitedRestaurants.length; i++) {
+        const item = visitedRestaurants[i];
+        if (item.restaurant.id === restaurant.id) {
+          setIsVisited(true);
+          return;
+        }
+      }
+      setIsVisited(false);
+    }
+  }, [visitedRestaurants]);
+
+  // Retrieve context for user-related data
   const {
     favouriteRestaurants,
     bookmarkedRestaurants,
@@ -24,15 +40,16 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     addFavouriteContext,
     removeFavouriteContext,
   } = useContext(AppContext);
+  // State variables for button presses
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
-
-  //const navigation = useNavigation();
+  // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  // Animation variables for button presses
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
-
+  // Function to animate button press
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
       Animated.timing(scale, {
@@ -47,7 +64,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
       }),
     ]).start();
   };
-
+  // Check if the restaurant is bookmarked when component mounts
   useEffect(() => {
     if (bookmarkedRestaurants) {
       for (let i = 0; i < bookmarkedRestaurants.length; i++) {
@@ -63,7 +80,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
       setBookmarkPressed(false);
     }
   }, [bookmarkedRestaurants]);
-
+  // Check if the restaurant is marked as favorite when component mounts
   useEffect(() => {
     if (favouriteRestaurants) {
       for (let i = 0; i < favouriteRestaurants.length; i++) {
@@ -77,8 +94,15 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
       setFavePressed(false);
     }
   }, [favouriteRestaurants]);
-
-  // Function to handle the favourite button press
+  // Function to display price level as a string of '$' symbols
+  function displayPriceLevel(priceLevel: number): string {
+    let price = "";
+    for (let i = 0; i < priceLevel; i++) {
+      price += "$";
+    }
+    return price;
+  }
+  // Function to handle the favorite button press
   const handleFavouritePressed = () => {
     if (isBookmarkPressed) {
       setBookmarkPressed(false);
@@ -93,7 +117,6 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     }
     animateIcon(faveScale);
   };
-
   // Function to handle the bookmark button press
   const handleBookmarkPressed = () => {
     if (isFavePressed) {
@@ -109,9 +132,15 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     }
     animateIcon(bookmarkScale);
   };
-
   return (
-    <Pressable style={styles.container} onPress={()=>{navigation.navigate("DetailsView", {Restaurant: restaurant})}} >
+    <Pressable
+      style={styles.container}
+      onPress={() => {
+        // Navigate to DetailsView screen
+        navigation.navigate("DetailsView", { Restaurant: restaurant });
+      }}
+    >
+      {/* Restaurant image */}
       <Image
         testID="restaurant-image"
         source={{ uri: restaurant.image || images.defaultRestaurantImage }}
@@ -119,6 +148,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         resizeMode="cover"
       />
       <View style={styles.textContainer}>
+        {/* Find on map button */}
         <Pressable
           onPress={() => {
             setFindOnMapPressed(!isFindOnMapPressed);
@@ -127,9 +157,17 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
           }}
         >
           <View style={styles.iconContainer}>
-            <Image source={{ uri: images.mapMarker }} style={styles.mapIcon} />
+            <Image
+              source={
+                isVisited
+                  ? require("../assets/images/location-check.png")
+                  : require("../assets/images/location.png")
+              }
+              style={styles.mapIcon}
+            />
             <Text style={styles.findOnMap}>Find on map</Text>
           </View>
+          {/* Restaurant information */}
         </Pressable>
         <View style={styles.textInfo}>
           <Text style={styles.title}>{restaurant.name}</Text>
@@ -148,11 +186,11 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             <Text style={styles.distance}>
               {restaurant.price !== undefined
                 ? displayPriceLevel(parseInt(restaurant.price))
-                : "" }
+                : ""}
             </Text>
           </View>
         </View>
-
+        {/* Bookmark button */}
         <View style={styles.iconContainer}>
           <Pressable onPress={handleBookmarkPressed}>
             <Animated.Image
@@ -165,7 +203,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             />
           </Pressable>
         </View>
-
+        {/* Favourite button */}
         <View style={styles.iconContainer}>
           <Pressable onPress={handleFavouritePressed}>
             <Animated.Image
@@ -180,9 +218,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     </Pressable>
   );
 };
-
 export default RestaurantListItem;
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
