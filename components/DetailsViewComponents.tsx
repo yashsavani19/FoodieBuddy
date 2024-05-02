@@ -16,6 +16,8 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import { Animated } from "react-native";
 import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
+import { formatDistance } from "@/app/Utils/FormatDistance";
+import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 const icons = "@/assets/data/images";
 
 import {
@@ -40,7 +42,7 @@ const phone_icon = require("@/assets/images/phone-icon.png");
 const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location_pin-icon.png");
-
+const price_icon = require("@/assets/images/price-tag.png");
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
   backFunction: () => void;
@@ -51,7 +53,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   backFunction,
 }) => {
   // Destructuring for ease of use
-  const { name, image, displayAddress, rating, phone, website, distance } =
+  const { name, image, displayAddress, rating, phone, website, distance, price } =
     restaurant;
 
   const {
@@ -276,47 +278,52 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
         <View style={styles.restaurantDetailsContainer}>
           {/* Restaurant Info */}
           <View style={styles.restaurantInfoContainer}>
-            {rating && (
-              <View style={styles.ratingContainer}>
-                <Image source={star_icon} style={styles.smallIcon} />
-                <Text style={styles.infoText}>{rating} / 5</Text>
-              </View>
-            )}
+            <View style={styles.ratingContainer}>
+              <Image source={star_icon} style={styles.smallIcon} />
+              <Text style={styles.infoText}>{rating ? `${rating} / 5` : `N/A`}</Text>
+            </View>
 
-            {phone && (
-              <View style={styles.phoneContainer}>
-                <Image source={phone_icon} style={styles.smallIcon} />
-                <Text style={styles.infoTextUnderlined}>{phone}</Text>
-              </View>
-            )}
+            <View style={styles.priceLevelContainer}>
+              <Image source={price_icon} style={styles.smallIcon} />
+              <Text style={styles.infoText}>{price ? displayPriceLevel(parseInt(price)) : `N/A`}</Text>
+            </View>
 
-            {website && (
-              <View style={styles.websiteContainer}>
-                <Image source={website_icon} style={styles.smallIcon} />
-                <Text onPress={() => handleWebsitePress(restaurant.website)} style={styles.infoTextUnderlined}>Website link</Text>
-              </View>
-            )}
+            <View style={styles.phoneContainer}>
+              <Image source={phone_icon} style={styles.smallIcon} />
+              <Text selectable={phone != undefined} style={phone ? styles.infoTextUnderlined : styles.infoText}>{phone ? phone : `N/A`}</Text>
+            </View>
+
+            <View style={styles.websiteContainer}>
+              <Image source={website_icon} style={styles.smallIcon} />
+              <Text onPress={() => handleWebsitePress(restaurant.website)} style={styles.infoTextUnderlined}>{website ? `Website link` : `N/A`}</Text>
+            </View>
           </View>
 
           {/* Map View */}
           <View style={styles.mapViewContainer}>
             <View style={styles.addressContainer}>
               <Image source={location_icon} style={styles.smallIcon} />
-              <Text style={styles.infoText}>{displayAddress}</Text>
+              <Text selectable={true} style={styles.infoText}>{displayAddress}</Text>
             </View>
             <View style={styles.distanceContainer}>
               <Image source={distance_icon} style={styles.smallIcon} />
               
-              <Text style={styles.infoText}>{distance}</Text>
+              <Text style={styles.infoText}>{formatDistance(distance)}</Text>
             </View>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={handleMapViewPress}
               style={styles.findOnMapBtn}
             >
               <Text style={styles.mapLinkText}>Find on Map</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
+        <TouchableOpacity
+            onPress={handleMapViewPress}
+            style={styles.findOnMapBtn}
+          >
+          <Text style={styles.mapLinkText}>Find on Map</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -415,8 +422,16 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   mapLinkText: {
+    // fontSize: 16,
+    // color: "#0066CC",
+    backgroundColor: '#0066CC', 
+    color: 'white', 
+    padding: '3%',
+    paddingHorizontal: '8%',
+    borderRadius: 5,
+    textAlign: 'center',
+    fontWeight: 'bold',
     fontSize: 16,
-    color: "#0066CC",
   },
   phoneWebsite: {
     fontSize: 16,
@@ -444,6 +459,10 @@ const styles = StyleSheet.create({
   },
 
   websiteContainer: {
+    marginVertical: 4,
+    flexDirection: "row",
+  },
+  priceLevelContainer: {
     marginVertical: 4,
     flexDirection: "row",
   },
