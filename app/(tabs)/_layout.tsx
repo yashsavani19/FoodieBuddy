@@ -57,7 +57,7 @@ export default function TabLayout() {
     }
   }, []);
 
-  if(isLoading) return <Loading />;
+  if (isLoading) return <Loading />;
 
   return (
     <Tabs
@@ -73,7 +73,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="RestaurantListViews"
         options={{
           title: "Home",
           tabBarLabel: "",
