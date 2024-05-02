@@ -164,7 +164,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             <Text style={styles.distance}>
               {restaurant.price !== undefined
                 ? displayPriceLevel(parseInt(restaurant.price))
-                : ""}
+                : "" }
             </Text>
           </View>
         </View>

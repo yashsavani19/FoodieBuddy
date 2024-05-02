@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     height: 120,
     width: "100%",
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     backgroundColor: Colors.light.headerBackground,
     alignItems: "center",
     borderTopWidth: Constants.statusBarHeight,

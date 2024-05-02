@@ -9,6 +9,9 @@ import {
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
 import { Animated } from "react-native";
 import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
@@ -19,7 +22,7 @@ import {
   addFavourite,
   removeBookmark,
   removeFavourite,
-  removeVisited
+  removeVisited,
 } from "@/controller/DatabaseHandler";
 import { Button } from "react-native-share";
 
@@ -39,24 +42,18 @@ const location_icon = require("@/assets/images/location_pin-icon.png");
 
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
+  backFunction: () => void;
 }
 
 const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   restaurant,
+  backFunction,
 }) => {
   // Destructuring for ease of use
-  const {
-    name,
-    image,
-    displayAddress,
-    rating,
-    phone,
-    website,
-    distance,
-  } = restaurant;
+  const { name, image, displayAddress, rating, phone, website, distance } =
+    restaurant;
 
   const {
-    userObject,
     favouriteRestaurants,
     bookmarkedRestaurants,
     visitedRestaurants,
@@ -74,6 +71,10 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
 
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
+  const visitedScale = useState(new Animated.Value(1))[0];
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
 
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
@@ -120,14 +121,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   }, [favouriteRestaurants]);
 
-
   useEffect(() => {
     if (visitedRestaurants) {
       for (let i = 0; i < visitedRestaurants.length; i++) {
         const item = visitedRestaurants[i];
         if (item.restaurant.id === restaurant.id) {
           setVisitedPressed(true);
-          console.log("Fave: " + item.restaurant.name + " " + visitedRestaurants);
+          console.log(
+            "Fave: " + item.restaurant.name + " " + visitedRestaurants
+          );
           return;
         }
       }
@@ -178,12 +180,14 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       addVisitedContext(restaurant);
       setVisitedPressed(true);
     }
-    animateIcon(bookmarkScale);
+    animateIcon(visitedScale);
   };
 
   // Function stub for handling map view press
   const handleMapViewPress = () => {
     console.log("Map view pressed");
+    setFindOnMapPressed(!isFindOnMapPressed);
+            navigation.navigate("Map", { geometry: restaurant.geometry });
   };
 
   return (
@@ -193,7 +197,10 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       <View style={styles.contentContainer}>
         {/* Image Title Container */}
         <View style={styles.imageTitleIconContainer}>
-          <TouchableOpacity style={styles.backButtonContainer}>
+          <TouchableOpacity
+            style={styles.backButtonContainer}
+            onPress={backFunction}
+          >
             <View>
               <Text style={styles.backButton}>{"<"} Back</Text>
             </View>
@@ -212,7 +219,9 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             <View style={styles.iconContainer}>
               <TouchableOpacity onPress={handleVisitedPress}>
                 <Animated.Image
-                  source={isVisitedPressed?visited_selected:visited_unselected} // Assuming visited uses the same icon as fave
+                  source={
+                    isVisitedPressed ? visited_selected : visited_unselected
+                  } // Assuming visited uses the same icon as fave
                   style={[
                     styles.smallIcon,
                     { transform: [{ scale: faveScale }] },
@@ -255,19 +264,26 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
         <View style={styles.restaurantDetailsContainer}>
           {/* Restaurant Info */}
           <View style={styles.restaurantInfoContainer}>
-            <View style={styles.ratingContainer}>
-              <Image source={star_icon} style={styles.smallIcon} />
-              <Text style={styles.infoText}>{rating} / 5</Text>
-            </View>
+            {rating && (
+              <View style={styles.ratingContainer}>
+                <Image source={star_icon} style={styles.smallIcon} />
+                <Text style={styles.infoText}>{rating} / 5</Text>
+              </View>
+            )}
 
-            <View style={styles.phoneContainer}>
-              <Image source={phone_icon} style={styles.smallIcon} />
-              <Text style={styles.infoTextUnderlined}>{phone}</Text>
-            </View>
-            <View style={styles.websiteContainer}>
-              <Image source={website_icon} style={styles.smallIcon} />
-              <Text style={styles.infoTextUnderlined}>{website}</Text>
-            </View>
+            {phone && (
+              <View style={styles.phoneContainer}>
+                <Image source={phone_icon} style={styles.smallIcon} />
+                <Text style={styles.infoTextUnderlined}>{phone}</Text>
+              </View>
+            )}
+
+            {website && (
+              <View style={styles.websiteContainer}>
+                <Image source={website_icon} style={styles.smallIcon} />
+                <Text style={styles.infoTextUnderlined}>{website}</Text>
+              </View>
+            )}
           </View>
 
           {/* Map View */}
@@ -278,6 +294,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             </View>
             <View style={styles.distanceContainer}>
               <Image source={distance_icon} style={styles.smallIcon} />
+              
               <Text style={styles.infoText}>{distance}</Text>
             </View>
             <TouchableOpacity
@@ -308,7 +325,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#363232",
     fontSize: 20,
   },
-  backButton:{
+  backButton: {
     fontSize: 16,
     color: "white",
     fontWeight: "bold",
@@ -434,7 +451,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     alignItems: "center",
     justifyContent: "center",
-    
   },
 });
 
