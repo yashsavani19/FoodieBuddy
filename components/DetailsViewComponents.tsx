@@ -16,23 +16,11 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import { Animated } from "react-native";
 import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
-const icons = "@/assets/data/images";
+import MapView, { Marker } from "react-native-maps";
+import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 
-import {
-  addBookmark,
-  addFavourite,
-  removeBookmark,
-  removeFavourite,
-  removeVisited,
-} from "@/controller/DatabaseHandler";
-import { Button } from "react-native-share";
-
-// Assume all images are imported correctly
+// Importing the required images
 const default_pic = require("@/assets/images/default_pic.png");
-const fave_unselected = require("@/assets/images/fave-icon.png");
-const fave_selected = require("@/assets/images/fave-Selected.png");
-const bookmark_unselected = require("@/assets/images/bookmark-icon.png");
-const bookmard_selected = require("@/assets/images/bookmark-Selected.png");
 const visited_selected = require("@/assets/images/visited-Selected.png");
 const visited_unselected = require("@/assets/images/visited-unselected-icon.png");
 const star_icon = require("@/assets/images/star-icon.png");
@@ -41,11 +29,12 @@ const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location_pin-icon.png");
 
+// Props interface for the component
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
   backFunction: () => void;
 }
-
+// Component definition for displaying restaurant details and handling interactions
 const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   restaurant,
   backFunction,
@@ -53,7 +42,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   // Destructuring for ease of use
   const { name, image, displayAddress, rating, phone, website, distance } =
     restaurant;
-
+  // Accessing context and state variables
   const {
     favouriteRestaurants,
     bookmarkedRestaurants,
@@ -65,18 +54,18 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     removeVisitedContext,
     addVisitedContext,
   } = useContext(AppContext);
+  // State variables for button presses
   const [isVisitedPressed, setVisitedPressed] = useState(false);
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
-
+  // Animated values for scaling buttons
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
   const visitedScale = useState(new Animated.Value(1))[0];
-
+  // Navigation hook to access navigation functionalities provided by React Navigation
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
-
+  // Function to animate button press
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
       Animated.timing(scale, {
@@ -91,60 +80,78 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       }),
     ]).start();
   };
-
+  // Effect hook to update the state based on changes in the bookmarked restaurants context
   useEffect(() => {
+    // Check if there are bookmarked restaurants
     if (bookmarkedRestaurants) {
+      // Loop through each bookmarked restaurant
       for (let i = 0; i < bookmarkedRestaurants.length; i++) {
         const item = bookmarkedRestaurants[i];
+        // Check if the current restaurant is bookmarked
         if (item.restaurant.id === restaurant.id) {
+          // If bookmarked, set the bookmark state to true
           setBookmarkPressed(true);
+          // Log the bookmark status to the console
           console.log(
             "Bookmark: " + item.restaurant.name + " " + isBookmarkPressed
           );
+          // Exit the loop since the restaurant is found
           return;
         }
       }
+      // If the loop completes without finding the restaurant, set the bookmark state to false
       setBookmarkPressed(false);
     }
   }, [bookmarkedRestaurants]);
-
+  // Effect hook to update the state based on changes in the list of favorite restaurants
   useEffect(() => {
     if (favouriteRestaurants) {
+      // Iterate through the list of favorite restaurants
       for (let i = 0; i < favouriteRestaurants.length; i++) {
         const item = favouriteRestaurants[i];
+        // Check if the current restaurant in the list matches the displayed restaurant
         if (item.restaurant.id === restaurant.id) {
+          // If the restaurant is found in the favorites, set the state to true
           setFavePressed(true);
+          // Log a message indicating the restaurant is a favorite and its name
           console.log("Fave: " + item.restaurant.name + " " + isFavePressed);
-          return;
+          return; // Exit the loop since the restaurant is found
         }
       }
+      // If the loop completes without finding a match, set the state to false
       setFavePressed(false);
     }
   }, [favouriteRestaurants]);
-
+  // Effect hook to update the state based on changes in the list of visited restaurants
   useEffect(() => {
     if (visitedRestaurants) {
+      // Iterate through the list of visited restaurants
       for (let i = 0; i < visitedRestaurants.length; i++) {
         const item = visitedRestaurants[i];
+        // Check if the current restaurant in the list matches the displayed restaurant
         if (item.restaurant.id === restaurant.id) {
+          // If the restaurant is found in the visited list, set the state to true
           setVisitedPressed(true);
+          // Log a message indicating the restaurant is visited along with its name
           console.log(
             "Visited: " + item.restaurant.name + " " + visitedRestaurants
           );
-          return;
+          return; // Exit the loop since the restaurant is found
         }
       }
+      // If the loop completes without finding a match, set the state to false
       setVisitedPressed(false);
     }
-  }, [favouriteRestaurants]);
-
+  }, [visitedRestaurants]);
   // Function stubs for handling button presses (to be implemented)
   const handleFavouritePress = () => {
     console.log("Favourite pressed");
+    // If bookmark is already pressed, reset it and remove bookmark
     if (isBookmarkPressed) {
       setBookmarkPressed(false);
       removeBookmarkContext(restaurant.id);
     }
+    // Toggle the favourite state
     if (isFavePressed) {
       removeFavouriteContext(restaurant.id);
       setFavePressed(false);
@@ -152,16 +159,18 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       addFavouriteContext(restaurant);
       setFavePressed(true);
     }
+    // Animate the favourite icon
     animateIcon(faveScale);
   };
-
-  // Function to handle the bookmark button press
+  // Function to handle the press event of the bookmark button
   const handleBookmarkPress = () => {
     console.log("Bookmark pressed");
+    // If favourite is already pressed, reset it and remove favourite
     if (isFavePressed) {
       setFavePressed(false);
       removeFavouriteContext(restaurant.id);
     }
+    // Toggle the bookmark state
     if (isBookmarkPressed) {
       removeBookmarkContext(restaurant.id);
       setBookmarkPressed(false);
@@ -169,9 +178,9 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       addBookmarkContext(restaurant);
       setBookmarkPressed(true);
     }
+    // Animate the bookmark icon
     animateIcon(bookmarkScale);
   };
-
   const handleVisitedPress = () => {
     console.log("Visited pressed");
     if (isVisitedPressed) {
@@ -183,14 +192,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
     animateIcon(visitedScale);
   };
-
-  // Function stub for handling map view press
+  // Function to handle the press event of the map view button
   const handleMapViewPress = () => {
     console.log("Map view pressed");
+    // Toggle the state for finding on the map
     setFindOnMapPressed(!isFindOnMapPressed);
-            navigation.navigate("Map", { geometry: restaurant.geometry });
+    // Navigate to the Map screen with the restaurant's geometry data
+    navigation.navigate("Map", { geometry: restaurant.geometry });
   };
-
+  // Function to handle the press event of the website link
   const handleWebsitePress = (websiteUrl: string) => {
     if (websiteUrl) {
       // Open the restaurant's website in the device's browser
@@ -201,14 +211,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       console.log("No website URL provided.");
     }
   };
-
   return (
     <View style={styles.container}>
+      {/* Title Header */}
       <TitleHeader title="Details" />
-
+      {/* Content Container */}
       <View style={styles.contentContainer}>
         {/* Image Title Container */}
         <View style={styles.imageTitleIconContainer}>
+          {/* Back Button */}
           <TouchableOpacity
             style={styles.backButtonContainer}
             onPress={backFunction}
@@ -217,14 +228,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <Text style={styles.backButton}>{"<"} Back</Text>
             </View>
           </TouchableOpacity>
+          {/* Restaurant Title */}
           <Text style={styles.restaurantTitle}>{name}</Text>
+          {/* Restaurant Image */}
           <View style={styles.imageContainer}>
             <Image
               source={image ? { uri: image } : default_pic}
               style={styles.restaurantImage}
             />
           </View>
-
           {/* Interaction Buttons */}
           <View style={styles.interactionContainer}>
             {/* Visited Button */}
@@ -241,6 +253,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 />
               </Pressable>
             </View>
+            {/* Favourite Button */}
             <View style={styles.iconContainer}>
               <Pressable onPress={handleFavouritePress}>
                 <Animated.Image
@@ -256,6 +269,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 />
               </Pressable>
             </View>
+            {/* Favourite Button */}
             <Pressable onPress={handleBookmarkPress}>
               <Animated.Image
                 source={{
@@ -271,44 +285,50 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             </Pressable>
           </View>
         </View>
-
         {/* Restaurant Details */}
         <View style={styles.restaurantDetailsContainer}>
-          {/* Restaurant Info */}
-          <View style={styles.restaurantInfoContainer}>
-            {rating && (
-              <View style={styles.ratingContainer}>
-                <Image source={star_icon} style={styles.smallIcon} />
-                <Text style={styles.infoText}>{rating} / 5</Text>
-              </View>
-            )}
-
-            {phone && (
-              <View style={styles.phoneContainer}>
-                <Image source={phone_icon} style={styles.smallIcon} />
-                <Text style={styles.infoTextUnderlined}>{phone}</Text>
-              </View>
-            )}
-
-            {website && (
-              <View style={styles.websiteContainer}>
-                <Image source={website_icon} style={styles.smallIcon} />
-                <Text onPress={() => handleWebsitePress(restaurant.website)} style={styles.infoTextUnderlined}>Website link</Text>
-              </View>
-            )}
-          </View>
-
-          {/* Map View */}
-          <View style={styles.mapViewContainer}>
+          {/* Left Container */}
+          <View style={styles.leftContainer}>
+            {/* Restaurant Info */}
+            <View style={styles.restaurantInfoContainer}>
+              {/* Rating */}
+              {rating && (
+                <View style={styles.ratingContainer}>
+                  <Image source={star_icon} style={styles.smallIcon} />
+                  <Text style={styles.infoText}>{rating} / 5</Text>
+                </View>
+              )}
+              {/* Phone */}
+              {phone && (
+                <View style={styles.phoneContainer}>
+                  <Image source={phone_icon} style={styles.smallIcon} />
+                  <Text style={styles.infoTextUnderlined}>{phone}</Text>
+                </View>
+              )}
+              {/* Website */}
+              {website && (
+                <View style={styles.websiteContainer}>
+                  <Image source={website_icon} style={styles.smallIcon} />
+                  <Text
+                    onPress={() => handleWebsitePress(restaurant.website)}
+                    style={styles.infoTextUnderlined}
+                  >
+                    Website link
+                  </Text>
+                </View>
+              )}
+            </View>
+            {/* Address */}
             <View style={styles.addressContainer}>
               <Image source={location_icon} style={styles.smallIcon} />
               <Text style={styles.infoText}>{displayAddress}</Text>
             </View>
+            {/* Distance */}
             <View style={styles.distanceContainer}>
               <Image source={distance_icon} style={styles.smallIcon} />
-              
-              <Text style={styles.infoText}>{distance}</Text>
+              <Text style={styles.infoText}>{distance} km</Text>
             </View>
+            {/* Find on Map Button */}
             <TouchableOpacity
               onPress={handleMapViewPress}
               style={styles.findOnMapBtn}
@@ -316,12 +336,37 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <Text style={styles.mapLinkText}>Find on Map</Text>
             </TouchableOpacity>
           </View>
+          {/* Right Container (MapView) */}
+          <View style={styles.rightContainer}>
+            {/* Wrap MapView inside a View */}
+            <View style={styles.mapContainer}>
+              <MapView
+                style={styles.map}
+                customMapStyle={MapViewStyle}
+                // Set initial region using restaurant's latitude and longitude
+                initialRegion={{
+                  latitude: restaurant.geometry.location.lat,
+                  longitude: restaurant.geometry.location.lng,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+              >
+                {/* Add a marker to indicate the restaurant's location */}
+                <Marker
+                  coordinate={{
+                    latitude: restaurant.geometry.location.lat,
+                    longitude: restaurant.geometry.location.lng,
+                  }}
+                  title={restaurant.name}
+                />
+              </MapView>
+            </View>
+          </View>
         </View>
       </View>
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -372,7 +417,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   imageContainer: {
     width: "90%",
     height: "auto",
@@ -428,7 +472,6 @@ const styles = StyleSheet.create({
     color: "#333",
     marginVertical: 4,
   },
-
   infoText: {
     fontSize: 14,
     color: "black",
@@ -442,28 +485,52 @@ const styles = StyleSheet.create({
     textAlign: "left",
     textDecorationLine: "underline",
   },
-
   websiteContainer: {
     marginVertical: 4,
     flexDirection: "row",
+    alignItems: "center",
   },
   distanceContainer: {
     marginVertical: 4,
     flexDirection: "row",
+    alignItems: "center",
   },
   phoneContainer: {
     marginVertical: 4,
     flexDirection: "row",
+    alignItems: "center",
   },
   addressContainer: {
     marginVertical: 4,
     flexDirection: "row",
+    alignItems: "center",
   },
   findOnMapBtn: {
     marginVertical: 5,
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  leftContainer: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  rightContainer: {
+    flex: 1,
+    paddingLeft: 10,
+    backgroundColor: "white",
+  },
+  map: {
+    width: "100%",
+    height: "100%",
+  },
+  mapContainer: {
+    flex: 1,
+    borderRadius: 10, // Apply border radius
+    overflow: 'hidden', // Clip child elements to the rounded border
+    elevation: 5, // Add shadow (Android)
+    shadowColor: '#000', // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset
+    shadowOpacity: 0.25, // Shadow opacity
+    shadowRadius: 3, // Shadow radius
+    height: 200, 
   },
 });
-
 export default DetailsViewComponents;
