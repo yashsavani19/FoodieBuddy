@@ -207,13 +207,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   }, [user]);
 
   useEffect(() => {
-    console.log("Favourites updated:", favouriteRestaurants);
+    console.log("Favourites updated");
   }, [favouriteRestaurants]);
   useEffect(() => {
-    console.log("Bookmarks updated:", bookmarkedRestaurants);
+    console.log("Bookmarks updated");
   }, [bookmarkedRestaurants]);
   useEffect(() => {
-    console.log("Visited updated:", visitedRestaurants);
+    console.log("Visited updated");
   }, [visitedRestaurants]);
 
   const setUser = async () => {
@@ -223,12 +223,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       // console.log("User UID:", uid);
       if (!uid) return;
       const favourites = await fetchFavourites();
-      console.log("Favourites:", favourites);
       if (favourites) {
         setFavouriteRestaurants(favourites);
       }
       const bookmarks = await fetchBookmarks();
-      console.log("Bookmarks:", bookmarks);
       if (bookmarks) {
         setBookmarkedRestaurants(bookmarks);
       }
