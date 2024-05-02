@@ -89,7 +89,7 @@ function RootLayoutNav() {
   // Provide a theme based on the color scheme and setup the navigation stack
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack screenOptions={{headerShown:false}}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>

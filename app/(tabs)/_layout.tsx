@@ -74,8 +74,10 @@ export default function TabLayout() {
     >
       <Tabs.Screen
         name="RestaurantListViews"
+        
         options={{
           title: "Home",
+          
           tabBarLabel: "",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
