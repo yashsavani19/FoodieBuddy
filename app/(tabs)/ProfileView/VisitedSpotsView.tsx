@@ -15,6 +15,7 @@ import { Saved } from "@/model/Saved";
 
 const VisitedSpotsView: React.FC = () => {
   const { visitedRestaurants } = useContext(AppContext);
+  const { visitedRestaurants } = useContext(AppContext);
   const navigation = useNavigation();
   const renderItem = ({ item }: { item: Saved }) => (
     <SavedListItem item={item} listType="visited" />
@@ -23,6 +24,10 @@ const VisitedSpotsView: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.backButton}
+        >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
@@ -44,13 +49,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    backgroundColor: "#fff",
   },
   header: {
     marginTop: 20,
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 20,
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
     borderBottomColor: "#ddd",
   },
   backButton: {
@@ -59,14 +69,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    fontWeight: "bold",
     flex: 1, // added for title alignment
+    textAlign: "center", // align the title
     textAlign: "center", // align the title
   },
   itemContainer: {
     flexDirection: "row",
     alignItems: "center",
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
     borderBottomColor: "#ddd",
   },
   image: {
