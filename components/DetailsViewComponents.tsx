@@ -128,12 +128,12 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
         if (item.restaurant.id === restaurant.id) {
           setVisitedPressed(true);
           console.log(
-            "Fave: " + item.restaurant.name + " " + visitedRestaurants
+            "Visited: " + item.restaurant.name + " " + visitedRestaurants
           );
           return;
         }
       }
-      setFavePressed(false);
+      setVisitedPressed(false);
     }
   }, [favouriteRestaurants]);
 
@@ -217,20 +217,20 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
           <View style={styles.interactionContainer}>
             {/* Visited Button */}
             <View style={styles.iconContainer}>
-              <TouchableOpacity onPress={handleVisitedPress}>
+              <Pressable onPress={handleVisitedPress}>
                 <Animated.Image
                   source={
                     isVisitedPressed ? visited_selected : visited_unselected
                   } // Assuming visited uses the same icon as fave
                   style={[
                     styles.smallIcon,
-                    { transform: [{ scale: faveScale }] },
+                    { transform: [{ scale: visitedScale }] },
                   ]}
                 />
-              </TouchableOpacity>
+              </Pressable>
             </View>
             <View style={styles.iconContainer}>
-              <TouchableOpacity onPress={handleFavouritePress}>
+              <Pressable onPress={handleFavouritePress}>
                 <Animated.Image
                   source={{
                     uri: isFavePressed
@@ -242,9 +242,9 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                     { transform: [{ scale: faveScale }] },
                   ]}
                 />
-              </TouchableOpacity>
+              </Pressable>
             </View>
-            <TouchableOpacity onPress={handleBookmarkPress}>
+            <Pressable onPress={handleBookmarkPress}>
               <Animated.Image
                 source={{
                   uri: isBookmarkPressed
@@ -256,7 +256,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                   { transform: [{ scale: bookmarkScale }] },
                 ]}
               />
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
 
