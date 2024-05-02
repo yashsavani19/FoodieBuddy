@@ -30,6 +30,11 @@ const VisitedSpotsView: React.FC = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Visited Spots</Text>
       </View>
+      {visitedRestaurants.length === 0 && (
+        <View style={styles.noRestaurants}>
+          <Text style={styles.titleText}>No visited spots</Text>
+        </View>
+      )}
       <FlatList
         data={visitedRestaurants}
         keyExtractor={(item) => item.restaurant.id.toString()}
@@ -76,6 +81,16 @@ const styles = StyleSheet.create({
   },
   spotName: {
     fontSize: 18,
+  },
+  noRestaurants: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  titleText: {
+    fontSize: 20,
+    color: "#888",
+    fontWeight: "bold",
   },
 });
 

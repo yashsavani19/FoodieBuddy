@@ -30,6 +30,11 @@ const BookmarkedSpotsView: React.FC = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Bookmarked Spots</Text>
       </View>
+      {bookmarkedRestaurants.length === 0 && (
+        <View style={styles.noRestaurants}>
+          <Text style={styles.titleText}>No Bookmarked spots</Text>
+        </View>
+      )}
       <FlatList
         data={bookmarkedRestaurants}
         keyExtractor={(item) => item.restaurant.id.toString()}
@@ -47,7 +52,7 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 20,
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
     padding: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
@@ -58,6 +63,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    flex: 1, // added for title alignment
+    textAlign: "center", // align the title
   },
   itemContainer: {
     flexDirection: "row",
@@ -74,6 +81,16 @@ const styles = StyleSheet.create({
   },
   spotName: {
     fontSize: 18,
+  },
+  noRestaurants: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  titleText: {
+    fontSize: 20,
+    color: "#888",
+    fontWeight: "bold",
   },
 });
 
