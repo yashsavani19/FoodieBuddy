@@ -26,6 +26,7 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import { useNavigation } from "expo-router";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { NavigationProp } from "@react-navigation/native";
+import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 
 // Define the props for the AppMapView component
 interface AppMappViewProps {
@@ -143,6 +144,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
             >
               <RestaurantMarker
                 rating={restaurant.rating ?? "N/A"}
+                price={restaurant.price ?? "N/A"} 
                 selected={selectedMarkerId === index}
               />
               {/*Information on Restaurant*/}
@@ -152,9 +154,12 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 }}}>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
-                  {restaurant.rating !== undefined && (
-                    <StarRating rating={restaurant.rating} />
-                  )}
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    {restaurant.rating !== undefined && (
+                      <StarRating rating={restaurant.rating} />
+                    )}
+                    <Text>  {restaurant.price && displayPriceLevel(parseInt(restaurant.price))}</Text>
+                  </View>
                   <Text>Distance: {formatDistance(restaurant.distance)}</Text>
                   <WebView
                     style={styles.webViewStyle}
@@ -201,5 +206,10 @@ const styles = StyleSheet.create({
   webViewStyle: {
     height: 100,
     width: 190,
+  },
+  descText: {
+    fontWeight: "bold",
+    textAlign: "left",
+    paddingLeft: 10,
   },
 });
