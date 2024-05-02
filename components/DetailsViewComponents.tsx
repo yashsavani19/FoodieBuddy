@@ -18,6 +18,7 @@ import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
+import { AntDesign } from "@expo/vector-icons";
 
 // Importing the required images
 const default_pic = require("@/assets/images/default_pic.png");
@@ -28,7 +29,6 @@ const phone_icon = require("@/assets/images/phone-icon.png");
 const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location_pin-icon.png");
-
 
 // Props interface for the component
 interface DetailsViewComponentsProps {
@@ -221,14 +221,14 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
         {/* Image Title Container */}
         <View style={styles.imageTitleIconContainer}>
           {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backButtonContainer}
-            onPress={backFunction}
-          >
-            <View>
-              <Text style={styles.backButton}>{"<"} Back</Text>
-            </View>
-          </TouchableOpacity>
+          {/* Back Button and Title */}
+       <TouchableOpacity  onPress={backFunction} style={styles.header}>
+          <View style={styles.headerContent}>
+            <AntDesign name="arrowleft" size={24} color="white" />
+            <Text style={styles.title}>Back</Text>
+          </View>
+        </TouchableOpacity>
+
           {/* Restaurant Title */}
           <Text style={styles.restaurantTitle}>{name}</Text>
           {/* Restaurant Image */}
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   backButton: {
-    fontSize: 16,
+    fontSize: 20,
     color: "white",
     fontWeight: "bold",
   },
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   },
   restaurantImage: {
     width: "100%",
-    height: 200, 
+    height: 200,
     borderRadius: 10,
     marginTop: 8,
   },
@@ -520,14 +520,36 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    borderRadius: 10, 
-    overflow: 'hidden',
-    elevation: 5, 
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.25, 
-    shadowRadius: 3, 
-    height: 200, 
+    borderRadius: 10,
+    overflow: "hidden",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    height: 200,
+  },
+  header: {
+    height: 40, // Adjust the height
+    width: "100%", // Set width to 100% to fill the entire screen width
+    backgroundColor: "black",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  headerContent: {
+    height: 40, // Adjust the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    width: "100%", // Set width to 100% to fill the entire screen width
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    flex: 1, // added for title alignment
+    textAlign: "center", // align the title
+    color: 'white'
   },
 });
 export default DetailsViewComponents;

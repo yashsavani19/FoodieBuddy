@@ -24,7 +24,7 @@ const VisitedSpotsView: React.FC = () => {
     <View style={styles.container}>
       <TitleHeader title="Visited" />
       <View style={styles.content}>
-        {/* Back Button and Title */}
+
        {/* Back Button and Title */}
        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
           <View style={styles.headerContent}>
