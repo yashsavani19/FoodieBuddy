@@ -3,16 +3,13 @@ import {
   Alert,
   FlatList,
   StyleSheet,
-  Text,
 } from "react-native";
 import RestaurantListItem from "@/components/RestaurantListItem";
-import restaurants from "@/assets/data/restaurants";
 import { View } from "@/components/Themed";
 import Colors from "@/constants/Colors";
 import TitleHeader from "@/components/TitleHeader";
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "@/context/AppContext";
-import { categories } from '@/assets/data/categories-options';
 import { Category } from '@/model/Category';
 
 export default function HomeView() {

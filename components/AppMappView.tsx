@@ -22,6 +22,10 @@ import { AppContext } from "../context/AppContext";
 import images from "@/assets/data/images";
 import { Category } from "@/model/Category";
 import Colors from "@/constants/Colors";
+import { formatDistance } from "@/app/Utils/FormatDistance";
+import { useNavigation } from "expo-router";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import { NavigationProp } from "@react-navigation/native";
 
 // Define the props for the AppMapView component
 interface AppMappViewProps {
@@ -41,7 +45,8 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   const handleMapPress = () => setSelectedMarkerId(null);
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
-
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  
   // Return nothing if no location is available
   if (!location) return null;
 
@@ -141,13 +146,16 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 selected={selectedMarkerId === index}
               />
               {/*Information on Restaurant*/}
-              <Callout onPress={() => handleCalloutPress(restaurant.website)}>
+              <Callout onPress={() => {
+                if (selectedMarkerId !== null) {
+                  navigation.navigate("DetailsView", { Restaurant: filteredRestaurants[selectedMarkerId] });
+                }}}>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   {restaurant.rating !== undefined && (
                     <StarRating rating={restaurant.rating} />
                   )}
-                  <Text>Distance: {restaurant.distance} km</Text>
+                  <Text>Distance: {formatDistance(restaurant.distance)}</Text>
                   <WebView
                     style={styles.webViewStyle}
                     source={{

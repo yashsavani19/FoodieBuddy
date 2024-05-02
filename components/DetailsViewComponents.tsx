@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Pressable,
+  Linking,
 } from "react-native";
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
@@ -190,6 +191,17 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             navigation.navigate("Map", { geometry: restaurant.geometry });
   };
 
+  const handleWebsitePress = (websiteUrl: string) => {
+    if (websiteUrl) {
+      // Open the restaurant's website in the device's browser
+      Linking.openURL(websiteUrl);
+      // Log a message to the console
+      console.log(`Opening website: ${websiteUrl}`);
+    } else {
+      console.log("No website URL provided.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TitleHeader title="Details" />
@@ -281,7 +293,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             {website && (
               <View style={styles.websiteContainer}>
                 <Image source={website_icon} style={styles.smallIcon} />
-                <Text style={styles.infoTextUnderlined}>{website}</Text>
+                <Text onPress={() => handleWebsitePress(restaurant.website)} style={styles.infoTextUnderlined}>Website link</Text>
               </View>
             )}
           </View>
