@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { AppContext } from "@/context/AppContext";
-import { Restaurant } from "@/model/Restaurant";
 import SavedListItem from "@/components/SavedListItem";
 import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";

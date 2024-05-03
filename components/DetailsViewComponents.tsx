@@ -214,14 +214,12 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       <View style={styles.contentContainer}>
         {/* Image Title Container */}
         <View>
-          <TouchableOpacity
-            style={styles.backButtonContainer}
-            onPress={backFunction}
-          >
-            <View>
-              <Text style={styles.backButton}>{"<"} Back</Text>
-            </View>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
+          <View style={styles.headerContent}>
+            <AntDesign name="arrowleft" size={24} color="white" />
+            <Text style={styles.title}>Back</Text>
+          </View>
+        </TouchableOpacity>
         </View>
         <ScrollView>
           <View style={styles.imageTitleIconContainer}>
@@ -563,8 +561,7 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 40, // Adjust the height
-    width: "100%", // Set width to 100% to fill the entire screen width
-    backgroundColor: "black",
+    backgroundColor: "black", // Change background color
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
@@ -573,8 +570,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10,
-    width: "100%", // Set width to 100% to fill the entire screen width
+    paddingHorizontal: 10, // Add padding for spacing
   },
   title: {
     fontSize: 20,
