@@ -4,21 +4,24 @@ import {
   Button,
   SafeAreaView,
   Image,
-  TouchableOpacity,
   Pressable,
   ScrollView,
 } from "react-native";
 import React, { useState } from "react";
 import { Link } from "expo-router";
-
-const buddyLogo = require("@/assets/images/title-logo.png");
-
-import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { useAuth } from "@/context/AuthContext";
 
+// Import the image for the logo
+const buddyLogo = require("@/assets/images/title-logo.png");
+
+// Define the RegisterView component
 export default function RegisterView() {
+
+  // Retrieve the signUp function from the AuthContext
   const { signUp } = useAuth();
+
+   // State variables to store user registration details
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,28 +29,12 @@ export default function RegisterView() {
 
   return (
     <View style={styles.container}>
-      {/* Main Inner Container that displays all the content */}
+      {/* Scrollable container */}
       <ScrollView>
-        {/* Main Logo */}
-        {/*  */}
+        {/* Application logo */}
         <Image source={buddyLogo} style={styles.logo} />
         <SafeAreaView style={styles.innerContainer}>
-          {/*  */}
-          {/* Google Register */}
-          {/* <TouchableOpacity style={styles.googleRegisterContainer}>
-          <Image
-            source={require("@/assets/images/google-icon.png")}
-            style={styles.inputLogo}
-          />
-          <Text
-            style={styles.googleText}
-            // onPress={}
-          >
-            Register With Google
-          </Text>
-        </TouchableOpacity> */}
-          {/*  */}
-          {/* Input Fields */}
+          {/* Username input */}
           <View style={styles.inputContainer}>
             <Image
               source={require("@/assets/images/username-logo.png")}
@@ -60,6 +47,7 @@ export default function RegisterView() {
               onChangeText={setUsername}
             />
           </View>
+          {/* Email input */}
           <View style={styles.inputContainer}>
             <Image
               source={require("@/assets/images/mail-logo.png")}
@@ -72,6 +60,7 @@ export default function RegisterView() {
               onChangeText={setEmail}
             />
           </View>
+          {/* Password input */}
           <View style={styles.inputContainer}>
             <Image
               source={require("@/assets/images/lock-logo.png")}
@@ -84,6 +73,7 @@ export default function RegisterView() {
               value={password}
               onChangeText={setPassword}
             />
+            {/* Confirm password input */}
           </View>
           <View style={styles.inputContainer}>
             <Image
@@ -98,7 +88,6 @@ export default function RegisterView() {
               onChangeText={setConfirmPassword}
             />
           </View>
-          {/*  */}
           {/* Register Button */}
           <View style={styles.buttonContainer}>
             <Pressable style={styles.registerButton}>
@@ -110,12 +99,7 @@ export default function RegisterView() {
                 }}
               />
             </Pressable>
-            <TouchableOpacity
-            // onPress={handleImageButtonPress}
-            ></TouchableOpacity>
           </View>
-
-          {/*  */}
           {/* Login Button*/}
           <View style={styles.createAccountContainer}>
             <Text style={styles.textStyle}>Already Have an Account?</Text>

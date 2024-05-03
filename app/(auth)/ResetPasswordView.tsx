@@ -9,26 +9,25 @@ import {
 } from "react-native";
 import { handleResetPassword } from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
-
-const buddyLogo = require("@/assets/images/title-logo.png");
-
-import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { Link } from "expo-router";
 
+// Import the image for the logo
+const buddyLogo = require("@/assets/images/title-logo.png");
+
+// Define the LoginView component
 export default function LoginView() {
+  
+   // State variables to store user registration details
   const [email, setEmail] = useState("");
 
   return (
     <View style={styles.container}>
-      {/* Main Logo */}
-      <Image source={buddyLogo} style={styles.logo} />
-      {/*  */}
-      {/* Main Inner Container that displays all the content*/}
+      {/* Application logo */}
+      <Image source={buddyLogo} style={styles.logo}/>
       <ScrollView>
         <SafeAreaView style={styles.innerContainer}>
-          {/*  */}
-          {/* Input Fields */}
+          {/* Input field for email */}
           <View style={styles.inputContainer}>
             <Image
               source={require("@/assets/images/mail-logo.png")}
@@ -41,8 +40,7 @@ export default function LoginView() {
               onChangeText={setEmail}
             />
           </View>
-          {/*  */}
-          {/* Reset Button */}
+          {/* Button to trigger password reset */}
           <View style={styles.buttonContainer}>
             <Pressable style={styles.resetButton}>
               <Button
@@ -52,8 +50,7 @@ export default function LoginView() {
               />
             </Pressable>
           </View>
-          {/*  */}
-          {/* Login Button*/}
+          {/* Link to navigate back to LoginView */}
           <View style={styles.loginAgainContainer}>
             <Text style={styles.textStyle}>Password Reset Done?</Text>
             <Link href={"/LoginView"}>
