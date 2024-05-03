@@ -2,11 +2,13 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, GestureResponderEvent } from 'react-native';
 import TitleHeader from "@/components/TitleHeader";
 import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { useAuth } from '@/context/AuthContext';
+import { RootStackParamList } from '@/constants/navigationTypes';
 
 export default function UserProfileView() {
-  const navigation = useNavigation(); // Use navigation hook here
+  // Navigation hook for navigating to other screens
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, signOut } = useAuth(); // Use auth hook here
 
   function navigateToFavouriteSpots(event: GestureResponderEvent): void {
