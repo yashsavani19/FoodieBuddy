@@ -21,6 +21,7 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
+import { AntDesign } from "@expo/vector-icons";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -213,14 +214,12 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       <View style={styles.contentContainer}>
         {/* Image Title Container */}
         <View>
-          <TouchableOpacity
-            style={styles.backButtonContainer}
-            onPress={backFunction}
-          >
-            <View>
-              <Text style={styles.backButton}>{"<"} Back</Text>
-            </View>
-          </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
+          <View style={styles.headerContent}>
+            <AntDesign name="arrowleft" size={24} color="white" />
+            <Text style={styles.title}>Back</Text>
+          </View>
+        </TouchableOpacity>
         </View>
         <ScrollView>
           <View style={styles.imageTitleIconContainer}>
@@ -559,6 +558,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     marginBottom: 20,
     // width: '100%',
+  },
+  header: {
+    height: 40, // Adjust the height
+    backgroundColor: "black", // Change background color
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  headerContent: {
+    height: 40, // Adjust the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10, // Add padding for spacing
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    flex: 1, // added for title alignment
+    textAlign: "center", // align the title
+    color: 'white'
   },
 });
 
