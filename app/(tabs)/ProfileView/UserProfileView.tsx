@@ -37,12 +37,12 @@ export default function UserProfileView() {
           </View>
           <Text style={styles.username}>{user?.displayName || ""}</Text>
           <View style={styles.accountActions}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               // onPress={{}}
               style={styles.editButton}
             >
               <Text style={{ fontSize: 20 }}>Edit Account</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity onPress={signOut}>
               <Text style={{ fontSize: 20 }}>Logout</Text>
             </TouchableOpacity>
