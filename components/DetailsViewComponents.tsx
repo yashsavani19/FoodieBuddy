@@ -212,7 +212,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
 
       <View style={styles.contentContainer}>
         {/* Image Title Container */}
-        <View style={styles.imageTitleIconContainer}>
+        <View>
           <TouchableOpacity
             style={styles.backButtonContainer}
             onPress={backFunction}
@@ -221,150 +221,154 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <Text style={styles.backButton}>{"<"} Back</Text>
             </View>
           </TouchableOpacity>
-          
-          {/* <ScrollView style={{flex:1}}> */}
-          <Text style={styles.restaurantTitle}>{name}</Text>
-          <View style={styles.imageContainer}>
-            <Image
-              source={image ? { uri: image } : default_pic}
-              style={styles.restaurantImage}
-            />
-          </View>
-          {/* Interaction Buttons */}
-          <View style={styles.interactionContainer}>
-            {/* Visited Button */}
-            <View style={styles.iconContainer}>
-              <Pressable onPress={handleVisitedPress}>
-                <Animated.Image
-                  source={
-                    isVisitedPressed ? visited_selected : visited_unselected
-                  } // Assuming visited uses the same icon as fave
-                  style={[
-                    styles.smallIcon,
-                    { transform: [{ scale: visitedScale }] },
-                  ]}
-                />
-              </Pressable>
+        </View>
+        <ScrollView>
+          <View style={styles.imageTitleIconContainer}>
+            {/* <ScrollView style={{flex:1}}> */}
+            <Text style={styles.restaurantTitle}>{name}</Text>
+            <View style={styles.imageContainer}>
+              <Image
+                source={image ? { uri: image } : default_pic}
+                style={styles.restaurantImage}
+              />
             </View>
-            <View style={styles.iconContainer}>
-              <Pressable onPress={handleFavouritePress}>
+            {/* Interaction Buttons */}
+            <View style={styles.interactionContainer}>
+              {/* Visited Button */}
+              <View style={styles.iconContainer}>
+                <Pressable onPress={handleVisitedPress}>
+                  <Animated.Image
+                    source={
+                      isVisitedPressed ? visited_selected : visited_unselected
+                    } // Assuming visited uses the same icon as fave
+                    style={[
+                      styles.smallIcon,
+                      { transform: [{ scale: visitedScale }] },
+                    ]}
+                  />
+                </Pressable>
+              </View>
+              <View style={styles.iconContainer}>
+                <Pressable onPress={handleFavouritePress}>
+                  <Animated.Image
+                    source={{
+                      uri: isFavePressed
+                        ? images.faveSelectedIcon
+                        : images.faveIcon,
+                    }}
+                    style={[
+                      styles.smallIcon,
+                      { transform: [{ scale: faveScale }] },
+                    ]}
+                  />
+                </Pressable>
+              </View>
+              <Pressable onPress={handleBookmarkPress}>
                 <Animated.Image
                   source={{
-                    uri: isFavePressed
-                      ? images.faveSelectedIcon
-                      : images.faveIcon,
+                    uri: isBookmarkPressed
+                      ? images.bookmarkSelectedIcon
+                      : images.bookmarkIcon,
                   }}
                   style={[
                     styles.smallIcon,
-                    { transform: [{ scale: faveScale }] },
+                    { transform: [{ scale: bookmarkScale }] },
                   ]}
                 />
               </Pressable>
             </View>
-            <Pressable onPress={handleBookmarkPress}>
-              <Animated.Image
-                source={{
-                  uri: isBookmarkPressed
-                    ? images.bookmarkSelectedIcon
-                    : images.bookmarkIcon,
-                }}
-                style={[
-                  styles.smallIcon,
-                  { transform: [{ scale: bookmarkScale }] },
-                ]}
-              />
-            </Pressable>
           </View>
-        </View>
 
-        {/* Restaurant Details */}
-        <View style={styles.restaurantDetailsContainer}>
-          {/* Left Container */}
-          <View style={styles.leftContainer}>
-            {/* Restaurant Info */}
-            <View style={styles.restaurantInfoContainer}>
-              <View style={styles.ratingContainer}>
-                <Image source={star_icon} style={styles.smallIcon} />
-                <Text style={styles.infoText}>
-                  {rating ? `${rating} / 5` : `N/A`}
-                </Text>
-              </View>
+          {/* Restaurant Details */}
+          <View style={styles.restaurantDetailsContainer}>
+            {/* Left Container */}
+            <View style={styles.leftContainer}>
+              {/* Restaurant Info */}
+              <View style={styles.restaurantInfoContainer}>
+                <View style={styles.ratingContainer}>
+                  <Image source={star_icon} style={styles.smallIcon} />
+                  <Text style={styles.infoText}>
+                    {rating ? `${rating} / 5` : `N/A`}
+                  </Text>
+                </View>
 
-              <View style={styles.priceLevelContainer}>
-                <Image source={price_icon} style={styles.smallIcon} />
-                <Text style={styles.infoText}>
-                  {price ? displayPriceLevel(parseInt(price)) : `N/A`}
-                </Text>
-              </View>
+                <View style={styles.priceLevelContainer}>
+                  <Image source={price_icon} style={styles.smallIcon} />
+                  <Text style={styles.infoText}>
+                    {price ? displayPriceLevel(parseInt(price)) : `N/A`}
+                  </Text>
+                </View>
 
-              <View style={styles.phoneContainer}>
-                <Image source={phone_icon} style={styles.smallIcon} />
-                <Text
-                  selectable={phone != undefined}
-                  style={phone ? styles.infoTextUnderlined : styles.infoText}
-                >
-                  {phone ? phone : `N/A`}
-                </Text>
-              </View>
+                <View style={styles.phoneContainer}>
+                  <Image source={phone_icon} style={styles.smallIcon} />
+                  <Text
+                    selectable={phone != undefined}
+                    style={phone ? styles.infoTextUnderlined : styles.infoText}
+                  >
+                    {phone ? phone : `N/A`}
+                  </Text>
+                </View>
 
-              <View style={styles.websiteContainer}>
-                <Image source={website_icon} style={styles.smallIcon} />
-                <Text
-                  onPress={() => handleWebsitePress(restaurant.website)}
-                  style={styles.infoTextUnderlined}
-                >
-                  {website ? `Website` : `N/A`}
-                </Text>
+                <View style={styles.websiteContainer}>
+                  <Image source={website_icon} style={styles.smallIcon} />
+                  <Text
+                    onPress={() => handleWebsitePress(restaurant.website)}
+                    style={styles.infoTextUnderlined}
+                  >
+                    {website ? `Website` : `N/A`}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-          
-          <View style={styles.rightContainer}>
-            <View style={styles.addressContainer}>
-              <Image source={location_icon} style={styles.smallIcon} />
-              <Text selectable={true} style={styles.infoText}>
-                {displayAddress}
-              </Text>
+
+            <View style={styles.rightContainer}>
+              <View style={styles.addressContainer}>
+                <Image source={location_icon} style={styles.smallIcon} />
+                <Text selectable={true} style={styles.infoText}>
+                  {displayAddress}
+                </Text>
+              </View>
+              <View style={styles.distanceContainer}>
+                <Image source={distance_icon} style={styles.smallIcon} />
+                <Text style={styles.infoText}>{formatDistance(distance)}</Text>
+              </View>
             </View>
-            <View style={styles.distanceContainer}>
-              <Image source={distance_icon} style={styles.smallIcon} />
-              <Text style={styles.infoText}>{formatDistance(distance)}</Text>
-            </View>
-          </View>
           </View>
           {/* Map View */}
           {/* <View style={styles.mapViewContainer}> */}
-            {/* Wrap MapView inside a View */}
-            <View style={styles.mapContainer}>
-              <View style={styles.findOnMapBtnView}>
-                <TouchableOpacity
-                  onPress={handleMapViewPress}
-                  style={styles.findOnMapBtn}>
-                  <Text style={styles.mapLinkText}>Find on Map</Text>
-                </TouchableOpacity>
-              </View>
-              <MapView
-                style={styles.map}
-                customMapStyle={MapViewStyle}
-                // Set initial region using restaurant's latitude and longitude
-                initialRegion={{
+          {/* Wrap MapView inside a View */}
+          <View style={styles.mapContainer}>
+            <View style={styles.findOnMapBtnView}>
+              <TouchableOpacity
+                onPress={handleMapViewPress}
+                style={styles.findOnMapBtn}
+              >
+                <Text style={styles.mapLinkText}>Find on Map</Text>
+              </TouchableOpacity>
+            </View>
+            <MapView
+              style={styles.map}
+              customMapStyle={MapViewStyle}
+              // Set initial region using restaurant's latitude and longitude
+              initialRegion={{
+                latitude: restaurant.geometry.location.lat,
+                longitude: restaurant.geometry.location.lng,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              {/* Add a marker to indicate the restaurant's location */}
+              <Marker
+                coordinate={{
                   latitude: restaurant.geometry.location.lat,
                   longitude: restaurant.geometry.location.lng,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
                 }}
-              >
-                {/* Add a marker to indicate the restaurant's location */}
-                <Marker
-                  coordinate={{
-                    latitude: restaurant.geometry.location.lat,
-                    longitude: restaurant.geometry.location.lng,
-                  }}
-                  title={restaurant.name}
-                />
-              </MapView>
+                title={restaurant.name}
+              />
+            </MapView>
             {/* </View> */}
           </View>
+        </ScrollView>
       </View>
       {/* </ScrollView> */}
     </View>
@@ -377,6 +381,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: "100%",
     height: "auto",
+    paddingBottom: 42,
   },
   backButtonContainer: {
     width: "100%",
@@ -392,7 +397,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   contentContainer: {
-    position: "absolute",
+    // position: "absolute",
     width: "100%",
     marginTop: 120,
   },
@@ -444,7 +449,7 @@ const styles = StyleSheet.create({
   },
   restaurantImage: {
     width: "100%",
-    height: 150, // Set a fixed height or make it responsive as needed
+    height: 200, // Set a fixed height or make it responsive as needed
     borderRadius: 10,
     marginTop: 8,
   },
@@ -520,8 +525,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  findOnMapBtnView:
-  {
+  findOnMapBtnView: {
     bottom: 10,
     right: 10,
     position: "absolute",
@@ -551,8 +555,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3,
-    height: 150,
+    height: 300,
     marginHorizontal: 15,
+    marginBottom: 20,
     // width: '100%',
   },
 });
