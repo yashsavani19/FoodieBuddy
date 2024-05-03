@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Pressable,
   Linking,
+  ScrollView,
 } from "react-native";
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
@@ -18,16 +19,8 @@ import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
-const icons = "@/assets/data/images";
-
-import {
-  addBookmark,
-  addFavourite,
-  removeBookmark,
-  removeFavourite,
-  removeVisited,
-} from "@/controller/DatabaseHandler";
-import { Button } from "react-native-share";
+import MapView, { Marker } from "react-native-maps";
+import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -41,8 +34,10 @@ const star_icon = require("@/assets/images/star-icon.png");
 const phone_icon = require("@/assets/images/phone-icon.png");
 const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
-const location_icon = require("@/assets/images/location_pin-icon.png");
+const location_icon = require("@/assets/images/location.png");
 const price_icon = require("@/assets/images/price-tag.png");
+
+// Props interface for the component
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
   backFunction: () => void;
@@ -53,8 +48,16 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   backFunction,
 }) => {
   // Destructuring for ease of use
-  const { name, image, displayAddress, rating, phone, website, distance, price } =
-    restaurant;
+  const {
+    name,
+    image,
+    displayAddress,
+    rating,
+    phone,
+    website,
+    distance,
+    price,
+  } = restaurant;
 
   const {
     favouriteRestaurants,
@@ -77,7 +80,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   const visitedScale = useState(new Animated.Value(1))[0];
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
 
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
@@ -190,7 +192,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   const handleMapViewPress = () => {
     console.log("Map view pressed");
     setFindOnMapPressed(!isFindOnMapPressed);
-            navigation.navigate("Map", { geometry: restaurant.geometry });
+    navigation.navigate("Map", { geometry: restaurant.geometry });
   };
 
   const handleWebsitePress = (websiteUrl: string) => {
@@ -219,6 +221,8 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <Text style={styles.backButton}>{"<"} Back</Text>
             </View>
           </TouchableOpacity>
+          
+          {/* <ScrollView style={{flex:1}}> */}
           <Text style={styles.restaurantTitle}>{name}</Text>
           <View style={styles.imageContainer}>
             <Image
@@ -226,7 +230,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               style={styles.restaurantImage}
             />
           </View>
-
           {/* Interaction Buttons */}
           <View style={styles.interactionContainer}>
             {/* Visited Button */}
@@ -276,55 +279,94 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
 
         {/* Restaurant Details */}
         <View style={styles.restaurantDetailsContainer}>
-          {/* Restaurant Info */}
-          <View style={styles.restaurantInfoContainer}>
-            <View style={styles.ratingContainer}>
-              <Image source={star_icon} style={styles.smallIcon} />
-              <Text style={styles.infoText}>{rating ? `${rating} / 5` : `N/A`}</Text>
-            </View>
+          {/* Left Container */}
+          <View style={styles.leftContainer}>
+            {/* Restaurant Info */}
+            <View style={styles.restaurantInfoContainer}>
+              <View style={styles.ratingContainer}>
+                <Image source={star_icon} style={styles.smallIcon} />
+                <Text style={styles.infoText}>
+                  {rating ? `${rating} / 5` : `N/A`}
+                </Text>
+              </View>
 
-            <View style={styles.priceLevelContainer}>
-              <Image source={price_icon} style={styles.smallIcon} />
-              <Text style={styles.infoText}>{price ? displayPriceLevel(parseInt(price)) : `N/A`}</Text>
-            </View>
+              <View style={styles.priceLevelContainer}>
+                <Image source={price_icon} style={styles.smallIcon} />
+                <Text style={styles.infoText}>
+                  {price ? displayPriceLevel(parseInt(price)) : `N/A`}
+                </Text>
+              </View>
 
-            <View style={styles.phoneContainer}>
-              <Image source={phone_icon} style={styles.smallIcon} />
-              <Text selectable={phone != undefined} style={phone ? styles.infoTextUnderlined : styles.infoText}>{phone ? phone : `N/A`}</Text>
-            </View>
+              <View style={styles.phoneContainer}>
+                <Image source={phone_icon} style={styles.smallIcon} />
+                <Text
+                  selectable={phone != undefined}
+                  style={phone ? styles.infoTextUnderlined : styles.infoText}
+                >
+                  {phone ? phone : `N/A`}
+                </Text>
+              </View>
 
-            <View style={styles.websiteContainer}>
-              <Image source={website_icon} style={styles.smallIcon} />
-              <Text onPress={() => handleWebsitePress(restaurant.website)} style={styles.infoTextUnderlined}>{website ? `Website link` : `N/A`}</Text>
+              <View style={styles.websiteContainer}>
+                <Image source={website_icon} style={styles.smallIcon} />
+                <Text
+                  onPress={() => handleWebsitePress(restaurant.website)}
+                  style={styles.infoTextUnderlined}
+                >
+                  {website ? `Website` : `N/A`}
+                </Text>
+              </View>
             </View>
           </View>
-
-          {/* Map View */}
-          <View style={styles.mapViewContainer}>
+          
+          <View style={styles.rightContainer}>
             <View style={styles.addressContainer}>
               <Image source={location_icon} style={styles.smallIcon} />
-              <Text selectable={true} style={styles.infoText}>{displayAddress}</Text>
+              <Text selectable={true} style={styles.infoText}>
+                {displayAddress}
+              </Text>
             </View>
             <View style={styles.distanceContainer}>
               <Image source={distance_icon} style={styles.smallIcon} />
-              
               <Text style={styles.infoText}>{formatDistance(distance)}</Text>
             </View>
-            {/* <TouchableOpacity
-              onPress={handleMapViewPress}
-              style={styles.findOnMapBtn}
-            >
-              <Text style={styles.mapLinkText}>Find on Map</Text>
-            </TouchableOpacity> */}
           </View>
-        </View>
-        <TouchableOpacity
-            onPress={handleMapViewPress}
-            style={styles.findOnMapBtn}
-          >
-          <Text style={styles.mapLinkText}>Find on Map</Text>
-        </TouchableOpacity>
+          </View>
+          {/* Map View */}
+          {/* <View style={styles.mapViewContainer}> */}
+            {/* Wrap MapView inside a View */}
+            <View style={styles.mapContainer}>
+              <View style={styles.findOnMapBtnView}>
+                <TouchableOpacity
+                  onPress={handleMapViewPress}
+                  style={styles.findOnMapBtn}>
+                  <Text style={styles.mapLinkText}>Find on Map</Text>
+                </TouchableOpacity>
+              </View>
+              <MapView
+                style={styles.map}
+                customMapStyle={MapViewStyle}
+                // Set initial region using restaurant's latitude and longitude
+                initialRegion={{
+                  latitude: restaurant.geometry.location.lat,
+                  longitude: restaurant.geometry.location.lng,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+              >
+                {/* Add a marker to indicate the restaurant's location */}
+                <Marker
+                  coordinate={{
+                    latitude: restaurant.geometry.location.lat,
+                    longitude: restaurant.geometry.location.lng,
+                  }}
+                  title={restaurant.name}
+                />
+              </MapView>
+            {/* </View> */}
+          </View>
       </View>
+      {/* </ScrollView> */}
     </View>
   );
 };
@@ -400,14 +442,9 @@ const styles = StyleSheet.create({
     width: "50%",
     paddingRight: 15,
   },
-  mapViewContainer: {
-    marginLeft: 20,
-    width: "50%",
-    paddingRight: 20,
-  },
   restaurantImage: {
     width: "100%",
-    height: 200, // Set a fixed height or make it responsive as needed
+    height: 150, // Set a fixed height or make it responsive as needed
     borderRadius: 10,
     marginTop: 8,
   },
@@ -424,14 +461,14 @@ const styles = StyleSheet.create({
   mapLinkText: {
     // fontSize: 16,
     // color: "#0066CC",
-    backgroundColor: '#0066CC', 
-    color: 'white', 
-    padding: '3%',
-    paddingHorizontal: '8%',
+    backgroundColor: "#0066CC",
+    color: "white",
+    padding: "2%",
+    paddingHorizontal: "5%",
     borderRadius: 5,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 14,
   },
   phoneWebsite: {
     fontSize: 16,
@@ -482,6 +519,41 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     alignItems: "center",
     justifyContent: "center",
+  },
+  findOnMapBtnView:
+  {
+    bottom: 10,
+    right: 10,
+    position: "absolute",
+    //alignSelf: "flex-end",
+    zIndex: 1,
+  },
+  leftContainer: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  rightContainer: {
+    flex: 1,
+    paddingLeft: 10,
+    paddingRight: 8,
+    backgroundColor: "white",
+  },
+  map: {
+    width: "100%",
+    height: "100%",
+  },
+  mapContainer: {
+    flex: 1,
+    borderRadius: 10,
+    overflow: "hidden",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    height: 150,
+    marginHorizontal: 15,
+    // width: '100%',
   },
 });
 

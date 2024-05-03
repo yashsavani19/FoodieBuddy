@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   StyleSheet,
 } from "react-native";
@@ -28,6 +29,22 @@ export default function HomeView() {
     searchFilterRestaurants();
   }, [searchTerm]);
 
+  // Check if there are no matches and display an alert message
+  useEffect(() => {
+    if (!filteredRestaurants.length && !restaurantListIsLoading && !dataLoading && searchTerm.trim() !== "") {
+      Alert.alert(
+        "No Matches Found",
+        "Sorry, no restaurants match your search criteria. Showing all restaurants instead.",
+        [
+          {
+            text: "OK",
+            onPress: () => setSearchTerm("") // Clear the search term
+          }
+        ]
+      );
+    }
+  }, [filteredRestaurants, restaurantListIsLoading, dataLoading, searchTerm]);
+  
   return (
     <View style={{ flex: 1 }}>
       <TitleHeader
