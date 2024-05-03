@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AppContext } from "@/context/AppContext";
 import SavedListItem from "@/components/SavedListItem";
 import { Saved } from "@/model/Saved";
+import TitleHeader from "@/components/TitleHeader";
 
 const VisitedSpotsView: React.FC = () => {
   const { visitedRestaurants } = useContext(AppContext);
@@ -21,25 +22,28 @@ const VisitedSpotsView: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <AntDesign name="arrowleft" size={24} color="black" />
+      <TitleHeader title="Visited" />
+      <View style={styles.content}>
+        {/* Back Button and Title */}
+       {/* Back Button and Title */}
+       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
+          <View style={styles.headerContent}>
+            <AntDesign name="arrowleft" size={24} color="white" />
+            <Text style={styles.title}>Back</Text>
+          </View>
         </TouchableOpacity>
-        <Text style={styles.title}>Visited Spots</Text>
+        {/* List of Visited Restaurants */}
+        {visitedRestaurants.length === 0 && (
+          <View style={styles.noRestaurants}>
+            <Text style={styles.titleText}>No visited spots</Text>
+          </View>
+        )}
+        <FlatList
+          data={visitedRestaurants}
+          keyExtractor={(item) => item.restaurant.id.toString()}
+          renderItem={renderItem}
+        />
       </View>
-      {visitedRestaurants.length === 0 && (
-        <View style={styles.noRestaurants}>
-          <Text style={styles.titleText}>No visited spots</Text>
-        </View>
-      )}
-      <FlatList
-        data={visitedRestaurants}
-        keyExtractor={(item) => item.restaurant.id.toString()}
-        renderItem={renderItem}
-      />
     </View>
   );
 };
@@ -49,13 +53,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+  content: {
+    flex: 1,
+    marginTop: 120,
+  },
   header: {
-    marginTop: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 15,
+    height: 40, // Adjust the height
+    backgroundColor: "black", // Change background color
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
+  },
+  headerContent: {
+    height: 40, // Adjust the height
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 10, // Add padding for spacing
   },
   backButton: {
     paddingHorizontal: 10,
@@ -65,6 +78,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     flex: 1, // added for title alignment
     textAlign: "center", // align the title
+    color: 'white'
   },
   itemContainer: {
     flexDirection: "row",

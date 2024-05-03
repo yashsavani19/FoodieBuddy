@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface RestaurantMarkerProps {
   rating: number | string;
+  price: number | string;
   selected: boolean;
 }
 

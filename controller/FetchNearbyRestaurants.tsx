@@ -27,7 +27,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     const response = await axios.get<any>(apiUrl);
     // We want to exclude places that are not restaurants, such as cinemas
     const excludeKeywords = ["cinema"];
-    console.log("Response from API:", response.data);
+    //console.log("Response from API:", response.data);
 
     // Process each result to create restaurant data
     const results = response.data.results || [];
@@ -83,7 +83,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
       })
     );
 
-    console.log("Fetched nearby restaurants:", restaurants.filter(restaurant => restaurant !== null));
+    //console.log("Fetched nearby restaurants:", restaurants.filter(restaurant => restaurant !== null));
     return restaurants.filter(restaurant => restaurant !== null);
   } catch (error) {
     console.error("Error fetching nearby restaurants:", error);

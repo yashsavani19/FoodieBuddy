@@ -16,6 +16,10 @@ import {
 import { Saved } from "@/model/Saved";
 import { AppContext } from "@/context/AppContext";
 import { useContext } from "react";
+import { useNavigation } from "expo-router";
+import { NavigationProp } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import RestaurantListItem from "./RestaurantListItem";
 
 interface SavedListItemProps {
   item: Saved;
@@ -51,8 +55,12 @@ const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
       ? images.faveSelectedIcon
       : images.bookmarkSelectedIcon;
 
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => {
+        navigation.navigate("DetailsView", { Restaurant: item.restaurant });
+      }}>
       <View style={{ ...styles.itemContainer, flexDirection: 'row', alignItems: 'center' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image

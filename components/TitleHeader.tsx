@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderTopWidth: Constants.statusBarHeight,
     borderTopColor: Colors.light.headerBackground,
-    paddingHorizontal: 3,
+    //paddingHorizontal: 3,
   },
   title: {
     width: "70%",
@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: "17%",
   },
   image: {
-    width: 80,
-    height: 80,
+    width: 90,
+    height: 90,
     resizeMode: "contain",
     marginHorizontal: 8,
     marginRight: 15,
