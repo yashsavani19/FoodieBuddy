@@ -1,15 +1,11 @@
-import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
-import { StyleSheet, View, Text, Image, TextInput, Alert } from "react-native";
+import React, { useContext } from "react";
+import { StyleSheet, View, Image } from "react-native";
 import Colors from "@/constants/Colors";
-import SearchBar from "@/components/SearchBar";
-import Categories from "@/components/Categories";
-import Filters from "@/components/Filters";
 import images from "@/assets/data/images";
 import HeaderComponents from "./HeaderComponents";
 import { Category } from "@/model/Category";
 import { Filter } from "@/model/Filter";
 import Constants from "expo-constants";
-import { Restaurant } from "@/model/Restaurant";
 import { AppContext } from "@/context/AppContext";
 interface TitleHeaderProps {
   title?: string;
@@ -17,7 +13,7 @@ interface TitleHeaderProps {
   onSearchSubmit?: (searchTerm: string) => void;
   onCategorySelect?: (category: Category) => void;
   onFilterSelect?: (filter: Filter[]) => void;
-  searchTerm?: string; 
+  searchTerm?: string;
   selectedCategory?: Category;
 }
 
@@ -35,6 +31,7 @@ export default function TitleHeader({
 }: TitleHeaderProps) {
   const { searchTerm, selectedCategory } = useContext(AppContext);
 
+  // Function to handle search submit
   const handleSearchSubmit = (searchTerm: string) => {
     console.log(`Title Header Search term: ${searchTerm}`);
     if (onSearchSubmit) {
@@ -42,12 +39,14 @@ export default function TitleHeader({
     }
   };
 
+  //  Function to handle category select
   const handleCategorySelect = (category: Category) => {
     if (onCategorySelect) {
       onCategorySelect(category);
     }
   };
 
+  // Function to handle filter select
   const handleFilterSelect = (filter: Filter[]) => {
     console.log(`Filter selected: ${filter}`);
     if (onFilterSelect) {
@@ -83,7 +82,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderTopWidth: Constants.statusBarHeight,
     borderTopColor: Colors.light.headerBackground,
-    //paddingHorizontal: 3,
   },
   title: {
     width: "70%",

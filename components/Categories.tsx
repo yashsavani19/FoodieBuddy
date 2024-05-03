@@ -5,10 +5,16 @@ import { Category } from "@/model/Category";
 import { categories } from "@/assets/data/categories-options";
 import { AppContext } from "@/context/AppContext";
 
+// Define the CategorySelectProps interface
 interface CategorySelectProps {
   onCategorySelect: (category: Category) => void;
 }
 
+ /**
+  * Categories component that allows the user to select a category
+  * @param param0 Props for the Categories component
+  * @returns Categories component
+  */
 const Categories: React.FC<CategorySelectProps> = ({ onCategorySelect }) => {
   const [modalVisible, setModalVisible] = useState(false);
   
@@ -27,6 +33,7 @@ const Categories: React.FC<CategorySelectProps> = ({ onCategorySelect }) => {
 
   return (
     <View style={styles.container}>
+      {/* Display separate components for Android or iOS due to incompatibility */}
       {Platform.OS === "android" ? (
         <Picker
           selectedValue={selectedCategory ? selectedCategory : categories[0]}

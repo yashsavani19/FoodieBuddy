@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
+// Restaurant marker props interface
 interface RestaurantMarkerProps {
   rating: number | string;
   price: number | string;
   selected: boolean;
 }
 
+/**
+ * Restaurant marker component 
+ * @param param0 - rating, price, selected
+ * @returns - Restaurant marker component
+ */
 const RestaurantMarker: React.FC<RestaurantMarkerProps> = ({ rating, selected }) => {
   const bubbleStyle = selected ? styles.bubbleSelected : styles.bubble;
   const iconCircleStyle = selected ? styles.iconCircleSelected : styles.iconCircle;
