@@ -40,40 +40,6 @@ import {
 import { Use } from "react-native-svg";
 import React, { useEffect, useState } from "react";
 import { getFirestore } from "firebase/firestore";
-
-//Google sign in configure
-// export const googleSignIn = () => {
-//   useEffect(() => {
-//     GoogleSignin.configure({
-//       webClientId: FIREBASE_WEB_CLIENT_ID,
-//     });
-//   }, []);
-
-//   const signIn = async () => {
-
-//     // ...
-
-//     const [state, setState] = useState({ userInfo: null });
-
-//     // ...
-
-//     try {
-//       await GoogleSignin.hasPlayServices();
-//       const userInfo = await GoogleSignin.signIn();
-//       setState({ userInfo });
-//     } catch (error) {
-//       if (error === statusCodes.SIGN_IN_CANCELLED) {
-//         // user cancelled the login flow
-//       } else if (error === statusCodes.IN_PROGRESS) {
-//         // operation (e.g. sign in) is in progress already
-//       } else if (error === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-//         // play services not available or outdated
-//       } else {
-//         // some other error happened
-//       }
-//     }
-//   };
-// };
 /**
  * Firebase configuration
  */
@@ -272,40 +238,4 @@ const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
 };
 
-//CODE USED FROM FIREBASE DOCUMENTATION
-export const loginWithGoogle = async () => {
-  // // First, get the Google sign-in result
-  // const { idToken } = await GoogleSignin.signIn();
-  // // Then, create a Google credential with the token
-  // const googleCredential = GoogleAuthProvider.credential(idToken);
-  // // Finally, sign in with Firebase using the Google credential
-  // const signInResult = await signInWithCredential(getAuth(), googleCredential);
-  // // Now you have access to the Google access token if you need it
-  // const token = idToken;
-  // // The signed-in user info
-  // const user = signInResult.user;
-  // console.log(user.displayName);
-  // signInWithPopup(auth, provider)
-  // .then((result: any) => {
-  //   // This gives you a Google Access Token. You can use it to access the Google API.
-  //   const credential = GoogleAuthProvider.credentialFromResult(result);
-  //   const token = credential?.accessToken;
-  //   // The signed-in user info.
-  //   const user = result.user;
-  //   // IdP data available using getAdditionalUserInfo(result)
-  //   //ADDED BY ME
-  // //   const userData = result.additionalUserInfo?.profile;
-  //    console.log(""+user.displayName);
-  //   // ...
-  // })
-  // .catch((error: any) => {
-  //   // Handle Errors here.
-  //   const errorCode = error.code;
-  //   const errorMessage = error.message;
-  //   // The email of the user's account used.
-  //   const email = error.customData.email;
-  //   // The AuthCredential type that was used.
-  //   const credential = GoogleAuthProvider.credentialFromError(error);
-  //   // ...
-  // });
-};
+
