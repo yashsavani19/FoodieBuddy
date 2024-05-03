@@ -25,10 +25,6 @@ import { AntDesign } from "@expo/vector-icons";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
-const fave_unselected = require("@/assets/images/fave-icon.png");
-const fave_selected = require("@/assets/images/fave-Selected.png");
-const bookmark_unselected = require("@/assets/images/bookmark-icon.png");
-const bookmard_selected = require("@/assets/images/bookmark-Selected.png");
 const visited_selected = require("@/assets/images/visited-Selected.png");
 const visited_unselected = require("@/assets/images/visited-unselected-icon.png");
 const star_icon = require("@/assets/images/star-icon.png");
@@ -41,12 +37,15 @@ const price_icon = require("@/assets/images/price-tag.png");
 // Props interface for the component
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
-  backFunction: () => void;
 }
 
+/**
+ * DetailsViewComponents component that displays the details of a restaurant.
+ * @param param0 - The props for the component.
+ * @returns - The DetailsViewComponents component.
+ */
 const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   restaurant,
-  backFunction,
 }) => {
   // Destructuring for ease of use
   const {
@@ -80,8 +79,10 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   const faveScale = useState(new Animated.Value(1))[0];
   const visitedScale = useState(new Animated.Value(1))[0];
 
+  // Navigation hook
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  // Function to animate the icon when pressed
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
       Animated.timing(scale, {
@@ -97,6 +98,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     ]).start();
   };
 
+  // UseEffect to check if the restaurant is bookmarked
   useEffect(() => {
     if (bookmarkedRestaurants) {
       for (let i = 0; i < bookmarkedRestaurants.length; i++) {
@@ -113,6 +115,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   }, [bookmarkedRestaurants]);
 
+  // UseEffect to check if the restaurant is favourited
   useEffect(() => {
     if (favouriteRestaurants) {
       for (let i = 0; i < favouriteRestaurants.length; i++) {
@@ -127,6 +130,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   }, [favouriteRestaurants]);
 
+  // UseEffect to check if the restaurant is visited
   useEffect(() => {
     if (visitedRestaurants) {
       for (let i = 0; i < visitedRestaurants.length; i++) {
@@ -196,6 +200,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     navigation.navigate("Map", { geometry: restaurant.geometry });
   };
 
+  // Function to handle the website press
   const handleWebsitePress = (websiteUrl: string) => {
     if (websiteUrl) {
       // Open the restaurant's website in the device's browser
@@ -207,6 +212,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   };
 
+  // Return the JSX for the component
   return (
     <View style={styles.container}>
       <TitleHeader title="Details" />
@@ -214,12 +220,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       <View style={styles.contentContainer}>
         {/* Image Title Container */}
         <View>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
-          <View style={styles.headerContent}>
-            <AntDesign name="arrowleft" size={24} color="white" />
-            <Text style={styles.title}>Back</Text>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.header}
+          >
+            <View style={styles.headerContent}>
+              <AntDesign name="arrowleft" size={24} color="white" />
+              <Text style={styles.title}>Back</Text>
+            </View>
+          </TouchableOpacity>
         </View>
         <ScrollView>
           <View style={styles.imageTitleIconContainer}>
@@ -577,7 +586,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     flex: 1, // added for title alignment
     textAlign: "center", // align the title
-    color: 'white'
+    color: "white",
   },
 });
 

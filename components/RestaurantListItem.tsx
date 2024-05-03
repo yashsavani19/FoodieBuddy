@@ -12,6 +12,12 @@ import { AppContext } from "@/context/AppContext";
 type RestaurantListItemProps = {
   restaurant: Restaurant;
 };
+
+/**
+ * Restaurant list item component that displays restaurant information in Home list
+ * @param param0 - restaurant object
+ * @returns - Restaurant list item component
+ */
 export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
   // Retrieve context for user-related data
   const { visitedRestaurants } = useContext(AppContext);
@@ -223,7 +229,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
     padding: 10,
-    //borderRadius: 10,
   },
   textContainer: {
     flexDirection: "row",

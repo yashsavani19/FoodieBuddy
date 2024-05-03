@@ -17,7 +17,7 @@ export interface MessageProps {
 }
 
 /**
- * Message component for chat
+ * Message component for chat messages
  * @param param0 Message props
  * @returns Message component
  */
@@ -31,15 +31,7 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
           style={styles.image}
         />
         <View testID="loading-view" style={styles.receivedTextBox}>
-          {/* <Text style={styles.text}>...</Text> */}
-          {/* <View style={[styles.loading]}></View>
-          <View style={[styles.loading, {width: 12, height: 12, borderRadius: 12}]}></View>
-          <View style={[styles.loading]}></View> */}
-          <ActivityIndicator
-            style={{ margin: 5 }}
-            size="small"
-            color="white"
-          />
+          <ActivityIndicator style={{ margin: 5 }} size="small" color="white" />
         </View>
       </View>
     );

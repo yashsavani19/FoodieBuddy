@@ -11,6 +11,7 @@ import {
   TextInputKeyPressEventData,
 } from "react-native";
 
+// Define the props for the SearchBar component
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
   color: string;
@@ -18,22 +19,31 @@ function TabBarIcon(props: {
   return <FontAwesome size={18} style={{ marginRight: 12 }} {...props} />;
 }
 
+// Define the props for the SearchBar component
 interface SearchBarProps {
   onSearchSubmit: (searchTerm: string) => void;
 }
 
+/**
+ * SearchBar component that displays the search bar
+ * @param param0 - onSearchSubmit
+ * @returns - SearchBar component
+ */
 const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
   const { searchTerm, setSearchTerm } = useContext(AppContext);
 
+  // Function to handle search submit
   const handleSearchSubmit = () => {
     onSearchSubmit(searchTerm);
   };
 
+  // Function to handle search clear
   const handleSearchClear = () => {
     setSearchTerm("");
     onSearchSubmit("");
   };
 
+  // Function to handle key press
   const handleKeyPress = (event: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
     if (event.nativeEvent.key === "Enter") {
       handleSearchSubmit();
@@ -43,6 +53,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchSubmit }) => {
   return (
     <View style={styles.container}>
       <View style={{ flex: 1, flexDirection: "row" }}>
+        {/* Search input */}
         <TextInput
           style={styles.input}
           placeholder="Search..."
