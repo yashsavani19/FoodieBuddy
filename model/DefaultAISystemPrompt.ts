@@ -22,8 +22,5 @@ export function DefaultAISystemPrompt(
     )
     .join(", ");
   const stringPreferences = "undefined";
-  // const stringPreferences = preferenceList.preferences
-  //   .map((preference) => `${preference.preferenceId}`)
-  //   .join(", ");
   return `${NAME}${PRE_LIST}${stringRestaurants}${POST_LIST}${stringPreferences}${POST_PREFERENCES}`;
 }
