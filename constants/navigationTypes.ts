@@ -11,6 +11,9 @@ export type RootStackParamList = {
   }; };
   ChatView: undefined;
   DetailsView: { Restaurant: Restaurant };
+  FavoriteSpotsView: undefined;
+  BookmarkedSpotsView: undefined;
+  VisitedSpotsView: undefined;
 };
 
 export type MapRouteParams = {
