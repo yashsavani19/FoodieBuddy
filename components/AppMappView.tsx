@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Linking,
-  ActivityIndicator,
-} from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 import MapView, {
   Marker,
   Callout,
@@ -20,8 +14,6 @@ import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
 import { AppContext } from "../context/AppContext";
 import images from "@/assets/data/images";
-import { Category } from "@/model/Category";
-import Colors from "@/constants/Colors";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import { useNavigation } from "expo-router";
 import { RootStackParamList } from "@/constants/navigationTypes";
@@ -38,7 +30,11 @@ interface AppMappViewProps {
   };
 }
 
-// Define the AppMapView component
+/**
+ * AppMapView component that displays a map with markers for nearby restaurants.
+ * @param param0 - The props for the component.
+ * @returns The AppMapView component.
+ */
 export default function AppMappView({ geometry }: AppMappViewProps) {
   const { location, filteredRestaurants } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
@@ -47,7 +43,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  
+
   // Return nothing if no location is available
   if (!location) return null;
 
@@ -81,17 +77,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
     }
   }, [geometry, mapReady, filteredRestaurants]);
 
-  const handleCalloutPress = (websiteUrl: string) => {
-    if (websiteUrl) {
-      // Open the restaurant's website in the device's browser
-      Linking.openURL(websiteUrl);
-      // Log a message to the console
-      console.log(`Opening website: ${websiteUrl}`);
-    } else {
-      console.log("No website URL provided.");
-    }
-  };
-
   // Render the component
   return (
     location &&
@@ -118,7 +103,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
               latitude: location.latitude,
               longitude: location.longitude,
             }}
-            radius={200}
+            radius={1050}
             fillColor="rgba(173, 216, 230, 0.2)"
             strokeColor="rgba(173, 216, 230, 0.2)"
             strokeWidth={2}
@@ -144,21 +129,30 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
             >
               <RestaurantMarker
                 rating={restaurant.rating ?? "N/A"}
-                price={restaurant.price ?? "N/A"} 
+                price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
               {/*Information on Restaurant*/}
-              <Callout onPress={() => {
-                if (selectedMarkerId !== null) {
-                  navigation.navigate("DetailsView", { Restaurant: filteredRestaurants[selectedMarkerId] });
-                }}}>
+              <Callout
+                onPress={() => {
+                  if (selectedMarkerId !== null) {
+                    navigation.navigate("DetailsView", {
+                      Restaurant: filteredRestaurants[selectedMarkerId],
+                    });
+                  }
+                }}
+              >
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     {restaurant.rating !== undefined && (
                       <StarRating rating={restaurant.rating} />
                     )}
-                    <Text>  {restaurant.price && displayPriceLevel(parseInt(restaurant.price))}</Text>
+                    <Text>
+                      {" "}
+                      {restaurant.price &&
+                        displayPriceLevel(parseInt(restaurant.price))}
+                    </Text>
                   </View>
                   <Text>Distance: {formatDistance(restaurant.distance)}</Text>
                   <WebView

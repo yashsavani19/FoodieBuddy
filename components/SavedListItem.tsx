@@ -7,25 +7,24 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { View } from "react-native";
-import { Restaurant } from "@/model/Restaurant";
-import {
-  removeBookmark,
-  removeFavourite,
-  removeVisited,
-} from "@/controller/DatabaseHandler";
 import { Saved } from "@/model/Saved";
 import { AppContext } from "@/context/AppContext";
 import { useContext } from "react";
 import { useNavigation } from "expo-router";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import RestaurantListItem from "./RestaurantListItem";
 
+// Define the props for the SavedListItem component
 interface SavedListItemProps {
   item: Saved;
   listType: "visited" | "favourite" | "bookmarked";
 }
 
+/**
+ * SavedListItem component that displays the saved item
+ * @param param0 - item, listType
+ * @returns - SavedListItem component
+ */
 const SavedListItem: React.FC<SavedListItemProps> = ({ item, listType }) => {
   const {
     removeFavouriteContext,

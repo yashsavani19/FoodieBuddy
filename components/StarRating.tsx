@@ -2,10 +2,16 @@ import React from 'react';
 import { View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+// 
 interface StarRatingProps {
   rating: number;  
 }
 
+/**
+ * StarRating component to show number of stars based on rating
+ * @param param0 - rating
+ * @returns - StarRating component
+ */
 const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
   const fullStars = Math.floor(rating);
   const fractionalPart = rating % 1;

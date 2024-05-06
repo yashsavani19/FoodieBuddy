@@ -4,12 +4,10 @@ import {
   TextInput,
   StyleSheet,
   FlatList,
-  Button,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  ScrollView,
   TouchableWithoutFeedback,
 } from "react-native";
 import Message, { MessageProps } from "./Message";
@@ -22,7 +20,8 @@ import { Restaurant } from "@/model/Restaurant";
 import RestaurantListItem from "./RestaurantListItem";
 
 /**
- *  Chat component for user to interact with Buddy
+ *  Chat component for user to interact with Buddy.
+ * User can send messages to Buddy and receive responses from AI.
  * @returns Chat component with messages, input text box, and send button
  */
 const Chat: React.FC = () => {
@@ -64,6 +63,7 @@ const Chat: React.FC = () => {
     return null;
   }
 
+  // Scroll to end of messages when new message is added
   useEffect(() => {
     setTimeout(() => {
       if (flatListRef.current) {
@@ -72,6 +72,7 @@ const Chat: React.FC = () => {
     }, 100);
   }, [messages]);
 
+  // Scroll to end of messages when keyboard is shown
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
       "keyboardDidShow",

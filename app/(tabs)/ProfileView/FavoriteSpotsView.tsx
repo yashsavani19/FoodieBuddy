@@ -14,20 +14,21 @@ import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
 
 const FavouriteSpotsView: React.FC = () => {
+
+  // Get favourite restaurants from context
   const { favouriteRestaurants } = useContext(AppContext);
-  const favouriteList = favouriteRestaurants.map((item) => item.restaurant);
-  const navigation = useNavigation();
 
+  // Get navigation object
+  const navigation = useNavigation(); 
+
+  // Render each saved item
   const renderItem = ({ item }: { item: Saved }) => (
-    <SavedListItem item={item} listType="favourite" />
+    <SavedListItem item={item} listType="favourite" /> 
   );
-
-  // useEffect(() => {
-  //   favouriteList = favouriteRestaurants.map((item) => item.restaurant);
-  // } , [favouriteRestaurants]);
 
   return (
     <View style={styles.container}>
+      {/* Display title header */}
       <TitleHeader title="Favorites"/>
       <View style={styles.content}>
         {/* Back Button and Title */}
@@ -37,12 +38,13 @@ const FavouriteSpotsView: React.FC = () => {
             <Text style={styles.title}>Back</Text>
           </View>
         </TouchableOpacity>
-        {/* List of Favourite Restaurants */}
+        {/* Display message if no favourite restaurants */}
         {favouriteRestaurants.length === 0 && (
           <View style={styles.noRestaurants}>
             <Text style={styles.titleText}>No favourite spots</Text>
           </View>
         )}
+        {/* FlatList to display favourite restaurants */}
         <View style={styles.listContainer}>
           <FlatList
             data={favouriteRestaurants}
@@ -65,17 +67,17 @@ const styles = StyleSheet.create({
     marginTop: 120,
   },
   header: {
-    height: 40, // Adjust the height
-    backgroundColor: "black", // Change background color
+    height: 40, 
+    backgroundColor: "black", 
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   headerContent: {
-    height: 40, // Adjust the height
+    height: 40, 
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10, // Add padding for spacing
+    paddingHorizontal: 10, 
   },
   backButton: {
     paddingHorizontal: 10,
@@ -83,8 +85,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    flex: 1, // added for title alignment
-    textAlign: "center", // align the title
+    flex: 1, 
+    textAlign: "center", 
     color: 'white'
   },
   itemContainer: {

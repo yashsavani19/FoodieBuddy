@@ -14,30 +14,40 @@ import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
 
 const VisitedSpotsView: React.FC = () => {
+  // Access visitedRestaurants from AppContext using useContext hook
   const { visitedRestaurants } = useContext(AppContext);
+
+  // Use useNavigation hook to access navigation object
   const navigation = useNavigation();
+
+  // Function to render each item in the FlatList
   const renderItem = ({ item }: { item: Saved }) => (
     <SavedListItem item={item} listType="visited" />
   );
 
   return (
     <View style={styles.container}>
+      {/* Title Header */}
       <TitleHeader title="Visited" />
       <View style={styles.content}>
-
-       {/* Back Button and Title */}
-       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
+        {/* Back Button and Title */}
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.header}
+        >
           <View style={styles.headerContent}>
             <AntDesign name="arrowleft" size={24} color="white" />
             <Text style={styles.title}>Back</Text>
           </View>
         </TouchableOpacity>
         {/* List of Visited Restaurants */}
+        {/* Rendered only if there are no visited spots */}
         {visitedRestaurants.length === 0 && (
           <View style={styles.noRestaurants}>
             <Text style={styles.titleText}>No visited spots</Text>
           </View>
         )}
+        {/* FlatList to display visited restaurants */}
         <FlatList
           data={visitedRestaurants}
           keyExtractor={(item) => item.restaurant.id.toString()}
@@ -58,17 +68,17 @@ const styles = StyleSheet.create({
     marginTop: 120,
   },
   header: {
-    height: 40, // Adjust the height
-    backgroundColor: "black", // Change background color
+    height: 40,
+    backgroundColor: "black",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   headerContent: {
-    height: 40, // Adjust the height
+    height: 40,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10, // Add padding for spacing
+    paddingHorizontal: 10,
   },
   backButton: {
     paddingHorizontal: 10,
@@ -76,9 +86,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    flex: 1, // added for title alignment
-    textAlign: "center", // align the title
-    color: 'white'
+    flex: 1, 
+    textAlign: "center", 
+    color: "white",
   },
   itemContainer: {
     flexDirection: "row",

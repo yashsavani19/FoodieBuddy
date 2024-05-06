@@ -1,10 +1,18 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Image, GestureResponderEvent } from 'react-native';
+import React from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  GestureResponderEvent,
+} from "react-native";
 import TitleHeader from "@/components/TitleHeader";
-import { AntDesign, MaterialIcons, FontAwesome } from '@expo/vector-icons';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { useAuth } from '@/context/AuthContext';
-import { RootStackParamList } from '@/constants/navigationTypes';
+import { AntDesign } from "@expo/vector-icons";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { useAuth } from "@/context/AuthContext";
+import { RootStackParamList } from "@/constants/navigationTypes";
 
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
@@ -13,64 +21,77 @@ export default function UserProfileView() {
 
   function navigateToFavouriteSpots(event: GestureResponderEvent): void {
     // Assuming 'navigation' is already defined using the useNavigation hook
-    navigation.navigate('FavoriteSpotsView');
+    navigation.navigate("FavoriteSpotsView");
   }
 
   function navigateToBookmarkedSpots(event: GestureResponderEvent): void {
     // Assuming 'navigation' is already defined using the useNavigation hook
-    navigation.navigate('BookmarkedSpotsView');
+    navigation.navigate("BookmarkedSpotsView");
   }
-  
+
   function navigateToVisitedSpots(event: GestureResponderEvent): void {
     // Assuming 'navigation' is already defined using the useNavigation hook
-    navigation.navigate('VisitedSpotsView');
+    navigation.navigate("VisitedSpotsView");
   }
 
   return (
     <View style={styles.container}>
+      {/* Title Header */}
       <TitleHeader title="Profile" />
+      {/* ScrollView for scrollable content */}
       <ScrollView style={styles.scrollView}>
-      <View style={styles.profileSection}>
+        {/* Profile Section */}
+        <View style={styles.profileSection}>
+          {/* User Icon */}
           <View style={styles.iconWrapper}>
             <Image
-              source={require("@/assets/images/user-icon.png")} // Correct image path
+              source={require("@/assets/images/user-icon.png")}
               style={styles.profilePicture}
             />
           </View>
+          {/* User Display Name */}
           <Text style={styles.username}>{user?.displayName || ""}</Text>
+          {/* Account Actions (e.g., Logout) */}
           <View style={styles.accountActions}>
-            {/* <TouchableOpacity
-              // onPress={{}}
-              style={styles.editButton}
-            >
-              <Text style={{ fontSize: 20 }}>Edit Account</Text>
-            </TouchableOpacity> */}
+            {/* Logout Button */}
             <TouchableOpacity onPress={signOut}>
               <Text style={{ fontSize: 20 }}>Logout</Text>
             </TouchableOpacity>
           </View>
         </View>
-
+        {/* Menu Items Section */}
         <View style={styles.menuItemsSection}>
-          <TouchableOpacity onPress={navigateToFavouriteSpots} style={styles.menuItem}>
+          {/* Favorite Spots Button */}
+          <TouchableOpacity
+            onPress={navigateToFavouriteSpots}
+            style={styles.menuItem}
+          >
             <Image
-              source={require("@/assets/images/fave-Selected.png")} // Correct image path
+              source={require("@/assets/images/fave-Selected.png")}
               style={styles.savedIcons}
             />
             <Text style={styles.menuItemText}>Favorite Spots</Text>
             <AntDesign name="right" style={styles.rightArrow} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={navigateToBookmarkedSpots} style={styles.menuItem}>
+          {/* Bookmarked Spots Button */}
+          <TouchableOpacity
+            onPress={navigateToBookmarkedSpots}
+            style={styles.menuItem}
+          >
             <Image
-              source={require("@/assets/images/bookmark-Selected.png")} // Correct image path
+              source={require("@/assets/images/bookmark-Selected.png")}
               style={styles.savedIcons}
             />
             <Text style={styles.menuItemText}>Bookmarked Spots</Text>
             <AntDesign name="right" style={styles.rightArrow} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={navigateToVisitedSpots} style={styles.menuItem}>
+          {/* Visited Spots Button */}
+          <TouchableOpacity
+            onPress={navigateToVisitedSpots}
+            style={styles.menuItem}
+          >
             <Image
-              source={require("@/assets/images/visited-Selected.png")} // Correct image path
+              source={require("@/assets/images/visited-Selected.png")}
               style={styles.savedIcons}
             />
             <Text style={styles.menuItemText}>Visited Spots</Text>
@@ -81,7 +102,6 @@ export default function UserProfileView() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   rightArrow: {

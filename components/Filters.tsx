@@ -12,16 +12,16 @@ import { Picker } from "@react-native-picker/picker";
 import { Filter } from "@/model/Filter";
 import { filterOptions } from "@/assets/data/filters";
 
-interface FilterOption {
-  label: string;
-  value: string;
-  onFilterSelect?: (filter: Filter) => void;
-}
-
+// Define the props for the Filters component
 interface FiltersProps {
   onFilterSelect: (filter: Filter[]) => void;
 }
 
+/**
+ *  Filters component that allows the user to select a filter
+ * @param param0 - onFilterSelect function to handle the selected filter
+ * @returns - Filters component
+ */
 const Filters: React.FC<FiltersProps> = ({ onFilterSelect }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<Filter[]>([]);

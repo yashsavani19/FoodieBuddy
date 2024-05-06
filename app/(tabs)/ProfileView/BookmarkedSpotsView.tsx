@@ -13,6 +13,7 @@ import SavedListItem from "@/components/SavedListItem";
 import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
 
+// BookmarkedSpotsView component
 const BookmarkedSpotsView: React.FC = () => {
   const { bookmarkedRestaurants } = useContext(AppContext);
   const navigation = useNavigation();
@@ -23,25 +24,26 @@ const BookmarkedSpotsView: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Title Header */}
-      <TitleHeader title="Bookmark" />
+      <TitleHeader title="Bookmark" /> {/* Display title header */}
       <View style={styles.content}>
-
         {/* Back Button and Title */}
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.header}
+        >
           <View style={styles.headerContent}>
             <AntDesign name="arrowleft" size={24} color="white" />
             <Text style={styles.title}>Back</Text>
           </View>
         </TouchableOpacity>
-        
-        {/* List of Bookmarked Restaurants */}
+
+        {/* Display message if no restaurants bookmarked */}
         {bookmarkedRestaurants.length === 0 && (
           <View style={styles.noRestaurants}>
             <Text style={styles.titleText}>No Bookmarked spots</Text>
           </View>
         )}
-        
-        {/* FlatList Container */}
+        {/* FlatList to display bookmarked restaurants */}
         <View style={styles.listContainer}>
           <FlatList
             data={bookmarkedRestaurants}
@@ -61,30 +63,29 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 120, // Adjust according to the height of the TitleHeader
+    marginTop: 120,
   },
   header: {
-    height: 40, // Adjust the height
-    backgroundColor: "black", // Change background color
+    height: 40,
+    backgroundColor: "black",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   headerContent: {
-    height: 40, // Adjust the height
+    height: 40,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10, // Add padding for spacing
+    paddingHorizontal: 10,
   },
   backButton: {
     paddingHorizontal: 10,
-
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    flex: 1, // added for title alignment
-    textAlign: "center", // align the title
+    flex: 1,
+    textAlign: "center",
     color: "white",
   },
   itemContainer: {

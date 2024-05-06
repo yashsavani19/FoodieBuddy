@@ -5,54 +5,36 @@ import {
   SafeAreaView,
   Image,
   TouchableOpacity,
-  Pressable,
   ScrollView,
 } from "react-native";
-import {
-  handleLogin,
-  handleRegister,
-  handleResetPassword,
-} from "@/controller/FirebaseHandler";
 import { Platform } from "react-native";
 
 import React, { useState } from "react";
-
-const buddyLogo = require("@/assets/images/title-logo.png");
-
-import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { Link } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 
+// Import the image for the logo
+const buddyLogo = require("@/assets/images/title-logo.png");
+
+// Define the LoginView component
 export default function LoginView() {
+  
+  // State variables to store email and password entered by the user
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // Retrieve the signIn function from the AuthContext
   const { signIn } = useAuth();
 
   return (
     <View style={styles.container}>
-      {/* Main Logo */}
-      {/*  */}
-      {/* Main Inner Container that displays all the content*/}
+      {/* Scrollable container */}
       <ScrollView>
+        {/* Application logo */}
         <Image source={buddyLogo} style={styles.logo} />
         <SafeAreaView style={styles.innerContainer}>
-          {/*  */}
-          {/* Google Login */}
-          {/* <TouchableOpacity style={styles.googleLoginContainer}>
-          <Image
-            source={require("@/assets/images/google-icon.png")}
-            style={styles.inputLogo}
-          />
-          <Text
-            style={styles.googleText}
-            // onPress={}
-          >
-            Login With Google
-          </Text>
-        </TouchableOpacity> */}
-          {/*  */}
-          {/* Input Fields */}
+          {/* Email input */}
           <View style={styles.inputContainer}>
             <Image
               source={require("@/assets/images/mail-logo.png")}
@@ -66,6 +48,7 @@ export default function LoginView() {
               keyboardType="email-address"
               onChangeText={setEmail}
             />
+            {/* Password input */}
           </View>
           <View style={styles.inputContainer}>
             <Image
@@ -81,7 +64,6 @@ export default function LoginView() {
               onChangeText={setPassword}
             />
           </View>
-          {/*  */}
           {/* Login Button */}
           <View style={styles.loginButton}>
             <Button
@@ -91,16 +73,11 @@ export default function LoginView() {
                 signIn(email, password);
               }}
             />
-            <TouchableOpacity
-            // onPress={handleImageButtonPress}
-            ></TouchableOpacity>
           </View>
-          {/*  */}
-          {/* Forgot Password */}
+          {/* Forgot Password Link */}
           <Link href={"/ResetPasswordView"}>
             <Text style={styles.clickableText}> Forgot Password?</Text>
           </Link>
-          {/*  */}
           {/* Create Account Button*/}
           <View style={styles.createAccountContainer}>
             <Text style={styles.textStyle}>Don't Have an Account yet?</Text>

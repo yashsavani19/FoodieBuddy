@@ -1,11 +1,10 @@
 import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
 export default function SaveListView() {
   return (
     <View style={styles.container}>
+      {/* Title of the view */}
       <Text style={styles.title}>Save List View</Text>
     </View>
   );
