@@ -15,9 +15,8 @@ import StarRating from "./StarRating";
 import { AppContext } from "../context/AppContext";
 import images from "@/assets/data/images";
 import { formatDistance } from "@/app/Utils/FormatDistance";
-import { useNavigation } from "expo-router";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import { NavigationProp } from "@react-navigation/native";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 
 // Define the props for the AppMapView component
@@ -112,7 +111,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           {/* Render markers for each nearby restaurant */}
           {filteredRestaurants.map((restaurant, index) => (
             <Marker
-              testID="Marker"
               key={`${index}`}
               ref={(ref) => (markerRefs.current[index] = ref)}
               coordinate={{
@@ -207,3 +205,4 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
 });
+
