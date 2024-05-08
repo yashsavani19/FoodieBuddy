@@ -23,6 +23,7 @@ import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
+import ShareButton from "./ShareButton";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -213,34 +214,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   };
 
-  //Function to share the restaurant details
-  const onShare = async () => {
-    let message = `Check out ${name} at ${displayAddress}!`;
-    if (website) {
-      message += ` Website: ${website}`;
-    }
-    try {
-      const result = await Share.share({
-        message: message,
-        title: name,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-          console.log("Shared with activity type: " + result.activityType);
-        } else {
-          // shared
-          console.log("Shared");
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-        console.log("Dismissed");
-      }
-    } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
   // Return the JSX for the component
   return (
     <View style={styles.container}>
@@ -317,9 +290,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 </Pressable>
               </View>
               <View style={styles.iconContainer}>
-                <Pressable onPress={onShare}>
-                  <Ionicons name="share-outline" size={24} />
-                </Pressable>
+                <ShareButton restaurant={restaurant} size={24} />
               </View>
             </View>
           </View>
