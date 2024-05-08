@@ -7,6 +7,7 @@ import {
   Pressable,
   Linking,
   ScrollView,
+  Share,
 } from "react-native";
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
@@ -21,7 +22,7 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -212,6 +213,34 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   };
 
+  //Function to share the restaurant details
+  const onShare = async () => {
+    let message = `Check out ${name} at ${displayAddress}!`;
+    if (website) {
+      message += ` Website: ${website}`;
+    }
+    try {
+      const result = await Share.share({
+        message: message,
+        title: name,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+          console.log("Shared with activity type: " + result.activityType);
+        } else {
+          // shared
+          console.log("Shared");
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+        console.log("Dismissed");
+      }
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
   // Return the JSX for the component
   return (
     <View style={styles.container}>
@@ -231,14 +260,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
           </TouchableOpacity>
         </View>
         <ScrollView>
-          <View style={styles.imageTitleIconContainer}>
-            {/* <ScrollView style={{flex:1}}> */}
-            <Text style={styles.restaurantTitle}>{name}</Text>
-            <View style={styles.imageContainer}>
-              <Image
-                source={image ? { uri: image } : default_pic}
-                style={styles.restaurantImage}
-              />
+          <View>
+            <View style={{ alignItems: "center" }}>
+              <Text style={styles.restaurantTitle}>{name}</Text>
+              <View style={styles.imageContainer}>
+                <Image
+                  source={image ? { uri: image } : default_pic}
+                  style={styles.restaurantImage}
+                />
+              </View>
             </View>
             {/* Interaction Buttons */}
             <View style={styles.interactionContainer}>
@@ -271,19 +301,26 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                   />
                 </Pressable>
               </View>
-              <Pressable onPress={handleBookmarkPress}>
-                <Animated.Image
-                  source={{
-                    uri: isBookmarkPressed
-                      ? images.bookmarkSelectedIcon
-                      : images.bookmarkIcon,
-                  }}
-                  style={[
-                    styles.smallIcon,
-                    { transform: [{ scale: bookmarkScale }] },
-                  ]}
-                />
-              </Pressable>
+              <View style={styles.iconContainer}>
+                <Pressable onPress={handleBookmarkPress}>
+                  <Animated.Image
+                    source={{
+                      uri: isBookmarkPressed
+                        ? images.bookmarkSelectedIcon
+                        : images.bookmarkIcon,
+                    }}
+                    style={[
+                      styles.smallIcon,
+                      { transform: [{ scale: bookmarkScale }] },
+                    ]}
+                  />
+                </Pressable>
+              </View>
+              <View style={styles.iconContainer}>
+                <Pressable onPress={onShare}>
+                  <Ionicons name="share-outline" size={24} />
+                </Pressable>
+              </View>
             </View>
           </View>
 
@@ -417,10 +454,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   iconContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    width: 100,
-    height: "100%",
   },
   smallIcon: {
     width: 20,
@@ -429,10 +463,10 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   imageTitleIconContainer: {
-    width: "100%",
-    height: "auto",
-    justifyContent: "center",
-    alignItems: "center",
+    // width: "100%",
+    // height: "auto",
+    // justifyContent: "center",
+    // alignItems: "center",
   },
 
   imageContainer: {
@@ -444,6 +478,7 @@ const styles = StyleSheet.create({
   interactionContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-around",
     marginVertical: 8,
   },
   restaurantDetailsContainer: {
