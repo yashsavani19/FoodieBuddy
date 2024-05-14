@@ -26,28 +26,18 @@ export default function TabLayout() {
     <Stack>
       {/* Define navigation screens */}
       {/* Each screen has header hidden */}
-      <Stack.Screen
-        name="UserProfileView"
-        options={{ headerShown: false }}
-      />{" "}
+      <Stack.Screen name="UserProfileView" options={{ headerShown: false }} />
       {/* UserProfileView screen */}
-      <Stack.Screen name="SaveListView" options={{ headerShown: false }} />{" "}
-      {/* SaveListView screen */}
-      <Stack.Screen
-        name="FavoriteSpotsView"
-        options={{ headerShown: false }}
-      />{" "}
+      <Stack.Screen name="FavoriteSpotsView" options={{ headerShown: false }} />
       {/* FavoriteSpotsView screen */}
       <Stack.Screen
         name="BookmarkedSpotsView"
         options={{ headerShown: false }}
-      />{" "}
+      />
       {/* BookmarkedSpotsView screen */}
-      <Stack.Screen
-        name="VisitedSpotsView"
-        options={{ headerShown: false }}
-      />{" "}
+      <Stack.Screen name="VisitedSpotsView" options={{ headerShown: false }} />
       {/* VisitedSpotsView screen */}
+      <Stack.Screen name="EditAccountView" options={{ headerShown: false }} />
     </Stack>
   );
 }

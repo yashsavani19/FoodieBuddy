@@ -44,7 +44,7 @@ export function AuthProvider(props: ProviderProps) {
   const useProtectedRoute = (user: Auth.User | null) => {
     const segments = useSegments();
     const router = useRouter();
-    
+
     const [isNavigationReady, setIsNavigationReady] = useState(false);
     const rootNavigation = useNavigationContainerRef();
 
@@ -116,7 +116,6 @@ export function AuthProvider(props: ProviderProps) {
       await login(email, password);
       const currentUser = Auth.getAuth().currentUser;
       setAuthUser(currentUser);
-
     } catch (error: any) {
       handleAuthError(error);
     } finally {
@@ -251,6 +250,44 @@ export function AuthProvider(props: ProviderProps) {
     </AuthContext.Provider>
   );
 }
+
+export const changeUsername = async (newUsername: string): Promise<void> => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      await Auth.updateProfile(user, { displayName: newUsername });
+    }
+  } catch (error) {
+    console.error("Error updating username: ", error);
+  }
+};
+
+export const changeEmail = async (newEmail: string): Promise<void> => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      await Auth.updateEmail(user, newEmail);
+    }
+  } catch (error) {
+    const authError = error as Auth.AuthError;
+    console.error("Error updating email: ", error);
+    switch (authError.code) {
+      //Special error cases being thrown by firebase
+      case "auth/email-already-in-use":
+        alert(`Email address already in use.`);
+        break;
+      case "auth/invalid-email":
+        alert(`Email address is invalid.`);
+        break;
+      case "auth/operation-not-allowed":
+        alert("Error during update: Operation not allowed.");
+        break;
+      default:
+        alert(`Update failed: ${authError.message}`);
+        break;
+    }
+  }
+};
 
 export const useAuth = () => {
   const authContext = useContext(AuthContext);

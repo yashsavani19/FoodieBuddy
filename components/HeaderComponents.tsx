@@ -84,8 +84,10 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     textAlignVertical: "center",
-    margin: "auto",
-    paddingHorizontal: "17%",
+    marginLeft: "auto",
+    // paddingHorizontal: "17%",
+    marginRight: 20,
+    textAlign: "center",
   },
   input: {
     flex: 1,

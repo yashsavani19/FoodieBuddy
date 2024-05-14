@@ -12,6 +12,7 @@ import { AppContext } from "@/context/AppContext";
 import SavedListItem from "@/components/SavedListItem";
 import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
+import BackButton from "@/components/BackButton";
 
 // BookmarkedSpotsView component
 const BookmarkedSpotsView: React.FC = () => {
@@ -24,26 +25,14 @@ const BookmarkedSpotsView: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Title Header */}
-      <TitleHeader title="Bookmark" /> {/* Display title header */}
+      <TitleHeader title="Bookmarks" />
       <View style={styles.content}>
-        {/* Back Button and Title */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.header}
-        >
-          <View style={styles.headerContent}>
-            <AntDesign name="arrowleft" size={24} color="white" />
-            <Text style={styles.title}>Back</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Display message if no restaurants bookmarked */}
+        <BackButton />
         {bookmarkedRestaurants.length === 0 && (
           <View style={styles.noRestaurants}>
             <Text style={styles.titleText}>No Bookmarked spots</Text>
           </View>
         )}
-        {/* FlatList to display bookmarked restaurants */}
         <View style={styles.listContainer}>
           <FlatList
             data={bookmarkedRestaurants}
