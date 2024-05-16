@@ -269,8 +269,7 @@ export const changeEmail = async (newEmail: string): Promise<void> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
-      await Auth.updateEmail(user, newEmail);
-      await Auth.sendEmailVerification(user);
+      await Auth.verifyBeforeUpdateEmail(user, newEmail);
     }
   } catch (error) {
     const authError = error as Auth.AuthError;
@@ -291,6 +290,9 @@ export const changeEmail = async (newEmail: string): Promise<void> => {
         break;
     }
   }
+  alert(
+    "Email updated successfully, please verify your email address and login again for changes to take effect."
+  );
 };
 
 export const useAuth = () => {

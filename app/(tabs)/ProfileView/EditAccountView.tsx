@@ -88,15 +88,6 @@ const EditAccountView: React.FC = () => {
       <View style={styles.content}>
         <BackButton />
         <View style={{ marginTop: 30, marginVertical: 10 }}>
-          {user?.emailVerified ? (
-            <Text style={{ textAlign: "center", color: "green" }}>
-              Email verified
-            </Text>
-          ) : (
-            <Text style={{ textAlign: "center", color: "red" }}>
-              Email not verified
-            </Text>
-          )}
           <TitleButton
             title={"Update Username"}
             onEdit={handleEditUsername}
