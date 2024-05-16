@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import MapView, {
-  Marker,
-  Callout,
-  Circle,
-  PROVIDER_GOOGLE,
-  MapMarker,
-} from "react-native-maps";
-
+import { StyleSheet, View, Text, Button, TouchableOpacity, Modal, ScrollView } from "react-native";
+import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE, MapMarker, Polyline } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
@@ -18,8 +11,10 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
+import MapViewDirections from "react-native-maps-directions";
+import { GOOGLE_API_KEY } from "@env";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// Define the props for the AppMapView component
 interface AppMappViewProps {
   geometry?: {
     location: {
@@ -29,11 +24,6 @@ interface AppMappViewProps {
   };
 }
 
-/**
- * AppMapView component that displays a map with markers for nearby restaurants.
- * @param param0 - The props for the component.
- * @returns The AppMapView component.
- */
 export default function AppMappView({ geometry }: AppMappViewProps) {
   const { location, filteredRestaurants } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
@@ -42,11 +32,20 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [directions, setDirections] = useState<{
+    origin: { latitude: number; longitude: number };
+    destination: { latitude: number; longitude: number };
+  } | null>(null);
+  const [directionsSummary, setDirectionsSummary] = useState<{
+    distance: string;
+    duration: string;
+    steps: Array<{ instruction: string; distance: string }>;
+  } | null>(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [mode, setMode] = useState<"WALKING" | "DRIVING">("WALKING");
 
-  // Return nothing if no location is available
   if (!location) return null;
 
-  // Effect to animate map to selected restaurant's location
   useEffect(() => {
     if (geometry && mapRef.current) {
       mapRef.current.animateToRegion(
@@ -61,7 +60,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
     }
   }, [geometry, mapReady]);
 
-  // Effect to show callout for selected restaurant
   useEffect(() => {
     if (geometry) {
       const markerIndex = filteredRestaurants.findIndex(
@@ -76,10 +74,22 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
     }
   }, [geometry, mapReady, filteredRestaurants]);
 
-  // Render the component
+  const getDirectionIcon = (instruction: string) => {
+    if (instruction.toLowerCase().includes("turn left")) {
+      return "arrow-left-bold";
+    } else if (instruction.toLowerCase().includes("turn right")) {
+      return "arrow-right-bold";
+    } else {
+      return "map-marker";
+    }
+  };
+
+  const toggleMode = () => {
+    setMode((prevMode) => (prevMode === "WALKING" ? "DRIVING" : "WALKING"));
+  };
+
   return (
-    location &&
-    location.latitude && (
+    location && location.latitude && (
       <View style={styles.container}>
         <MapView
           style={styles.map}
@@ -96,7 +106,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           ref={mapRef}
           onMapReady={() => setMapReady(true)}
         >
-          {/* Blue transparent circle around the user's current location */}
           <Circle
             center={{
               latitude: location.latitude,
@@ -107,8 +116,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
             strokeColor="rgba(173, 216, 230, 0.2)"
             strokeWidth={2}
           />
-
-          {/* Render markers for each nearby restaurant */}
           {filteredRestaurants.map((restaurant, index) => (
             <Marker
               key={`${index}`}
@@ -121,6 +128,16 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 if (selectedMarkerId === index) {
                   setSelectedMarkerId(null);
                 } else {
+                  setDirections({
+                    origin: {
+                      latitude: location.latitude,
+                      longitude: location.longitude,
+                    },
+                    destination: {
+                      latitude: restaurant.geometry.location.lat,
+                      longitude: restaurant.geometry.location.lng,
+                    },
+                  });
                   setSelectedMarkerId(index);
                 }
               }}
@@ -130,16 +147,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
-              {/*Information on Restaurant*/}
-              <Callout
-                onPress={() => {
-                  if (selectedMarkerId !== null) {
-                    navigation.navigate("DetailsView", {
-                      Restaurant: filteredRestaurants[selectedMarkerId],
-                    });
-                  }
-                }}
-              >
+              <Callout tooltip={false}>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -157,7 +165,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                     style={styles.webViewStyle}
                     source={{
                       html: `
-                        <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center"">
+                      <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center"">
                           <img src="${
                             restaurant.image != null
                               ? restaurant.image
@@ -174,35 +182,232 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
               </Callout>
             </Marker>
           ))}
+          {directions && (
+            <MapViewDirections
+              origin={directions.origin}
+              destination={directions.destination}
+              apikey={GOOGLE_API_KEY}
+              mode={mode}
+              strokeWidth={3}
+              strokeColor="#e46860"
+              onReady={(result) => {
+                const steps = result.legs[0].steps.map((step) => {
+                  const instruction = step.html_instructions
+                    .replace(/<[^>]+>/g, "")
+                    .replace(/(?<=\w)(?=[A-Z])/g, " ");
+                  let distanceText = step.distance.text;
+                  if (distanceText.includes("mi")) {
+                    distanceText = (
+                      parseFloat(distanceText) * 1609.34
+                    ).toFixed(0) + " m";
+                  } else if (distanceText.includes("ft")) {
+                    distanceText = (
+                      parseFloat(distanceText) * 0.3048
+                    ).toFixed(0) + " m";
+                  }
+                  return { instruction, distance: distanceText };
+                });
+                setDirectionsSummary({
+                  distance: result.distance.toFixed(1) + " km",
+                  duration: result.duration.toFixed(0) + " min",
+                  steps,
+                });
+                setModalVisible(true);
+              }}
+              onError={(errorMessage) => {
+                console.log("Error in MapViewDirections:", errorMessage);
+              }}
+            />
+          )}
         </MapView>
+        <TouchableOpacity
+          style={styles.directionsButton}
+          onPress={() => setModalVisible(true)}
+        >
+          <Icon name="directions" size={20} color="#fff" />
+          <Text style={styles.directionsButtonText}>Show Directions</Text>
+        </TouchableOpacity>
+        <Modal
+          visible={isModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity
+                style={styles.modeToggleWrapper}
+                onPress={toggleMode}
+              >
+                <View style={styles.modeToggleContainer}>
+                  <Icon
+                    name="walk"
+                    size={30}
+                    color={mode === "WALKING" ? "#e46860" : "#fff"}
+                  />
+                  <Icon
+                    name="car"
+                    size={30}
+                    color={mode === "DRIVING" ? "#e46860" : "#fff"}
+                  />
+                  <Text style={styles.modeToggleText}>
+                    {mode === "WALKING" ? "Walking Directions" : "Driving Directions"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+              <Text style={styles.directionsSummaryText}>
+                Distance: {directionsSummary?.distance} | 
+                Duration: {directionsSummary?.duration}
+              </Text>
+              <ScrollView style={styles.directionsList}>
+                {directionsSummary?.steps.map((step, index) => (
+                  <View key={index} style={styles.stepContainer}>
+                    <Icon
+                      name={getDirectionIcon(step.instruction)}
+                      size={20}
+                      color="#555"
+                      style={styles.stepIcon}
+                    />
+                    <View style={styles.stepInstructionContainer}>
+                      <Text style={styles.stepInstruction}>
+                        {step.instruction}
+                      </Text>
+                      <Text style={styles.stepDistance}>
+                        ({step.distance})
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     )
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  map: { width: "100%", height: "100%" },
+  container: {
+    flex: 1,
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
   calloutContainer: {
-    width: 200,
-    padding: 4,
+    width: 250,
+    height: 250,
   },
   name: {
     fontWeight: "bold",
+    fontSize: 16,
+    marginBottom: 5,
   },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 5,
+  directionsButton: {
+    position: "absolute",
+    bottom: 18,
+    left: "73%",
+    transform: [{ translateX: -50 }],
+    backgroundColor: "black",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  directionsButtonText: {
+    color: "#fff",
+    marginLeft: 10,
+    fontWeight: "bold",
+  },
+  modeToggleWrapper: {
+    width: "100%",
+    backgroundColor: "#000",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  modeToggleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  modeToggleText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+    marginLeft: 10,
   },
   webViewStyle: {
-    height: 100,
-    width: 190,
+    width: 250,
+    height: 150,
+    marginBottom: 5,
   },
-  descText: {
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  directionsSummaryText: {
+    fontSize: 16,
+    marginVertical: 0,
+    paddingBottom: 5,
+    alignContent: "space-between",
     fontWeight: "bold",
-    textAlign: "left",
-    paddingLeft: 10,
+  },
+  directionsList: {
+    width: "100%",
+    height: 200,
+  },
+  stepContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  stepIcon: {
+    marginRight: 10,
+  },
+  stepInstructionContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    flexShrink: 1,
+  },
+  stepInstruction: {
+    fontSize: 14,
+    color: "#555",
+    flexShrink: 1,
+    flexWrap: 'wrap',
+    maxWidth: '90%',
+  },
+  stepDistance: {
+    fontSize: 14,
+    color: "#555",
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: "#000",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    width: "100%"
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    alignSelf: "center",
   },
 });
-
