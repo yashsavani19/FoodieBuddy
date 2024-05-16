@@ -1,47 +1,66 @@
-import { View, Text, TextInput, StyleSheet } from "react-native";
-import React from "react";
-import { AntDesign } from "@expo/vector-icons";
+import { View, TextInput, StyleSheet, Animated } from "react-native";
+import React, { useEffect, useRef } from "react";
 
+// Define the props for the EditTextField component
 interface EditTextFieldProps {
   title?: string;
+  placeholder?: string;
+  isSecure?: boolean;
+  isVisible: boolean;
   onSubmit?: (text: string) => void;
 }
 
-const EditTextField: React.FC<EditTextFieldProps> = ({ title, onSubmit }) => {
+/**
+ * Editable text field for the EditAccountView
+ * @param param0 Props for the EditTextField component
+ * @returns Editable text field
+ */
+const EditTextField: React.FC<EditTextFieldProps> = ({
+  title,
+  placeholder,
+  isSecure,
+  isVisible,
+  onSubmit,
+}) => {
   const [editMode, setEditMode] = React.useState(false);
   const [text, setText] = React.useState(title || "");
+
+  const translateY = useRef(new Animated.Value(-8)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    setText(title || "");
+  }, [title]);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: isVisible ? 1 : 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: isVisible ? 0 : -8,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isVisible]);
+
   return (
     <View style={styles.container}>
-      <TextInput
-        value={text}
-        onChangeText={setText}
-        editable={editMode}
-        selectTextOnFocus={true}
-        style={styles.input}
-        placeholder={text}
-      />
-      <View style={styles.buttonContainer}>
-        {editMode ? (
-          <AntDesign
-            name="check"
-            size={24}
-            color="black"
-            onPress={() => {
-              if (onSubmit) onSubmit(text || "");
-              setEditMode(false);
-            }}
-          />
-        ) : (
-          <AntDesign
-            name="edit"
-            size={24}
-            color="black"
-            onPress={() => {
-              setEditMode(true);
-            }}
+      <Animated.View style={{ opacity, transform: [{ translateY }] }}>
+        {isVisible && (
+          <TextInput
+            value={text}
+            secureTextEntry={isSecure}
+            onChangeText={onSubmit}
+            selectTextOnFocus={true}
+            style={styles.input}
+            placeholder={placeholder}
           />
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -49,22 +68,12 @@ const EditTextField: React.FC<EditTextFieldProps> = ({ title, onSubmit }) => {
 export default EditTextField;
 
 const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
+  container: {},
   input: {
-    flex: 1,
     height: 40,
     margin: 12,
     borderWidth: 1,
     padding: 10,
     borderRadius: 5,
-  },
-  buttonContainer: {
-    justifyContent: "center",
-    alignContent: "center",
-    marginRight: 10,
   },
 });

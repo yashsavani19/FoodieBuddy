@@ -205,6 +205,9 @@ export function AuthProvider(props: ProviderProps) {
   ): Promise<void> => {
     await Auth.createUserWithEmailAndPassword(auth, email, password);
     const currentAuth = Auth.getAuth();
+    if (currentAuth.currentUser !== null) {
+      await Auth.sendEmailVerification(currentAuth.currentUser);
+    }
     await addUser(Auth.getAuth().currentUser?.uid || "", email, username);
     if (currentAuth.currentUser === null) {
       alert("Error registering user");
@@ -267,6 +270,7 @@ export const changeEmail = async (newEmail: string): Promise<void> => {
     const user = Auth.getAuth().currentUser;
     if (user) {
       await Auth.updateEmail(user, newEmail);
+      await Auth.sendEmailVerification(user);
     }
   } catch (error) {
     const authError = error as Auth.AuthError;
