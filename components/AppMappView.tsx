@@ -210,7 +210,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
-              <Callout tooltip={false}>
+              <Callout>
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -228,7 +228,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                     style={styles.webViewStyle}
                     source={{
                       html: `
-                      <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center"">
+                      <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center">
                           <img src="${
                             restaurant.image != null
                               ? restaurant.image
@@ -273,7 +273,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                   duration: result.duration.toFixed(0) + " min",
                   steps,
                 });
-                setModalVisible(true);
               }}
               onError={(errorMessage) => {
                 console.log("Error in MapViewDirections:", errorMessage);
@@ -281,13 +280,15 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
             />
           )}
         </MapView>
-        <TouchableOpacity
-          style={styles.directionsButton}
-          onPress={() => setModalVisible(true)}
-        >
-          <MaterialCommunityIcons name="directions" size={25} color="#5A5A5A" />
-          {/* <Text style={styles.directionsButtonText}>Directions</Text> */}
-        </TouchableOpacity>
+        {selectedMarkerId !== null && (
+          <TouchableOpacity
+            style={styles.directionsButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <MaterialCommunityIcons name="directions" size={25} color="#5A5A5A" />
+            {/* <Text style={styles.directionsButtonText}>Directions</Text> */}
+          </TouchableOpacity>
+        )}
         <Modal
           visible={isModalVisible}
           animationType="slide"
@@ -370,8 +371,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   calloutContainer: {
-    width: 250,
-    height: 250,
+    width: 200,
+    height: 200,
   },
   name: {
     fontWeight: "bold",
@@ -423,8 +424,8 @@ const styles = StyleSheet.create({
     left: 18
   },
   webViewStyle: {
-    width: 250,
-    height: 150,
+    width: 200,
+    height: 100,
     marginBottom: 5,
   },
   modalContainer: {
