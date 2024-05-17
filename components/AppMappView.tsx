@@ -43,7 +43,10 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   const { location, filteredRestaurants } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
-  const handleMapPress = () => setSelectedMarkerId(null);
+  const handleMapPress = () => {
+    setSelectedMarkerId(null);
+    setDirections(null);
+  };
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
