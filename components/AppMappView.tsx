@@ -286,7 +286,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           onPress={() => setModalVisible(true)}
         >
           <MaterialCommunityIcons name="directions" size={20} color="#fff" />
-          <Text style={styles.directionsButtonText}>Show Directions</Text>
+          <Text style={styles.directionsButtonText}>Directions</Text>
         </TouchableOpacity>
         <Modal
           visible={isModalVisible}
@@ -328,8 +328,8 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                     <View style={styles.stepContainer}>
                       <MaterialIcons
                         name={getDirectionIcon(step.instruction)}
-                        size={20}
-                        color="#555"
+                        size={25}
+                        color="black"
                         style={styles.stepIcon}
                       />
                       <View style={styles.stepInstructionContainer}>
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   directionsButton: {
     position: "absolute",
     bottom: 18,
-    left: "73%",
+    left: "83%",
     transform: [{ translateX: -50 }],
     backgroundColor: "black",
     paddingVertical: 10,
