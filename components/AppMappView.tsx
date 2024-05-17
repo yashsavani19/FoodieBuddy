@@ -1,6 +1,20 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { StyleSheet, View, Text, Button, TouchableOpacity, Modal, ScrollView } from "react-native";
-import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE, MapMarker, Polyline } from "react-native-maps";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+} from "react-native";
+import MapView, {
+  Marker,
+  Callout,
+  Circle,
+  PROVIDER_GOOGLE,
+  MapMarker,
+  Polyline,
+} from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./../components/RestaurantMarker";
 import { WebView } from "react-native-webview";
@@ -13,7 +27,8 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_API_KEY } from "@env";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface AppMappViewProps {
   geometry?: {
@@ -75,12 +90,59 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   }, [geometry, mapReady, filteredRestaurants]);
 
   const getDirectionIcon = (instruction: string) => {
-    if (instruction.toLowerCase().includes("turn left")) {
-      return "arrow-left-bold";
-    } else if (instruction.toLowerCase().includes("turn right")) {
-      return "arrow-right-bold";
-    } else {
-      return "map-marker";
+    switch (true) {
+      case instruction.toLowerCase().includes("turn left"):
+        return "turn-left";
+      case instruction.toLowerCase().includes("turn right"):
+        return "turn-right";
+      case instruction.toLowerCase().includes("fork left"):
+        return "fork-left";
+      case instruction.toLowerCase().includes("fork right"):
+        return "fork-right";
+      case instruction.toLowerCase().includes("continue straight"):
+        return "straight";
+      case instruction.toLowerCase().includes("take exit"):
+        return "exit-to-app";
+      case instruction.toLowerCase().includes("merge"):
+        return "merge";
+      case instruction.toLowerCase().includes("u-turn left"):
+        return "u-turn-left";
+      case instruction.toLowerCase().includes("u-turn right"):
+        return "u-turn-right";
+      case instruction.toLowerCase().includes("north"):
+        return "north";
+      case instruction.toLowerCase().includes("north east"):
+        return "north-east";
+      case instruction.toLowerCase().includes("north west"):
+        return "north-west";
+      case instruction.toLowerCase().includes("south"):
+        return "south";
+      case instruction.toLowerCase().includes("south east"):
+        return "south-east";
+      case instruction.toLowerCase().includes("south west"):
+        return "south-west";
+      case instruction.toLowerCase().includes("east"):
+        return "east";
+      case instruction.toLowerCase().includes("west"):
+        return "west";
+      case instruction.toLowerCase().includes("slight right"):
+        return "turn-slight-right";
+      case instruction.toLowerCase().includes("slight left"):
+        return "turn-slight-left";
+      case instruction.toLowerCase().includes("sharp right"):
+        return "turn-sharp-right";
+      case instruction.toLowerCase().includes("sharp left"):
+        return "turn-sharp-left";
+      case instruction.toLowerCase().includes("ramp left"):
+        return "ramp-left";
+      case instruction.toLowerCase().includes("ramp right"):
+        return "ramp-right";
+      case instruction.toLowerCase().includes("roundabout left"):
+        return "roundabout-left";
+      case instruction.toLowerCase().includes("roundabout right"):
+        return "roundabout-right";
+      default:
+        return "place";
     }
   };
 
@@ -89,7 +151,8 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   };
 
   return (
-    location && location.latitude && (
+    location &&
+    location.latitude && (
       <View style={styles.container}>
         <MapView
           style={styles.map}
@@ -197,13 +260,11 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                     .replace(/(?<=\w)(?=[A-Z])/g, " ");
                   let distanceText = step.distance.text;
                   if (distanceText.includes("mi")) {
-                    distanceText = (
-                      parseFloat(distanceText) * 1609.34
-                    ).toFixed(0) + " m";
+                    distanceText =
+                      (parseFloat(distanceText) * 1609.34).toFixed(0) + " m";
                   } else if (distanceText.includes("ft")) {
-                    distanceText = (
-                      parseFloat(distanceText) * 0.3048
-                    ).toFixed(0) + " m";
+                    distanceText =
+                      (parseFloat(distanceText) * 0.3048).toFixed(0) + " m";
                   }
                   return { instruction, distance: distanceText };
                 });
@@ -224,7 +285,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           style={styles.directionsButton}
           onPress={() => setModalVisible(true)}
         >
-          <Icon name="directions" size={20} color="#fff" />
+          <MaterialCommunityIcons name="directions" size={20} color="#fff" />
           <Text style={styles.directionsButtonText}>Show Directions</Text>
         </TouchableOpacity>
         <Modal
@@ -240,42 +301,50 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 onPress={toggleMode}
               >
                 <View style={styles.modeToggleContainer}>
-                  <Icon
+                  <MaterialCommunityIcons
                     name="walk"
-                    size={30}
+                    size={25}
                     color={mode === "WALKING" ? "#e46860" : "#fff"}
                   />
-                  <Icon
+                  <MaterialCommunityIcons
                     name="car"
                     size={30}
                     color={mode === "DRIVING" ? "#e46860" : "#fff"}
                   />
                   <Text style={styles.modeToggleText}>
-                    {mode === "WALKING" ? "Walking Directions" : "Driving Directions"}
+                    {mode === "WALKING"
+                      ? "Walking Directions"
+                      : "Driving Directions"}
                   </Text>
                 </View>
               </TouchableOpacity>
               <Text style={styles.directionsSummaryText}>
-                Distance: {directionsSummary?.distance} | 
-                Duration: {directionsSummary?.duration}
+                Distance: {directionsSummary?.distance} | Duration:{" "}
+                {directionsSummary?.duration}
               </Text>
               <ScrollView style={styles.directionsList}>
                 {directionsSummary?.steps.map((step, index) => (
-                  <View key={index} style={styles.stepContainer}>
-                    <Icon
-                      name={getDirectionIcon(step.instruction)}
-                      size={20}
-                      color="#555"
-                      style={styles.stepIcon}
-                    />
-                    <View style={styles.stepInstructionContainer}>
-                      <Text style={styles.stepInstruction}>
-                        {step.instruction}
-                      </Text>
-                      <Text style={styles.stepDistance}>
-                        ({step.distance})
-                      </Text>
+                  <View key={index}>
+                    <View style={styles.stepContainer}>
+                      <MaterialIcons
+                        name={getDirectionIcon(step.instruction)}
+                        size={20}
+                        color="#555"
+                        style={styles.stepIcon}
+                      />
+                      <View style={styles.stepInstructionContainer}>
+                        <Text style={styles.stepInstruction}>
+                          {step.instruction}
+                        </Text>
+                        <Text style={styles.stepDistance}>
+                          {" "}
+                           ({step.distance})
+                        </Text>
+                      </View>
                     </View>
+                    {index < directionsSummary.steps.length - 1 && (
+                      <View style={styles.divider} />
+                    )}
                   </View>
                 ))}
               </ScrollView>
@@ -365,9 +434,10 @@ const styles = StyleSheet.create({
   directionsSummaryText: {
     fontSize: 16,
     marginVertical: 0,
-    paddingBottom: 5,
+    paddingBottom: 2,
     alignContent: "space-between",
     fontWeight: "bold",
+    marginBottom: 10,
   },
   directionsList: {
     width: "100%",
@@ -376,7 +446,8 @@ const styles = StyleSheet.create({
   stepContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 5,
+    marginTop: 5
   },
   stepIcon: {
     marginRight: 10,
@@ -390,12 +461,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#555",
     flexShrink: 1,
-    flexWrap: 'wrap',
-    maxWidth: '90%',
+    flexWrap: "wrap",
+    maxWidth: "90%",
   },
   stepDistance: {
     fontSize: 14,
     color: "#555",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#e0e0e0",
+    marginVertical: 3,
   },
   closeButton: {
     marginTop: 20,
@@ -403,7 +479,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-    width: "100%"
+    width: "100%",
   },
   closeButtonText: {
     color: "#fff",
