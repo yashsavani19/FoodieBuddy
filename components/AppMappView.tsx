@@ -99,7 +99,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
         return "fork-left";
       case instruction.toLowerCase().includes("fork right"):
         return "fork-right";
-      case instruction.toLowerCase().includes("continue straight"):
+      case instruction.toLowerCase().includes("continue"):
         return "straight";
       case instruction.toLowerCase().includes("take exit"):
         return "exit-to-app";
@@ -285,8 +285,8 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           style={styles.directionsButton}
           onPress={() => setModalVisible(true)}
         >
-          <MaterialCommunityIcons name="directions" size={20} color="#fff" />
-          <Text style={styles.directionsButtonText}>Directions</Text>
+          <MaterialCommunityIcons name="directions" size={25} color="#5A5A5A" />
+          {/* <Text style={styles.directionsButtonText}>Directions</Text> */}
         </TouchableOpacity>
         <Modal
           visible={isModalVisible}
@@ -380,16 +380,24 @@ const styles = StyleSheet.create({
   },
   directionsButton: {
     position: "absolute",
-    bottom: 18,
-    left: "83%",
+    top: 60,
+    left: "100%",
     transform: [{ translateX: -50 }],
-    backgroundColor: "black",
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.7)", // semi-transparent white background
+    paddingVertical: 6,
+    paddingHorizontal: 6,
+    borderRadius: 4,
     flexDirection: "row",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.2)", // light border
+    shadowColor: "#000", // shadow settings
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
+  
   directionsButtonText: {
     color: "#fff",
     marginLeft: 10,
@@ -412,6 +420,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     marginLeft: 10,
+    left: 18
   },
   webViewStyle: {
     width: 250,
@@ -484,6 +493,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 16,
     alignSelf: "center",
   },
 });
