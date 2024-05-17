@@ -13,6 +13,9 @@ import { changeEmail, changeUsername, useAuth } from "@/context/AuthContext";
 import BackButton from "@/components/BackButton";
 import TitleButton from "@/components/EditAccountComponents/TitleButton";
 import EditTextField from "@/components/EditAccountComponents/EditTextField";
+import BaseModal from "@/components/modals/BaseModal";
+import BaseButton from "@/components/modals/BaseButton";
+import { updateEmail } from "firebase/auth";
 
 const EditAccountView: React.FC = () => {
   const { userObject } = useContext(AppContext);
@@ -25,6 +28,7 @@ const EditAccountView: React.FC = () => {
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
+  const [viewModal, setViewModal] = React.useState(false);
 
   const handleUpdateUsername = () => {
     if (newUsername === "") return;
@@ -37,7 +41,22 @@ const EditAccountView: React.FC = () => {
     if (newEmail === "") return;
     if (newEmail === user?.email) return;
     console.log(`New email: ${newEmail}`);
+
+    setViewModal(true);
     changeEmail(newEmail);
+  };
+
+  const handleUpdatePassword = () => {
+    if (oldPassword === "" || newPassword === "" || confirmPassword === "") {
+      alert("Please fill out all fields");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+    console.log(`Old password: ${oldPassword}`);
+    console.log(`New password: ${newPassword}`);
   };
 
   const handleEditUsername = (newMode: boolean) => {
@@ -50,7 +69,7 @@ const EditAccountView: React.FC = () => {
       setNewPassword("");
       setConfirmPassword("");
     } else {
-      // setNewUsername(user?.displayName || "");
+      setNewUsername(user?.displayName || "");
     }
   };
 
@@ -58,7 +77,7 @@ const EditAccountView: React.FC = () => {
     setShowEmail(newMode);
     if (newMode) {
       setShowUsername(false);
-      // setNewUsername(user?.displayName || "");
+      setNewUsername(user?.displayName || "");
       setShowPassword(false);
       setOldPassword("");
       setNewPassword("");
@@ -72,7 +91,7 @@ const EditAccountView: React.FC = () => {
     setShowPassword(newMode);
     if (newMode) {
       setShowUsername(false);
-      // setNewUsername(user?.displayName || "");
+      setNewUsername(user?.displayName || "");
       setShowEmail(false);
       setNewEmail(user?.email || "");
     } else {
@@ -89,34 +108,39 @@ const EditAccountView: React.FC = () => {
         <BackButton />
         <View style={{ marginTop: 30, marginVertical: 10 }}>
           <TitleButton
-            title={"Update Username"}
+            title={"Change Username"}
             onEdit={handleEditUsername}
-            onPress={handleUpdateUsername}
+            onPress={() => setShowUsername(false)}
             mode={showUsername}
           />
           <EditTextField
             title={newUsername || ""}
             isVisible={showUsername}
+            enableButton={user?.displayName !== newUsername}
             onSubmit={setNewUsername}
+            onUpdatePress={handleUpdateUsername}
           />
         </View>
         <View style={{ marginVertical: 10 }}>
           <TitleButton
-            title={"Update Email Address"}
+            title={"Change Email Address"}
             onEdit={handleEditEmail}
-            onPress={handleUpdateEmail}
+            onPress={() => setShowEmail(false)}
             mode={showEmail}
           />
           <EditTextField
             title={newEmail || ""}
             isVisible={showEmail}
+            enableButton={user?.email !== newEmail}
             onSubmit={setNewEmail}
+            onUpdatePress={handleUpdateEmail}
           />
         </View>
         <View style={{ marginVertical: 10 }}>
           <TitleButton
             title={"Change Password"}
             onEdit={handleEditPassword}
+            onPress={() => setShowPassword(false)}
             mode={showPassword}
           />
           <View>
@@ -145,17 +169,47 @@ const EditAccountView: React.FC = () => {
                 onSubmit={setConfirmPassword}
                 placeholder="Confirm new password"
                 isSecure={true}
+                enableButton={
+                  oldPassword !== "" &&
+                  newPassword !== "" &&
+                  confirmPassword !== ""
+                }
+                onUpdatePress={handleUpdatePassword}
               />
             </View>
           </View>
         </View>
         <View style={{ margin: 20 }}>
-          <Button title={"Delete account placeholder"} />
+          <Button
+            title={"Delete account placeholder"}
+            onPress={() => {
+              setViewModal(true);
+            }}
+          />
         </View>
       </View>
+      <BaseModal
+        title={"Verify New Email Address"}
+        bodyText={"A verification email has been sent to your new email address. Please verify your email address to complete the change."}
+        visible={viewModal}
+        onClose={() => {
+          setViewModal(false);
+        }}
+        buttons={[button1]}
+      />
     </View>
   );
 };
+
+const button1 = (
+  <BaseButton
+    title={"I Promise"}
+    onPress={() => {
+      console.log("I promise I'll verify my email");
+    }}
+    buttonColour={"#3464ac"}
+  />
+);
 
 export default EditAccountView;
 

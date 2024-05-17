@@ -57,7 +57,7 @@ const TitleButton: React.FC<TitleButtonProps> = ({
                 if (onPress) onPress();
               }}
             >
-              <AntDesign name="check" size={24} color="#f26722" />
+              <AntDesign name="close" size={24} color="#f26722" />
             </TouchableOpacity>
           )}
         </View>
