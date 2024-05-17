@@ -13,23 +13,19 @@ import MapView, {
   Circle,
   PROVIDER_GOOGLE,
   MapMarker,
-  Polyline,
 } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./../components/RestaurantMarker";
-import { WebView } from "react-native-webview";
-import StarRating from "./StarRating";
 import { AppContext } from "../context/AppContext";
-import images from "@/assets/data/images";
-import { formatDistance } from "@/app/Utils/FormatDistance";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_API_KEY } from "@env";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getDirectionIcon } from "@/app/Utils/directionIcons";
+import CustomCallout from "./../components/CustomCallout";
+
 interface AppMappViewProps {
   geometry?: {
     location: {
@@ -105,6 +101,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           provider={PROVIDER_GOOGLE}
           showsUserLocation={true}
           customMapStyle={MapViewStyle}
+          showsCompass={true} 
           region={{
             latitude: location.latitude,
             longitude: location.longitude,
@@ -156,38 +153,12 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
-              <Callout>
-                <View style={styles.calloutContainer}>
-                  <Text style={styles.name}>{restaurant.name}</Text>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    {restaurant.rating !== undefined && (
-                      <StarRating rating={restaurant.rating} />
-                    )}
-                    <Text>
-                      {" "}
-                      {restaurant.price &&
-                        displayPriceLevel(parseInt(restaurant.price))}
-                    </Text>
-                  </View>
-                  <Text>Distance: {formatDistance(restaurant.distance)}</Text>
-                  <WebView
-                    style={styles.webViewStyle}
-                    source={{
-                      html: `
-                      <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center">
-                          <img src="${
-                            restaurant.image != null
-                              ? restaurant.image
-                              : images.defaultRestaurantImage
-                          }" style="width: 100%; object-fit: cover;"/>
-                        </div>
-                      `,
-                    }}
-                    automaticallyAdjustContentInsets={true}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                  />
-                </View>
+              <Callout tooltip>
+                <CustomCallout
+                  name={restaurant.name}
+                  rating={restaurant.rating}
+                  image={restaurant.image}
+                />
               </Callout>
             </Marker>
           ))}
@@ -232,7 +203,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
             onPress={() => setModalVisible(true)}
           >
             <MaterialCommunityIcons name="directions" size={25} color="#5A5A5A" />
-            {/* <Text style={styles.directionsButtonText}>Directions</Text> */}
           </TouchableOpacity>
         )}
         <Modal
@@ -316,10 +286,6 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  calloutContainer: {
-    width: 200,
-    height: 200,
-  },
   name: {
     fontWeight: "bold",
     fontSize: 16,
@@ -330,21 +296,20 @@ const styles = StyleSheet.create({
     top: 60,
     left: "100%",
     transform: [{ translateX: -50 }],
-    backgroundColor: "rgba(255, 255, 255, 0.7)", // semi-transparent white background
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
     paddingVertical: 6,
     paddingHorizontal: 6,
     borderRadius: 4,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.2)", // light border
-    shadowColor: "#000", // shadow settings
+    borderColor: "rgba(0, 0, 0, 0.2)",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
   },
-  
   directionsButtonText: {
     color: "#fff",
     marginLeft: 10,
@@ -367,12 +332,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     marginLeft: 10,
-    left: 18
+    left: 18,
   },
   webViewStyle: {
-    width: 200,
-    height: 100,
-    marginBottom: 5,
+    width: 230,
+    height: 120,
+    borderRadius: 10,
+    overflow: "hidden",
   },
   modalContainer: {
     flex: 1,
@@ -403,7 +369,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 5,
-    marginTop: 5
+    marginTop: 5,
   },
   stepIcon: {
     marginRight: 10,

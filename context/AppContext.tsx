@@ -504,3 +504,5 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>
   );
 };
+
+export { Restaurant };
