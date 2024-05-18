@@ -12,6 +12,7 @@ import { AppContext } from "@/context/AppContext";
 import SavedListItem from "@/components/SavedListItem";
 import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
+import BackButton from "@/components/BackButton";
 
 const FavouriteSpotsView: React.FC = () => {
 
@@ -32,12 +33,7 @@ const FavouriteSpotsView: React.FC = () => {
       <TitleHeader title="Favorites"/>
       <View style={styles.content}>
         {/* Back Button and Title */}
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
-          <View style={styles.headerContent}>
-            <AntDesign name="arrowleft" size={24} color="white" />
-            <Text style={styles.title}>Back</Text>
-          </View>
-        </TouchableOpacity>
+        <BackButton />
         {/* Display message if no favourite restaurants */}
         {favouriteRestaurants.length === 0 && (
           <View style={styles.noRestaurants}>

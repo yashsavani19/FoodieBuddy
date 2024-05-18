@@ -14,6 +14,7 @@ export type RootStackParamList = {
   FavoriteSpotsView: undefined;
   BookmarkedSpotsView: undefined;
   VisitedSpotsView: undefined;
+  EditAccountView: undefined;
 };
 
 export type MapRouteParams = {

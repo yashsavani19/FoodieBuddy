@@ -303,3 +303,69 @@ export const fetchUser = async (uid: string) => {
     alert("Internal error fetching user. Please try again later.");
   }
 };
+
+/**
+ * Checks usernames collection for existing username
+ */
+export const checkUsername = async (username: string): Promise<boolean> => {
+  try {
+    const usernameDocRef = doc(db, "usernames", username);
+    const docSnapshot = await getDoc(usernameDocRef);
+    return docSnapshot.exists();
+  } catch (e) {
+    console.error("Error getting document: ", e);
+    alert("Internal error checking username. Please try again later.");
+  }
+  return false;
+};
+
+/**
+ * Adds username and ID to username collection
+ */
+export const addUsername = async (
+  username: string,
+  uid: string
+): Promise<boolean> => {
+  try {
+    const result = await checkUsername(username);
+
+    if (result) {
+      alert("Username already exists. Please choose a different one.");
+      return false;
+    }
+
+    await setDoc(doc(db, "usernames", username), {
+      uid: uid,
+    });
+    return true;
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding username. Please try again later.");
+  }
+  return false;
+};
+
+/**
+ * Deletes username based on UID and creates updated username in username collection
+ */
+export const updateUsername = async (
+  username: string,
+  uid: string
+): Promise<boolean> => {
+  try {
+    const usernameCollection = `usernames`;
+    const currentUsername = auth.currentUser?.displayName;
+    if (currentUsername) {
+      const result = await addUsername(username, uid);
+      console.log("updateUsername result: ", result);
+      if (result) {
+        await deleteDoc(doc(db, usernameCollection, currentUsername));
+        return true;
+      }
+    }
+  } catch (e) {
+    console.error("Error updating document: ", e);
+    alert("Internal error updating username. Please try again later.");
+  }
+  return false;
+};

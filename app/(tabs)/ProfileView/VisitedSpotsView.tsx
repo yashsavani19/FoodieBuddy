@@ -12,6 +12,7 @@ import { AppContext } from "@/context/AppContext";
 import SavedListItem from "@/components/SavedListItem";
 import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
+import BackButton from "@/components/BackButton";
 
 const VisitedSpotsView: React.FC = () => {
   // Access visitedRestaurants from AppContext using useContext hook
@@ -31,16 +32,7 @@ const VisitedSpotsView: React.FC = () => {
       <TitleHeader title="Visited" />
       <View style={styles.content}>
         {/* Back Button and Title */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.header}
-        >
-          <View style={styles.headerContent}>
-            <AntDesign name="arrowleft" size={24} color="white" />
-            <Text style={styles.title}>Back</Text>
-          </View>
-        </TouchableOpacity>
-        {/* List of Visited Restaurants */}
+        <BackButton />
         {/* Rendered only if there are no visited spots */}
         {visitedRestaurants.length === 0 && (
           <View style={styles.noRestaurants}>
