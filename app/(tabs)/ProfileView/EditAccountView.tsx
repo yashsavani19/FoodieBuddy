@@ -72,8 +72,8 @@ const EditAccountView: React.FC = () => {
 
     const authenticated = await reSignIn(oldPassword);
     if (authenticated) {
-      changeEmail(newEmail);
-      setEmailViewModal(true);
+      const result = await changeEmail(newEmail);
+      if (result) setEmailViewModal(true);
     }
   };
 
@@ -276,7 +276,9 @@ const EditAccountView: React.FC = () => {
             }}
             style={styles.deleteButton}
           >
-            <Text style={{ color: "white", textAlign: "center", fontWeight:"600" }}>
+            <Text
+              style={{ color: "white", textAlign: "center", fontWeight: "600" }}
+            >
               Delete Account
             </Text>
           </TouchableOpacity>

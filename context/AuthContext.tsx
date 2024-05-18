@@ -266,7 +266,17 @@ export const reSignIn = async (password: string): Promise<boolean> => {
       return true;
     }
   } catch (error) {
-    console.error("Error reauthenticating: ", error);
+    const authError = error as Auth.AuthError;
+    switch (authError.code) {
+      //Special error cases being thrown by firebase
+      case "auth/invalid-credential":
+        alert("Wrong password.");
+        break;
+      default:
+        alert(`Reauth failed: ${authError.message}`);
+        break;
+    }
+    return false;
   }
   return false;
 };
@@ -283,12 +293,13 @@ export const changeUsername = async (newUsername: string): Promise<void> => {
   }
 };
 
-export const changeEmail = async (newEmail: string): Promise<void> => {
+export const changeEmail = async (newEmail: string): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
       await Auth.verifyBeforeUpdateEmail(user, newEmail);
     }
+    return true;
   } catch (error) {
     const authError = error as Auth.AuthError;
     console.error("Error updating email: ", error);
@@ -307,6 +318,7 @@ export const changeEmail = async (newEmail: string): Promise<void> => {
         alert(`Update failed: ${authError.message}`);
         break;
     }
+    return false;
   }
   // alert(
   //   "Email updated successfully, please verify your email address and login again for changes to take effect."
