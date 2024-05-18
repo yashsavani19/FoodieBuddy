@@ -22,6 +22,7 @@ import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import { AntDesign } from "@expo/vector-icons";
+import BackButton from "./BackButton";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -220,15 +221,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
       <View style={styles.contentContainer}>
         {/* Image Title Container */}
         <View>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.header}
-          >
-            <View style={styles.headerContent}>
-              <AntDesign name="arrowleft" size={24} color="white" />
-              <Text style={styles.title}>Back</Text>
-            </View>
-          </TouchableOpacity>
+          <BackButton />
         </View>
         <ScrollView>
           <View style={styles.imageTitleIconContainer}>

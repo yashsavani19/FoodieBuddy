@@ -34,6 +34,11 @@ export default function UserProfileView() {
     navigation.navigate("VisitedSpotsView");
   }
 
+  function editAccount(event: GestureResponderEvent): void {
+    // Assuming 'navigation' is already defined using the useNavigation hook
+    navigation.navigate("EditAccountView");
+  }
+
   return (
     <View style={styles.container}>
       {/* Title Header */}
@@ -53,9 +58,13 @@ export default function UserProfileView() {
           <Text style={styles.username}>{user?.displayName || ""}</Text>
           {/* Account Actions (e.g., Logout) */}
           <View style={styles.accountActions}>
+            {/* Edit Account Button */}
+            <TouchableOpacity onPress={editAccount}>
+              <Text style={styles.editButton}>Edit Account</Text>
+            </TouchableOpacity>
             {/* Logout Button */}
             <TouchableOpacity onPress={signOut}>
-              <Text style={{ fontSize: 20 }}>Logout</Text>
+              <Text style={styles.editButton}>Logout</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -147,11 +156,10 @@ const styles = StyleSheet.create({
   accountActions: {
     flexDirection: "row",
     justifyContent: "center",
-    paddingVertical: 10,
   },
   editButton: {
-    fontSize: 25,
-    marginRight: 20,
+    fontSize: 20,
+    margin: 10,
   },
   menuItemsSection: {
     marginTop: 5,
