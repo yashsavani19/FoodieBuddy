@@ -177,10 +177,12 @@ export function AuthProvider(props: ProviderProps) {
     }
 
     try {
-      await register(email, password, username);
-      alert("Registration successful");
-      await handleLogin(email, password);
-      return true;
+      const registerResult = await register(email, password, username);
+      if (registerResult) {
+        alert("Registration successful");
+        await handleLogin(email, password);
+        return true;
+      }
     } catch (error: any) {
       const authError = error as Auth.AuthError;
       console.error(authError.code);
@@ -203,15 +205,20 @@ export function AuthProvider(props: ProviderProps) {
           alert(`Registration failed: ${authError.message}`);
           break;
       }
-      return false;
     }
+    return false;
   };
 
   const register = async (
     email: string,
     password: string,
     username: string
-  ): Promise<void> => {
+  ): Promise<boolean> => {
+    const result = await checkUsername(username);
+    if (result) {
+      alert("Username already exists");
+      return false;
+    }
     await Auth.createUserWithEmailAndPassword(auth, email, password);
     const currentAuth = Auth.getAuth();
     if (currentAuth.currentUser !== null) {
@@ -220,12 +227,13 @@ export function AuthProvider(props: ProviderProps) {
     await addUser(Auth.getAuth().currentUser?.uid || "", email, username);
     if (currentAuth.currentUser === null) {
       alert("Error registering user");
-      return;
+      return false;
     }
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
     await addUsername(username, currentAuth.currentUser.uid);
+    return true;
   };
 
   // logout
