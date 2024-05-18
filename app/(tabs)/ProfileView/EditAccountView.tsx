@@ -88,9 +88,10 @@ const EditAccountView: React.FC = () => {
     }
     const authenticated = await reSignIn(oldPassword);
     if (authenticated) {
-      await changePassword(newPassword);
-      // alert("Password updated successfully");
-      setPasswordViewModal(true);
+      const result = await changePassword(newPassword);
+      if (result) {
+        setPasswordViewModal(true);
+      }
     }
   };
 

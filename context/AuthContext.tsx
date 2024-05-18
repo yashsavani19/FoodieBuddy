@@ -325,15 +325,37 @@ export const changeEmail = async (newEmail: string): Promise<boolean> => {
   // );
 };
 
-export const changePassword = async (newPassword: string) => {
+export const changePassword = async (newPassword: string): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
       await Auth.updatePassword(user, newPassword);
     }
-  } catch (error) {
-    console.error("Error updating password: ", error);
+    return true;
+  } catch (error: any) {
+    const authError = error as Auth.AuthError;
+    console.error(authError.code);
+    switch (authError.code) {
+      //Special error cases being thrown by firebase
+      case "auth/email-already-in-use":
+        alert(`Email address already in use.`);
+        break;
+      case "auth/invalid-email":
+        alert(`Email address is invalid.`);
+        break;
+      case "auth/operation-not-allowed":
+        alert("Error during registration: Operation not allowed.");
+        break;
+      case "auth/weak-password.":
+        console.log("Password is too weak!!");
+        alert("Password is too weak.");
+        break;
+      default:
+        alert(`Change password failed: ${authError.message}`);
+        break;
+    }
   }
+  return false;
 };
 
 export const useAuth = () => {
