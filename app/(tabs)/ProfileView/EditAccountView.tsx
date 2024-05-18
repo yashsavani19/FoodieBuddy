@@ -1,21 +1,30 @@
 import {
   View,
-  StyleSheet,
-  TextInput,
-  Button,
-  Animated,
   Text,
+  StyleSheet,
+  Button,
+  ScrollView,
+  SafeAreaView,
+  Keyboard,
+  Animated,
+  Touchable,
+  TouchableOpacity,
 } from "react-native";
 import React, { useContext, useEffect, useRef } from "react";
 import TitleHeader from "@/components/TitleHeader";
 import { AppContext } from "@/context/AppContext";
-import { changeEmail, changeUsername, useAuth } from "@/context/AuthContext";
+import {
+  changeEmail,
+  changePassword,
+  changeUsername,
+  reSignIn,
+  useAuth,
+} from "@/context/AuthContext";
 import BackButton from "@/components/BackButton";
 import TitleButton from "@/components/EditAccountComponents/TitleButton";
 import EditTextField from "@/components/EditAccountComponents/EditTextField";
 import BaseModal from "@/components/modals/BaseModal";
 import BaseButton from "@/components/modals/BaseButton";
-import { updateEmail } from "firebase/auth";
 
 const EditAccountView: React.FC = () => {
   const { userObject } = useContext(AppContext);
@@ -28,25 +37,47 @@ const EditAccountView: React.FC = () => {
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
-  const [viewModal, setViewModal] = React.useState(false);
+  const [viewEmailModal, setEmailViewModal] = React.useState(false);
+  const [viewUsernameModal, setUsernameViewModal] = React.useState(false);
+  const [viewPasswordModal, setPasswordViewModal] = React.useState(false);
+  const [showDeleteButton, setShowDeleteButton] = React.useState(true);
 
-  const handleUpdateUsername = () => {
+  useEffect(() => {
+    const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
+      setShowDeleteButton(false);
+    });
+    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setShowDeleteButton(true);
+    });
+
+    return () => {
+      keyboardHideListener.remove();
+      keyboardShowListener.remove();
+    };
+  }, []);
+
+  const handleUpdateUsername = async () => {
     if (newUsername === "") return;
     if (newUsername === user?.displayName) return;
     console.log(`New username: ${newUsername}`);
-    changeUsername(newUsername);
+    await changeUsername(newUsername);
+    // alert("Username updated successfully");
+    setUsernameViewModal(true);
   };
 
-  const handleUpdateEmail = () => {
+  const handleUpdateEmail = async () => {
     if (newEmail === "") return;
     if (newEmail === user?.email) return;
     console.log(`New email: ${newEmail}`);
 
-    setViewModal(true);
-    changeEmail(newEmail);
+    const authenticated = await reSignIn(oldPassword);
+    if (authenticated) {
+      changeEmail(newEmail);
+      setEmailViewModal(true);
+    }
   };
 
-  const handleUpdatePassword = () => {
+  const handleUpdatePassword = async () => {
     if (oldPassword === "" || newPassword === "" || confirmPassword === "") {
       alert("Please fill out all fields");
       return;
@@ -55,8 +86,12 @@ const EditAccountView: React.FC = () => {
       alert("Passwords do not match");
       return;
     }
-    console.log(`Old password: ${oldPassword}`);
-    console.log(`New password: ${newPassword}`);
+    const authenticated = await reSignIn(oldPassword);
+    if (authenticated) {
+      await changePassword(newPassword);
+      // alert("Password updated successfully");
+      setPasswordViewModal(true);
+    }
   };
 
   const handleEditUsername = (newMode: boolean) => {
@@ -101,122 +136,194 @@ const EditAccountView: React.FC = () => {
     }
   };
 
+  const button1 = (
+    <BaseButton
+      title={"I Promise"}
+      onPress={() => {
+        console.log("I promise I'll verify my email");
+        setShowEmail(false);
+        setEmailViewModal(false);
+      }}
+      buttonColour={"#3464ac"}
+    />
+  );
+
+  const button2 = (
+    <BaseButton
+      title={"Thanks"}
+      onPress={() => {
+        console.log("Thanks pressed");
+        setShowUsername(false);
+        setUsernameViewModal(false);
+      }}
+      buttonColour={"#3464ac"}
+    />
+  );
+
+  const button3 = (
+    <BaseButton
+      title={"OK"}
+      onPress={() => {
+        console.log("OK pressed");
+        setShowPassword(false);
+        setPasswordViewModal(false);
+      }}
+      buttonColour={"#cc4343"}
+    />
+  );
+
   return (
     <View style={styles.container}>
       <TitleHeader title="Edit Account" />
       <View style={styles.content}>
         <BackButton />
-        <View style={{ marginTop: 30, marginVertical: 10 }}>
-          <TitleButton
-            title={"Change Username"}
-            onEdit={handleEditUsername}
-            onPress={() => setShowUsername(false)}
-            mode={showUsername}
-          />
-          <EditTextField
-            title={newUsername || ""}
-            isVisible={showUsername}
-            enableButton={user?.displayName !== newUsername}
-            onSubmit={setNewUsername}
-            onUpdatePress={handleUpdateUsername}
-          />
-        </View>
-        <View style={{ marginVertical: 10 }}>
-          <TitleButton
-            title={"Change Email Address"}
-            onEdit={handleEditEmail}
-            onPress={() => setShowEmail(false)}
-            mode={showEmail}
-          />
-          <EditTextField
-            title={newEmail || ""}
-            isVisible={showEmail}
-            enableButton={user?.email !== newEmail}
-            onSubmit={setNewEmail}
-            onUpdatePress={handleUpdateEmail}
-          />
-        </View>
-        <View style={{ marginVertical: 10 }}>
-          <TitleButton
-            title={"Change Password"}
-            onEdit={handleEditPassword}
-            onPress={() => setShowPassword(false)}
-            mode={showPassword}
-          />
-          <View>
-            <View>
-              <EditTextField
-                title={oldPassword || ""}
-                isVisible={showPassword}
-                onSubmit={setOldPassword}
-                placeholder="Enter old password"
-                isSecure={true}
-              />
+        <ScrollView style={styles.topContainer}>
+          <SafeAreaView>
+            <View style={{}}>
+              <View style={{ marginTop: 30, marginVertical: 10 }}>
+                <TitleButton
+                  title={"Change Username"}
+                  onEdit={handleEditUsername}
+                  onPress={() => setShowUsername(false)}
+                  mode={showUsername}
+                />
+                <EditTextField
+                  title={newUsername || ""}
+                  isVisible={showUsername}
+                  imageSrc="username"
+                  enableButton={user?.displayName !== newUsername}
+                  onSubmit={setNewUsername}
+                  onUpdatePress={handleUpdateUsername}
+                />
+              </View>
+              <View style={{ marginVertical: 10 }}>
+                <TitleButton
+                  title={"Change Email Address"}
+                  onEdit={handleEditEmail}
+                  onPress={() => setShowEmail(false)}
+                  mode={showEmail}
+                />
+                <EditTextField
+                  title={oldPassword || ""}
+                  isVisible={showEmail}
+                  onSubmit={setOldPassword}
+                  placeholder="Enter password"
+                  imageSrc="password"
+                  isSecure={true}
+                />
+                <EditTextField
+                  title={newEmail || ""}
+                  isVisible={showEmail}
+                  enableButton={user?.email !== newEmail}
+                  onSubmit={setNewEmail}
+                  imageSrc="email"
+                  onUpdatePress={handleUpdateEmail}
+                />
+              </View>
+              <View style={{ marginVertical: 10 }}>
+                <TitleButton
+                  title={"Change Password"}
+                  onEdit={handleEditPassword}
+                  onPress={() => setShowPassword(false)}
+                  mode={showPassword}
+                />
+                <View>
+                  <View>
+                    <EditTextField
+                      title={oldPassword || ""}
+                      isVisible={showPassword}
+                      onSubmit={setOldPassword}
+                      placeholder="Enter old password"
+                      imageSrc="password"
+                      isSecure={true}
+                    />
+                  </View>
+                  <View>
+                    <EditTextField
+                      title={newPassword || ""}
+                      isVisible={showPassword}
+                      onSubmit={setNewPassword}
+                      placeholder="Enter new password"
+                      imageSrc="password"
+                      isSecure={true}
+                    />
+                  </View>
+                  <View>
+                    <EditTextField
+                      title={confirmPassword || ""}
+                      isVisible={showPassword}
+                      onSubmit={setConfirmPassword}
+                      placeholder="Confirm new password"
+                      imageSrc="password"
+                      isSecure={true}
+                      enableButton={
+                        oldPassword !== "" &&
+                        newPassword !== "" &&
+                        confirmPassword !== ""
+                      }
+                      onUpdatePress={handleUpdatePassword}
+                    />
+                  </View>
+                </View>
+              </View>
             </View>
-            <View>
-              <EditTextField
-                title={newPassword || ""}
-                isVisible={showPassword}
-                onSubmit={setNewPassword}
-                placeholder="Enter new password"
-                isSecure={true}
-              />
-            </View>
-            <View>
-              <EditTextField
-                title={confirmPassword || ""}
-                isVisible={showPassword}
-                onSubmit={setConfirmPassword}
-                placeholder="Confirm new password"
-                isSecure={true}
-                enableButton={
-                  oldPassword !== "" &&
-                  newPassword !== "" &&
-                  confirmPassword !== ""
-                }
-                onUpdatePress={handleUpdatePassword}
-              />
-            </View>
-          </View>
-        </View>
-        <View style={{ margin: 20 }}>
-          <Button
-            title={"Delete account placeholder"}
+          </SafeAreaView>
+        </ScrollView>
+        {showDeleteButton && (
+          <TouchableOpacity
             onPress={() => {
-              setViewModal(true);
+              alert("Delete account pressed");
             }}
-          />
-        </View>
+            style={styles.deleteButton}
+          >
+            <Text style={{ color: "white", textAlign: "center", fontWeight:"600" }}>
+              Delete Account
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
       <BaseModal
         title={"Verify New Email Address"}
-        bodyText={"A verification email has been sent to your new email address. Please verify your email address to complete the change."}
-        visible={viewModal}
+        bodyText={
+          "A verification email has been sent to your new email address. Please verify your email address to complete the change."
+        }
+        visible={viewEmailModal}
         onClose={() => {
-          setViewModal(false);
+          setEmailViewModal(false);
         }}
         buttons={[button1]}
+      />
+      <BaseModal
+        title={"Username Updated Successfully"}
+        visible={viewUsernameModal}
+        onClose={() => {
+          setUsernameViewModal(false);
+        }}
+        buttons={[button2]}
+      />
+      <BaseModal
+        title={"Password Updated Successfully"}
+        bodyText="Please remember to use your new password to log in next time."
+        visible={viewPasswordModal}
+        onClose={() => {
+          setPasswordViewModal(false);
+        }}
+        buttons={[button3]}
       />
     </View>
   );
 };
-
-const button1 = (
-  <BaseButton
-    title={"I Promise"}
-    onPress={() => {
-      console.log("I promise I'll verify my email");
-    }}
-    buttonColour={"#3464ac"}
-  />
-);
 
 export default EditAccountView;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: "space-between",
     backgroundColor: "white",
+  },
+  topContainer: {
+    flex: 1,
   },
   content: {
     flex: 1,
@@ -233,5 +340,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 20,
+  },
+  deleteButton: {
+    justifyContent: "center",
+    alignSelf: "center",
+    backgroundColor: "#cc4343",
+    borderRadius: 12,
+    margin: 40,
+    width: 150,
+    height: 40,
   },
 });

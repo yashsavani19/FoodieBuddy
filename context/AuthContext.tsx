@@ -254,11 +254,29 @@ export function AuthProvider(props: ProviderProps) {
   );
 }
 
+export const reSignIn = async (password: string): Promise<boolean> => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      if (user.email === null) return false;
+      await Auth.reauthenticateWithCredential(
+        user,
+        Auth.EmailAuthProvider.credential(user.email, password)
+      );
+      return true;
+    }
+  } catch (error) {
+    console.error("Error reauthenticating: ", error);
+  }
+  return false;
+};
+
 export const changeUsername = async (newUsername: string): Promise<void> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
       await Auth.updateProfile(user, { displayName: newUsername });
+      console.log("Username updated successfully");
     }
   } catch (error) {
     console.error("Error updating username: ", error);
@@ -290,9 +308,20 @@ export const changeEmail = async (newEmail: string): Promise<void> => {
         break;
     }
   }
-  alert(
-    "Email updated successfully, please verify your email address and login again for changes to take effect."
-  );
+  // alert(
+  //   "Email updated successfully, please verify your email address and login again for changes to take effect."
+  // );
+};
+
+export const changePassword = async (newPassword: string) => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      await Auth.updatePassword(user, newPassword);
+    }
+  } catch (error) {
+    console.error("Error updating password: ", error);
+  }
 };
 
 export const useAuth = () => {

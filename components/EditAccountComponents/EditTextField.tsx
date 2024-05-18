@@ -6,6 +6,7 @@ import {
   Button,
   Text,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import React, { useEffect, useRef } from "react";
 
@@ -16,9 +17,16 @@ interface EditTextFieldProps {
   isSecure?: boolean;
   isVisible: boolean;
   enableButton?: boolean;
+  imageSrc: "username" | "email" | "password";
   onSubmit?: (text: string) => void;
   onUpdatePress?: () => void;
 }
+
+const editImages: { [key: string]: any } = {
+  username: require("../../assets/images/user_icon_small.png"),
+  email: require("../../assets/images/email_icon_small.png"),
+  password: require("../../assets/images/password_icon_small.png"),
+};
 
 /**
  * Editable text field for the EditAccountView
@@ -31,11 +39,13 @@ const EditTextField: React.FC<EditTextFieldProps> = ({
   isSecure,
   isVisible,
   enableButton,
+  imageSrc,
   onSubmit,
   onUpdatePress,
 }) => {
   const [editMode, setEditMode] = React.useState(false);
   const [text, setText] = React.useState(title || "");
+  const source = editImages[imageSrc];
 
   const translateY = useRef(new Animated.Value(-8)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -69,23 +79,25 @@ const EditTextField: React.FC<EditTextFieldProps> = ({
       <Animated.View style={{ opacity, transform: [{ translateY }] }}>
         {isVisible && (
           <>
-            <TextInput
-              value={text}
-              secureTextEntry={isSecure}
-              onChangeText={(input) => {
-                if (onSubmit) onSubmit(input);
-                setText(input);
-              }}
-              selectTextOnFocus={true}
-              style={styles.input}
-              placeholder={placeholder}
-            />
+            <View style={styles.input}>
+              <Image resizeMode="contain" source={editImages[imageSrc]} style={styles.inputIcon} />
+              <TextInput
+                value={text}
+                secureTextEntry={isSecure}
+                onChangeText={(input) => {
+                  if (onSubmit) onSubmit(input);
+                  setText(input);
+                }}
+                selectTextOnFocus={true}
+                placeholder={placeholder}
+              />
+            </View>
             <>
               {onUpdatePress && (
                 <TouchableOpacity
                   style={[
                     styles.updateButton,
-                    { backgroundColor: enableButton ? "#f26722" : "grey" },
+                    { backgroundColor: enableButton ? "#3464ac" : "grey" },
                   ]}
                   disabled={!enableButton}
                   onPress={handlePress}
@@ -107,9 +119,15 @@ export default EditTextField;
 
 const styles = StyleSheet.create({
   container: {},
-  input: {
-    height: 40,
+  inputContainer: {
     margin: 12,
+  },
+  input: {
+    justifyContent: "flex-start",
+    flexDirection: "row",
+    height: 40,
+    marginVertical: 12,
+    marginHorizontal: 25,
     borderWidth: 1,
     padding: 10,
     borderRadius: 10,
@@ -118,8 +136,13 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     alignItems: "center",
     padding: 10,
-    marginRight: 12,
+    marginRight: 25,
     width: 100,
     borderRadius: 10,
+  },
+  inputIcon: {
+    height: 20,
+    width: 20,
+    marginRight: 20,
   },
 });

@@ -1,6 +1,8 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import React, { useEffect } from "react";
 import { AntDesign } from "@expo/vector-icons";
+import { Icon } from "react-native-vector-icons/Icon";
+import { Line } from "react-native-svg";
 
 // Define the props for the TitleButton component
 interface TitleButtonProps {
@@ -39,16 +41,19 @@ const TitleButton: React.FC<TitleButtonProps> = ({
 
   return (
     <View>
-      <View style={{ flexDirection: "row" }}>
+      <View style={styles.container}>
         <Text style={styles.labelText}>{title}</Text>
-        <View style={{ marginHorizontal: 15 }}>
+        <View style={{ justifyContent: "center" }}>
           {!editMode ? (
             <TouchableOpacity
               onPress={() => {
                 setEditMode(true);
               }}
             >
-              <AntDesign name="edit" size={24} color="grey" />
+              <Image
+                source={require("../../assets/images/edit_button.png")}
+                style={{ width: 18, height: 18, marginRight: 3, marginTop: 3 }}
+              />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -62,6 +67,7 @@ const TitleButton: React.FC<TitleButtonProps> = ({
           )}
         </View>
       </View>
+      <View style={styles.dividerHorizontal} />
     </View>
   );
 };
@@ -70,8 +76,9 @@ export default TitleButton;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "white",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginHorizontal: 25,
   },
   content: {
     flex: 1,
@@ -87,9 +94,14 @@ const styles = StyleSheet.create({
   labelText: {
     fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 20,
   },
   inputContainer: {
     margin: 12,
+  },
+  dividerHorizontal: {
+    borderBottomColor: "#a6a6a6",
+    borderBottomWidth: 2,
+    marginTop: 5,
+    marginHorizontal: 25,
   },
 });
