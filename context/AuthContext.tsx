@@ -2,7 +2,12 @@ import { useNavigationContainerRef, useRouter, useSegments } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import * as Auth from "firebase/auth";
 import { auth } from "../controller/FirebaseHandler";
-import { addUser } from "@/controller/DatabaseHandler";
+import {
+  addUser,
+  addUsername,
+  checkUsername,
+  updateUsername,
+} from "@/controller/DatabaseHandler";
 
 interface SignInResponse {
   data: Auth.User | undefined;
@@ -15,13 +20,13 @@ interface SignOutResponse {
 }
 
 interface AuthContextValue {
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (
     email: string,
     username: string,
     password: string,
     confirmPassword: string
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   signOut: () => void;
   user: Auth.User | null;
   authInitialised: boolean;
@@ -97,20 +102,20 @@ export function AuthProvider(props: ProviderProps) {
   const handleLogin = async (
     email: string,
     password: string
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     setAuthInitialised(false);
     try {
       if (!email || !password) {
         alert("Please enter both email and password.");
         setAuthInitialised(true);
-        return;
+        return false;
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         alert("Please enter a valid email address.");
         setAuthInitialised(true);
-        return;
+        return false;
       }
 
       await login(email, password);
@@ -118,8 +123,10 @@ export function AuthProvider(props: ProviderProps) {
       setAuthUser(currentUser);
     } catch (error: any) {
       handleAuthError(error);
+      return false;
     } finally {
       setAuthInitialised(true);
+      return true;
     }
   };
 
@@ -156,23 +163,24 @@ export function AuthProvider(props: ProviderProps) {
     username: string,
     password: string,
     confirmPassword: string
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     // Alert Message if any of the fields is empty
     if (!email || !username || !password || !confirmPassword) {
       alert("Please fill in all fields");
-      return;
+      return false;
     }
 
     // Alert message for passwords don't match
     if (password !== confirmPassword) {
       alert("Passwords do not match");
-      return;
+      return false;
     }
 
     try {
       await register(email, password, username);
       alert("Registration successful");
       await handleLogin(email, password);
+      return true;
     } catch (error: any) {
       const authError = error as Auth.AuthError;
       console.error(authError.code);
@@ -195,6 +203,7 @@ export function AuthProvider(props: ProviderProps) {
           alert(`Registration failed: ${authError.message}`);
           break;
       }
+      return false;
     }
   };
 
@@ -216,6 +225,7 @@ export function AuthProvider(props: ProviderProps) {
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
+    await addUsername(username, currentAuth.currentUser.uid);
   };
 
   // logout
@@ -281,16 +291,22 @@ export const reSignIn = async (password: string): Promise<boolean> => {
   return false;
 };
 
-export const changeUsername = async (newUsername: string): Promise<void> => {
+export const changeUsername = async (newUsername: string): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
-      await Auth.updateProfile(user, { displayName: newUsername });
-      console.log("Username updated successfully");
+      const result = await updateUsername(newUsername, user.uid);
+      console.log("changeUsername result: ", result);
+      if (result) {
+        await Auth.updateProfile(user, { displayName: newUsername });
+        console.log("Username updated successfully");
+        return true;
+      }
     }
   } catch (error) {
     console.error("Error updating username: ", error);
   }
+  return false;
 };
 
 export const changeEmail = async (newEmail: string): Promise<boolean> => {

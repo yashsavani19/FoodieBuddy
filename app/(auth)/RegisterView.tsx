@@ -6,26 +6,54 @@ import {
   Image,
   Pressable,
   ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { Link } from "expo-router";
 import { Text, View } from "@/components/Themed";
 import { useAuth } from "@/context/AuthContext";
+import { checkUsername } from "@/controller/DatabaseHandler";
 
 // Import the image for the logo
 const buddyLogo = require("@/assets/images/title-logo.png");
 
 // Define the RegisterView component
 export default function RegisterView() {
-
   // Retrieve the signUp function from the AuthContext
   const { signUp } = useAuth();
 
-   // State variables to store user registration details
+  // State variables to store user registration details
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [registerEnabled, setRegisterEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  // Function to validate the username
+  const handleUsernameValidation = async () => {
+    if (username.length < 3 && username !== "") {
+      alert("Username must be at least 3 characters long");
+      setLoading(false);
+      return;
+    }
+    if (username !== "") {
+      const result = await checkUsername(username);
+      if (result) {
+        alert("Username already exists");
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleSignUp = async () => {
+    setLoading(true);
+    const result = await signUp(email, username, password, confirmPassword);
+    if (!result) {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -45,6 +73,7 @@ export default function RegisterView() {
               placeholder="Username"
               value={username}
               onChangeText={setUsername}
+              onBlur={handleUsernameValidation}
             />
           </View>
           {/* Email input */}
@@ -90,15 +119,30 @@ export default function RegisterView() {
           </View>
           {/* Register Button */}
           <View style={styles.buttonContainer}>
-            <Pressable style={styles.registerButton}>
-              <Button
-                title="Register"
-                color="black"
-                onPress={() => {
-                  signUp(email, username, password, confirmPassword);
-                }}
-              />
-            </Pressable>
+            <TouchableOpacity
+              style={styles.registerButton}
+              onPress={handleSignUp}
+            >
+              {!loading ? (
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontWeight: "600",
+                    fontSize: 20,
+                  }}
+                >
+                  Register
+                </Text>
+              ) : (
+                <ActivityIndicator
+                  size="large"
+                  color="#fff"
+                  animating={loading}
+                  style={{ marginTop: 10 }}
+                ></ActivityIndicator>
+              )}
+            </TouchableOpacity>
           </View>
           {/* Login Button*/}
           <View style={styles.createAccountContainer}>
@@ -190,11 +234,13 @@ const styles = StyleSheet.create({
   },
 
   registerButton: {
-    width: 100,
-    borderRadius: 20,
-    backgroundColor: "#3383FF",
+    width: 200,
+    borderRadius: 15,
+    backgroundColor: "#3464AC",
     marginTop: 20,
     marginBottom: 15,
+    height: 45,
+    justifyContent: "center",
   },
 
   clickableText: {

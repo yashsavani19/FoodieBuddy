@@ -26,6 +26,8 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 
+import { getDatabase } from "firebase/database";
+
 import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -62,6 +64,7 @@ export const app = initializeApp(firebaseConfig);
 // });
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const rtDb = getDatabase(app);
 
 export const useIsAuthenticated = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -237,5 +240,4 @@ const logout = async (): Promise<void> => {
 const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
 };
-
 
