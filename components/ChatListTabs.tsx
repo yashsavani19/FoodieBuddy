@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal, TextInput, Button, KeyboardAvoidingView, Platform, RefreshControl } from 'react-native';
+import { 
+  View, 
+  Text, 
+  FlatList, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Image, 
+  Modal, 
+  TextInput, 
+  Button, 
+  KeyboardAvoidingView, 
+  Platform, 
+  RefreshControl 
+} from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { fetchChatRooms, createChatRoom, deleteChatRoom } from '@/controller/DatabaseHandler';
-import { auth } from '@/controller/FirebaseHandler'; // Import auth object
+import { auth } from '@/controller/FirebaseHandler';
 
 type ChatRoom = {
   id: string;
@@ -13,11 +26,14 @@ type ChatRoom = {
 
 const Tab = createMaterialTopTabNavigator();
 
+/**
+ * ChatRoomItem component to render individual chat room items.
+ */
 const ChatRoomItem: React.FC<{ chatRoom: ChatRoom, onDelete: (id: string) => void }> = ({ chatRoom, onDelete }) => (
   <View style={styles.chatRoomContainer}>
     <View style={styles.avatarContainer}>
       <Image
-        source={{ uri: chatRoom.avatar || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg' }} // Provide a default avatar
+        source={{ uri: chatRoom.avatar || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg' }}
         style={styles.avatar}
       />
     </View>
@@ -31,6 +47,9 @@ const ChatRoomItem: React.FC<{ chatRoom: ChatRoom, onDelete: (id: string) => voi
   </View>
 );
 
+/**
+ * ChatList component to manage and display chat rooms based on the type.
+ */
 const ChatList: React.FC<{ type: string }> = ({ type }) => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,9 +57,10 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
   const [newChatRoomImageUrl, setNewChatRoomImageUrl] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
+  // Function to fetch chat rooms from the database
   const getChatRooms = async () => {
-    const rooms = await fetchChatRooms(); // Fetch chat rooms based on type if needed
-    rooms.sort((a, b) => a.name.localeCompare(b.name)); // Sort chat rooms alphabetically
+    const rooms = await fetchChatRooms(type);
+    rooms.sort((a, b) => a.name.localeCompare(b.name));
     setChatRooms(rooms);
   };
 
@@ -48,24 +68,27 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
     getChatRooms();
   }, [type]);
 
+  // Function to handle chat room creation
   const handleCreateChatRoom = async () => {
     const userId = auth.currentUser?.uid;
     if (userId) {
-      await createChatRoom(newChatRoomName, newChatRoomImageUrl || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg');
+      await createChatRoom(newChatRoomName, type, newChatRoomImageUrl || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg');
       setModalVisible(false);
       setNewChatRoomName('');
       setNewChatRoomImageUrl('');
-      await getChatRooms(); // Refresh chat rooms list to include the new chat room
+      await getChatRooms();
     } else {
       console.error('User is not authenticated');
     }
   };
 
+  // Function to handle chat room deletion
   const handleDeleteChatRoom = async (id: string) => {
     await deleteChatRoom(id);
-    await getChatRooms(); // Refresh chat rooms list after deletion
+    await getChatRooms();
   };
 
+  // Function to handle pull-to-refresh action
   const onRefresh = async () => {
     setRefreshing(true);
     await getChatRooms();
@@ -106,9 +129,9 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
             placeholder="Image URL (optional)"
             value={newChatRoomImageUrl}
             onChangeText={setNewChatRoomImageUrl}
-            keyboardType="url" // Specific keyboard type for URL input
-            autoCapitalize="none" // Prevent automatic capitalization
-            autoCorrect={false} // Disable autocorrect
+            keyboardType="url"
+            autoCapitalize="none"
+            autoCorrect={false}
           />
           <View style={styles.buttonContainer}>
             <Button title="Create" onPress={handleCreateChatRoom} />
@@ -123,23 +146,26 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
 const BuddyChatBot = () => <ChatList type="buddy" />;
 const FriendsChat = () => <ChatList type="friends" />;
 
+/**
+ * ChatListTabs component to handle tab navigation between different chat types.
+ */
 const ChatListTabs: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarStyle: { backgroundColor: '#1e1e1e' }, // Tab bar background color
+        tabBarStyle: { backgroundColor: '#1e1e1e' },
         tabBarIndicatorStyle: { 
-          backgroundColor: '#ff6f00', // Tab indicator color
-          width: '30%', // Indicator width
-          borderRadius: 5, // Rounded corners
-          height: 3, // Indicator height
-          alignSelf: 'center', // Center the indicator within each tab
-          marginLeft: 38.5, // Ensure the indicator is centered within each tab
+          backgroundColor: '#ff6f00',
+          width: '30%',
+          borderRadius: 5,
+          height: 5,
+          alignSelf: 'center',
+          marginLeft: 38.5,
         },
         tabBarLabelStyle: { 
-          color: '#ffffff', // Tab label color
-          fontWeight: 'bold', // Make the label text bold
-          textTransform: 'none', // Prevent text from being all uppercase
+          color: '#ffffff',
+          fontWeight: 'bold',
+          textTransform: 'none',
           fontSize: 18,
         },
       }}
@@ -148,19 +174,19 @@ const ChatListTabs: React.FC = () => {
       <Tab.Screen name="Friends Chat" component={FriendsChat} />
     </Tab.Navigator>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2E2E2E', // Background color for chat list
+    backgroundColor: '#2E2E2E',
   },
   chatRoomContainer: {
     flexDirection: 'row',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#333', // Adjusted to match dark theme
-    backgroundColor: '#ffffff', // Set background color to white for chat rooms
+    borderBottomColor: '#333',
+    backgroundColor: '#ffffff',
   },
   avatarContainer: {
     justifyContent: 'center',
@@ -180,7 +206,7 @@ const styles = StyleSheet.create({
   chatRoomName: {
     fontSize: 18,
     fontWeight: '500',
-    color: '#000000', // Text color for white background
+    color: '#000000',
   },
   chatRoomLastMessage: {
     color: '#888',
@@ -210,38 +236,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   modalView: {
-    margin: 20,
-    backgroundColor: '#3E3E3E',
-    borderRadius: 20,
-    padding: 35,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: 20,
   },
   modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-    fontSize: 20,
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#fff',
+    marginBottom: 20,
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 15,
-    padding: 10,
-    width: '100%',
-    borderRadius: 5,
     backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    width: '100%',
   },
   buttonContainer: {
     flexDirection: 'row',

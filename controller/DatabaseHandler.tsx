@@ -9,6 +9,8 @@ import {
   deleteDoc,
   query,
   orderBy,
+  serverTimestamp,
+  where,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
@@ -392,26 +394,18 @@ export const fetchAllUsernames = async (): Promise<string[]> => {
   }
 };
 
-// Helper function to fetch user profile information
-const fetchUserProfile = async (userId: string) => {
-  try {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    if (userDoc.exists()) {
-      return userDoc.data();
-    } else {
-      console.error('No such document!');
-      return null;
-    }
-  } catch (e) {
-    console.error('Error fetching user profile: ', e);
-    return null;
-  }
-};
-
-export const createChatRoom = async (roomName: string, profileImageUrl: string = 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg') => {
+/**
+ * Creates a new chat room
+ * @param {string} roomName - The name of the chat room
+ * @param {string} type - The type of chat room (e.g., 'buddy', 'friends')
+ * @param {string} profileImageUrl - The image URL for the chat room (default is a placeholder image)
+ * @returns {Promise<void>}
+ */
+export const createChatRoom = async (roomName: string, type: string, profileImageUrl: string = 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg') => {
   try {
     const docRef = await addDoc(collection(db, 'chatRooms'), {
       name: roomName,
+      type: type,
       lastMessage: '',
       avatar: profileImageUrl, // Use provided profile image URL or a default avatar
     });
@@ -423,15 +417,16 @@ export const createChatRoom = async (roomName: string, profileImageUrl: string =
   }
 };
 
-
 /**
- * Fetches all chat rooms
- * @returns an array of chat rooms
+ * Fetches chat rooms based on the type
+ * @param {string} type - The type of chat rooms to fetch (e.g., 'buddy', 'friends')
+ * @returns {Promise<any[]>} - An array of chat rooms
  */
-export const fetchChatRooms = async () => {
+export const fetchChatRooms = async (type: string): Promise<any[]> => {
   try {
     const chatRoomCollection = collection(db, "chatRooms");
-    const querySnapshot = await getDocs(chatRoomCollection);
+    const chatRoomQuery = query(chatRoomCollection, where("type", "==", type));
+    const querySnapshot = await getDocs(chatRoomQuery);
     const chatRooms: any[] = [];
     querySnapshot.forEach((doc) => {
       chatRooms.push({ id: doc.id, ...doc.data() });
@@ -444,9 +439,15 @@ export const fetchChatRooms = async () => {
   }
 };
 
-export const deleteChatRoom = async (id: string) => {
+/**
+ * Deletes a chat room by its ID
+ * @param {string} id - The ID of the chat room to delete
+ * @returns {Promise<void>}
+ */
+export const deleteChatRoom = async (id: string): Promise<void> => {
   try {
-    await deleteDoc(doc(db, 'chatRooms', id));
+    const chatRoomDoc = doc(db, 'chatRooms', id);
+    await deleteDoc(chatRoomDoc);
     console.log('Chat room deleted with ID: ', id);
   } catch (error) {
     console.error('Error deleting chat room: ', error);
