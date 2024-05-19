@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     height: 80,
   },
   listItemText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
   listTitleContainer: {

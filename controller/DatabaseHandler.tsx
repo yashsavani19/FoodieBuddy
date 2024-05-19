@@ -496,6 +496,7 @@ export const addFriend = async (friend: Friend) => {
     await setDoc(docRef, {
       adddeOn: new Date(),
     });
+    alert("Friend added!");
     console.log("Added new friend: ", friend.username);
   } catch (e) {
     console.error("Error adding document: ", e);

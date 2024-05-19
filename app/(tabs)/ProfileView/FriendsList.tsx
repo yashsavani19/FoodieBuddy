@@ -6,11 +6,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { Friend } from "@/model/Friend";
 import TitleHeader from "@/components/TitleHeader";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
+import { AppContext } from "@/context/AppContext";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import { NavigationProp } from "@react-navigation/native";
+import { useNavigation } from "expo-router";
 
 interface ListContainerProps {
   friend: Friend;
@@ -26,7 +30,11 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
   return (
     <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
       <TouchableOpacity style={styles.listItem}>
-        <Image resizeMode="contain" style={styles.listImage} source={{}} />
+        <Image
+          resizeMode="contain"
+          style={styles.listImage}
+          source={{ uri: friend.profileImageUrl }}
+        />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
         </View>
@@ -37,17 +45,48 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
 };
 
 const FriendsList = () => {
+  const { friends } = useContext(AppContext);
+  const [orderedFriends, setOrderedFriends] = useState<Friend[]>([]);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  // Sort friends alphabetically
+  useEffect(() => {
+    const ordered = [...friends].sort((a, b) =>
+      a.username.localeCompare(b.username)
+    );
+    setOrderedFriends(ordered);
+  }, [friends]);
+
   return (
     <View style={styles.container}>
       {/* Title Header */}
       <TitleHeader title="Friends" />
       {/* ScrollView for scrollable content */}
-      <ScrollView style={styles.scrollView}>
+      <View style={styles.innerContainer}>
         <ProfileFriendsNavBar mode="friends" />
-        <ListContainer friend={{ uid: "1", username: "John Doe" }} />
-        <ListContainer friend={{ uid: "2", username: "Jane Doe" }} />
-        <ListContainer friend={{ uid: "3", username: "John Smith" }} />
-      </ScrollView>
+        <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
+            <AntDesign name="arrowleft" style={styles.backArrow} />
+          </TouchableOpacity>
+        </View>
+        {friends.length === 0 ? (
+          <View style={styles.noFriends}>
+            <Text style={styles.noFriendsText}>You have no friends yet</Text>
+          </View>
+        ) : (
+          <ScrollView style={styles.scrollView}>
+            <View style={styles.listContainer}>
+              {orderedFriends.map((friend) => (
+                <ListContainer key={friend.uid} friend={friend} />
+              ))}
+            </View>
+          </ScrollView>
+        )}
+      </View>
     </View>
   );
 };
@@ -59,12 +98,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  scrollView: {
+  innerContainer: {
+    flex: 1,
     marginTop: 120,
   },
-  listContainer: {
-    flex: 1,
-  },
+  scrollView: {},
+  listContainer: {},
   listItem: {
     justifyContent: "space-between",
     alignItems: "center",
@@ -74,12 +113,12 @@ const styles = StyleSheet.create({
     height: 80,
   },
   listItemText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
   listTitleContainer: {
-    alignItems: "center",
-    justifyContent: "flex-start",
+    paddingLeft: 10,
+    flex: 1,
   },
   listImage: {
     width: 50,
@@ -89,5 +128,19 @@ const styles = StyleSheet.create({
   rightArrow: {
     fontSize: 35,
     color: "#363232",
+  },
+  noFriends: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  noFriendsText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#363232",
+  },
+  backArrow: {
+    fontSize: 35,
+    color: "#363232",
+    padding: 10,
   },
 });

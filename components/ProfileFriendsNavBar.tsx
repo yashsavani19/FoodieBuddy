@@ -28,9 +28,13 @@ const ProfileFriendsNavBar: React.FC<ProfileFriendsNavBarProps> = ({
           ]}
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button} disabled={mode === "friends"} onPress={() => {
+      <TouchableOpacity
+        style={styles.button}
+        disabled={mode === "friends"}
+        onPress={() => {
           navigation.navigate("FriendsView");
-        }}>
+        }}
+      >
         <Text style={styles.text}>Friends</Text>
         <View
           style={[
@@ -47,7 +51,6 @@ export default ProfileFriendsNavBar;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     justifyContent: "space-around",
     alignItems: "center",
     flexDirection: "row",

@@ -14,7 +14,11 @@ import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { Friend } from "@/model/Friend";
-import { addFriend, searchUsername } from "@/controller/DatabaseHandler";
+import {
+  addFriend,
+  fetchFriends,
+  searchUsername,
+} from "@/controller/DatabaseHandler";
 import { AppContext } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 
@@ -30,13 +34,21 @@ const friendImages: { [key: string]: any } = {
 };
 
 const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
+  const { getFriends } = useContext(AppContext);
   const handleAddFriend = async () => {
     await addFriend(friend);
+    await getFriends();
   };
   const { user } = useAuth();
+  const { friends } = useContext(AppContext);
 
-  const buttonText = user?.uid === friend.uid ? "This is you idiot" : "Add friend";
-  const buttonDisabled = user?.uid === friend.uid;
+  const buttonText =
+    user?.uid === friend.uid
+      ? "This is you idiot"
+      : friends.includes(friend)
+      ? "Already friends"
+      : "Add friend";
+  const buttonDisabled = (user?.uid === friend.uid) || friends.includes(friend);
 
   return (
     <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>

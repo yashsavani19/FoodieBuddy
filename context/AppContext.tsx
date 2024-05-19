@@ -58,6 +58,7 @@ export type AppContextType = {
   friends: Friend[];
   addFriendContext: (friend: Friend) => Promise<void>;
   removeFriendContext: (friend: Friend) => Promise<void>;
+  getFriends: () => Promise<void>;
   selectedCategory: Category;
   setSelectedCategory: (category: Category) => void;
   searchTerm: string;
@@ -103,6 +104,7 @@ export const AppContext = createContext<AppContextType>({
   friends: [],
   addFriendContext: async () => {},
   removeFriendContext: async () => {},
+  getFriends: async () => {},
 
   selectedCategory: categories[0],
   setSelectedCategory: async () => {},
@@ -531,6 +533,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     friends,
     addFriendContext,
     removeFriendContext,
+    getFriends,
     selectedCategory: selectedCategory || ({} as Category),
     setSearchTerm,
     setSelectedCategory,
