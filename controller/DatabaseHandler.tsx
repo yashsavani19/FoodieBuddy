@@ -7,11 +7,14 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
+  where,
+  query,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
 import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
+import { Friend } from "@/model/Friend";
 // import { useAuth } from "@/context/AuthContext";
 /**
  * Getters and setters for user data
@@ -324,7 +327,8 @@ export const checkUsername = async (username: string): Promise<boolean> => {
  */
 export const addUsername = async (
   username: string,
-  uid: string
+  uid: string,
+  profileImageUrl?: string
 ): Promise<boolean> => {
   try {
     const result = await checkUsername(username);
@@ -336,6 +340,7 @@ export const addUsername = async (
 
     await setDoc(doc(db, "usernames", username), {
       uid: uid,
+      profileImageUrl: profileImageUrl,
     });
     return true;
   } catch (e) {
@@ -350,13 +355,19 @@ export const addUsername = async (
  */
 export const updateUsername = async (
   username: string,
-  uid: string
+  uid: string,
+  profileImageUrl?: string
 ): Promise<boolean> => {
   try {
     const usernameCollection = `usernames`;
     const currentUsername = auth.currentUser?.displayName;
     if (currentUsername) {
-      const result = await addUsername(username, uid);
+      const result = await addUsername(
+        username,
+        uid,
+        profileImageUrl ||
+          "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/user-icon.png?alt=media&token=9003ba31-6b47-4f58-b98a-fc3c82e8d537"
+      );
       console.log("updateUsername result: ", result);
       if (result) {
         await deleteDoc(doc(db, usernameCollection, currentUsername));
@@ -368,4 +379,140 @@ export const updateUsername = async (
     alert("Internal error updating username. Please try again later.");
   }
   return false;
+};
+
+/**
+ * Searches for friends based on username
+ * @param username username to search for
+ * @returns array of username IDs
+ */
+export const searchUsername = async (
+  username: string,
+  userUid: string
+): Promise<Friend | null> => {
+  try {
+    const usernameCollection = "usernames";
+    const docRef = doc(db, usernameCollection, username);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      // if (docSnap.data().uid === userUid) {
+      //   console.log("You cannot add yourself as a friend :(");
+      //   return null;
+      // }
+      const found = {
+        username: username,
+        uid: docSnap.data().uid,
+        profileImageUrl: docSnap.data().profileImageUrl,
+      } as Friend;
+      return found;
+    } else {
+      console.log("No matching username.");
+      return null;
+    }
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error searching friends. Please try again later.");
+  }
+  return null;
+};
+
+/**
+ * Get username from uid
+ */
+export const getUsername = async (uid: string): Promise<string> => {
+  try {
+    const usernameCollection = "usernames";
+    const querySnapshot = await getDocs(
+      query(collection(db, usernameCollection), where("uid", "==", uid))
+    );
+    let username = "";
+    querySnapshot.forEach((doc) => {
+      username = doc.id;
+    });
+    return username;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error getting username. Please try again later.");
+  }
+  return "";
+};
+
+/**
+ * Get users profile image from uid
+ */
+export const getProfileImageUrl = async (uid: string): Promise<string> => {
+  try {
+    const usernameCollection = "usernames";
+    const querySnapshot = await getDocs(
+      query(collection(db, usernameCollection), where("uid", "==", uid))
+    );
+    let profileImageUrl = "";
+    querySnapshot.forEach((doc) => {
+      profileImageUrl = doc.data().profileImageUrl;
+    });
+    return profileImageUrl;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error getting profile image. Please try again later.");
+  }
+  return "";
+};
+
+/**
+ * Get friends from user's friends
+ */
+export const fetchFriends = async (): Promise<Friend[]> => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const friendCollection = `users/${uid}/friends`;
+    const querySnapshot = await getDocs(collection(db, friendCollection));
+    const friends: Friend[] = [];
+    querySnapshot.forEach(async (doc) => {
+      const username = await getUsername(doc.id);
+      const profileImageUrl = await getProfileImageUrl(doc.id);
+      friends.push({
+        uid: doc.data().uid,
+        username: username,
+        profileImageUrl: profileImageUrl,
+      });
+    });
+    return friends;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching friends. Please try again later.");
+  }
+  return [];
+};
+
+/**
+ * Adds friend to user's friends
+ */
+export const addFriend = async (friend: Friend) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const friendCollection = `users/${uid}/friends`;
+    const docRef = doc(db, friendCollection, friend.uid);
+    await setDoc(docRef, {
+      adddeOn: new Date(),
+    });
+    console.log("Added new friend: ", friend.username);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding friend. Please try again later.");
+  }
+};
+
+/**
+ * Removes friend from user's friends
+ */
+export const removeFriend = async (friend: Friend) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const friendCollection = `users/${uid}/friends`;
+    await deleteDoc(doc(db, friendCollection, friend.uid));
+  } catch (e) {
+    console.error("Error removing document: ", e);
+    alert("Internal error removing friend. Please try again later.");
+  }
 };

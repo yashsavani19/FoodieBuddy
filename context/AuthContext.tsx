@@ -209,6 +209,7 @@ export function AuthProvider(props: ProviderProps) {
     return false;
   };
 
+  // Register a user
   const register = async (
     email: string,
     password: string,
@@ -299,11 +300,11 @@ export const reSignIn = async (password: string): Promise<boolean> => {
   return false;
 };
 
-export const changeUsername = async (newUsername: string): Promise<boolean> => {
+export const changeUsername = async (newUsername: string, profileImageUrl: string): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
-      const result = await updateUsername(newUsername, user.uid);
+      const result = await updateUsername(newUsername, user.uid, profileImageUrl);
       console.log("changeUsername result: ", result);
       if (result) {
         await Auth.updateProfile(user, { displayName: newUsername });

@@ -13,6 +13,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
@@ -45,6 +46,7 @@ export default function UserProfileView() {
       <TitleHeader title="Profile" />
       {/* ScrollView for scrollable content */}
       <ScrollView style={styles.scrollView}>
+      <ProfileFriendsNavBar mode="profile" />
         {/* Profile Section */}
         <View style={styles.profileSection}>
           {/* User Icon */}
@@ -132,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 100,
+    marginTop: 120,
   },
 
   profileSection: {
