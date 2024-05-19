@@ -1,26 +1,26 @@
 import { StyleSheet } from "react-native";
-import React, { useState } from "react";
-import { Text, View } from "@/components/Themed";
+import React from "react";
+import { View } from "@/components/Themed";
 import TitleHeader from "@/components/TitleHeader";
-import Chat from "@/components/Chat";
 import { Alert } from "react-native";
 import { useFocusEffect } from "expo-router";
+import ChatListTabs from "@/components/ChatListTabs";
+
 
 export default function ChatView() {
   // Display "AI-learning" alert message when user enters the chat view
   useFocusEffect(
     React.useCallback(() => {
-      Alert.alert("For your information", "Buddy is still learning, please be patient and understand that they can still make mistakes from time to time. Please check with the restaurant for allergen information.");
-      return () => {
-      };
+      //Alert.alert("For your information", "Buddy is still learning, please be patient and understand that they can still make mistakes from time to time. Please check with the restaurant for allergen information.");
+      return () => {};
     }, [])
   );
 
   return (
     <View style={styles.container}>
-      <TitleHeader title="Buddy" />
+      <TitleHeader title="Chat" />
       <View style={styles.messageContainer}>
-        <Chat />
+        <ChatListTabs />
       </View>
     </View>
   );

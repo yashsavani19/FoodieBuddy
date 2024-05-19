@@ -7,6 +7,8 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
+  query,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
@@ -368,4 +370,126 @@ export const updateUsername = async (
     alert("Internal error updating username. Please try again later.");
   }
   return false;
+};
+
+/**
+ * Fetches all usernames from the usernames collection
+ * @returns an array of usernames
+ */
+export const fetchAllUsernames = async (): Promise<string[]> => {
+  try {
+    const usernameCollection = collection(db, "usernames");
+    const querySnapshot = await getDocs(usernameCollection);
+    const usernames: string[] = [];
+    querySnapshot.forEach((doc) => {
+      usernames.push(doc.id); // The document ID is the username
+    });
+    return usernames;
+  } catch (e) {
+    console.error("Error fetching usernames: ", e);
+    alert("Internal error fetching usernames. Please try again later.");
+    return [];
+  }
+};
+
+// Helper function to fetch user profile information
+const fetchUserProfile = async (userId: string) => {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      return userDoc.data();
+    } else {
+      console.error('No such document!');
+      return null;
+    }
+  } catch (e) {
+    console.error('Error fetching user profile: ', e);
+    return null;
+  }
+};
+
+export const createChatRoom = async (roomName: string, profileImageUrl: string = 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg') => {
+  try {
+    const docRef = await addDoc(collection(db, 'chatRooms'), {
+      name: roomName,
+      lastMessage: '',
+      avatar: profileImageUrl, // Use provided profile image URL or a default avatar
+    });
+
+    console.log('Chat room created with ID: ', docRef.id);
+  } catch (error) {
+    const e = error as Error;
+    console.error('Error adding chat room: ', e.message);
+  }
+};
+
+
+/**
+ * Fetches all chat rooms
+ * @returns an array of chat rooms
+ */
+export const fetchChatRooms = async () => {
+  try {
+    const chatRoomCollection = collection(db, "chatRooms");
+    const querySnapshot = await getDocs(chatRoomCollection);
+    const chatRooms: any[] = [];
+    querySnapshot.forEach((doc) => {
+      chatRooms.push({ id: doc.id, ...doc.data() });
+    });
+    return chatRooms;
+  } catch (e) {
+    console.error("Error fetching chat rooms: ", e);
+    alert("Internal error fetching chat rooms. Please try again later.");
+    return [];
+  }
+};
+
+export const deleteChatRoom = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'chatRooms', id));
+    console.log('Chat room deleted with ID: ', id);
+  } catch (error) {
+    console.error('Error deleting chat room: ', error);
+  }
+};
+
+/**
+ * Sends a message in a chat room
+ * @param chatRoomId - ID of the chat room
+ * @param text - Message text
+ */
+export const sendMessage = async (chatRoomId: string, text: string) => {
+  try {
+    const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
+    await addDoc(messagesCollection, {
+      text,
+      userId: auth.currentUser?.uid,
+      timestamp: new Date(),
+    });
+  } catch (e) {
+    console.error("Error sending message: ", e);
+    alert("Internal error sending message. Please try again later.");
+  }
+};
+
+/**
+ * Fetches messages in a chat room
+ * @param chatRoomId - ID of the chat room
+ * @returns an array of messages
+ */
+export const fetchMessages = async (chatRoomId: string) => {
+  try {
+    const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
+    const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
+    const querySnapshot = await getDocs(messagesQuery);
+    const messages: any[] = [];
+    querySnapshot.forEach((doc) => {
+      messages.push({ id: doc.id, ...doc.data() });
+    });
+    return messages;
+  } catch (e) {
+    console.error("Error fetching messages: ", e);
+    alert("Internal error fetching messages. Please try again later.");
+    return [];
+  }
 };
