@@ -386,36 +386,36 @@ export const updateUsername = async (
  * @param username username to search for
  * @returns array of username IDs
  */
-export const searchUsername = async (
-  username: string,
-  userUid: string
-): Promise<Friend | null> => {
-  try {
-    const usernameCollection = "usernames";
-    const docRef = doc(db, usernameCollection, username);
-    const docSnap = await getDoc(docRef);
+// export const searchUsername = async (
+//   username: string,
+//   userUid: string
+// ): Promise<Friend | null> => {
+//   try {
+//     const usernameCollection = "usernames";
+//     const docRef = doc(db, usernameCollection, username);
+//     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
-      // if (docSnap.data().uid === userUid) {
-      //   console.log("You cannot add yourself as a friend :(");
-      //   return null;
-      // }
-      const found = {
-        username: username,
-        uid: docSnap.data().uid,
-        profileImageUrl: docSnap.data().profileImageUrl,
-      } as Friend;
-      return found;
-    } else {
-      console.log("No matching username.");
-      return null;
-    }
-  } catch (e) {
-    console.error("Error getting documents: ", e);
-    alert("Internal error searching friends. Please try again later.");
-  }
-  return null;
-};
+//     if (docSnap.exists()) {
+//       // if (docSnap.data().uid === userUid) {
+//       //   console.log("You cannot add yourself as a friend :(");
+//       //   return null;
+//       // }
+//       const found = {
+//         username: username,
+//         uid: docSnap.data().uid,
+//         profileImageUrl: docSnap.data().profileImageUrl,
+//       } as Friend;
+//       return found;
+//     } else {
+//       console.log("No matching username.");
+//       return null;
+//     }
+//   } catch (e) {
+//     console.error("Error getting documents: ", e);
+//     //alert("Internal error searching friends. Please try again later.");
+//   }
+//   return null;
+// };
 
 /**
  * Get username from uid
