@@ -26,10 +26,12 @@ type ChatRoom = {
 
 const Tab = createMaterialTopTabNavigator();
 
-/**
- * ChatRoomItem component to render individual chat room items.
- */
-const ChatRoomItem: React.FC<{ chatRoom: ChatRoom, onDelete: (id: string) => void }> = ({ chatRoom, onDelete }) => (
+type ChatRoomItemProps = {
+  chatRoom: ChatRoom;
+  onDelete: (id: string) => void;
+};
+
+const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete }) => (
   <View style={styles.chatRoomContainer}>
     <View style={styles.avatarContainer}>
       <Image
@@ -47,17 +49,17 @@ const ChatRoomItem: React.FC<{ chatRoom: ChatRoom, onDelete: (id: string) => voi
   </View>
 );
 
-/**
- * ChatList component to manage and display chat rooms based on the type.
- */
-const ChatList: React.FC<{ type: string }> = ({ type }) => {
+type ChatListProps = {
+  type: string;
+};
+
+const ChatList: React.FC<ChatListProps> = ({ type }) => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newChatRoomName, setNewChatRoomName] = useState('');
   const [newChatRoomImageUrl, setNewChatRoomImageUrl] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Function to fetch chat rooms from the database
   const getChatRooms = async () => {
     const rooms = await fetchChatRooms(type);
     rooms.sort((a, b) => a.name.localeCompare(b.name));
@@ -68,7 +70,6 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
     getChatRooms();
   }, [type]);
 
-  // Function to handle chat room creation
   const handleCreateChatRoom = async () => {
     const userId = auth.currentUser?.uid;
     if (userId) {
@@ -82,13 +83,11 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
     }
   };
 
-  // Function to handle chat room deletion
   const handleDeleteChatRoom = async (id: string) => {
     await deleteChatRoom(id);
     await getChatRooms();
   };
 
-  // Function to handle pull-to-refresh action
   const onRefresh = async () => {
     setRefreshing(true);
     await getChatRooms();
@@ -112,9 +111,7 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
+        onRequestClose={() => setModalVisible(!modalVisible)}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalView}>
           <Text style={styles.modalText}>Create New Chat Room</Text>
@@ -143,38 +140,33 @@ const ChatList: React.FC<{ type: string }> = ({ type }) => {
   );
 };
 
-const BuddyChatBot = () => <ChatList type="buddy" />;
-const FriendsChat = () => <ChatList type="friends" />;
+const BuddyChatBot: React.FC = () => <ChatList type="buddy" />;
+const FriendsChat: React.FC = () => <ChatList type="friends" />;
 
-/**
- * ChatListTabs component to handle tab navigation between different chat types.
- */
-const ChatListTabs: React.FC = () => {
-  return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarStyle: { backgroundColor: '#1e1e1e' },
-        tabBarIndicatorStyle: { 
-          backgroundColor: '#ff6f00',
-          width: '30%',
-          borderRadius: 5,
-          height: 5,
-          alignSelf: 'center',
-          marginLeft: 38.5,
-        },
-        tabBarLabelStyle: { 
-          color: '#ffffff',
-          fontWeight: 'bold',
-          textTransform: 'none',
-          fontSize: 18,
-        },
-      }}
-    >
-      <Tab.Screen name="Buddy ChatBot" component={BuddyChatBot} />
-      <Tab.Screen name="Friends Chat" component={FriendsChat} />
-    </Tab.Navigator>
-  );
-};
+const ChatListTabs: React.FC = () => (
+  <Tab.Navigator
+    screenOptions={{
+      tabBarStyle: { backgroundColor: '#1e1e1e' },
+      tabBarIndicatorStyle: { 
+        backgroundColor: '#ff6f00',
+        width: '30%',
+        borderRadius: 5,
+        height: 5,
+        alignSelf: 'center',
+        marginLeft: 38.5,
+      },
+      tabBarLabelStyle: { 
+        color: '#ffffff',
+        fontWeight: 'bold',
+        textTransform: 'none',
+        fontSize: 18,
+      },
+    }}
+  >
+    <Tab.Screen name="Buddy ChatBot" component={BuddyChatBot} />
+    <Tab.Screen name="Friends Chat" component={FriendsChat} />
+  </Tab.Navigator>
+);
 
 const styles = StyleSheet.create({
   container: {
