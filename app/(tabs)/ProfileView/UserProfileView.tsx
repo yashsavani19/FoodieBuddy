@@ -70,6 +70,18 @@ export default function UserProfileView() {
         </View>
         {/* Menu Items Section */}
         <View style={styles.menuItemsSection}>
+          {/* Food Preferences Button */}
+          <TouchableOpacity
+            onPress={navigateToFavouriteSpots}
+            style={styles.menuItem}
+          >
+            <Image
+              source={require("@/assets/images/preferences-icon.png")}
+              style={styles.savedIcons}
+            />
+            <Text style={styles.menuItemText}>Favorite Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
           {/* Favorite Spots Button */}
           <TouchableOpacity
             onPress={navigateToFavouriteSpots}
@@ -115,7 +127,7 @@ export default function UserProfileView() {
 const styles = StyleSheet.create({
   rightArrow: {
     position: "absolute",
-    right: 20,
+    right: 10,
     fontSize: 35,
     color: "#ededed",
   },
@@ -173,7 +185,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#363232",
     fontSize: 10,
-    borderRadius: 20,
+    borderRadius: 200,
   },
   editAccountText: {
     fontSize: 15, // Font size for Edit Account
