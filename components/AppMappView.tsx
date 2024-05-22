@@ -153,7 +153,15 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
-              <Callout tooltip>
+              <Callout tooltip
+                onPress={() => {
+                  if (selectedMarkerId !== null) {
+                    navigation.navigate("DetailsView", {
+                      Restaurant: filteredRestaurants[selectedMarkerId],
+                    });
+                  }
+                }}
+              >
                 <CustomCallout
                   name={restaurant.name}
                   rating={restaurant.rating}
