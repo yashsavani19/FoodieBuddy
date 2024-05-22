@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -33,6 +33,7 @@ const ChatScreen: React.FC = () => {
   const { chatRoomId, chatRoomName } = route.params as { chatRoomId: string; chatRoomName: string };
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const flatListRef = useRef<FlatList>(null);
 
   useLayoutEffect(() => {
     navigation.setOptions({ title: chatRoomName });
@@ -41,7 +42,10 @@ const ChatScreen: React.FC = () => {
   useEffect(() => {
     const getMessages = async () => {
       const msgs = await fetchMessages(chatRoomId);
-      setMessages(msgs);
+      // Sort messages by timestamp in ascending order
+      const sortedMsgs = msgs.sort((a, b) => a.timestamp - b.timestamp);
+      setMessages(sortedMsgs);
+      flatListRef.current?.scrollToEnd({ animated: false });
     };
     getMessages();
   }, [chatRoomId]);
@@ -51,14 +55,19 @@ const ChatScreen: React.FC = () => {
       await sendMessage(chatRoomId, newMessage);
       setNewMessage('');
       const updatedMessages = await fetchMessages(chatRoomId);
-      setMessages(updatedMessages);
+      // Sort messages by timestamp in ascending order
+      const sortedMsgs = updatedMessages.sort((a, b) => a.timestamp - b.timestamp);
+      setMessages(sortedMsgs);
+      flatListRef.current?.scrollToEnd({ animated: true });
     }
   };
 
   const handleDeleteMessage = async (messageId: string) => {
     await deleteMessage(chatRoomId, messageId);
     const updatedMessages = await fetchMessages(chatRoomId);
-    setMessages(updatedMessages);
+    // Sort messages by timestamp in ascending order
+    const sortedMsgs = updatedMessages.sort((a, b) => a.timestamp - b.timestamp);
+    setMessages(sortedMsgs);
   };
 
   const confirmDeleteMessage = (messageId: string) => {
@@ -97,25 +106,30 @@ const ChatScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TitleHeader title='Chat' />
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.innerContainer}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.inner}>
-            <FlatList
-              data={messages}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              contentContainerStyle={styles.messageList}
-              inverted
-            />
-            <MessageInput
-              newMessage={newMessage}
-              setNewMessage={setNewMessage}
-              handleSendMessage={handleSendMessage}
-            />
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+      <View style={styles.headerContainer}>
+        <TitleHeader title='Chat' />
+      </View>
+      <View style={styles.chatContainer}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.innerContainer}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.inner}>
+              <FlatList
+                ref={flatListRef}
+                data={messages}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                contentContainerStyle={styles.messageList}
+                onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+              />
+              <MessageInput
+                newMessage={newMessage}
+                setNewMessage={setNewMessage}
+                handleSendMessage={handleSendMessage}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </View>
     </View>
   );
 };
@@ -151,6 +165,14 @@ const MessageInput: React.FC<{
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerContainer: {
+    paddingTop: 120, // Adjust this value to provide space for the header
+    backgroundColor: '#fff', // Optional: Set a background color for the header
+  },
+  chatContainer: {
+    flex: 1,
+    marginTop: 10, // Adjust this value to provide space below the header
   },
   innerContainer: {
     flex: 1,
