@@ -46,7 +46,9 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
 
 const FriendsList = () => {
   const { friends } = useContext(AppContext);
-  const [orderedFriends, setOrderedFriends] = useState<Friend[]>([]);
+  const [orderedFriends, setOrderedFriends] = useState<Friend[]>(
+    friends.sort((a, b) => a.username.localeCompare(b.username))
+  );
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // Sort friends alphabetically

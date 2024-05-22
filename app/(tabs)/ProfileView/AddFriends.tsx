@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import TitleHeader from "@/components/TitleHeader";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 import { AntDesign } from "@expo/vector-icons";
@@ -43,12 +43,21 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
   const { friends } = useContext(AppContext);
 
   const buttonText =
-    user?.uid === friend.uid
-      ? "This is you idiot"
-      : friends.includes(friend)
+    // check if friend.uid is in the friends.uid list
+    friends.find((f) => f.uid === friend.uid) !== undefined
       ? "Already friends"
       : "Add friend";
-  const buttonDisabled = (user?.uid === friend.uid) || friends.includes(friend);
+  const buttonDisabled =
+    friends.find((f) => f.uid === friend.uid) !== undefined;
+
+  useEffect(() => {
+    console.log("Friend: " + friend.uid);
+    console.log("Friends: " + friends.map((f) => f.username));
+  }, [friend]);
+
+  if(friend.uid === user?.uid) {
+    return null;
+  }
 
   return (
     <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
@@ -66,7 +75,12 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
           <Text style={styles.listItemText}>{friend.username}</Text>
         </View>
         <TouchableOpacity
-          style={styles.addButton}
+          style={[
+            styles.addButton,
+            {
+              backgroundColor: buttonDisabled ? "#c0c0c0" : "#363232",
+            },
+          ]}
           onPress={handleAddFriend}
           disabled={buttonDisabled}
         >
@@ -84,7 +98,8 @@ const AddFriends = () => {
   const { user } = useAuth();
 
   const onSearchSubmit = async (searchQuery: string) => {
-    const users = await searchUsername(searchQuery, user?.uid || "");
+    setFoundUsers(null);
+    const users = await searchUsername(searchQuery);
     setFoundUsers(users);
   };
 
@@ -204,7 +219,6 @@ const styles = StyleSheet.create({
     color: "#363232",
   },
   addButton: {
-    backgroundColor: "#4B8DEF",
     padding: 8,
     paddingHorizontal: 20,
     borderRadius: 10,

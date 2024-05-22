@@ -386,36 +386,30 @@ export const updateUsername = async (
  * @param username username to search for
  * @returns array of username IDs
  */
-// export const searchUsername = async (
-//   username: string,
-//   userUid: string
-// ): Promise<Friend | null> => {
-//   try {
-//     const usernameCollection = "usernames";
-//     const docRef = doc(db, usernameCollection, username);
-//     const docSnap = await getDoc(docRef);
+export const searchUsername = async (
+  username: string
+): Promise<Friend | null> => {
+  try {
+    const usernameCollection = "usernames";
+    const docRef = doc(db, usernameCollection, username);
+    const docSnap = await getDoc(docRef);
 
-//     if (docSnap.exists()) {
-//       // if (docSnap.data().uid === userUid) {
-//       //   console.log("You cannot add yourself as a friend :(");
-//       //   return null;
-//       // }
-//       const found = {
-//         username: username,
-//         uid: docSnap.data().uid,
-//         profileImageUrl: docSnap.data().profileImageUrl,
-//       } as Friend;
-//       return found;
-//     } else {
-//       console.log("No matching username.");
-//       return null;
-//     }
-//   } catch (e) {
-//     console.error("Error getting documents: ", e);
-//     //alert("Internal error searching friends. Please try again later.");
-//   }
-//   return null;
-// };
+    if (docSnap.exists()) {
+      const found = {
+        username: docSnap.id,
+        uid: docSnap.data().uid,
+        profileImageUrl: docSnap.data().profileImageUrl,
+      } as Friend;
+      return found;
+    } else {
+      console.log("No matching username.");
+      return null;
+    }
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+  }
+  return null;
+};
 
 /**
  * Get username from uid
@@ -471,8 +465,9 @@ export const fetchFriends = async (): Promise<Friend[]> => {
     querySnapshot.forEach(async (doc) => {
       const username = await getUsername(doc.id);
       const profileImageUrl = await getProfileImageUrl(doc.id);
+      console.log("Friends fetched: ", username, profileImageUrl, doc.id);
       friends.push({
-        uid: doc.data().uid,
+        uid: doc.id,
         username: username,
         profileImageUrl: profileImageUrl,
       });
@@ -487,20 +482,26 @@ export const fetchFriends = async (): Promise<Friend[]> => {
 
 /**
  * Adds friend to user's friends
+ * @param friend friend object to add
  */
 export const addFriend = async (friend: Friend) => {
   try {
     const uid = auth.currentUser?.uid;
+    if(!uid) {
+      console.error("User not authenticated");
+      alert("You must be logged in to add friends.");
+      return;
+    }
     const friendCollection = `users/${uid}/friends`;
     const docRef = doc(db, friendCollection, friend.uid);
     await setDoc(docRef, {
       adddeOn: new Date(),
     });
-    alert("Friend added!");
+    // alert("Friend added!");
     console.log("Added new friend: ", friend.username);
   } catch (e) {
     console.error("Error adding document: ", e);
-    alert("Internal error adding friend. Please try again later.");
+    // alert("Internal error adding friend. Please try again later.");
   }
 };
 
