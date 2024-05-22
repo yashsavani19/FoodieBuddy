@@ -81,10 +81,15 @@ const ChatScreen: React.FC = () => {
 
   const renderItem = ({ item }: { item: Message }) => {
     const isCurrentUser = item.userId === auth.currentUser?.uid;
+    const formattedDate = new Date(item.timestamp).toLocaleString();
+
     return (
       <TouchableOpacity onPress={() => confirmDeleteMessage(item.id)}>
-        <View style={[styles.messageContainer, isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage]}>
-          <Text style={styles.messageText}>{item.text}</Text>
+        <View style={styles.messageContainer}>
+          <Text style={styles.timestampText}>{formattedDate}</Text>
+          <View style={[styles.messageBubble, isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage]}>
+            <Text style={styles.messageText}>{item.text}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -160,9 +165,11 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   messageContainer: {
+    marginVertical: 5,
+  },
+  messageBubble: {
     borderRadius: 20,
     padding: 10,
-    marginVertical: 5,
     maxWidth: '80%',
   },
   currentUserMessage: {
@@ -178,6 +185,12 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     color: '#fff',
+  },
+  timestampText: {
+    fontSize: 12,
+    color: '#888',
+    alignSelf: 'center',
+    marginBottom: 2,
   },
   inputContainer: {
     flexDirection: "row",

@@ -465,7 +465,7 @@ export const sendMessage = async (chatRoomId: string, text: string) => {
     await addDoc(messagesCollection, {
       text,
       userId: auth.currentUser?.uid,
-      timestamp: new Date(),
+      timestamp: serverTimestamp(), // Use serverTimestamp for consistent server-side timestamps
     });
   } catch (e) {
     console.error("Error sending message: ", e);
@@ -485,7 +485,9 @@ export const fetchMessages = async (chatRoomId: string) => {
     const querySnapshot = await getDocs(messagesQuery);
     const messages: any[] = [];
     querySnapshot.forEach((doc) => {
-      messages.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
+      messages.push({ id: doc.id, ...data, timestamp });
     });
     return messages;
   } catch (e) {
@@ -494,6 +496,7 @@ export const fetchMessages = async (chatRoomId: string) => {
     return [];
   }
 };
+
 
 /**
  * Deletes a message from a chat room by its ID
