@@ -369,3 +369,36 @@ export const updateUsername = async (
   }
   return false;
 };
+
+/**
+ * Adds preference to user's preferences
+ * @param preference preference object
+ */
+export const addPreference = async (preference: Preference) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    const docRef = await addDoc(collection(db, preferenceCollection), {
+      name: preference.name,
+    });
+    console.log("Document written with ID: ", docRef.id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding preference. Please try again later.");
+  }
+};
+
+/**
+ * Removes preference from user's preferences
+ * @param preferenceId preference id
+ */
+export const removePreference = async (preferenceId: string) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    await deleteDoc(doc(db, preferenceCollection, preferenceId));
+  } catch (e) {
+    console.error("Error removing document: ", e);
+    alert("Internal error removing preference. Please try again later.");
+  }
+};
