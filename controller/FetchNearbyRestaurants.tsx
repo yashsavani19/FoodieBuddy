@@ -7,7 +7,51 @@ import { LocationObjectCoords } from 'expo-location';
 const photoWidth = 700;
 const photoHeight = 700;
 const searchRadius = 1050; // Search radius in meters
-const placeType = 'restaurant'; // Type of place to search
+// Type of place to search
+const placeType = [
+  "american_restaurant",
+  "bakery",
+  "bar",
+  "barbecue_restaurant",
+  "brazilian_restaurant",
+  "breakfast_restaurant",
+  "brunch_restaurant",
+  "cafe",
+  "chinese_restaurant",
+  "coffee_shop",
+  "fast_food_restaurant",
+  "french_restaurant",
+  "greek_restaurant",
+  "hamburger_restaurant",
+  "ice_cream_shop",
+  "indian_restaurant",
+  "indonesian_restaurant",
+  "italian_restaurant",
+  "japanese_restaurant",
+  "korean_restaurant",
+  "lebanese_restaurant",
+  "meal_delivery",
+  "meal_takeaway",
+  "mediterranean_restaurant",
+  "mexican_restaurant",
+  "middle_eastern_restaurant",
+  "pizza_restaurant",
+  "ramen_restaurant",
+  "restaurant",
+  "sandwich_shop",
+  "seafood_restaurant",
+  "spanish_restaurant",
+  "steak_house",
+  "sushi_restaurant",
+  "thai_restaurant",
+  "turkish_restaurant",
+  "vegan_restaurant",
+  "vegetarian_restaurant",
+  "vietnamese_restaurant"
+];
+
+// Use the JS implementation of the API instead of axios 
+// https://developers.google.com/maps/documentation/javascript/places
 
 /**
  * Fetches nearby restaurants based on the provided location.
@@ -23,11 +67,27 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
   try {
     console.log("Fetching nearby restaurants...");
     // Construct the API URL with query parameters
-    const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
-    const response = await axios.get<any>(apiUrl);
-    // We want to exclude places that are not restaurants, such as cinemas
-    const excludeKeywords = ["cinema"];
+    // const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
+    // const response = await axios.get<any>(apiUrl);
+
     //console.log("Response from API:", response.data);
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': GOOGLE_API_KEY,
+      //'X-Goog-FieldMask': 'places.displayName',
+    }
+
+    const params = {
+      //fieldMask: 'photos,formatted_address,name,rating,opening_hours,geometry',
+      locationRestriction: `circle:${searchRadius}@${location.latitude},${location.longitude}`,
+      includeType: placeType,
+      fields: 'places.displayName',
+    };
+
+    const response = await axios.post('https://places.googleapis.com/v1/places:searchNearby/', { params }, { headers });
+
+    console.log("Response from API:", response.data);
 
     // Process each result to create restaurant data
     const results = response.data.results || [];
@@ -39,11 +99,6 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
 
       // Exclude lodging (hotels, hostels, motels, etc.)
       if (result.types.includes('lodging')) {
-        return null;
-      }
-
-      // Skip if the restaurant name contains any of the exclude keywords
-      if (excludeKeywords.some(keyword => result.name.toLowerCase().includes(keyword))) {
         return null;
       }
 
