@@ -9,7 +9,6 @@ export type RootStackParamList = {
       lng: number;
     };
   }; };
-  ChatView: undefined;
   DetailsView: { Restaurant: Restaurant };
   FavoriteSpotsView: undefined;
   BookmarkedSpotsView: undefined;
