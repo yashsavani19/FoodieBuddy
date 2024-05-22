@@ -1,3 +1,4 @@
+// Test the rendering of the ImFeelingLucky component
 describe("ImFeelingLucky Component", () => {
   it("Button renders correctly", () => {
     const tree = renderer.create(<ImFeelingLucky />).toJSON();
