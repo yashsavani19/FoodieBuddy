@@ -123,7 +123,7 @@ const MessageInput: React.FC<{
   return (
     <View style={styles.inputContainer}>
       <Image
-        source={require('../../../assets/images/iconBuddy.png')}
+        source={require('../../../assets/images/Buddy toggle.png')}
         style={styles.image}
       />
       <TextInput
