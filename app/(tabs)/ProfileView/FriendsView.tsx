@@ -54,9 +54,9 @@ const FriendsView = () => {
     <View style={styles.container}>
       {/* Title Header */}
       <TitleHeader title="Friends" />
+      <ProfileFriendsNavBar mode="friends" />
       {/* ScrollView for scrollable content */}
       <ScrollView style={styles.scrollView}>
-        <ProfileFriendsNavBar mode="friends" />
         <View style={styles.listContainer}>
           <ListContainer
             mode="friendsList"
