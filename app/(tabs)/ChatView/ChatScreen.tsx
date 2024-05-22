@@ -11,6 +11,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Alert,
+  Image,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { fetchMessages, sendMessage, deleteMessage } from '@/controller/DatabaseHandler';
@@ -121,6 +122,10 @@ const MessageInput: React.FC<{
 }> = ({ newMessage, setNewMessage, handleSendMessage }) => {
   return (
     <View style={styles.inputContainer}>
+      <Image
+        source={require('../../../assets/images/iconBuddy.png')}
+        style={styles.image}
+      />
       <TextInput
         style={styles.input}
         placeholder="Type a message..."
@@ -191,9 +196,10 @@ const styles = StyleSheet.create({
   sendButton: {
     marginLeft: 10,
   },
-  sendButtonText: {
-    color: '#fff',
-    fontSize: 16,
+  image: {
+    width: 30,
+    height: 30,
+    marginRight: 10,
   },
 });
 
