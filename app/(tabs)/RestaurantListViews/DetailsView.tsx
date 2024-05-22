@@ -31,7 +31,7 @@ export default function DetailsView() {
   if (!Restaurant) {
     return (
       <View style={styles.centered}>
-        <Text> Something Restaurant not found.</Text>
+        <Text>Restaurant not found.</Text>
       </View>
     );
   }
