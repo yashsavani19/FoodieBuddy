@@ -16,6 +16,9 @@ import {
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { fetchChatRooms, createChatRoom, deleteChatRoom } from '@/controller/DatabaseHandler';
 import { auth } from '@/controller/FirebaseHandler';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '@/constants/navigationTypes';
+import { NavigationProp } from '@react-navigation/native';
 
 type ChatRoom = {
   id: string;
@@ -31,23 +34,29 @@ type ChatRoomItemProps = {
   onDelete: (id: string) => void;
 };
 
-const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete }) => (
-  <View style={styles.chatRoomContainer}>
-    <View style={styles.avatarContainer}>
-      <Image
-        source={{ uri: chatRoom.avatar || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg' }}
-        style={styles.avatar}
-      />
-    </View>
-    <View style={styles.chatRoomInfo}>
-      <Text style={styles.chatRoomName}>{chatRoom.name}</Text>
-      <Text style={styles.chatRoomLastMessage}>{chatRoom.lastMessage}</Text>
-    </View>
-    <TouchableOpacity onPress={() => onDelete(chatRoom.id)} style={styles.deleteButton}>
-      <Text style={styles.deleteButtonText}>Remove</Text>
+const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete }) => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate('ChatScreen', { chatRoomId: chatRoom.id })}>
+      <View style={styles.chatRoomContainer}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={{ uri: chatRoom.avatar || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg' }}
+            style={styles.avatar}
+          />
+        </View>
+        <View style={styles.chatRoomInfo}>
+          <Text style={styles.chatRoomName}>{chatRoom.name}</Text>
+          <Text style={styles.chatRoomLastMessage}>{chatRoom.lastMessage}</Text>
+        </View>
+        <TouchableOpacity onPress={() => onDelete(chatRoom.id)} style={styles.deleteButton}>
+          <Text style={styles.deleteButtonText}>Remove</Text>
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
-  </View>
-);
+  );
+};
 
 type ChatListProps = {
   type: string;
@@ -256,5 +265,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
+
 
 export default ChatListTabs;

@@ -494,3 +494,19 @@ export const fetchMessages = async (chatRoomId: string) => {
     return [];
   }
 };
+
+/**
+ * Deletes a message from a chat room by its ID
+ * @param chatRoomId - ID of the chat room
+ * @param messageId - ID of the message to delete
+ */
+export const deleteMessage = async (chatRoomId: string, messageId: string): Promise<void> => {
+  try {
+    const messageDoc = doc(db, "chatRooms", chatRoomId, "messages", messageId);
+    await deleteDoc(messageDoc);
+    console.log('Message deleted with ID: ', messageId);
+  } catch (e) {
+    console.error("Error deleting message: ", e);
+    alert("Internal error deleting message. Please try again later.");
+  }
+};

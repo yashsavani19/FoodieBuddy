@@ -9,6 +9,7 @@ export type RootStackParamList = {
       lng: number;
     };
   }; };
+  ChatScreen: { chatRoomId: string };
   DetailsView: { Restaurant: Restaurant };
   FavoriteSpotsView: undefined;
   BookmarkedSpotsView: undefined;
