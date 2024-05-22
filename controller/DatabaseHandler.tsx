@@ -11,6 +11,7 @@ import {
   orderBy,
   serverTimestamp,
   where,
+  limit,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
@@ -422,21 +423,29 @@ export const createChatRoom = async (roomName: string, type: string, profileImag
  * @param {string} type - The type of chat rooms to fetch (e.g., 'buddy', 'friends')
  * @returns {Promise<any[]>} - An array of chat rooms
  */
-export const fetchChatRooms = async (type: string): Promise<any[]> => {
-  try {
-    const chatRoomCollection = collection(db, "chatRooms");
-    const chatRoomQuery = query(chatRoomCollection, where("type", "==", type));
-    const querySnapshot = await getDocs(chatRoomQuery);
-    const chatRooms: any[] = [];
-    querySnapshot.forEach((doc) => {
-      chatRooms.push({ id: doc.id, ...doc.data() });
+export const fetchChatRooms = async (type: string) => {
+  const chatRoomsRef = collection(db, "chatRooms");
+  const q = query(chatRoomsRef, where("type", "==", type));
+
+  const querySnapshot = await getDocs(q);
+  const chatRooms = [];
+
+  for (const doc of querySnapshot.docs) {
+    const lastMessageRef = collection(db, `chatRooms/${doc.id}/messages`);
+    const lastMessageQuery = query(lastMessageRef, orderBy("timestamp", "desc"), limit(1));
+    const lastMessageSnapshot = await getDocs(lastMessageQuery);
+    const lastMessageData = lastMessageSnapshot.docs[0]?.data();
+
+    chatRooms.push({
+      id: doc.id,
+      name: doc.data().name,
+      lastMessage: lastMessageData ? lastMessageData.text : '',
+      lastMessageTimestamp: lastMessageData ? lastMessageData.timestamp.toDate() : null,
+      avatar: doc.data().avatar,
     });
-    return chatRooms;
-  } catch (e) {
-    console.error("Error fetching chat rooms: ", e);
-    alert("Internal error fetching chat rooms. Please try again later.");
-    return [];
   }
+
+  return chatRooms;
 };
 
 /**

@@ -1,30 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Image, 
-  Modal, 
-  TextInput, 
-  Button, 
-  KeyboardAvoidingView, 
-  Platform, 
-  RefreshControl 
-} from 'react-native';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { fetchChatRooms, createChatRoom, deleteChatRoom } from '@/controller/DatabaseHandler';
-import { auth } from '@/controller/FirebaseHandler';
-import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '@/constants/navigationTypes';
-import { NavigationProp } from '@react-navigation/native';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Modal,
+  TextInput,
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+  RefreshControl,
+} from "react-native";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import {
+  fetchChatRooms,
+  createChatRoom,
+  deleteChatRoom,
+} from "@/controller/DatabaseHandler";
+import { auth } from "@/controller/FirebaseHandler";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import { NavigationProp } from "@react-navigation/native";
 
 type ChatRoom = {
   id: string;
   name: string;
   lastMessage: string;
   avatar: string;
+  timestamp: Date;
 };
 
 const Tab = createMaterialTopTabNavigator();
@@ -37,20 +42,41 @@ type ChatRoomItemProps = {
 const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  // const formatTimestamp = (timestamp: Date): string => {
+  //   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  //   return timestamp.toLocaleDateString(undefined, options);
+  // };
+
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('ChatScreen', { chatRoomId: chatRoom.id })}>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("ChatScreen", { chatRoomId: chatRoom.id })
+      }
+    >
       <View style={styles.chatRoomContainer}>
         <View style={styles.avatarContainer}>
           <Image
-            source={{ uri: chatRoom.avatar || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg' }}
+            source={{
+              uri:
+                chatRoom.avatar ||
+                "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg",
+            }}
             style={styles.avatar}
           />
         </View>
         <View style={styles.chatRoomInfo}>
           <Text style={styles.chatRoomName}>{chatRoom.name}</Text>
-          <Text style={styles.chatRoomLastMessage}>{chatRoom.lastMessage}</Text>
+          <View style={styles.timestampContainer}>
+            <Text style={styles.chatRoomLastMessage}>
+              {chatRoom.lastMessage}
+            </Text>
+            {/* <Text style={styles.chatRoomTimestamp}>{formatTimestamp(chatRoom.timestamp)}</Text> */}
+          </View>
         </View>
-        <TouchableOpacity onPress={() => onDelete(chatRoom.id)} style={styles.deleteButton}>
+        <TouchableOpacity
+          onPress={() => onDelete(chatRoom.id)}
+          style={styles.deleteButton}
+        >
           <Text style={styles.deleteButtonText}>Remove</Text>
         </TouchableOpacity>
       </View>
@@ -65,14 +91,25 @@ type ChatListProps = {
 const ChatList: React.FC<ChatListProps> = ({ type }) => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [newChatRoomName, setNewChatRoomName] = useState('');
-  const [newChatRoomImageUrl, setNewChatRoomImageUrl] = useState('');
+  const [newChatRoomName, setNewChatRoomName] = useState("");
+  const [newChatRoomImageUrl, setNewChatRoomImageUrl] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
   const getChatRooms = async () => {
-    const rooms = await fetchChatRooms(type);
-    rooms.sort((a, b) => a.name.localeCompare(b.name));
-    setChatRooms(rooms);
+    try {
+      const rooms = await fetchChatRooms(type);
+      const formattedRooms: ChatRoom[] = rooms.map((room) => ({
+        id: room.id,
+        name: room.name,
+        lastMessage: room.lastMessage,
+        avatar: room.avatar,
+        timestamp: room.lastMessageTimestamp, // Assuming lastMessageTimestamp is the correct property for timestamp
+      }));
+      formattedRooms.sort((a, b) => a.name.localeCompare(b.name));
+      setChatRooms(formattedRooms);
+    } catch (error) {
+      console.error("Error fetching chat rooms: ", error);
+    }
   };
 
   useEffect(() => {
@@ -82,13 +119,18 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
   const handleCreateChatRoom = async () => {
     const userId = auth.currentUser?.uid;
     if (userId) {
-      await createChatRoom(newChatRoomName, type, newChatRoomImageUrl || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg');
+      await createChatRoom(
+        newChatRoomName,
+        type,
+        newChatRoomImageUrl ||
+          "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
+      );
       setModalVisible(false);
-      setNewChatRoomName('');
-      setNewChatRoomImageUrl('');
+      setNewChatRoomName("");
+      setNewChatRoomImageUrl("");
       await getChatRooms();
     } else {
-      console.error('User is not authenticated');
+      console.error("User is not authenticated");
     }
   };
 
@@ -108,12 +150,17 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
       <FlatList
         data={chatRooms}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} />}
+        renderItem={({ item }) => (
+          <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} />
+        )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
-      <TouchableOpacity style={styles.newChatButton} onPress={() => setModalVisible(true)}>
+      <TouchableOpacity
+        style={styles.newChatButton}
+        onPress={() => setModalVisible(true)}
+      >
         <Text style={styles.newChatButtonText}>New Chat</Text>
       </TouchableOpacity>
       <Modal
@@ -122,7 +169,10 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(!modalVisible)}
       >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalView}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalView}
+        >
           <Text style={styles.modalText}>Create New Chat Room</Text>
           <TextInput
             style={styles.input}
@@ -141,7 +191,11 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
           />
           <View style={styles.buttonContainer}>
             <Button title="Create" onPress={handleCreateChatRoom} />
-            <Button title="Cancel" onPress={() => setModalVisible(false)} color="#ff6f00" />
+            <Button
+              title="Cancel"
+              onPress={() => setModalVisible(false)}
+              color="#ff6f00"
+            />
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -155,19 +209,19 @@ const FriendsChat: React.FC = () => <ChatList type="friends" />;
 const ChatListTabs: React.FC = () => (
   <Tab.Navigator
     screenOptions={{
-      tabBarStyle: { backgroundColor: '#1e1e1e' },
-      tabBarIndicatorStyle: { 
-        backgroundColor: '#ff6f00',
-        width: '30%',
+      tabBarStyle: { backgroundColor: "#1e1e1e" },
+      tabBarIndicatorStyle: {
+        backgroundColor: "#ff6f00",
+        width: "30%",
         borderRadius: 5,
         height: 5,
-        alignSelf: 'center',
+        alignSelf: "center",
         marginLeft: 38.5,
       },
-      tabBarLabelStyle: { 
-        color: '#ffffff',
-        fontWeight: 'bold',
-        textTransform: 'none',
+      tabBarLabelStyle: {
+        color: "#ffffff",
+        fontWeight: "bold",
+        textTransform: "none",
         fontSize: 18,
       },
     }}
@@ -180,91 +234,100 @@ const ChatListTabs: React.FC = () => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2E2E2E',
+    backgroundColor: "#2E2E2E",
   },
   chatRoomContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
-    backgroundColor: '#ffffff',
+    borderBottomColor: "#333",
+    backgroundColor: "#ffffff",
   },
   avatarContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 10,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
   },
   chatRoomInfo: {
-    justifyContent: 'center',
+    justifyContent: "center",
     flex: 1,
   },
   chatRoomName: {
     fontSize: 18,
-    fontWeight: '500',
-    color: '#000000',
+    fontWeight: "500",
+    color: "#000000",
   },
   chatRoomLastMessage: {
-    color: '#888',
+    color: "#888",
+  },
+  chatRoomTimestamp: {
+    color: "#888", // You can style timestamp differently if needed
+    fontSize: 12,
   },
   deleteButton: {
-    backgroundColor: '#ff6f00',
+    backgroundColor: "#ff6f00",
     padding: 10,
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   deleteButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   newChatButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: '#007BFF',
+    backgroundColor: "#007BFF",
     borderRadius: 15,
     padding: 10,
     width: 120,
   },
   newChatButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   modalView: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.8)",
     padding: 20,
   },
   modalText: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 20,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 10,
     borderRadius: 10,
     marginBottom: 10,
-    width: '100%',
+    width: "100%",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  timestampContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", // Add space between last message and timestamp
+    alignItems: "center",
+    width: "90%", // Ensure full width
   },
 });
-
 
 export default ChatListTabs;

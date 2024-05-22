@@ -4,7 +4,7 @@ import { Stack } from "expo-router";
 import { useColorScheme } from "@/components/useColorScheme";
 
 export const unstable_settings = {
-  initialRouteName: "ChatView",
+  initialRouteName: "Chats",
 };
 
 function TabBarIcon(props: {
@@ -19,7 +19,7 @@ export default function TabLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="ChatView" />
+      <Stack.Screen name="Chats" />
       {/* <Stack.Screen name="ChatScreen" options={{ headerShown: true}}/> */}
     </Stack>
   );
