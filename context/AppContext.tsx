@@ -2,6 +2,12 @@ import { ReactNode, createContext, useEffect, useState } from "react";
 import { Restaurant } from "../model/Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "../model/Saved";
+
+import { Preference } from "@/model/Preference"; // Adjust the path as necessary
+import { PreferenceList } from "@/model/PreferenceList"; // Adjust the path as necessary
+import { addPreferences } from "@/controller/DatabaseHandler"; // Adjust the path as necessary
+import { fetchPreferences } from "@/controller/DatabaseHandler"; // Adjust the path as necessary
+
 import fetchNearbyRestaurants from "@/controller/FetchNearbyRestaurants";
 import {
   fetchBookmarks,
@@ -42,6 +48,8 @@ export type AppContextType = {
   visitedRestaurants: Saved[];
   addVisitedContext: (restaurant: Restaurant) => Promise<void>;
   removeVisitedContext: (placeId: string) => Promise<void>;
+  preferences: PreferenceList;
+  addPreference: (preference: Preference) => Promise<void>;
   updateSaved: () => Promise<void>;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
@@ -93,6 +101,8 @@ export const AppContext = createContext<AppContextType>({
   addChatMessage: async () => {},
   userObject: {},
   setUser: async () => {},
+  preferences: { preferences: [] },
+  addPreference: async () => {},
 
   selectedCategory: categories[0],
   setSelectedCategory: async () => {},
@@ -121,6 +131,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     []
   );
   const [visitedRestaurants, setVisitedRestaurants] = useState<Saved[]>([]);
+
+  const [preferences, setPreferences] = useState<PreferenceList>({
+    preferences: [],
+  });
 
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
@@ -215,6 +229,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Visited updated");
   }, [visitedRestaurants]);
+  useEffect(() => {
+    console.log("Preferences updated");
+  }, [preferences]);
 
   const setUser = async () => {
     try {
@@ -462,6 +479,18 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
+  const addPreference = async (preference: Preference) => {
+    try {
+      if (!user || !userObject) return;
+      await addPreference(preference); // Assuming `addPreferences` is an API call
+      setPreferences((prevPreferences) => ({
+        preferences: [...prevPreferences.preferences, preference],
+      }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const contextValue = {
     dataLoading,
     setDataLoading,
@@ -480,6 +509,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     visitedRestaurants,
     addVisitedContext,
     removeVisitedContext,
+    preferences, 
+    addPreference,
     updateSaved,
     defaultMessage,
     resetToDefaultMessage,

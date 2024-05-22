@@ -15,6 +15,7 @@ export type RootStackParamList = {
   BookmarkedSpotsView: undefined;
   VisitedSpotsView: undefined;
   EditAccountView: undefined;
+  FoodPreferencesView: undefined;
 };
 
 export type MapRouteParams = {

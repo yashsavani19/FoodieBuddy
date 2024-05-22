@@ -19,6 +19,11 @@ export default function UserProfileView() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, signOut } = useAuth(); // Use auth hook here
 
+  function navigateToFoodPreferences(event: GestureResponderEvent): void {
+    // Assuming 'navigation' is already defined using the useNavigation hook
+    navigation.navigate("FoodPreferencesView");
+  }
+
   function navigateToFavouriteSpots(event: GestureResponderEvent): void {
     // Assuming 'navigation' is already defined using the useNavigation hook
     navigation.navigate("FavoriteSpotsView");
@@ -72,7 +77,7 @@ export default function UserProfileView() {
         <View style={styles.menuItemsSection}>
           {/* Food Preferences Button */}
           <TouchableOpacity
-            onPress={navigateToFavouriteSpots}
+            onPress={navigateToFoodPreferences}
             style={styles.menuItem}
           >
             <Image

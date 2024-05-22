@@ -12,6 +12,8 @@ import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
 import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
+import { PreferenceList } from "@/model/PreferenceList";
+import { preferenceList } from "@/constants/AITestData";
 // import { useAuth } from "@/context/AuthContext";
 /**
  * Getters and setters for user data
@@ -388,6 +390,19 @@ export const addPreference = async (preference: Preference) => {
   }
 };
 
+export const addPreferences = async (preferences: PreferenceList) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    for (const preference of preferences.preferences) {
+      await addPreference(preference);
+    }
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding preferences. Please try again later.");
+  }
+}
+
 /**
  * Removes preference from user's preferences
  * @param preferenceId preference id
@@ -400,5 +415,33 @@ export const removePreference = async (preferenceId: string) => {
   } catch (e) {
     console.error("Error removing document: ", e);
     alert("Internal error removing preference. Please try again later.");
+  }
+};
+
+/**
+ * Fetches preferences from user
+ */
+export const fetchPreferences = async () => {
+  try {
+    const uid = auth.currentUser?.uid;
+    if (!uid) {
+      console.error("User not authenticated");
+      alert("You must be logged in to view preferences.");
+      return;
+    }
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const preferences: Preference[] = [];
+    querySnapshot.forEach((doc) => {
+      preferences.push({
+        preferenceId: doc.id,
+        name: doc.data().name,
+      });
+    });
+    return preferences;
+    
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
   }
 };
