@@ -88,6 +88,13 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
     }
   }, [geometry, mapReady, filteredRestaurants]);
 
+  // Effect to make the marker state & directions reset when restaurants are filtered
+  useEffect(() => {
+    setDirections(null);
+    setDirectionsSummary(null);
+    setSelectedMarkerId(null);
+  }, [filteredRestaurants]);
+
   const toggleMode = () => {
     setMode((prevMode) => (prevMode === "WALKING" ? "DRIVING" : "WALKING"));
   };
