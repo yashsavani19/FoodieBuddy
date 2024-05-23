@@ -46,7 +46,7 @@ export default function TabLayout() {
     if (user) {
       setIsLoading(true);
       const fetchData = async () => {
-        // await setRestaurants();
+        await setRestaurants();
         await setUser();
         setIsLoading(false);
       };
