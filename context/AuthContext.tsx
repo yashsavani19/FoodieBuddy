@@ -47,9 +47,7 @@ export function AuthProvider(props: ProviderProps) {
   const [authInitialised, setAuthInitialised] = useState(false);
 
   const useProtectedRoute = (user: Auth.User | null) => {
-    const segments = useSegments();
     const router = useRouter();
-
     const [isNavigationReady, setIsNavigationReady] = useState(false);
     const rootNavigation = useNavigationContainerRef();
 
@@ -65,19 +63,17 @@ export function AuthProvider(props: ProviderProps) {
     }, [rootNavigation]);
 
     useEffect(() => {
-      if (!isNavigationReady) {
+      if (!isNavigationReady || !authInitialised) {
         return;
       }
 
-      const inAuthGroup = segments[0] === "(auth)";
-      if (!authInitialised) return;
-
-      if (!user && !inAuthGroup) {
-        router.push("/LoginView");
-      } else if (user && inAuthGroup) {
-        router.push("../RestaurantListViews");
+      if (!user) {
+        router.replace("/LoginView");
+      } else if (user) {
+        console.log("User is logged in");
+        router.push("/(tabs)/RestaurantListViews/ListView");
       }
-    }, [user, segments, authInitialised, isNavigationReady]);
+    }, [user, authInitialised, isNavigationReady]);
   };
 
   useEffect(() => {
@@ -121,12 +117,12 @@ export function AuthProvider(props: ProviderProps) {
       await login(email, password);
       const currentUser = Auth.getAuth().currentUser;
       setAuthUser(currentUser);
+      return true;
     } catch (error: any) {
       handleAuthError(error);
       return false;
     } finally {
       setAuthInitialised(true);
-      return true;
     }
   };
 
