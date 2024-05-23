@@ -3,4 +3,7 @@ export interface Category {
     name: string;
     tags?: string[];
     image?: string;
+    type: string;
+    apiName: string;
+    scale?: number;
 }

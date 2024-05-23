@@ -41,6 +41,7 @@
     "react": "^18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.73.6",
+    "react-native-drawer-layout": "^3.3.0",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-google-places-autocomplete": "^2.5.6",
     "react-native-maps": "1.10.0",
@@ -54,7 +55,8 @@
     "react-native-web": "~0.19.6",
     "react-native-webview": "^13.8.6",
     "view": "^1.1.1",
-    "web": "^0.0.2"
+    "web": "^0.0.2",
+    "react-native-reanimated": "~3.6.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
