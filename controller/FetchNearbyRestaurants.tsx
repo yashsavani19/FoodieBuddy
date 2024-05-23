@@ -61,18 +61,15 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
     return [];
   }
 
-  try 
-  {
+  try {
     const results = await getRestaurantResults(location);
 
     const restaurants = await Promise.all(results.map(async (result: any) =>
     {
       // Construct URL for the restaurant's main photo if available
-      const photoUrl = result.photos && result.photos[0] && result.photos[0].name
-        ? `https://places.googleapis.com/v1/${result.photos[0].name}/media?maxWidthPx=${photoWidth}&maxHeightPx=${photoHeight}&key=${GOOGLE_API_KEY}`
-        : null;
+      const photoUrl = getPhotoUrl(result);
 
-      const detailResults = await getRestaurantDetails(result.id);
+      const detailResults = await getRestaurantDetails(result.id, false);
 
       // Calculate the distance from the provided location to the restaurant
       const distance = getDistanceFromLatLonInKm(
@@ -82,35 +79,32 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
         result.location.longitude
       )
 
-        // Return restaurant data including photo URL
-        return {
-          geometry: {
-            location: {
-              lat: result.location.latitude,
-              lng: result.location.longitude
-            },
-          },
-          id: result.id,
-          name: result.displayName.text,
-          image: photoUrl,
-          categories: result.types,
-          price: detailResults.priceScale,
-          rating: result.rating,
-          displayAddress: result.formattedAddress,
-          phone: result.nationalPhoneNumber,
-          distance: distance.toFixed(2),
-          isClosed: result.businessStatus,
-          website: detailResults.websiteUrl,
-        };
-      })
-    );
+      // Return restaurant data 
+      return {
+        geometry: {
+          location: {
+            lat: result.location.latitude,
+            lng: result.location.longitude
+          }},
+        id: result.id,
+        name: result.displayName.text,
+        image: photoUrl,
+        categories: result.types,
+        price: detailResults.priceScale,
+        rating: result.rating,
+        displayAddress: result.formattedAddress,
+        phone: result.nationalPhoneNumber,
+        distance: distance.toFixed(2),
+        isClosed: result.businessStatus,
+        website: detailResults.data.websiteUrl,
+      };
+    }));
 
     //console.log("Fetched nearby restaurants:", restaurants.filter(restaurant => restaurant !== null));
-    return restaurants.filter(restaurant => restaurant !== null);
-
-    } 
+    return restaurants;
+  } 
      
-    catch (error) {
+  catch (error) {
     console.error("Error fetching nearby restaurants:", error);
     return [];
   }
@@ -156,26 +150,43 @@ async function getRestaurantResults(location: LocationObjectCoords)
 }
 
 /**
- * This method gets the Details of a restaurant from Google Places API (new)
- * @param id 
- * @returns websiteUrl and priceScale
+ * This method gets the photo URL of a Place object from Google Places API (new)
+ * @param result 
+ * @returns Photo URL
  */
-async function getRestaurantDetails(id: string)
+export function getPhotoUrl(result: any)
+{
+  // Construct URL for the restaurant's main photo if available
+  return result.photos && result.photos[0] && result.photos[0].name
+  ? `https://places.googleapis.com/v1/${result.photos[0].name}/media?maxWidthPx=${photoWidth}&maxHeightPx=${photoHeight}&key=${GOOGLE_API_KEY}`
+  : null;
+}
+
+/**
+ * This method gets the Details of a restaurant from Google Places API (new)
+ * @param id, all as boolean (true: get all details, false: get only websiteUri & priceLevel)
+ * @returns Object with results data and priceScale
+ */
+export async function getRestaurantDetails(id: string, all: boolean)
 {
   // Fetch additional details about the place: website URL and price level
-  const headers = {
-    'Content-Type': 'application/json',
+  const headers = (all ? 
+  { 'Content-Type': 'application/json',
+    'X-Goog-Api-Key': GOOGLE_API_KEY, 
+    'X-Goog-FieldMask': 'websiteUri,location,displayName,photos,priceLevel,rating,formattedAddress,nationalPhoneNumber,businessStatus,types',
+  } : 
+  { 'Content-Type': 'application/json',
     'X-Goog-Api-Key': GOOGLE_API_KEY, 
     'X-Goog-FieldMask': 'websiteUri,priceLevel',
-  };
+  });
   
   const detailsApiUrl = `https://places.googleapis.com/v1/places/${id}`;    
 
   const detailsResponse = await axios.get(detailsApiUrl, { headers });
   
-  const websiteUrl = detailsResponse.data.website;
-  const priceLevel = detailsResponse.data.priceLevel;
+  const data = detailsResponse.data;
 
+  const priceLevel = data.priceLevel;
   let priceScale = undefined;
   switch(priceLevel) 
   {
@@ -193,7 +204,7 @@ async function getRestaurantDetails(id: string)
       break;
   }
 
-  return { websiteUrl, priceScale };
+  return { data, priceScale };
 }
 
 export default fetchNearbyRestaurants;
