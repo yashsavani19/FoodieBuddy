@@ -75,7 +75,7 @@ export function AuthProvider(props: ProviderProps) {
       if (!user && !inAuthGroup) {
         router.push("/LoginView");
       } else if (user && inAuthGroup) {
-        router.push("/RestaurantListViews/");
+        router.push("../RestaurantListViews");
       }
     }, [user, segments, authInitialised, isNavigationReady]);
   };

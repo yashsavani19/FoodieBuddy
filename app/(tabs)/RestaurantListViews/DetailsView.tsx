@@ -40,6 +40,7 @@ export default function DetailsView() {
   return (
     <DetailsViewComponents
       restaurant={Restaurant}
+      backFunction={backFunction}
     />
   );
 }
