@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useEffect, useState } from "react";
+import { ReactNode, createContext, useEffect, useRef, useState } from "react";
 import { Restaurant } from "../model/Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "../model/Saved";
@@ -25,6 +25,7 @@ import { Category } from "@/model/Category";
 import { categories } from "@/assets/data/categories-options";
 import { Alert } from "react-native";
 import { getRestaurantById } from "@/controller/FetchRestaurantById";
+import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 
 export type AppContextType = {
   dataLoading: boolean;
@@ -42,7 +43,6 @@ export type AppContextType = {
   visitedRestaurants: Saved[];
   addVisitedContext: (restaurant: Restaurant) => Promise<void>;
   removeVisitedContext: (placeId: string) => Promise<void>;
-  updateSaved: () => Promise<void>;
   location: LocationObjectCoords | null;
   updateLocation: (location: LocationObjectCoords | null) => void;
   defaultMessage: IMessage;
@@ -84,7 +84,6 @@ export const AppContext = createContext<AppContextType>({
   visitedRestaurants: [],
   addVisitedContext: async () => {},
   removeVisitedContext: async () => {},
-  updateSaved: async () => {},
   location: null,
   updateLocation: async () => {},
   defaultMessage: {},
@@ -115,6 +114,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [location, setLocationArray] = useState<LocationObjectCoords | null>(
     null
   );
+  const [previousLocation, setPreviousLocation] =
+    useState<LocationObjectCoords | null>(null);
+  const DISTANCE_THRESHOLD = 0.1; // 100 metres
   const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
   const [favouriteRestaurants, setFavouriteRestaurants] = useState<Saved[]>([]);
   const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<Saved[]>(
@@ -157,48 +159,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-  const updateSaved = async () => {
-    // console.log("Updating saved restaurants...");
-    // try {
-    //   if (!user || !userObject) return;
-    //   console.log("Favorites:", userObject.favouriteRestaurants);
-    //   if (userObject.favouriteRestaurants) {
-    //     for (const restaurant of userObject.favouriteRestaurants) {
-    //       const newRestaurant = await getRestaurantById(
-    //         restaurant.placeId,
-    //         location
-    //       );
-    //       newRestaurant.isFavourite = true;
-    //       setFavouriteRestaurants((prev) => [...prev, newRestaurant]);
-    //     }
-    //     console.log("Favourite restaurants updated:", favouriteRestaurants);
-    //   }
-    //   console.log("Bookmarks:", userObject.bookmarkedRestaurants);
-    //   if (userObject.bookmarkedRestaurants) {
-    //     for (const restaurant of userObject.bookmarkedRestaurants) {
-    //       const newRestaurant = await getRestaurantById(
-    //         restaurant.placeId,
-    //         location
-    //       );
-    //       newRestaurant.isBookmarked = true;
-    //       setBookmarkedRestaurants((prev) => [...prev, newRestaurant]);
-    //     }
-    //   }
-    //   console.log("Visited:", userObject.visitedRestaurants);
-    //   if (userObject.visitedRestaurants) {
-    //     for (const restaurant of userObject.visitedRestaurants) {
-    //       const newRestaurant = await getRestaurantById(
-    //         restaurant.placeId,
-    //         location
-    //       );
-    //       newRestaurant.isVisited = true;
-    //       setVisitedRestaurants((prev) => [...prev, newRestaurant]);
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // console.log("Checking distance...");
+      checkDistanceAndUpdate();
+    }, 10000); //check every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [previousLocation]);
 
   useEffect(() => {
     if (!user) {
@@ -254,15 +222,36 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           reject("Permission denied");
           return;
         }
-        let location = await Location.getCurrentPositionAsync({});
-        setLocationArray(location.coords);
+        let newLocation = await Location.getCurrentPositionAsync({});
+        setLocationArray(newLocation.coords);
         console.log("Location updated:", location);
-        resolve(location.coords);
+        resolve(newLocation.coords);
       } catch (error) {
         console.error("Error updating location:", error);
         reject(error);
       }
     });
+  };
+
+  const checkDistanceAndUpdate = async () => {
+    const tempLocation = await updateLocation().then((locationCoords) => {
+      return locationCoords as LocationObjectCoords;
+    });
+    if (previousLocation) {
+      const distance = getDistanceFromLatLonInKm(
+        previousLocation.latitude,
+        previousLocation.longitude,
+        tempLocation.latitude,
+        tempLocation.longitude
+      );
+      if (distance > DISTANCE_THRESHOLD) {
+        console.log("Distance threshold exceeded. Updating restaurants...");
+        setRestaurants();
+        setPreviousLocation(tempLocation);
+      }
+    } else {
+      setPreviousLocation(tempLocation);
+    }
   };
 
   const resetToDefaultMessage = () => {
@@ -480,7 +469,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     visitedRestaurants,
     addVisitedContext,
     removeVisitedContext,
-    updateSaved,
     defaultMessage,
     resetToDefaultMessage,
     chatMessages,
