@@ -1,9 +1,7 @@
-import React, { useContext } from "react";
 import { GOOGLE_API_KEY } from "@env";
 import axios from "axios";
 import { Restaurant } from "@/model/Restaurant";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
-import { AppContext } from "@/context/AppContext";
 
 export async function getRestaurantById(placeId: string, location: any) {
   console.log("Fetching restaurant with placeId:", placeId);
@@ -43,8 +41,8 @@ export async function getRestaurantById(placeId: string, location: any) {
 
   // Construct URL for the restaurant's main photo if available
   const photoUrl = result.photos && result.photos[0] && result.photos[0].name
-        ? `https://places.googleapis.com/v1/places/${result.id}/photos/${result.photos[0].name}/media?maxWidthPx=${photoWidth}&key=${GOOGLE_API_KEY}`
-        : null;
+    ? `https://places.googleapis.com/v1/${result.photos[0].name}/media?maxWidthPx=${photoWidth}&maxHeightPx=${photoHeight}&key=${GOOGLE_API_KEY}`
+    : null;
 
   let distance = 0;
   if (location && result.geometry) {
