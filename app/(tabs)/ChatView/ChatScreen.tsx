@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 0,
   },
   otherUserMessage: {
-    backgroundColor: "purple",
+    backgroundColor: "grey",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
   },
