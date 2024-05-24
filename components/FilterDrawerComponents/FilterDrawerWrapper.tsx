@@ -6,7 +6,7 @@ import { Drawer } from 'react-native-drawer-layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../Themed';
-import CategoryContainer from './FilterContainer';
+import CategoryContainer from './CategoryContainer';
 import { StyleSheet } from 'react-native';
 import { categories } from "@/assets/data/categories-options";
 import CategoryButton from './CategoryButton';
