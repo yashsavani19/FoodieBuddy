@@ -27,10 +27,12 @@ type Message = {
   userId: string;
   timestamp: Date;
   userProfileImage: string;
+  username: string;
 };
 
 type UserProfile = {
   profilePicture?: string;
+  username?: string;
 };
 
 const ChatScreen: React.FC = () => {
@@ -56,7 +58,8 @@ const ChatScreen: React.FC = () => {
         const userDoc = await getDoc(firestoreDoc(db, "users", data.userId));
         const userProfile = userDoc.exists() ? (userDoc.data() as UserProfile) : {};
         const userProfileImage = userProfile.profilePicture || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg';
-        return { id: docSnapshot.id, text: data.text, userId: data.userId, timestamp, userProfileImage };
+        const username = userProfile.username || 'Unknown User';
+        return { id: docSnapshot.id, text: data.text, userId: data.userId, timestamp, userProfileImage, username };
       }));
       setMessages(msgs);
     });
@@ -103,11 +106,21 @@ const ChatScreen: React.FC = () => {
           <Text style={styles.timestampText}>{formattedDate}</Text>
           <View style={[styles.messageBubbleContainer, isCurrentUser ? styles.currentUserContainer : styles.otherUserContainer]}>
             {!isCurrentUser && (
-              <Image source={{ uri: item.userProfileImage }} style={styles.profileImage} />
+              <View style={styles.otherUserHeader}>
+                <View style={styles.profileImageContainer}>
+                  <Text style={styles.usernameText}>{item.username}</Text>
+                  <Image source={{ uri: item.userProfileImage }} style={styles.profileImage} />
+                </View>
+                <View style={[styles.messageBubble, styles.otherUserMessage]}>
+                  <Text style={styles.messageText}>{item.text}</Text>
+                </View>
+              </View>
             )}
-            <View style={[styles.messageBubble, isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage]}>
-              <Text style={styles.messageText}>{item.text}</Text>
-            </View>
+            {isCurrentUser && (
+              <View style={[styles.messageBubble, styles.currentUserMessage]}>
+                <Text style={styles.messageText}>{item.text}</Text>
+              </View>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -210,16 +223,38 @@ const styles = StyleSheet.create({
   otherUserContainer: {
     justifyContent: 'flex-start',
   },
+  otherUserHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    maxWidth: '80%',
+  },
+  profileImageContainer: {
+    alignItems: 'center',
+    marginRight: 10,
+  },
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
   },
   messageBubble: {
     borderRadius: 20,
     padding: 10,
-    maxWidth: '80%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   currentUserMessage: {
     backgroundColor: '#007BFF',
@@ -241,6 +276,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 2,
   },
+  usernameText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#555',
+    marginBottom: 2,
+  },
   inputContainer: {
     flexDirection: "row",
     padding: 10,
@@ -259,8 +300,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   image: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
     marginRight: 10,
   },
 });
