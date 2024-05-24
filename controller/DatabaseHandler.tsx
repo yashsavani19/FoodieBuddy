@@ -493,11 +493,22 @@ export const fetchMessages = async (chatRoomId: string) => {
     const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
     const querySnapshot = await getDocs(messagesQuery);
     const messages: any[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+    const placeholderImage = 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg'; // Replace with your placeholder image URL
+
+    for (const docSnapshot of querySnapshot.docs) {
+      const data = docSnapshot.data();
       const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
-      messages.push({ id: doc.id, ...data, timestamp });
-    });
+      const userDoc = await getDoc(doc(db, "users", data.userId));
+      const userProfile = userDoc.exists() ? userDoc.data() : {};
+      messages.push({
+        id: docSnapshot.id,
+        text: data.text,
+        userId: data.userId,
+        timestamp,
+        userProfileImage: userProfile.profilePicture || placeholderImage,
+      });
+    }
+
     return messages;
   } catch (e) {
     console.error("Error fetching messages: ", e);
@@ -505,6 +516,8 @@ export const fetchMessages = async (chatRoomId: string) => {
     return [];
   }
 };
+
+
 
 
 /**
