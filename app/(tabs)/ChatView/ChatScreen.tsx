@@ -51,7 +51,6 @@ const ChatScreen: React.FC = () => {
         return { id: doc.id, text: data.text, userId: data.userId, timestamp };
       });
       setMessages(msgs);
-      flatListRef.current?.scrollToEnd({ animated: true });
     });
 
     return () => unsubscribe();
@@ -61,7 +60,6 @@ const ChatScreen: React.FC = () => {
     if (newMessage.trim()) {
       await sendMessage(chatRoomId, newMessage);
       setNewMessage('');
-      flatListRef.current?.scrollToEnd({ animated: true });
     }
   };
 
@@ -119,6 +117,7 @@ const ChatScreen: React.FC = () => {
                 renderItem={renderItem}
                 contentContainerStyle={styles.messageList}
                 onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
               />
               <MessageInput
                 newMessage={newMessage}
