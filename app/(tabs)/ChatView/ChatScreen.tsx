@@ -15,10 +15,11 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { fetchMessages, sendMessage, deleteMessage } from '@/controller/DatabaseHandler';
-import { auth } from '@/controller/FirebaseHandler';
+import { auth, db } from '@/controller/FirebaseHandler';
 import TitleHeader from '@/components/TitleHeader';
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "@/constants/Colors";
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 type Message = {
   id: string;
@@ -40,34 +41,32 @@ const ChatScreen: React.FC = () => {
   }, [navigation, chatRoomName]);
 
   useEffect(() => {
-    const getMessages = async () => {
-      const msgs = await fetchMessages(chatRoomId);
-      // Sort messages by timestamp in ascending order
-      const sortedMsgs = msgs.sort((a, b) => a.timestamp - b.timestamp);
-      setMessages(sortedMsgs);
-      flatListRef.current?.scrollToEnd({ animated: false });
-    };
-    getMessages();
+    const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
+    const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
+
+    const unsubscribe = onSnapshot(messagesQuery, (querySnapshot) => {
+      const msgs = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
+        return { id: doc.id, text: data.text, userId: data.userId, timestamp };
+      });
+      setMessages(msgs);
+      flatListRef.current?.scrollToEnd({ animated: true });
+    });
+
+    return () => unsubscribe();
   }, [chatRoomId]);
 
   const handleSendMessage = async () => {
     if (newMessage.trim()) {
       await sendMessage(chatRoomId, newMessage);
       setNewMessage('');
-      const updatedMessages = await fetchMessages(chatRoomId);
-      // Sort messages by timestamp in ascending order
-      const sortedMsgs = updatedMessages.sort((a, b) => a.timestamp - b.timestamp);
-      setMessages(sortedMsgs);
       flatListRef.current?.scrollToEnd({ animated: true });
     }
   };
 
   const handleDeleteMessage = async (messageId: string) => {
     await deleteMessage(chatRoomId, messageId);
-    const updatedMessages = await fetchMessages(chatRoomId);
-    // Sort messages by timestamp in ascending order
-    const sortedMsgs = updatedMessages.sort((a, b) => a.timestamp - b.timestamp);
-    setMessages(sortedMsgs);
   };
 
   const confirmDeleteMessage = (messageId: string) => {
@@ -167,12 +166,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: 120, // Adjust this value to provide space for the header
-    backgroundColor: '#fff', // Optional: Set a background color for the header
+    paddingTop: 120, 
+    backgroundColor: '#fff', 
   },
   chatContainer: {
     flex: 1,
-    marginTop: 10, // Adjust this value to provide space below the header
+    marginTop: 10, 
   },
   innerContainer: {
     flex: 1,
