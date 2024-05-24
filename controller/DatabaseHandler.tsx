@@ -379,19 +379,31 @@ export const updateUsername = async (
  * Fetches all usernames from the usernames collection
  * @returns an array of usernames
  */
-export const fetchAllUsernames = async (): Promise<string[]> => {
+export const fetchAllUsernames = async (): Promise<{
+  [key: string]: { username: string; profileImageUrl: string };
+}> => {
   try {
     const usernameCollection = collection(db, "usernames");
     const querySnapshot = await getDocs(usernameCollection);
-    const usernames: string[] = [];
+    const usernameDict: {
+      [key: string]: { username: string; profileImageUrl: string };
+    } = {};
+
     querySnapshot.forEach((doc) => {
-      usernames.push(doc.id); // The document ID is the username
+      const data = doc.data();
+      usernameDict[data.uid] = {
+        username: doc.id,
+        profileImageUrl:
+          data.profileImageUrl ||
+          "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg",
+      };
     });
-    return usernames;
+
+    return usernameDict;
   } catch (e) {
     console.error("Error fetching usernames: ", e);
     alert("Internal error fetching usernames. Please try again later.");
-    return [];
+    return {};
   }
 };
 
@@ -402,19 +414,23 @@ export const fetchAllUsernames = async (): Promise<string[]> => {
  * @param {string} profileImageUrl - The image URL for the chat room (default is a placeholder image)
  * @returns {Promise<void>}
  */
-export const createChatRoom = async (roomName: string, type: string, profileImageUrl: string = 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg') => {
+export const createChatRoom = async (
+  roomName: string,
+  type: string,
+  profileImageUrl: string = "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
+) => {
   try {
-    const docRef = await addDoc(collection(db, 'chatRooms'), {
+    const docRef = await addDoc(collection(db, "chatRooms"), {
       name: roomName,
       type: type,
-      lastMessage: '',
+      lastMessage: "",
       avatar: profileImageUrl, // Use provided profile image URL or a default avatar
     });
 
-    console.log('Chat room created with ID: ', docRef.id);
+    console.log("Chat room created with ID: ", docRef.id);
   } catch (error) {
     const e = error as Error;
-    console.error('Error adding chat room: ', e.message);
+    console.error("Error adding chat room: ", e.message);
   }
 };
 
@@ -432,15 +448,21 @@ export const fetchChatRooms = async (type: string) => {
 
   for (const doc of querySnapshot.docs) {
     const lastMessageRef = collection(db, `chatRooms/${doc.id}/messages`);
-    const lastMessageQuery = query(lastMessageRef, orderBy("timestamp", "desc"), limit(1));
+    const lastMessageQuery = query(
+      lastMessageRef,
+      orderBy("timestamp", "desc"),
+      limit(1)
+    );
     const lastMessageSnapshot = await getDocs(lastMessageQuery);
     const lastMessageData = lastMessageSnapshot.docs[0]?.data();
 
     chatRooms.push({
       id: doc.id,
       name: doc.data().name,
-      lastMessage: lastMessageData ? lastMessageData.text : '',
-      lastMessageTimestamp: lastMessageData ? lastMessageData.timestamp.toDate() : null,
+      lastMessage: lastMessageData ? lastMessageData.text : "",
+      lastMessageTimestamp: lastMessageData
+        ? lastMessageData.timestamp.toDate()
+        : null,
       avatar: doc.data().avatar,
     });
   }
@@ -455,11 +477,11 @@ export const fetchChatRooms = async (type: string) => {
  */
 export const deleteChatRoom = async (id: string): Promise<void> => {
   try {
-    const chatRoomDoc = doc(db, 'chatRooms', id);
+    const chatRoomDoc = doc(db, "chatRooms", id);
     await deleteDoc(chatRoomDoc);
-    console.log('Chat room deleted with ID: ', id);
+    console.log("Chat room deleted with ID: ", id);
   } catch (error) {
-    console.error('Error deleting chat room: ', error);
+    console.error("Error deleting chat room: ", error);
   }
 };
 
@@ -470,7 +492,12 @@ export const deleteChatRoom = async (id: string): Promise<void> => {
  */
 export const sendMessage = async (chatRoomId: string, text: string) => {
   try {
-    const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
+    const messagesCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "messages"
+    );
     await addDoc(messagesCollection, {
       text,
       userId: auth.currentUser?.uid,
@@ -489,11 +516,20 @@ export const sendMessage = async (chatRoomId: string, text: string) => {
  */
 export const fetchMessages = async (chatRoomId: string) => {
   try {
-    const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
-    const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
+    const messagesCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "messages"
+    );
+    const messagesQuery = query(
+      messagesCollection,
+      orderBy("timestamp", "asc")
+    );
     const querySnapshot = await getDocs(messagesQuery);
     const messages: any[] = [];
-    const placeholderImage = 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg'; // Replace with your placeholder image URL
+    const placeholderImage =
+      "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"; // Replace with your placeholder image URL
 
     for (const docSnapshot of querySnapshot.docs) {
       const data = docSnapshot.data();
@@ -517,19 +553,19 @@ export const fetchMessages = async (chatRoomId: string) => {
   }
 };
 
-
-
-
 /**
  * Deletes a message from a chat room by its ID
  * @param chatRoomId - ID of the chat room
  * @param messageId - ID of the message to delete
  */
-export const deleteMessage = async (chatRoomId: string, messageId: string): Promise<void> => {
+export const deleteMessage = async (
+  chatRoomId: string,
+  messageId: string
+): Promise<void> => {
   try {
     const messageDoc = doc(db, "chatRooms", chatRoomId, "messages", messageId);
     await deleteDoc(messageDoc);
-    console.log('Message deleted with ID: ', messageId);
+    console.log("Message deleted with ID: ", messageId);
   } catch (e) {
     console.error("Error deleting message: ", e);
     alert("Internal error deleting message. Please try again later.");

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -12,14 +12,18 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
-} from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { fetchMessages, sendMessage, deleteMessage } from '@/controller/DatabaseHandler';
-import { auth, db } from '@/controller/FirebaseHandler';
-import TitleHeader from '@/components/TitleHeader';
+} from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import {
+  sendMessage,
+  deleteMessage,
+  fetchAllUsernames,
+} from "@/controller/DatabaseHandler";
+import { auth, db } from "@/controller/FirebaseHandler";
+import TitleHeader from "@/components/TitleHeader";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Colors from "@/constants/Colors";
-import { collection, onSnapshot, orderBy, query, getDoc, doc as firestoreDoc } from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 type Message = {
   id: string;
@@ -30,47 +34,73 @@ type Message = {
   username: string;
 };
 
-type UserProfile = {
-  profilePicture?: string;
-  username?: string;
-};
-
 const ChatScreen: React.FC = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { chatRoomId, chatRoomName } = route.params as { chatRoomId: string; chatRoomName: string };
+  const { chatRoomId, chatRoomName } = route.params as {
+    chatRoomId: string;
+    chatRoomName: string;
+  };
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const flatListRef = useRef<FlatList>(null);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({ title: chatRoomName });
-  }, [navigation, chatRoomName]);
-
   useEffect(() => {
-    const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
-    const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
-
-    const unsubscribe = onSnapshot(messagesQuery, async (querySnapshot) => {
-      const msgs = await Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
-        const data = docSnapshot.data();
-        const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
-        const userDoc = await getDoc(firestoreDoc(db, "users", data.userId));
-        const userProfile = userDoc.exists() ? (userDoc.data() as UserProfile) : {};
-        const userProfileImage = userProfile.profilePicture || 'https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg';
-        const username = userProfile.username || 'Unknown User';
-        return { id: docSnapshot.id, text: data.text, userId: data.userId, timestamp, userProfileImage, username };
-      }));
-      setMessages(msgs);
-    });
-
-    return () => unsubscribe();
+    let isMounted = true;
+  
+    const fetchUsernames = async () => {
+      const usernames = await fetchAllUsernames();
+      console.log("Fetched Usernames:", usernames);
+      return usernames;
+    };
+  
+    const fetchMessagesAndSubscribe = async () => {
+      console.log("Fetching messages...");
+      const usernames = await fetchUsernames();
+      const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
+      const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
+  
+      const unsubscribe = onSnapshot(messagesQuery, async (querySnapshot) => {
+        console.log("Snapshot received");
+        const msgs = await Promise.all(
+          querySnapshot.docs.map(async (docSnapshot) => {
+            const data = docSnapshot.data();
+            const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
+            const usernameData = usernames[data.userId] || { username: "Unknown User", profileImageUrl: "" };
+            return {
+              id: docSnapshot.id,
+              text: data.text,
+              userId: data.userId,
+              timestamp,
+              userProfileImage: usernameData.profileImageUrl,
+              username: usernameData.username,
+            };
+          })
+        );
+  
+        if (isMounted) {
+          console.log("Updating messages...");
+          setMessages(msgs);
+        }
+      });
+  
+      return () => {
+        isMounted = false;
+        console.log("Unsubscribing from snapshot");
+        unsubscribe();
+      };
+    };
+  
+    fetchMessagesAndSubscribe();
+    return () => {
+      isMounted = false;
+    };
   }, [chatRoomId]);
 
   const handleSendMessage = async () => {
     if (newMessage.trim()) {
       await sendMessage(chatRoomId, newMessage);
-      setNewMessage('');
+      setNewMessage("");
     }
   };
 
@@ -104,7 +134,12 @@ const ChatScreen: React.FC = () => {
       <TouchableOpacity onPress={() => confirmDeleteMessage(item.id)}>
         <View style={styles.messageContainer}>
           <Text style={styles.timestampText}>{formattedDate}</Text>
-          <View style={[styles.messageBubbleContainer, isCurrentUser ? styles.currentUserContainer : styles.otherUserContainer]}>
+          <View
+            style={[
+              styles.messageBubbleContainer,
+              isCurrentUser ? styles.currentUserContainer : styles.otherUserContainer,
+            ]}
+          >
             {!isCurrentUser && (
               <View style={styles.otherUserHeader}>
                 <View style={styles.profileImageContainer}>
@@ -130,10 +165,10 @@ const ChatScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <TitleHeader title='Chat' />
+        <TitleHeader title="Chat" />
       </View>
       <View style={styles.chatContainer}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.innerContainer}>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.innerContainer}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={styles.inner}>
               <FlatList
@@ -145,11 +180,7 @@ const ChatScreen: React.FC = () => {
                 onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
                 onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
               />
-              <MessageInput
-                newMessage={newMessage}
-                setNewMessage={setNewMessage}
-                handleSendMessage={handleSendMessage}
-              />
+              <MessageInput newMessage={newMessage} setNewMessage={setNewMessage} handleSendMessage={handleSendMessage} />
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
@@ -165,22 +196,10 @@ const MessageInput: React.FC<{
 }> = ({ newMessage, setNewMessage, handleSendMessage }) => {
   return (
     <View style={styles.inputContainer}>
-      <Image
-        source={require('../../../assets/images/Buddy toggle.png')}
-        style={styles.image}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Type a message..."
-        value={newMessage}
-        onChangeText={setNewMessage}
-      />
+      <Image source={require("../../../assets/images/Buddy toggle.png")} style={styles.image} />
+      <TextInput style={styles.input} placeholder="Type a message..." value={newMessage} onChangeText={setNewMessage} />
       <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
-        <FontAwesome
-          name="send"
-          size={24}
-          color={Colors.light.iconColor}
-        />
+        <FontAwesome name="send" size={24} color={Colors.light.iconColor} />
       </TouchableOpacity>
     </View>
   );
@@ -192,7 +211,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     paddingTop: 120,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   chatContainer: {
     flex: 1,
@@ -200,11 +219,11 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   inner: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   messageList: {
     paddingHorizontal: 10,
@@ -214,29 +233,29 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   messageBubbleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   currentUserContainer: {
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   otherUserContainer: {
-    justifyContent: 'flex-start',
+    justifyContent: "flex-start",
   },
   otherUserHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    maxWidth: '80%',
+    flexDirection: "row",
+    alignItems: "center",
+    maxWidth: "80%",
   },
   profileImageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginRight: 10,
   },
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -247,7 +266,7 @@ const styles = StyleSheet.create({
   messageBubble: {
     borderRadius: 20,
     padding: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -257,29 +276,29 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   currentUserMessage: {
-    backgroundColor: '#007BFF',
-    alignSelf: 'flex-end',
+    backgroundColor: "#007BFF",
+    alignSelf: "flex-end",
     borderBottomRightRadius: 0,
   },
   otherUserMessage: {
-    backgroundColor: 'purple',
-    alignSelf: 'flex-start',
+    backgroundColor: "purple",
+    alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
   },
   messageText: {
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
   },
   timestampText: {
     fontSize: 12,
-    color: '#888',
-    alignSelf: 'center',
+    color: "#888",
+    alignSelf: "center",
     marginBottom: 2,
   },
   usernameText: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#555',
+    fontWeight: "bold",
+    color: "#555",
     marginBottom: 2,
   },
   inputContainer: {
