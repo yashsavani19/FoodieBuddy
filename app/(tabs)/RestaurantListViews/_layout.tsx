@@ -8,7 +8,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 
 // Settings for the stack navigator
 export const unstable_settings = {
-  initialRouteName: 'index',
+  initialRouteName: 'ListView',
 };
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
@@ -28,8 +28,8 @@ export default function TabLayout() {
 
   return (
     // Stack navigator to handle navigation between screens
-    <Stack initialRouteName="index">
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+    <Stack>
+      <Stack.Screen name="ListView" options={{ headerShown: false }} />
       <Stack.Screen name="DetailsView" options={{ headerShown: false }} />
     </Stack>
     
