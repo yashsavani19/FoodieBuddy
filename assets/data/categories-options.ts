@@ -1,4 +1,5 @@
 import { Category } from "@/model/Category";
+import StarRating from "@/components/StarRating";
 
 export const categories: Category[] = [
 
@@ -256,4 +257,57 @@ export const categories: Category[] = [
     scale: 4,
   },
   
+  // Ratings //
+  {
+    id: 41,
+    name: "1/5",
+    type: "Rating",
+    rating: 1.0,
+  },
+  {
+    id: 42,
+    name: "2/5",
+    type: "Rating",
+    rating: 2.0,
+  },
+  {
+    id: 43,
+    name: "3/5",
+    type: "Rating",
+    rating: 3.0,
+  },
+  {
+    id: 44,
+    name: "4/5",
+    type: "Rating",
+    rating: 4.0,
+  },
+  {
+    id: 45,
+    name: "5/5",
+    type: "Rating",
+    rating: 5.0,
+  },
+
+  // Open Status //
+  {
+    id: 46,
+    name: "Open Now",
+    type: "Open Status",
+    apiName: "currentOpeningHours",
+  },
+
+  // Takeaway Options //
+  {
+    id: 47,
+    name: "Delivery",
+    type: "Takeaway Option",
+    apiName: "meal_delivery",
+  },
+  {
+    id: 48,
+    name: "Takeaway",
+    type: "Takeaway Option",
+    apiName: "meal_takeaway",
+  },
 ];
