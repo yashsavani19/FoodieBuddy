@@ -10,25 +10,23 @@ type CategoryButtonProps = {
         type: string;
 
     };
-    filters: Category[];
-    setFilters: (filters: Category[]) => void;
+    selected: Category[];
+    setSelected: (filters: Category[]) => void;
 };
 
-const CategoryButton: React.FC<CategoryButtonProps> = ({ category, filters, setFilters }) => {
+const CategoryButton: React.FC<CategoryButtonProps> = ({ category, selected, setSelected }) => {
     function setSelectedColor(category: Category) {
-        return filters.includes(category) ? '#F26722' : '#727272';
+        return selected.includes(category) ? '#F26722' : '#727272';
     }
-
-    const toFilter = category;
 
     return (
         <View key={category.id} style={{paddingRight: 2}}>
             <Pressable
                 style={[styles.category, { borderColor: setSelectedColor(category) }]}
                 onPress = {() => {
-                    filters.includes(category) ?
-                        setFilters(filters.filter(filter => filter !== toFilter)) :
-                        setFilters([...filters, toFilter]);
+                    selected.includes(category) ?
+                        setSelected(selected.filter(selectedCategory => selectedCategory !== category)) :
+                        setSelected([...selected, category]);
                 }}
             >
                 <Text style={[styles.categoryText, { color: setSelectedColor(category) }]}>{category.name}</Text>

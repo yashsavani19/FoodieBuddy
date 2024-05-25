@@ -28,8 +28,8 @@ const DrawerContent = () => {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category}
-                                filters={filters} 
-                                setFilters={setFilters} />
+                                selected={filters} 
+                                setSelected={setFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -38,8 +38,8 @@ const DrawerContent = () => {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                filters={filters} 
-                                setFilters={setFilters} />
+                                selected={filters} 
+                                setSelected={setFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -48,8 +48,8 @@ const DrawerContent = () => {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                filters={filters} 
-                                setFilters={setFilters} />
+                                selected={filters} 
+                                setSelected={setFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -58,8 +58,8 @@ const DrawerContent = () => {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                filters={filters} 
-                                setFilters={setFilters} />
+                                selected={filters} 
+                                setSelected={setFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -68,8 +68,18 @@ const DrawerContent = () => {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                filters={filters} 
-                                setFilters={setFilters} />
+                                selected={filters} 
+                                setSelected={setFilters} />
+                        ))}
+                    </CategoryContainer>
+
+                    <CategoryContainer title="Minimum Rating">
+                        {categories.filter(categories => categories.type === "Price").map((category) => (
+                            <CategoryButton 
+                                key={category.id} 
+                                category={category} 
+                                selected={filters} 
+                                setSelected={setFilters} />
                         ))}
                     </CategoryContainer>
                 </View>
