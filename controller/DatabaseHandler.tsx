@@ -60,6 +60,7 @@ const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   if (restaurant.isFavourite === undefined) restaurant.isFavourite = false;
   if (restaurant.isBookmarked === undefined) restaurant.isBookmarked = false;
   if (restaurant.isVisited === undefined) restaurant.isVisited = false;
+  if (restaurant.currentOpeningHours === undefined) restaurant.currentOpeningHours = "";
   return cleanedData;
 };
 

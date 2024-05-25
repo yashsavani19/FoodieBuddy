@@ -95,7 +95,8 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
         displayAddress: result.formattedAddress,
         phone: result.nationalPhoneNumber,
         distance: distance.toFixed(2),
-        isClosed: result.businessStatus,
+        currentOpeningHours: result.currentOpeningHours,
+        businessStatus: result.businessStatus,
         website: detailResults.data.websiteUrl,
       };
     }));
@@ -141,9 +142,11 @@ async function getRestaurantResults(location: LocationObjectCoords)
     'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.types,places.photos,places.rating,places.businessStatus,places.nationalPhoneNumber,places.location,places.id,places.currentOpeningHours',
   };
   
-  const apiUrl = 'https://places.googleapis.com/v1/places:searchNearby';    
+  const apiUrl = 'https://places.googleapis.com/v1/places:searchNearby';
 
   const response = await axios.post(apiUrl, data, { headers });
+
+  //console.log("Fetched nearby restaurants:", response.data.places);
 
   // Process each result to create restaurant data
   return response.data.places || [];
