@@ -128,7 +128,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
               }}
             >
               <RestaurantMarker
-                rating={restaurant.rating ?? "N/A"}
+                rating={restaurant.rating === 0 || restaurant.rating === undefined ? "N/A" : restaurant.rating }
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
@@ -145,33 +145,28 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 <View style={styles.calloutContainer}>
                   <Text style={styles.name}>{restaurant.name}</Text>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    {restaurant.rating !== undefined && (
                       <StarRating rating={restaurant.rating} />
-                    )}
-                    <Text>
-                      {" "}
-                      {restaurant.price &&
-                        displayPriceLevel(parseInt(restaurant.price))}
-                    </Text>
                   </View>
                   <Text>Distance: {formatDistance(restaurant.distance)}</Text>
-                  <WebView
-                    style={styles.webViewStyle}
-                    source={{
-                      html: `
-                        <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center"">
-                          <img src="${
-                            restaurant.image != null
-                              ? restaurant.image
-                              : images.defaultRestaurantImage
-                          }" style="width: 100%; object-fit: cover;"/>
-                        </div>
-                      `,
-                    }}
-                    automaticallyAdjustContentInsets={true}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                  />
+                  <View >
+                    <WebView
+                      style={styles.webViewStyle}
+                      source={{
+                        html: `
+                          <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: contain; object-position: center; text-align: center"">
+                            <img src="${
+                              restaurant.image != null
+                                ? restaurant.image
+                                : images.defaultRestaurantImage
+                            }" style="width: 100%; height: 100%; object-fit: cover;"/>
+                          </div>
+                        `,
+                      }}
+                      automaticallyAdjustContentInsets={true}
+                      javaScriptEnabled={true}
+                      domStorageEnabled={true}
+                    />
+                  </View>
                 </View>
               </Callout>
             </Marker>
