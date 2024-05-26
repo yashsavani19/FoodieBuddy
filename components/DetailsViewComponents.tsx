@@ -38,6 +38,7 @@ const price_icon = require("@/assets/images/price-tag.png");
 // Props interface for the component
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
+  backFunction: () => void;
 }
 
 /**
@@ -47,6 +48,7 @@ interface DetailsViewComponentsProps {
  */
 const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   restaurant,
+  backFunction,
 }) => {
   // Destructuring for ease of use
   const {
