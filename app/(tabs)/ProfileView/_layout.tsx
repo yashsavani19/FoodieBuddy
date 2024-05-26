@@ -31,6 +31,7 @@ export default function TabLayout() {
       <Stack.Screen name="FriendsView" options={{ headerShown: false }} />
       <Stack.Screen name="FriendsList" options={{ headerShown: false }} />
       <Stack.Screen name="AddFriends" options={{ headerShown: false }} />
+      <Stack.Screen name="FriendRequests" options={{ headerShown: false }} />
       <Stack.Screen name="FriendProfile" options={{ headerShown: false }} />
       <Stack.Screen name="FavoriteSpotsView" options={{ headerShown: false }} />
       {/* FavoriteSpotsView screen */}

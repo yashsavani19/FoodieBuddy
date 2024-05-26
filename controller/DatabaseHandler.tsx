@@ -486,22 +486,68 @@ export const fetchFriends = async (): Promise<Friend[]> => {
  */
 export const addFriend = async (friend: Friend) => {
   try {
-    const uid = auth.currentUser?.uid;
-    if(!uid) {
+    const currentUserUid = auth.currentUser?.uid;
+    if (!currentUserUid) {
       console.error("User not authenticated");
       alert("You must be logged in to add friends.");
       return;
     }
-    const friendCollection = `users/${uid}/friends`;
-    const docRef = doc(db, friendCollection, friend.uid);
+    const uid = friend.uid;
+    const friendRequestCollection = `users/${uid}/friendRequests`;
+    const docRef = doc(db, friendRequestCollection, currentUserUid);
     await setDoc(docRef, {
       adddeOn: new Date(),
     });
     // alert("Friend added!");
-    console.log("Added new friend: ", friend.username);
+    console.log("Sent friend request: ", friend.username);
   } catch (e) {
     console.error("Error adding document: ", e);
     // alert("Internal error adding friend. Please try again later.");
+  }
+};
+
+/**
+ * Confirm friend request
+ */
+export const confirmFriendRequest = async (friend: Friend) => {
+  try {
+    const currentUserUid = auth.currentUser?.uid;
+    if (!currentUserUid) {
+      console.error("User not authenticated");
+      alert("You must be logged in to add friends.");
+      return;
+    }
+    const friendCollection = `users/${currentUserUid}/friends`;
+    const docRef = doc(db, friendCollection, friend.uid);
+    await setDoc(docRef, {
+      addedOn: new Date(),
+    });
+    const friendRequestCollection = `users/${currentUserUid}/friendRequests`;
+    await deleteDoc(doc(db, friendRequestCollection, friend.uid));
+    console.log("Friend added: ", friend.username);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    alert("Internal error adding friend. Please try again later.");
+  }
+};
+
+/**
+ * Reject friend request
+ */
+export const rejectFriendRequest = async (friend: Friend) => {
+  try {
+    const currentUserUid = auth.currentUser?.uid;
+    if (!currentUserUid) {
+      console.error("User not authenticated");
+      alert("You must be logged in to add friends.");
+      return;
+    }
+    const friendCollection = `users/${currentUserUid}/friendRequests`;
+    await deleteDoc(doc(db, friendCollection, friend.uid));
+    console.log("Friend request rejected: ", friend.username);
+  } catch (e) {
+    console.error("Error removing document: ", e);
+    alert("Internal error removing friend request. Please try again later.");
   }
 };
 
@@ -516,5 +562,108 @@ export const removeFriend = async (friend: Friend) => {
   } catch (e) {
     console.error("Error removing document: ", e);
     alert("Internal error removing friend. Please try again later.");
+  }
+};
+
+/**
+ * fetches friend requests
+ * @returns array of friend requests
+ */
+export const fetchFriendRequests = async (): Promise<Friend[]> => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const friendRequestCollection = `users/${uid}/friendRequests`;
+    const querySnapshot = await getDocs(
+      collection(db, friendRequestCollection)
+    );
+    if (querySnapshot.empty) {
+      console.log("No friend requests found.");
+    } else {
+      console.log(
+        "Friend requests: ",
+        querySnapshot.forEach((doc) => doc.id)
+      );
+    }
+    const friendRequests: Friend[] = [];
+    querySnapshot.forEach(async (doc) => {
+      const username = await getUsername(doc.id);
+      const profileImageUrl = await getProfileImageUrl(doc.id);
+      friendRequests.push({
+        uid: doc.id,
+        username: username,
+        profileImageUrl: profileImageUrl,
+      });
+    });
+    console.log("Friend requests fetched: ", friendRequests);
+    return friendRequests;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching friend requests. Please try again later.");
+  }
+  return [];
+};
+
+/**
+ * Fetches friends favourites
+ */
+export const fetchFriendsFavourites = async (uid: string) => {
+  try {
+    const favouriteCollection = `users/${uid}/favourites`;
+    const querySnapshot = await getDocs(collection(db, favouriteCollection));
+    const favourites: Saved[] = [];
+    querySnapshot.forEach((doc) => {
+      favourites.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
+    });
+    return favourites;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert(
+      "Internal error fetching friends favourites. Please try again later."
+    );
+  }
+};
+
+/**
+ * Fetches friends bookmarks
+ */
+export const fetchFriendsBookmarks = async (uid: string) => {
+  try {
+    const bookmarkCollection = `users/${uid}/bookmarks`;
+    const querySnapshot = await getDocs(collection(db, bookmarkCollection));
+    const bookmarks: Saved[] = [];
+    querySnapshot.forEach((doc) => {
+      bookmarks.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
+    });
+    return bookmarks;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching friends bookmarks. Please try again later.");
+  }
+};
+
+/**
+ * Fetches friends visited
+ */
+export const fetchFriendsVisited = async (uid: string) => {
+  try {
+    const visitedCollection = `users/${uid}/visited`;
+    const querySnapshot = await getDocs(collection(db, visitedCollection));
+    const visited: Saved[] = [];
+    querySnapshot.forEach((doc) => {
+      visited.push({
+        restaurant: doc.data().restaurant as Restaurant,
+        addedOn: doc.data().addedOn as Date,
+      });
+    });
+    return visited;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching friends visited. Please try again later.");
   }
 };

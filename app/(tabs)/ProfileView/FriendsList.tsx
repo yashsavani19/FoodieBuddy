@@ -20,16 +20,14 @@ interface ListContainerProps {
   friend: Friend;
 }
 
-const friendImages: { [key: string]: any } = {
-  friendsList: require("@/assets/images/friends_icon.png"),
-  friendsRequest: require("@/assets/images/friend-request_icon.png"),
-  addFriends: require("@/assets/images/add-friend_icon.png"),
-};
-
 const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const handlePress = () => {
+    navigation.navigate("FriendProfile", { friend });
+  };
   return (
     <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
-      <TouchableOpacity style={styles.listItem}>
+      <TouchableOpacity style={styles.listItem} onPress={handlePress}>
         <Image
           resizeMode="contain"
           style={styles.listImage}
@@ -126,6 +124,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     marginRight: 10,
+    borderRadius: 50,
   },
   rightArrow: {
     fontSize: 35,

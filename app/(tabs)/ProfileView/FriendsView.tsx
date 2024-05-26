@@ -54,8 +54,10 @@ const FriendsView = () => {
     <View style={styles.container}>
       {/* Title Header */}
       <TitleHeader title="Friends" />
-      <ProfileFriendsNavBar mode="friends" />
       {/* ScrollView for scrollable content */}
+      <View style={{ marginTop: 120 }}>
+        <ProfileFriendsNavBar mode="friends" />
+      </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.listContainer}>
           <ListContainer
@@ -64,7 +66,12 @@ const FriendsView = () => {
               navigation.navigate("FriendsList");
             }}
           />
-          <ListContainer mode="friendsRequest" />
+          <ListContainer
+            mode="friendsRequest"
+            onPress={() => {
+              navigation.navigate("FriendRequests");
+            }}
+          />
           <ListContainer
             mode="addFriends"
             onPress={() => {
@@ -85,7 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    // marginTop: 120,
   },
   listContainer: {
     flex: 1,

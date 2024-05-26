@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
     height: 50,
     marginRight: 10,
     marginLeft: 5,
+    borderRadius: 50,
   },
   rightArrow: {
     fontSize: 35,

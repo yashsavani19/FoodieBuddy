@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -6,34 +6,40 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  GestureResponderEvent,
 } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
-import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 import FavouriteSpotsButton from "@/components/FavouriteSpotsButton";
-import BookmarkedSpotsView from "./BookmarkedSpotsView";
 import BookmarksButton from "@/components/BookmarkButton";
 import VisitedButton from "@/components/VisitedButton";
+import { AppContext } from "@/context/AppContext";
 
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants } =
+    useContext(AppContext);
   const { user, signOut } = useAuth();
 
   function navigateToFavouriteSpots(): void {
-    navigation.navigate("FavoriteSpotsView");
+    navigation.navigate("FavoriteSpotsView", {
+      favouriteRestaurants,
+    });
   }
 
   function navigateToBookmarkedSpots(): void {
-    navigation.navigate("BookmarkedSpotsView");
+    navigation.navigate("BookmarkedSpotsView", {
+      bookmarkedRestaurants,
+    });
   }
 
   function navigateToVisitedSpots(): void {
-    navigation.navigate("VisitedSpotsView");
+    navigation.navigate("VisitedSpotsView", {
+      visitedRestaurants,
+    });
   }
 
   function editAccount(): void {
