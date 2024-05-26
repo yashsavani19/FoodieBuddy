@@ -225,7 +225,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
         <View>
           <BackButton />
         </View>
-        <ScrollView>
+        <ScrollView style={{paddingHorizontal: 15}}>
           <View style={styles.imageTitleIconContainer}>
             {/* <ScrollView style={{flex:1}}> */}
             <Text style={styles.restaurantTitle}>{name}</Text>
@@ -308,7 +308,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                     selectable={phone != undefined}
                     style={phone ? styles.infoTextUnderlined : styles.infoText}
                   >
-                    {phone ? phone : `N/A`}
+                    {phone ? phone.replace(/\s/g, "") : `N/A`}
                   </Text>
                 </View>
 
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   },
 
   imageContainer: {
-    width: "90%",
+    width: "100%",
     height: "auto",
     justifyContent: "center",
     alignItems: "center",
@@ -443,8 +443,13 @@ const styles = StyleSheet.create({
   },
   restaurantDetailsContainer: {
     flexDirection: "row",
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
     width: "100%",
     padding: 20,
+    paddingRight: "5%",
+    paddingLeft: 0,
   },
   restaurantInfoContainer: {
     width: "50%",
@@ -518,6 +523,7 @@ const styles = StyleSheet.create({
   phoneContainer: {
     marginVertical: 4,
     flexDirection: "row",
+    flex: 1, 
   },
   addressContainer: {
     marginVertical: 4,
@@ -536,14 +542,10 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   leftContainer: {
-    flex: 1,
-    paddingRight: 10,
+    flex: 2,
   },
   rightContainer: {
     flex: 1,
-    paddingLeft: 10,
-    paddingRight: 8,
-    backgroundColor: "white",
   },
   map: {
     width: "100%",
@@ -559,7 +561,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3,
     height: 300,
-    marginHorizontal: 15,
     marginBottom: 20,
     // width: '100%',
   },

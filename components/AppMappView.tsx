@@ -156,7 +156,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
               }}
             >
               <RestaurantMarker
-                rating={restaurant.rating ?? "N/A"}
+                rating={restaurant.rating === 0 || restaurant.rating === undefined ? "N/A" : restaurant.rating }
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
@@ -169,11 +169,32 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                   }
                 }}
               >
-                <CustomCallout
-                  name={restaurant.name}
-                  rating={restaurant.rating}
-                  image={restaurant.image}
-                />
+                <View style={styles.calloutContainer}>
+                  <Text style={styles.name}>{restaurant.name}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                      <StarRating rating={restaurant.rating} />
+                  </View>
+                  <Text>Distance: {formatDistance(restaurant.distance)}</Text>
+                  <View >
+                    <WebView
+                      style={styles.webViewStyle}
+                      source={{
+                        html: `
+                          <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: contain; object-position: center; text-align: center"">
+                            <img src="${
+                              restaurant.image != null
+                                ? restaurant.image
+                                : images.defaultRestaurantImage
+                            }" style="width: 100%; height: 100%; object-fit: cover;"/>
+                          </div>
+                        `,
+                      }}
+                      automaticallyAdjustContentInsets={true}
+                      javaScriptEnabled={true}
+                      domStorageEnabled={true}
+                    />
+                  </View>
+                </View>
               </Callout>
             </Marker>
           ))}
