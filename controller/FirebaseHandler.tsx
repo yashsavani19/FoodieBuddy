@@ -215,6 +215,7 @@ const login = async (email: string, password: string): Promise<void> => {
 //Register
 const register = async (email: string, password: string): Promise<void> => {
   await createUserWithEmailAndPassword(auth, email, password);
+  
 };
 
 //Authenticate by sending email link

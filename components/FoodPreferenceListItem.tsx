@@ -14,6 +14,7 @@ import { useContext } from "react";
 import { useNavigation } from "expo-router";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
+
 interface FoodPreferencesListItemProps {
   preference: Preference;
 }

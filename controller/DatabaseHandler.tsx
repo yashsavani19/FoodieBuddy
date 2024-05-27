@@ -7,11 +7,13 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
 import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
+import { DefaultPreferences } from "@/model/DefaultPreferences";
 import { PreferenceList } from "@/model/PreferenceList";
 import { preferenceList } from "@/constants/AITestData";
 // import { useAuth } from "@/context/AuthContext";
@@ -62,7 +64,8 @@ const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   if (restaurant.isFavourite === undefined) restaurant.isFavourite = false;
   if (restaurant.isBookmarked === undefined) restaurant.isBookmarked = false;
   if (restaurant.isVisited === undefined) restaurant.isVisited = false;
-  if (restaurant.currentOpeningHours === undefined) restaurant.currentOpeningHours = "";
+  if (restaurant.currentOpeningHours === undefined)
+    restaurant.currentOpeningHours = "";
   return cleanedData;
 };
 
@@ -280,6 +283,8 @@ export const addUser = async (uid: string, email: string, username: string) => {
     await setDoc(doc(db, userCollection), {
       email: email,
       username: username,
+      preferences: DefaultPreferences,
+      console: console.log("Default preferences added"),
     });
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -296,7 +301,17 @@ export const fetchUser = async (uid: string) => {
     const docRef = doc(db, userCollection);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data();
+      const userData = docSnap.data();
+
+      // Check if preferences exist
+      if (!userData.preferences) {
+        // Add default preferences
+        console.log("Adding default preferences")
+        await updateDoc(docRef, { preferences: DefaultPreferences });
+        userData.preferences = DefaultPreferences;
+      }
+
+      return userData;
     } else {
       console.error("No such document!");
       alert("User not found.");
@@ -402,7 +417,7 @@ export const addPreferences = async (preferences: PreferenceList) => {
     console.error("Error adding document: ", e);
     alert("Internal error adding preferences. Please try again later.");
   }
-}
+};
 
 /**
  * Removes preference from user's preferences
@@ -440,7 +455,6 @@ export const fetchPreferences = async () => {
       });
     });
     return preferences;
-    
   } catch (e) {
     console.error("Error getting documents: ", e);
     alert("Internal error fetching preferences. Please try again later.");
