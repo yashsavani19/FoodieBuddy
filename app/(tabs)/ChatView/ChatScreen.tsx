@@ -145,7 +145,9 @@ const ChatScreen: React.FC = () => {
             {!isCurrentUser && (
               <View style={styles.otherUserHeader}>
                 <View style={styles.profileImageContainer}>
-                  <Text style={styles.usernameText}>{item.username}</Text>
+                  <Text style={styles.usernameText} numberOfLines={1} ellipsizeMode="tail">
+                    {item.username}
+                  </Text>
                   <Image source={{ uri: item.userProfileImage }} style={styles.profileImage} />
                 </View>
                 <View style={[styles.messageBubble, styles.otherUserMessage]}>
@@ -312,6 +314,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f76116",
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
+    marginRight: 10,
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
@@ -339,6 +342,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#555",
     marginBottom: 2,
+    marginLeft: 5,
+    textAlign: 'center',
+    width: '100%',
   },
   inputContainer: {
     flexDirection: "row",
