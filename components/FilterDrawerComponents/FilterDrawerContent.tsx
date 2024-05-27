@@ -24,6 +24,10 @@ interface DrawerContentProps {
     const [distance, setDistance] = useState<number>(1.0);
     const scrollViewRef = React.useRef<ScrollView>(null);
 
+    useEffect(() => {
+        setScrollViewRef(scrollViewRef);
+      }, []);
+
     return (
         <SafeAreaView style = {{marginHorizontal: 10}}>
             <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
