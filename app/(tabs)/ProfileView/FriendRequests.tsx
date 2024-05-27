@@ -19,14 +19,15 @@ import {
   confirmFriendRequest,
   fetchFriendRequests,
   rejectFriendRequest,
+  removeSentFriendRequest,
 } from "@/controller/DatabaseHandler";
 
-interface ListContainerProps {
+interface FriendRequestProps {
   friend: Friend;
   onPress: () => void;
 }
 
-const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
+const FriendRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
   const acceptRequest = async () => {
     await confirmFriendRequest(friend);
     onPress();
@@ -67,9 +68,40 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
   );
 };
 
+const SentRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
+  const removeRequest = async () => {
+    await removeSentFriendRequest(friend);
+    onPress();
+  };
+
+  return (
+    <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
+      <View style={styles.listItem}>
+        <Image
+          resizeMode="contain"
+          style={styles.listImage}
+          source={{ uri: friend.profileImageUrl }}
+        />
+        <View style={styles.listTitleContainer}>
+          <Text style={styles.listItemText}>{friend.username}</Text>
+        </View>
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#CC4343" }]}
+            onPress={removeRequest}
+          >
+            <Text style={styles.buttonText}>Remove</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const FriendRequestsList = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [friendRequests, setFriendRequests] = useState<Friend[]>([]);
+  const [sentRequests, setSentRequests] = useState<Friend[]>([]);
   const { getFriends } = useContext(AppContext);
 
   useEffect(() => {
@@ -78,7 +110,8 @@ const FriendRequestsList = () => {
 
   const refreshList = async () => {
     const requests = await fetchFriendRequests();
-    setFriendRequests(requests);
+    setFriendRequests(requests.receivedRequests);
+    setSentRequests(requests.sentRequests);
     getFriends();
   };
 
@@ -89,7 +122,13 @@ const FriendRequestsList = () => {
       {/* ScrollView for scrollable content */}
       <View style={styles.innerContainer}>
         <ProfileFriendsNavBar mode="friends" />
-        <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
+        <View
+          style={{
+            marginBottom: 10,
+            borderBottomWidth: 3,
+            borderBottomColor: "#363232",
+          }}
+        >
           <TouchableOpacity
             onPress={() => {
               navigation.goBack();
@@ -97,26 +136,54 @@ const FriendRequestsList = () => {
           >
             <AntDesign name="arrowleft" style={styles.backArrow} />
           </TouchableOpacity>
+          <Text style={styles.listItemText}>Friend Requests</Text>
         </View>
-        {friendRequests.length === 0 ? (
-          <View style={styles.noFriends}>
-            <Text style={styles.noFriendsText}>
-              You have no friend requests
-            </Text>
-          </View>
-        ) : (
-          <ScrollView style={styles.scrollView}>
+        <ScrollView style={styles.scrollView}>
+          {friendRequests.length === 0 ? (
+            <View style={styles.noFriends}>
+              <Text style={styles.noFriendsText}>
+                You have no friend requests
+              </Text>
+            </View>
+          ) : (
             <View style={styles.listContainer}>
               {friendRequests.map((friend) => (
-                <ListContainer
+                <FriendRequest
                   key={friend.uid}
                   friend={friend}
                   onPress={refreshList}
                 />
               ))}
             </View>
-          </ScrollView>
-        )}
+          )}
+          <View
+            style={{
+              marginTop: 10,
+              marginBottom: 10,
+              borderBottomWidth: 3,
+              borderBottomColor: "#363232",
+            }}
+          >
+            <Text style={styles.listItemText}>Sent Requests</Text>
+          </View>
+          {sentRequests.length === 0 ? (
+            <View style={styles.noFriends}>
+              <Text style={styles.noFriendsText}>
+                You have no sent friend requests
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.listContainer}>
+              {sentRequests.map((friend) => (
+                <SentRequest
+                  key={friend.uid}
+                  friend={friend}
+                  onPress={refreshList}
+                />
+              ))}
+            </View>
+          )}
+        </ScrollView>
       </View>
     </View>
   );
@@ -155,6 +222,7 @@ const styles = StyleSheet.create({
   },
   listItemText: {
     fontSize: 18,
+    marginLeft: 10,
     fontWeight: "600",
   },
   listTitleContainer: {

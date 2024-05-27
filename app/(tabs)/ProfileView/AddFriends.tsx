@@ -41,6 +41,7 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
   const handleAddFriend = async () => {
     await addFriend(friend);
     await getFriends();
+    alert("Friend request sent to " + friend.username);
     navigation.goBack();
   };
 
