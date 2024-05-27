@@ -10,6 +10,8 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Image,
+  Modal,
+  Text,
 } from "react-native";
 import Message, { MessageProps } from "../../../components/Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -40,6 +42,7 @@ const Chat: React.FC = () => {
     initialBuddyMessage,
   ]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const [recommendedRestaurant, setRecommendedRestaurant] =
     useState<Restaurant | null>(null);
@@ -158,6 +161,14 @@ const Chat: React.FC = () => {
     setRecommendedRestaurant(null);
   };
 
+  const openSettings = () => {
+    setSettingsVisible(true);
+  };
+
+  const closeSettings = () => {
+    setSettingsVisible(false);
+  };
+
   /**
    * Chat component with messages, input text box, and send button
    */
@@ -169,7 +180,7 @@ const Chat: React.FC = () => {
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
             <AntDesign name="arrowleft" size={24} color="white" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {/* Add any desired functionality for settings */}} style={styles.navButton}>
+          <TouchableOpacity onPress={openSettings} style={styles.navButton}>
             <MaterialIcons name="settings" size={22} color="white" />
           </TouchableOpacity>
         </View>
@@ -226,6 +237,33 @@ const Chat: React.FC = () => {
           <FontAwesome name="repeat" size={24} color="grey" />
         </TouchableOpacity>
       </KeyboardAvoidingView>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={settingsVisible}
+        onRequestClose={closeSettings}
+      >
+        <TouchableWithoutFeedback onPress={closeSettings}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Settings</Text>
+              <TouchableOpacity onPress={() => { /* Handle Profile navigation */ }} style={styles.modalItem}>
+                <Text style={styles.modalItemText}>Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { /* Handle Notifications navigation */ }} style={styles.modalItem}>
+                <Text style={styles.modalItemText}>Notifications</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { /* Handle Logout */ }} style={styles.modalItem}>
+                <Text style={styles.modalItemText}>Logout</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={closeSettings} style={styles.modalItem}>
+                <Text style={[styles.modalItemText, { color: 'red' }]}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -246,7 +284,6 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     backgroundColor: '#000',
     width: '100%',
-    height: 40,
   },
   navButton: {
     padding: 5,
@@ -270,6 +307,33 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginRight: 10,
     paddingLeft: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: 300,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  modalItemText: {
+    fontSize: 16,
   },
 });
 

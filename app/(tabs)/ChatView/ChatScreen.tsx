@@ -234,6 +234,9 @@ const ChatScreen: React.FC = () => {
               <TouchableOpacity onPress={() => { /* Handle Logout */ }} style={styles.modalItem}>
                 <Text style={styles.modalItemText}>Logout</Text>
               </TouchableOpacity>
+              <TouchableOpacity onPress={closeSettings} style={styles.modalItem}>
+                <Text style={[styles.modalItemText, { color: 'red' }]}>Close</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </TouchableWithoutFeedback>
@@ -370,27 +373,30 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     width: 300,
-    backgroundColor: "white",
+    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
-    alignItems: "center",
+    alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 20,
   },
   modalItem: {
-    padding: 10,
-    width: "100%",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    width: '100%',
+    alignItems: 'center',
   },
   modalItemText: {
-    fontSize: 18,
+    fontSize: 16,
   },
 });
 
