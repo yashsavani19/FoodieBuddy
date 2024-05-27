@@ -45,7 +45,7 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type })
 
   const handlePress = () => {
     if (type === "buddy") {
-      navigation.navigate("BuddyChat");
+      navigation.navigate("BuddyChat", { chatRoomId: chatRoom.id });
     } else {
       navigation.navigate("ChatScreen", { chatRoomId: chatRoom.id });
     }

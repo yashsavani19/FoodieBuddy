@@ -10,7 +10,7 @@ export type RootStackParamList = {
     };
   }; };
   ChatScreen: { chatRoomId: string };
-  BuddyChat: undefined;
+  BuddyChat: { chatRoomId: string };
   DetailsView: { Restaurant: Restaurant };
   FavoriteSpotsView: undefined;
   BookmarkedSpotsView: undefined;
