@@ -12,59 +12,60 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
+  Modal,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import {
-  sendMessage,
-  deleteMessage,
-  fetchAllUsernames,
-} from "@/controller/DatabaseHandler";
+import { sendMessage, deleteMessage, fetchAllUsernames } from "@/controller/DatabaseHandler";
 import { auth, db } from "@/controller/FirebaseHandler";
 import TitleHeader from "@/components/TitleHeader";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import Colors from "@/constants/Colors";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, DocumentData } from "firebase/firestore";
+import { AntDesign } from "@expo/vector-icons";
+import { MaterialIcons } from '@expo/vector-icons';
 
-type Message = {
+interface Message {
   id: string;
   text: string;
   userId: string;
   timestamp: Date;
   userProfileImage: string;
   username: string;
-};
+}
+
+interface RouteParams {
+  chatRoomId: string;
+  chatRoomName: string;
+}
 
 const ChatScreen: React.FC = () => {
   const route = useRoute();
   const navigation = useNavigation();
-  const { chatRoomId, chatRoomName } = route.params as {
-    chatRoomId: string;
-    chatRoomName: string;
-  };
+  const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const flatListRef = useRef<FlatList>(null);
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const flatListRef = useRef<FlatList<Message>>(null);
 
   useEffect(() => {
     let isMounted = true;
-  
+
     const fetchUsernames = async () => {
       const usernames = await fetchAllUsernames();
       console.log("Fetched Usernames:", usernames);
       return usernames;
     };
-  
+
     const fetchMessagesAndSubscribe = async () => {
       console.log("Fetching messages...");
       const usernames = await fetchUsernames();
       const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
       const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
-  
+
       const unsubscribe = onSnapshot(messagesQuery, async (querySnapshot) => {
         console.log("Snapshot received");
         const msgs = await Promise.all(
           querySnapshot.docs.map(async (docSnapshot) => {
-            const data = docSnapshot.data();
+            const data = docSnapshot.data() as DocumentData;
             const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
             const usernameData = usernames[data.userId] || { username: "Unknown User", profileImageUrl: "" };
             return {
@@ -77,20 +78,21 @@ const ChatScreen: React.FC = () => {
             };
           })
         );
-  
+
         if (isMounted) {
           console.log("Updating messages...");
           setMessages(msgs);
+          flatListRef.current?.scrollToEnd({ animated: true });
         }
       });
-  
+
       return () => {
         isMounted = false;
         console.log("Unsubscribing from snapshot");
         unsubscribe();
       };
     };
-  
+
     fetchMessagesAndSubscribe();
     return () => {
       isMounted = false;
@@ -162,45 +164,78 @@ const ChatScreen: React.FC = () => {
     );
   };
 
+  const openSettings = () => {
+    setSettingsVisible(true);
+  };
+
+  const closeSettings = () => {
+    setSettingsVisible(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <TitleHeader title="Chat" />
+        <View style={styles.navigationBar}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
+            <AntDesign name="arrowleft" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openSettings} style={styles.navButton}>
+            <MaterialIcons name="settings" size={22} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.chatContainer}>
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.innerContainer}>
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.inner}>
-              <FlatList
-                ref={flatListRef}
-                data={messages}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={styles.messageList}
-                onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-                onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-              />
-              <MessageInput newMessage={newMessage} setNewMessage={setNewMessage} handleSendMessage={handleSendMessage} />
-            </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
-      </View>
-    </View>
-  );
-};
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={90}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.inputContainer}>
+            <Image source={require('../../../assets/images/Buddy toggle.png')} style={styles.image} />
+            <TextInput
+              style={styles.input}
+              placeholder="Type a message"
+              value={newMessage}
+              onChangeText={setNewMessage}
+            />
+            <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
+              <FontAwesome name="send" size={24} color="#f76116" />
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
 
-const MessageInput: React.FC<{
-  newMessage: string;
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>;
-  handleSendMessage: () => void;
-}> = ({ newMessage, setNewMessage, handleSendMessage }) => {
-  return (
-    <View style={styles.inputContainer}>
-      <Image source={require("../../../assets/images/Buddy toggle.png")} style={styles.image} />
-      <TextInput style={styles.input} placeholder="Type a message..." value={newMessage} onChangeText={setNewMessage} />
-      <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
-        <FontAwesome name="send" size={24} color={Colors.light.iconColor} />
-      </TouchableOpacity>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={settingsVisible}
+        onRequestClose={closeSettings}
+      >
+        <TouchableWithoutFeedback onPress={closeSettings}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Settings</Text>
+              <TouchableOpacity onPress={() => { /* Handle Profile navigation */ }} style={styles.modalItem}>
+                <Text style={styles.modalItemText}>Profile</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { /* Handle Notifications navigation */ }} style={styles.modalItem}>
+                <Text style={styles.modalItemText}>Notifications</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => { /* Handle Logout */ }} style={styles.modalItem}>
+                <Text style={styles.modalItemText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
@@ -213,21 +248,18 @@ const styles = StyleSheet.create({
     paddingTop: 120,
     backgroundColor: "#fff",
   },
-  chatContainer: {
-    flex: 1,
-    marginTop: 10,
-  },
-  innerContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  inner: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  messageList: {
+  navigationBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 10,
-    paddingBottom: 20,
+    paddingVertical: 5,
+    backgroundColor: '#000',
+    width: '100%',
+    height: 40,
+  },
+  navButton: {
+    padding: 5,
   },
   messageContainer: {
     marginVertical: 5,
@@ -329,6 +361,30 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     marginRight: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: 300,
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  modalItem: {
+    padding: 10,
+    width: "100%",
+  },
+  modalItemText: {
+    fontSize: 18,
   },
 });
 
