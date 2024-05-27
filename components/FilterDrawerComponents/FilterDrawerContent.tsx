@@ -90,7 +90,11 @@ interface DrawerContentProps {
                                 category={category} 
                                 selected={filters} 
                                 setSelected={setFilters}
-                                toPrint={<StarRating rating={category.rating || 1} />} />
+                                toPrint={
+                                    <View style={styles.container}>
+                                        <StarRating rating={category.rating || 1}/>
+                                        <Text style={styles.text}>+</Text>
+                                    </View>} />
                         ))}
                     </CategoryContainer>
 

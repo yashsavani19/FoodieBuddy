@@ -14,14 +14,31 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({ category, selected, set
         return selected.includes(category) ? '#F26722' : '#727272';
     }
 
+    // Update if we want to add another type of category to have one selected at a time
+    const toSelectOneAtATime = ['Rating']
+
+    function handleCategorySelect(category: Category) {
+        if (selected.includes(category)) {
+            setSelected(selected.filter((selectedCategory) => selectedCategory !== category));
+        } 
+        
+        else {
+            if (toSelectOneAtATime.includes(category.type)) { // Handle case where we want to select only one category at a time
+                const filtered = selected.filter(selectedCategory => selectedCategory.type !== category.type);
+                setSelected([...filtered, category]);
+            } 
+            else {
+                setSelected([...selected, category]);
+            }
+        }
+    }
+
     return (
         <View key={category.id} style={{paddingRight: 2}}>
             <Pressable
                 style={[styles.category, { borderColor: setSelectedColor(category) }]}
                 onPress = {() => {
-                    selected.includes(category) ?
-                    setSelected(selected.filter(selectedCategory => selectedCategory !== category)) :
-                    setSelected([...selected, category]);
+                    handleCategorySelect(category);
                 }}
                 testID = {`${category.type !== "Price" ? category.name : category.apiName}`}
             >
