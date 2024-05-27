@@ -96,7 +96,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
         phone: result.nationalPhoneNumber,
         distance: distance.toFixed(2),
         isClosed: result.businessStatus,
-        website: detailResults.data.websiteUrl,
+        website: detailResults.data.websiteUri,
       };
     }));
 
