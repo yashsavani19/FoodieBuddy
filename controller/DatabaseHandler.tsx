@@ -512,6 +512,7 @@ export const addFriend = async (friend: Friend) => {
 
 /**
  * Confirm friend request
+ * @param friend friend object to add
  */
 export const confirmFriendRequest = async (friend: Friend) => {
   try {
@@ -544,6 +545,7 @@ export const confirmFriendRequest = async (friend: Friend) => {
 
 /**
  * Reject friend request
+ * @param friend friend object to reject
  */
 export const rejectFriendRequest = async (friend: Friend) => {
   try {
@@ -564,6 +566,7 @@ export const rejectFriendRequest = async (friend: Friend) => {
 
 /**
  * Removes friend from user's friends
+ * @param friend friend object to remove
  */
 export const removeFriend = async (friend: Friend) => {
   try {
@@ -587,6 +590,7 @@ export const removeFriend = async (friend: Friend) => {
 
 /**
  *  Remove sent friend request
+ * @param friend friend object to remove
  */
 export const removeSentFriendRequest = async (friend: Friend) => {
   try {
