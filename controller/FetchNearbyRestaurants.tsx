@@ -71,6 +71,8 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
 
       const detailResults = await getRestaurantDetails(result.id, false);
 
+      //console.log("Fetched restaurant details:", detailResults);
+
       // Calculate the distance from the provided location to the restaurant
       const distance = getDistanceFromLatLonInKm(
         location.latitude,
@@ -97,7 +99,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
         distance: distance.toFixed(2),
         currentOpeningHours: result.currentOpeningHours,
         businessStatus: result.businessStatus,
-        website: detailResults.data.websiteUrl,
+        website: detailResults.data.websiteUri,
       };
     }));
 
