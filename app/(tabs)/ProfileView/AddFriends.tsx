@@ -21,6 +21,7 @@ import {
 } from "@/controller/DatabaseHandler";
 import { AppContext } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
+import { set } from "firebase/database";
 
 interface ListContainerProps {
   friend: Friend;
@@ -98,13 +99,22 @@ const AddFriends = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [foundUsers, setFoundUsers] = useState<Friend | null>();
-  const { user } = useAuth();
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
 
   const onSearchSubmit = async (searchQuery: string) => {
+    if (searchQuery === "") return;
     setFoundUsers(null);
+    setHasSearched(true);
     const users = await searchUsername(searchQuery);
     setFoundUsers(users);
   };
+
+  useEffect(() => {
+    if (searchQuery === "") {
+      setFoundUsers(null);
+      setHasSearched(false);
+    }
+  }, [searchQuery]);
 
   return (
     <View style={styles.container}>
@@ -125,7 +135,6 @@ const AddFriends = () => {
             <Text style={styles.headerText}>Find by username</Text>
           </View>
           <View style={styles.searchBar}>
-            <AntDesign name="search1" style={styles.searchIcon} />
             <TextInput
               placeholder="Search"
               style={styles.searchInput}
@@ -137,10 +146,24 @@ const AddFriends = () => {
                 onSearchSubmit(searchQuery);
               }}
             />
+            <TouchableOpacity
+              onPress={() => {
+                onSearchSubmit(searchQuery);
+              }}
+            >
+              <AntDesign name="search1" style={styles.searchIcon} />
+            </TouchableOpacity>
           </View>
         </View>
         <View style={styles.listContainer}>
-          {foundUsers && <ListContainer friend={foundUsers} />}
+          {foundUsers ? (
+            <ListContainer friend={foundUsers} />
+          ) : (
+            !foundUsers &&
+            hasSearched && (
+              <Text style={styles.noUsersText}>No users found</Text>
+            )
+          )}
         </View>
       </ScrollView>
     </View>
@@ -217,10 +240,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 2,
   },
+  noUsersText: {
+    textAlign: "center",
+    fontSize: 16,
+    color: "#363232",
+  },
   searchInput: {
     flex: 1,
     fontSize: 16,
     color: "#363232",
+    marginLeft: 10,
   },
   addButton: {
     padding: 8,

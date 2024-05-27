@@ -340,7 +340,13 @@ export const addUsername = async (
 
     await setDoc(doc(db, "usernames", username), {
       uid: uid,
-      profileImageUrl: profileImageUrl,
+      profileImageUrl:
+        profileImageUrl ||
+        "https://firebasestorage.googleapis.com/v0/b/foodie-buddy-418307.appspot.com/o/user-icon.png?alt=media&token=9003ba31-6b47-4f58-b98a-fc3c82e8d537",
+    });
+    const currentUserCollection = `users/${uid}`;
+    await setDoc(doc(db, currentUserCollection), {
+      username: username,
     });
     return true;
   } catch (e) {
