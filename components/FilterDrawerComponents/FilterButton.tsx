@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const FilterButton = ({ onPress }: { onPress: any }) => (
     <View style={styles.container}>
-        <TouchableOpacity onPress={onPress} style={styles.button}>
+        <TouchableOpacity onPress={onPress} style={styles.button} testID='Filter Button'>
             <Text style={styles.text}>Filter By</Text>
             <Icon name="caret-down" size={15} color="#363232" />
         </TouchableOpacity>

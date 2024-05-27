@@ -3,11 +3,7 @@ import { View, Pressable, Text, StyleSheet } from 'react-native';
 import { Category } from '@/model/Category';
 
 type CategoryButtonProps = {
-    category: {
-        id: number;
-        name: string;
-        type: string;
-    };
+    category: any;
     toPrint?: any;
     selected: Category[];
     setSelected: (selected: Category[]) => void;
@@ -27,6 +23,7 @@ const CategoryButton: React.FC<CategoryButtonProps> = ({ category, selected, set
                     setSelected(selected.filter(selectedCategory => selectedCategory !== category)) :
                     setSelected([...selected, category]);
                 }}
+                testID = {`${category.type !== "Price" ? category.name : category.apiName}`}
             >
                 <Text style={[styles.categoryText, { color: setSelectedColor(category) }]}>{toPrint ? toPrint : category.name}</Text>
             </Pressable>
