@@ -16,8 +16,8 @@ import TitleHeader from "@/components/TitleHeader";
 const HomeView: FC = () => {
   const { 
     searchFilterRestaurants, 
-    categoryFilterRestaurants, 
-    selectedCategory, setSelectedCategory,
+    // categoryFilterRestaurants, 
+    // selectedFilters, setSelectedFilters,
     searchTerm, setSearchTerm,
     filteredRestaurants, 
     dataLoading, 
@@ -25,9 +25,9 @@ const HomeView: FC = () => {
   } = useContext(AppContext);
 
   // Handle filtering of restaurants based on search term and selected category
-  useEffect(() => {
-    categoryFilterRestaurants();
-  }, [selectedCategory]);
+  // useEffect(() => {
+  //   categoryFilterRestaurants();
+  // }, [selectedFilters]);
 
   useEffect(() => {
     searchFilterRestaurants();
@@ -39,9 +39,7 @@ const HomeView: FC = () => {
         <TitleHeader
           searchBar={true} 
           onSearchSubmit={setSearchTerm}
-          onCategorySelect={setSelectedCategory}
           searchTerm={searchTerm}
-          selectedCategory={selectedCategory}
         />
           <View style={styles.background}>
             {restaurantListIsLoading || dataLoading ? (

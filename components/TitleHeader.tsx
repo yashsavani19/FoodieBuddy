@@ -4,15 +4,15 @@ import Colors from "@/constants/Colors";
 import images from "@/assets/data/images";
 import HeaderComponents from "./HeaderComponents";
 import { Category } from "@/model/Category";
-import { Filter } from "@/model/Filter";
+import { Sort } from "@/model/Sort";
 import Constants from "expo-constants";
 import { AppContext } from "@/context/AppContext";
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
   onSearchSubmit?: (searchTerm: string) => void;
-  onCategorySelect?: (category: Category) => void;
-  onFilterSelect?: (filter: Filter[]) => void;
+  onFiltersSelect?: (category: Category[]) => void;
+  onSortSelect?: (sort: Sort) => void;
   searchTerm?: string;
   selectedCategory?: Category;
 }
@@ -26,10 +26,10 @@ export default function TitleHeader({
   title,
   searchBar,
   onSearchSubmit,
-  onCategorySelect,
-  onFilterSelect,
+  onFiltersSelect,
+  onSortSelect,
 }: TitleHeaderProps) {
-  const { searchTerm, selectedCategory } = useContext(AppContext);
+  const { searchTerm, selectedFilters } = useContext(AppContext);
 
   // Function to handle search submit
   const handleSearchSubmit = (searchTerm: string) => {
@@ -40,17 +40,17 @@ export default function TitleHeader({
   };
 
   //  Function to handle category select
-  const handleCategorySelect = (category: Category) => {
-    if (onCategorySelect) {
-      onCategorySelect(category);
+  const handleFiltersSelect = (category: Category[]) => {
+    if (onFiltersSelect) {
+      onFiltersSelect(category);
     }
   };
 
   // Function to handle filter select
-  const handleFilterSelect = (filter: Filter[]) => {
-    console.log(`Filter selected: ${filter}`);
-    if (onFilterSelect) {
-      onFilterSelect(filter);
+  const handleSortSelect = (toSort: Sort) => {
+    console.log(`Sort selected: ${toSort}`);
+    if (onSortSelect) {
+      onSortSelect(toSort);
     }
   };
 
@@ -61,10 +61,8 @@ export default function TitleHeader({
         title={title}
         searchBar={searchBar}
         onSearchSubmit={handleSearchSubmit}
-        onCategorySelect={handleCategorySelect}
-        onFilterSelect={handleFilterSelect}
+        onSortSelect={handleSortSelect}
         searchTerm={searchTerm} // Pass the current search term
-        selectedCategory={selectedCategory} // Pass the current selected category
       />
     </View>
   );
