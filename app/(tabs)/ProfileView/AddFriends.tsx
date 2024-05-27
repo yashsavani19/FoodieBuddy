@@ -34,13 +34,15 @@ const friendImages: { [key: string]: any } = {
 };
 
 const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
-  const { getFriends } = useContext(AppContext);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { friends, getFriends } = useContext(AppContext);
+  const { user } = useAuth();
+
   const handleAddFriend = async () => {
     await addFriend(friend);
     await getFriends();
+    navigation.goBack();
   };
-  const { user } = useAuth();
-  const { friends } = useContext(AppContext);
 
   const buttonText =
     // check if friend.uid is in the friends.uid list
@@ -55,7 +57,7 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
     console.log("Friends: " + friends.map((f) => f.username));
   }, [friend]);
 
-  if(friend.uid === user?.uid) {
+  if (friend.uid === user?.uid) {
     return null;
   }
 

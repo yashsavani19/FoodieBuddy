@@ -15,20 +15,31 @@ import { AppContext } from "@/context/AppContext";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
-import { fetchFriendRequests } from "@/controller/DatabaseHandler";
+import {
+  confirmFriendRequest,
+  fetchFriendRequests,
+  rejectFriendRequest,
+} from "@/controller/DatabaseHandler";
 
 interface ListContainerProps {
   friend: Friend;
+  onPress: () => void;
 }
 
-const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const handlePress = () => {
-    navigation.navigate("FriendProfile", { friend });
+const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
+  const acceptRequest = async () => {
+    await confirmFriendRequest(friend);
+    onPress();
   };
+
+  const rejectRequest = async () => {
+    await rejectFriendRequest(friend);
+    onPress();
+  };
+
   return (
     <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
-      <TouchableOpacity style={styles.listItem}>
+      <View style={styles.listItem}>
         <Image
           resizeMode="contain"
           style={styles.listImage}
@@ -37,8 +48,21 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
         </View>
-        {/* <AntDesign name="right" style={styles.rightArrow} /> */}
-      </TouchableOpacity>
+        <View style={{ flexDirection: "row" }}>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#4B8DEF" }]}
+            onPress={acceptRequest}
+          >
+            <Text style={styles.buttonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#CC4343" }]}
+            onPress={rejectRequest}
+          >
+            <Text style={styles.buttonText}>Decline</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
@@ -46,14 +70,17 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
 const FriendRequestsList = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [friendRequests, setFriendRequests] = useState<Friend[]>([]);
+  const { getFriends } = useContext(AppContext);
 
   useEffect(() => {
-    const getFriendRequests = async () => {
-      const requests = await fetchFriendRequests();
-      setFriendRequests(requests);
-    };
-    getFriendRequests();
+    refreshList();
   }, []);
+
+  const refreshList = async () => {
+    const requests = await fetchFriendRequests();
+    setFriendRequests(requests);
+    getFriends();
+  };
 
   return (
     <View style={styles.container}>
@@ -81,7 +108,11 @@ const FriendRequestsList = () => {
           <ScrollView style={styles.scrollView}>
             <View style={styles.listContainer}>
               {friendRequests.map((friend) => (
-                <ListContainer key={friend.uid} friend={friend} />
+                <ListContainer
+                  key={friend.uid}
+                  friend={friend}
+                  onPress={refreshList}
+                />
               ))}
             </View>
           </ScrollView>
@@ -97,6 +128,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  button: {
+    padding: 10,
+    paddingHorizontal: 20,
+    borderRadius: 15,
+    margin: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
   innerContainer: {
     flex: 1,

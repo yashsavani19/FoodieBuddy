@@ -517,8 +517,13 @@ export const confirmFriendRequest = async (friend: Friend) => {
       alert("You must be logged in to add friends.");
       return;
     }
-    const friendCollection = `users/${currentUserUid}/friends`;
-    const docRef = doc(db, friendCollection, friend.uid);
+    let friendCollection = `users/${currentUserUid}/friends`;
+    let docRef = doc(db, friendCollection, friend.uid);
+    await setDoc(docRef, {
+      addedOn: new Date(),
+    });
+    friendCollection = `users/${friend.uid}/friends`;
+    docRef = doc(db, friendCollection, currentUserUid);
     await setDoc(docRef, {
       addedOn: new Date(),
     });
@@ -557,8 +562,17 @@ export const rejectFriendRequest = async (friend: Friend) => {
 export const removeFriend = async (friend: Friend) => {
   try {
     const uid = auth.currentUser?.uid;
+    if (!uid) {
+      throw new Error("User not authenticated");
+    }
+
     const friendCollection = `users/${uid}/friends`;
     await deleteDoc(doc(db, friendCollection, friend.uid));
+
+    const friendCollection2 = `users/${friend.uid}/friends`;
+    await deleteDoc(doc(db, friendCollection2, uid));
+
+    console.log("Friend successfully removed");
   } catch (e) {
     console.error("Error removing document: ", e);
     alert("Internal error removing friend. Please try again later.");
@@ -576,24 +590,24 @@ export const fetchFriendRequests = async (): Promise<Friend[]> => {
     const querySnapshot = await getDocs(
       collection(db, friendRequestCollection)
     );
+
     if (querySnapshot.empty) {
       console.log("No friend requests found.");
-    } else {
-      console.log(
-        "Friend requests: ",
-        querySnapshot.forEach((doc) => doc.id)
-      );
     }
-    const friendRequests: Friend[] = [];
-    querySnapshot.forEach(async (doc) => {
-      const username = await getUsername(doc.id);
-      const profileImageUrl = await getProfileImageUrl(doc.id);
-      friendRequests.push({
-        uid: doc.id,
-        username: username,
-        profileImageUrl: profileImageUrl,
-      });
-    });
+
+    const friendRequests: Friend[] = await Promise.all(
+      querySnapshot.docs.map(async (doc) => {
+        const username = await getUsername(doc.id);
+        console.log("Username: ", username);
+        const profileImageUrl = await getProfileImageUrl(doc.id);
+        return {
+          uid: doc.id,
+          username: username,
+          profileImageUrl: profileImageUrl,
+        };
+      })
+    );
+
     console.log("Friend requests fetched: ", friendRequests);
     return friendRequests;
   } catch (e) {

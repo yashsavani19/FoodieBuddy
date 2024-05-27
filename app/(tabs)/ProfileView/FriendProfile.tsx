@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import TitleHeader from "@/components/TitleHeader";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 import { Friend } from "@/model/Friend";
@@ -21,10 +21,13 @@ import {
   fetchFriendsBookmarks,
   fetchFriendsFavourites,
   fetchFriendsVisited,
+  removeFriend,
 } from "@/controller/DatabaseHandler";
+import { AppContext } from "@/context/AppContext";
 
 const FriendProfile: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { getFriends } = useContext(AppContext);
   const route = useRoute();
   const friend = (route.params as any).friend as Friend;
 
@@ -63,6 +66,12 @@ const FriendProfile: React.FC = () => {
     }
   };
 
+  const unfriend = async () => {
+    await removeFriend(friend);
+    await getFriends();
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
       <TitleHeader title={friend.username} />
@@ -87,7 +96,7 @@ const FriendProfile: React.FC = () => {
             <Text style={{ fontSize: 24, fontWeight: "600" }}>
               {friend.username}
             </Text>
-            <TouchableOpacity style={styles.unfriendButton}>
+            <TouchableOpacity style={styles.unfriendButton} onPress={unfriend}>
               <Text style={{ color: "#fff", fontWeight: "600" }}>Unfriend</Text>
             </TouchableOpacity>
           </View>
