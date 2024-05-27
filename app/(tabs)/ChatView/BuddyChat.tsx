@@ -9,15 +9,24 @@ import {
   Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Image,
 } from "react-native";
-import Message, { MessageProps } from "./Message";
+import Message, { MessageProps } from "../../../components/Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
 import Colors from "@/constants/Colors";
 import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
-import RestaurantListItem from "./RestaurantListItem";
+import RestaurantListItem from "../../../components/RestaurantListItem";
+import { useNavigation } from "@react-navigation/native";
+import TitleHeader from "@/components/TitleHeader";
+import { AntDesign } from "@expo/vector-icons";
+import { MaterialIcons } from '@expo/vector-icons';
+
+// Ensure the paths to the image assets are correct
+const userIcon = require("../../../assets/images/user-icon.png");
+const buddyIcon = require("../../../assets/images/buddy-icon.png");
 
 /**
  *  Chat component for user to interact with Buddy.
@@ -34,6 +43,7 @@ const Chat: React.FC = () => {
   const flatListRef = useRef<FlatList>(null);
   const [recommendedRestaurant, setRecommendedRestaurant] =
     useState<Restaurant | null>(null);
+  const navigation = useNavigation();
 
   /**
    * AI Chat function to send user message to AI and get response
@@ -87,7 +97,7 @@ const Chat: React.FC = () => {
     return () => {
       keyboardDidShowListener.remove();
     };
-  }, []);    
+  }, []);
 
   /**
    * Send message to Buddy and get response from AI
@@ -98,7 +108,7 @@ const Chat: React.FC = () => {
       const newMessage: MessageProps = {
         id: Date.now().toString(),
         text: currentMessage,
-        imageUrl: require("../assets/images/user-icon.png"),
+        imageUrl: userIcon,
         type: "sent",
       };
 
@@ -118,7 +128,7 @@ const Chat: React.FC = () => {
           const newResponse: MessageProps = {
             id: Date.now().toString(),
             text: response,
-            imageUrl: require("../assets/images/buddy-icon.png"),
+            imageUrl: buddyIcon,
             type: "received",
           };
 
@@ -152,66 +162,94 @@ const Chat: React.FC = () => {
    * Chat component with messages, input text box, and send button
    */
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} // You might need to adjust this offset based on your header height or other UI elements
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            renderItem={({ item }) => (
-              <Message
-                id={item.id}
-                text={item.text}
-                imageUrl={item.imageUrl}
-                type={item.type}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-            style={styles.messagesList}
-            contentContainerStyle={{ paddingBottom: 10 }}
-            ListHeaderComponent={<View style={{ height: 10 }} />}
-            ListFooterComponent={
-              recommendedRestaurant ? (
-                <RestaurantListItem restaurant={recommendedRestaurant} />
-              ) : null
-            }
-          />
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              value={currentMessage}
-              onChangeText={setCurrentMessage}
-              placeholder="Type a message..."
-            />
-            <TouchableOpacity onPress={sendMessageFromUser}>
-              <FontAwesome
-                name="send"
-                size={24}
-                color={Colors.light.iconColor}
-              />
-            </TouchableOpacity>
-          </View>
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <TitleHeader title="Buddy Chat" />
+        <View style={styles.navigationBar}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
+            <AntDesign name="arrowleft" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {/* Add any desired functionality for settings */}} style={styles.navButton}>
+            <MaterialIcons name="settings" size={22} color="white" />
+          </TouchableOpacity>
         </View>
-      </TouchableWithoutFeedback>
-      <TouchableOpacity
-        onPress={resetChatMessages}
-        style={{ position: "absolute", top: 10, right: 15 }}
+      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} // You might need to adjust this offset based on your header height or other UI elements
       >
-        <FontAwesome name="repeat" size={24} color="grey" />
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              renderItem={({ item }) => (
+                <Message
+                  id={item.id}
+                  text={item.text}
+                  imageUrl={item.imageUrl}
+                  type={item.type}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+              style={styles.messagesList}
+              contentContainerStyle={{ paddingBottom: 10 }}
+              ListHeaderComponent={<View style={{ height: 10 }} />}
+              ListFooterComponent={
+                recommendedRestaurant ? (
+                  <RestaurantListItem restaurant={recommendedRestaurant} />
+                ) : null
+              }
+            />
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                value={currentMessage}
+                onChangeText={setCurrentMessage}
+                placeholder="Type a message..."
+              />
+              <TouchableOpacity onPress={sendMessageFromUser}>
+                <FontAwesome
+                  name="send"
+                  size={24}
+                  color={Colors.light.iconColor}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableOpacity
+          onPress={resetChatMessages}
+          style={{ position: "absolute", top: 10, right: 15 }}
+        >
+          <FontAwesome name="repeat" size={24} color="grey" />
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingLeft: 5,
-    paddingRight: 5,
+  },
+  headerContainer: {
+    paddingTop: 120,
+    backgroundColor: "#fff",
+  },
+  navigationBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: '#000',
+    width: '100%',
+    height: 40,
+  },
+  navButton: {
+    padding: 5,
   },
   innerContainer: {
     flex: 1,

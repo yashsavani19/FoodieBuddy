@@ -37,22 +37,22 @@ const Tab = createMaterialTopTabNavigator();
 type ChatRoomItemProps = {
   chatRoom: ChatRoom;
   onDelete: (id: string) => void;
+  type: string; // Add type to distinguish between chat types
 };
 
-const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete }) => {
+const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // const formatTimestamp = (timestamp: Date): string => {
-  //   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  //   return timestamp.toLocaleDateString(undefined, options);
-  // };
+  const handlePress = () => {
+    if (type === "buddy") {
+      navigation.navigate("BuddyChat");
+    } else {
+      navigation.navigate("ChatScreen", { chatRoomId: chatRoom.id });
+    }
+  };
 
   return (
-    <TouchableOpacity
-      onPress={() =>
-        navigation.navigate("ChatScreen", { chatRoomId: chatRoom.id })
-      }
-    >
+    <TouchableOpacity onPress={handlePress}>
       <View style={styles.chatRoomContainer}>
         <View style={styles.avatarContainer}>
           <Image
@@ -151,7 +151,7 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
         data={chatRooms}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} />
+          <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} type={type} />
         )}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
