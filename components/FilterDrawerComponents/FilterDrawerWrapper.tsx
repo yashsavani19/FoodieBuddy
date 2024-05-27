@@ -1,20 +1,26 @@
 // DrawerWrapper.tsx
 import * as React from 'react';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import DrawerContext from "@/context/DrawerContext"; 
 import { Drawer } from 'react-native-drawer-layout';
 import { ScrollView } from 'react-native-gesture-handler';
 import DrawerContent from './FilterDrawerContent';
 import { Category } from '@/model/Category';
-
+import { AppContext } from '@/context/AppContext';
 
 const DrawerWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [scrollViewRef, setScrollViewRef] = useState<React.RefObject<ScrollView>>(() => React.createRef<ScrollView>());
+  const { selectedFilters, setSelectedFilters, categoryFilterRestaurants } = useContext(AppContext);
+
+  useEffect(() => {
+    categoryFilterRestaurants();
+  }, [selectedFilters]);
 
   const handleApplyFilters = (filters: Category[], distance: number) => {
     handleClose();
     console.log(filters, distance);
+    setSelectedFilters(filters);
   };
 
   const handleClose = () => {

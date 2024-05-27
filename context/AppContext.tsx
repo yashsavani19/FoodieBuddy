@@ -51,8 +51,8 @@ export type AppContextType = {
   addChatMessage: (message: IMessage) => void;
   userObject: User;
   setUser: () => Promise<void>;
-  selectedCategory: Category;
-  setSelectedCategory: (category: Category) => void;
+  selectedFilters: Category[];
+  setSelectedFilters: (category: Category[]) => void;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   filteredRestaurants: Restaurant[];
@@ -94,8 +94,8 @@ export const AppContext = createContext<AppContextType>({
   userObject: {},
   setUser: async () => {},
 
-  selectedCategory: categories[0],
-  setSelectedCategory: async () => {},
+  selectedFilters: [],
+  setSelectedFilters: async () => {},
   searchTerm: "",
   setSearchTerm: async () => {},
   filteredRestaurants: [],
@@ -126,8 +126,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
   const [userObject, setUserObject] = useState<User>({});
-  const [selectedCategory, setSelectedCategory] =
-    useState<Category>(/* initial value */);
+  const [selectedFilters, setSelectedFilters] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
@@ -304,8 +303,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
     // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
     // This happened before another category was selected...
-    else if (!selectedCategory) {
-      setSelectedCategory(categories[0]);
+    else if (!selectedFilters) {
+      setSelectedFilters([]);
     }
 
     setFilteredRestaurants(result);
@@ -316,34 +315,46 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const categoryFilterRestaurants = () => {
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
+  
+    if (selectedFilters) {
+      const categoriesToFilter = new Set(selectedFilters
+        .filter(filter => !["Rating","Price"].includes(filter.type))
+        .map(filter => filter.apiName));
 
-    if (selectedCategory && selectedCategory.name !== "All") {
-      if (
-        selectedCategory &&
-        ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)
-      ) {
-        result = result.filter((restaurant) => {
-          return (
-            restaurant.categories &&
-            restaurant.categories
-              .map((category) => category.toLowerCase())
-              .includes(selectedCategory.name.toLowerCase())
-          );
-        });
-      } else {
-        result = result.filter((restaurant) => {
-          return (
-            restaurant.name &&
-            restaurant.name
-              .toLowerCase()
-              .includes(selectedCategory.name.toLowerCase())
-          );
-        });
+      const pricesToFilter = new Set(selectedFilters
+        .filter(filter => ["Price"].includes(filter.type))
+        .map(filter => filter.scale));
+
+      const ratingsToFilter = selectedFilters
+        .filter(filter => ["Rating"].includes(filter.type))
+        .map(filter => filter.rating)
+    
+      console.log("CATEGORIES TO FILTER", categoriesToFilter);
+      console.log("PRICES TO FILTER", pricesToFilter);
+      console.log("RATINGS TO FILTER", ratingsToFilter);
+
+      if (categoriesToFilter.size > 0) {
+        result = result.filter(restaurant =>
+          restaurant.categories?.some(category => categoriesToFilter.has(category))
+        );
       }
-    }
 
-    setFilteredRestaurants(result);
-    setRestaurantListIsLoading(false);
+      if (pricesToFilter.size > 0) {
+        result = result.filter(restaurant =>
+          pricesToFilter.has(parseInt(restaurant.price ?? 'null'))
+        );
+      }
+
+      if (ratingsToFilter.length > 0) {
+        result = result.filter(restaurant =>
+          restaurant.rating && ratingsToFilter[0] !== undefined && restaurant.rating >= ratingsToFilter[0]
+        );
+      }
+    
+      setFilteredRestaurants(result);
+      console.log("Filtered restaurants:", result);
+      setRestaurantListIsLoading(false);
+    }
   };
 
   const [alertShown, setAlertShown] = useState(false);
@@ -487,9 +498,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     addChatMessage,
     userObject,
     setUser,
-    selectedCategory: selectedCategory || ({} as Category),
+    selectedFilters: selectedFilters || ([] as Category[]),
     setSearchTerm,
-    setSelectedCategory,
+    setSelectedFilters,
     searchTerm,
     filteredRestaurants,
     setFilteredRestaurants,
