@@ -7,7 +7,48 @@ import { LocationObjectCoords } from 'expo-location';
 const photoWidth = 700;
 const photoHeight = 700;
 const searchRadius = 1050; // Search radius in meters
-const placeType = 'restaurant'; // Type of place to search
+// Type of place to search
+const placeTypes = [
+  "american_restaurant",
+  "bakery",
+  "bar",
+  "barbecue_restaurant",
+  "brazilian_restaurant",
+  "breakfast_restaurant",
+  "brunch_restaurant",
+  "cafe",
+  "chinese_restaurant",
+  "coffee_shop",
+  "fast_food_restaurant",
+  "french_restaurant",
+  "greek_restaurant",
+  "hamburger_restaurant",
+  "ice_cream_shop",
+  "indian_restaurant",
+  "indonesian_restaurant",
+  "italian_restaurant",
+  "japanese_restaurant",
+  "korean_restaurant",
+  "lebanese_restaurant",
+  "meal_delivery",
+  "meal_takeaway",
+  "mediterranean_restaurant",
+  "mexican_restaurant",
+  "middle_eastern_restaurant",
+  "pizza_restaurant",
+  "ramen_restaurant",
+  "restaurant",
+  "sandwich_shop",
+  "seafood_restaurant",
+  "spanish_restaurant",
+  "steak_house",
+  "sushi_restaurant",
+  "thai_restaurant",
+  "turkish_restaurant",
+  "vegan_restaurant",
+  "vegetarian_restaurant",
+  "vietnamese_restaurant"
+];
 
 /**
  * Fetches nearby restaurants based on the provided location.
@@ -21,75 +62,149 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
   }
 
   try {
-    console.log("Fetching nearby restaurants...");
-    // Construct the API URL with query parameters
-    const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location.latitude},${location.longitude}&radius=${searchRadius}&type=${placeType}&key=${GOOGLE_API_KEY}`;
-    const response = await axios.get<any>(apiUrl);
-    // We want to exclude places that are not restaurants, such as cinemas
-    const excludeKeywords = ["cinema"];
-    //console.log("Response from API:", response.data);
+    const results = await getRestaurantResults(location);
 
-    // Process each result to create restaurant data
-    const results = response.data.results || [];
-    const restaurants = await Promise.all(results.map(async (result: any) => {
-      // Skip if the restaurant is not operational
-      if (result.business_status !== 'OPERATIONAL') {
-        return null;
-      }
-
-      // Exclude lodging (hotels, hostels, motels, etc.)
-      if (result.types.includes('lodging')) {
-        return null;
-      }
-
-      // Skip if the restaurant name contains any of the exclude keywords
-      if (excludeKeywords.some(keyword => result.name.toLowerCase().includes(keyword))) {
-        return null;
-      }
-
+    const restaurants = await Promise.all(results.map(async (result: any) =>
+    {
       // Construct URL for the restaurant's main photo if available
-      const photoUrl = result.photos && result.photos[0] && result.photos[0].photo_reference
-        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${photoWidth}&maxheight=${photoHeight}&photo_reference=${result.photos[0].photo_reference}&key=${GOOGLE_API_KEY}`
-        : null;
+      const photoUrl = getPhotoUrl(result);
 
-      // Fetch additional details about the place, including the website URL
-      const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${result.place_id}&fields=website&key=${GOOGLE_API_KEY}`;
-      const detailsResponse = await axios.get<any>(detailsUrl);
-      const websiteUrl = detailsResponse.data.result && detailsResponse.data.result.website;
+      const detailResults = await getRestaurantDetails(result.id, false);
 
       // Calculate the distance from the provided location to the restaurant
       const distance = getDistanceFromLatLonInKm(
         location.latitude,
         location.longitude,
-        result.geometry.location.lat,
-        result.geometry.location.lng
+        result.location.latitude,
+        result.location.longitude
       )
 
-        // Return restaurant data including photo URL
-        return {
-          geometry: result.geometry,
-          id: result.place_id,
-          name: result.name,
-          image: photoUrl,
-          categories: result.types,
-          price: result.price_level,
-          rating: result.rating,
-          displayAddress: result.vicinity,
-          phone: result.formatted_phone_number,
-          distance: distance.toFixed(2),
-          isClosed: result.business_status,
-          website: websiteUrl,
-        };
-      })
-    );
+      // Return restaurant data 
+      return {
+        geometry: {
+          location: {
+            lat: result.location.latitude,
+            lng: result.location.longitude
+          }},
+        id: result.id,
+        name: result.displayName.text,
+        image: photoUrl,
+        categories: result.types,
+        price: detailResults.priceScale,
+        rating: result.rating,
+        displayAddress: result.formattedAddress,
+        phone: result.nationalPhoneNumber,
+        distance: distance.toFixed(2),
+        isClosed: result.businessStatus,
+        website: detailResults.data.websiteUri,
+      };
+    }));
 
     //console.log("Fetched nearby restaurants:", restaurants.filter(restaurant => restaurant !== null));
-    return restaurants.filter(restaurant => restaurant !== null);
-  } catch (error) {
+    return restaurants;
+  } 
+     
+  catch (error) {
     console.error("Error fetching nearby restaurants:", error);
     return [];
   }
 };
 
+/**
+ * This method gets the nearby restaurants from Google Places API (new)
+ * @param location 
+ * @returns Array of Places objects
+ */
+async function getRestaurantResults(location: LocationObjectCoords)
+{
+  const latitude = location.latitude;
+  const longitude = location.longitude;
+
+  console.log("Fetching nearby restaurants...");
+
+  const data = {
+    includedPrimaryTypes: placeTypes,
+    locationRestriction: {
+      circle: {
+        center: {
+          latitude,
+          longitude,
+        },
+        radius: searchRadius,
+      },
+    },
+  };
+  
+  let headers = {
+    'Content-Type': 'application/json',
+    'X-Goog-Api-Key': GOOGLE_API_KEY, 
+    'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.types,places.photos,places.rating,places.businessStatus,places.nationalPhoneNumber,places.location,places.id,places.currentOpeningHours',
+  };
+  
+  const apiUrl = 'https://places.googleapis.com/v1/places:searchNearby';    
+
+  const response = await axios.post(apiUrl, data, { headers });
+
+  // Process each result to create restaurant data
+  return response.data.places || [];
+}
+
+/**
+ * This method gets the photo URL of a Place object from Google Places API (new)
+ * @param result 
+ * @returns Photo URL
+ */
+export function getPhotoUrl(result: any)
+{
+  // Construct URL for the restaurant's main photo if available
+  return result.photos && result.photos[0] && result.photos[0].name
+  ? `https://places.googleapis.com/v1/${result.photos[0].name}/media?maxWidthPx=${photoWidth}&maxHeightPx=${photoHeight}&key=${GOOGLE_API_KEY}`
+  : null;
+}
+
+/**
+ * This method gets the Details of a restaurant from Google Places API (new)
+ * @param id, all as boolean (true: get all details, false: get only websiteUri & priceLevel)
+ * @returns Object with results data and priceScale
+ */
+export async function getRestaurantDetails(id: string, all: boolean)
+{
+  // Fetch additional details about the place: website URL and price level
+  const headers = (all ? 
+  { 'Content-Type': 'application/json',
+    'X-Goog-Api-Key': GOOGLE_API_KEY, 
+    'X-Goog-FieldMask': 'websiteUri,location,displayName,photos,priceLevel,rating,formattedAddress,nationalPhoneNumber,businessStatus,types',
+  } : 
+  { 'Content-Type': 'application/json',
+    'X-Goog-Api-Key': GOOGLE_API_KEY, 
+    'X-Goog-FieldMask': 'websiteUri,priceLevel',
+  });
+  
+  const detailsApiUrl = `https://places.googleapis.com/v1/places/${id}`;    
+
+  const detailsResponse = await axios.get(detailsApiUrl, { headers });
+  
+  const data = detailsResponse.data;
+
+  const priceLevel = data.priceLevel;
+  let priceScale = undefined;
+  switch(priceLevel) 
+  {
+    case "PRICE_LEVEL_INEXPENSIVE":
+      priceScale = 1;
+      break;
+    case "PRICE_LEVEL_MODERATE":
+      priceScale = 2;
+      break;
+    case "PRICE_LEVEL_EXPENSIVE":
+      priceScale = 3;
+      break;
+    case "PRICE_LEVEL_VERY_EXPENSIVE":
+      priceScale = 4;
+      break;
+  }
+
+  return { data, priceScale };
+}
 
 export default fetchNearbyRestaurants;

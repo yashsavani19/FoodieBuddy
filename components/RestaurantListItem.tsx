@@ -175,52 +175,47 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
           </View>
           {/* Restaurant information */}
         </Pressable>
-        <View style={styles.textInfo}>
-          <Text style={styles.title}>{restaurant.name}</Text>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={{ fontWeight: "bold" }}>
-              Rating:{" "}
-              {restaurant.rating !== undefined ? (
-                <StarRating rating={restaurant.rating} />
-              ) : (
-                "N/A"
-              )}
-            </Text>
-            <Text style={styles.distance}>
-              {formatDistance(restaurant.distance)}
-            </Text>
-            <Text style={styles.distance}>
-              {restaurant.price !== undefined
-                ? displayPriceLevel(parseInt(restaurant.price))
-                : ""}
-            </Text>
+          <View style={styles.textInfo}>
+            <Text style={styles.title}>{restaurant.name}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", flex: 1, flexWrap: "wrap" }}>
+              <Text style={{ fontWeight: "bold" }}>
+                {restaurant.rating !== undefined ? ( <StarRating rating={restaurant.rating} />) : ( "N/A" )}
+              </Text>
+              <Text style={styles.distance}>
+                {formatDistance(restaurant.distance)}
+              </Text>
+              <Text style={styles.distance}>
+                {restaurant.price !== undefined
+                  ? displayPriceLevel(parseInt(restaurant.price))
+                  : ""}
+              </Text>
+            </View>
+          </View>
+          {/* Bookmark button */}
+          <View style={styles.iconContainer}>
+            <Pressable onPress={handleBookmarkPressed}>
+              <Animated.Image
+                source={{
+                  uri: isBookmarkPressed
+                    ? images.bookmarkSelectedIcon
+                    : images.bookmarkIcon,
+                }}
+                style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
+              />
+            </Pressable>
+          </View>
+          {/* Favourite button */}
+          <View style={styles.iconContainer}>
+            <Pressable onPress={handleFavouritePressed}>
+              <Animated.Image
+                source={{
+                  uri: isFavePressed ? images.faveSelectedIcon : images.faveIcon,
+                }}
+                style={[styles.icon, { transform: [{ scale: faveScale }] }]}
+              />
+            </Pressable>
           </View>
         </View>
-        {/* Bookmark button */}
-        <View style={styles.iconContainer}>
-          <Pressable onPress={handleBookmarkPressed}>
-            <Animated.Image
-              source={{
-                uri: isBookmarkPressed
-                  ? images.bookmarkSelectedIcon
-                  : images.bookmarkIcon,
-              }}
-              style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
-            />
-          </Pressable>
-        </View>
-        {/* Favourite button */}
-        <View style={styles.iconContainer}>
-          <Pressable onPress={handleFavouritePressed}>
-            <Animated.Image
-              source={{
-                uri: isFavePressed ? images.faveSelectedIcon : images.faveIcon,
-              }}
-              style={[styles.icon, { transform: [{ scale: faveScale }] }]}
-            />
-          </Pressable>
-        </View>
-      </View>
     </Pressable>
   );
 };
@@ -253,6 +248,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "left",
     paddingLeft: 10,
+    flexWrap: "wrap",
   },
   findOnMap: {
     fontWeight: "bold",

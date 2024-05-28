@@ -20,7 +20,6 @@ const HomeView: FC = () => {
     filteredRestaurants, 
     dataLoading, 
     restaurantListIsLoading,
-    visitedRestaurants // Assuming you have a state for visited restaurants
   } = useContext(AppContext);
 
   // Handle filtering of restaurants based on search term and selected category
