@@ -283,8 +283,8 @@ export const addUser = async (uid: string, email: string, username: string) => {
     await setDoc(doc(db, userCollection), {
       email: email,
       username: username,
-      preferences: DefaultPreferences,
-      console: console.log("Default preferences added"),
+      // preferences: DefaultPreferences,
+      // console: console.log("Default preferences added"),
     });
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -303,13 +303,13 @@ export const fetchUser = async (uid: string) => {
     if (docSnap.exists()) {
       const userData = docSnap.data();
 
-      // Check if preferences exist
-      if (!userData.preferences) {
-        // Add default preferences
-        console.log("Adding default preferences")
-        await updateDoc(docRef, { preferences: DefaultPreferences });
-        userData.preferences = DefaultPreferences;
-      }
+      // // Check if preferences exist
+      // if (!userData.preferences) {
+      //   // Add default preferences
+      //   console.log("Adding default preferences")
+      //   await updateDoc(docRef, { preferences: DefaultPreferences });
+      //   userData.preferences = DefaultPreferences;
+      // }
 
       return userData;
     } else {
@@ -450,7 +450,7 @@ export const fetchPreferences = async () => {
     const preferences: Preference[] = [];
     querySnapshot.forEach((doc) => {
       preferences.push({
-        preferenceId: doc.id,
+        preferenceCategory: doc.data().preferenceCategory,
         name: doc.data().name,
       });
     });

@@ -1,4 +1,4 @@
 export interface Preference {
-    preferenceId: string;
+    preferenceCategory: string;
     name: string;
 };

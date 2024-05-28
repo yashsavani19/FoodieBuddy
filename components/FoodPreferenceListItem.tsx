@@ -1,4 +1,5 @@
 import { Preference } from "@/model/Preference";
+import { PreferenceList } from "@/model/PreferenceList";
 import images from "@/assets/data/images";
 import {
   Image,
@@ -14,6 +15,9 @@ import { useContext } from "react";
 import { useNavigation } from "expo-router";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import PreferenceButton from "./PreferencesComponents/PreferenceButton";
+import SelectButton from "./PreferencesComponents/SelectPreferenceButton";
+import CategoryContainer from "./PreferencesComponents/CategoryContainer";
 
 interface FoodPreferencesListItemProps {
   preference: Preference;
@@ -22,7 +26,7 @@ interface FoodPreferencesListItemProps {
 const FoodPreferencesListItem: React.FC<FoodPreferencesListItemProps> = ({ preference }) => {
   return (
     <View>
-      <Text>{preference.name}</Text>
+      
     </View>
   );
 };

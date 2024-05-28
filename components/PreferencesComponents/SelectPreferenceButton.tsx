@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 // See: https://oblador.github.io/react-native-vector-icons/
 
-const FilterButton = ({ onPress }: { onPress: any }) => (
+const SelectButton = ({ onPress }: { onPress: any }) => (
     <View style={styles.container}>
         <TouchableOpacity onPress={onPress} style={styles.button}>
             <Text style={styles.text}>Filter By</Text>
@@ -37,4 +37,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FilterButton;
+export default SelectButton;
