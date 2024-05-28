@@ -440,6 +440,12 @@ export const getUsername = async (uid: string): Promise<string> => {
 };
 
 /**
+ * Set profile image URL for user
+ * @param uid user id
+ * @param profileImageUrl profile image URL
+ */
+
+/**
  * Get users profile image from uid
  */
 export const getProfileImageUrl = async (uid: string): Promise<string> => {
