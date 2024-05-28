@@ -226,7 +226,6 @@ export function AuthProvider(props: ProviderProps) {
     if (currentAuth.currentUser !== null) {
       await Auth.sendEmailVerification(currentAuth.currentUser);
     }
-    await addUser(Auth.getAuth().currentUser?.uid || "", email, username);
     if (currentAuth.currentUser === null) {
       alert("Error registering user");
       return false;
@@ -234,7 +233,6 @@ export function AuthProvider(props: ProviderProps) {
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
-    await addUsername(username, currentAuth.currentUser.uid);
     return true;
   };
 
