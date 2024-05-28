@@ -41,35 +41,9 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
   setNewChatRoomName,
   newChatRoomImageUrl,
   setNewChatRoomImageUrl,
+  friends,
+  toggleFriendAdded,
 }) => {
-  const [friends, setFriends] = useState<Friend[]>([]);
-
-  useEffect(() => {
-    if (visible) {
-      const unsubscribe = subscribeToFriends((friendsList) => {
-        const friends = friendsList.map((friend: FriendModel) => ({
-          id: friend.uid,
-          name: friend.username,
-          avatar: friend.profileImageUrl || "",
-          isAdded: false,
-        }));
-        setFriends(friends);
-      });
-
-      return () => {
-        unsubscribe();
-      };
-    }
-  }, [visible]);
-
-  const toggleFriendAdded = (id: string) => {
-    setFriends((prevFriends) =>
-      prevFriends.map((friend) =>
-        friend.id === id ? { ...friend, isAdded: !friend.isAdded } : friend
-      )
-    );
-  };
-
   const renderFriend = ({ item }: { item: Friend }) => (
     <View style={styles.friendContainer}>
       <Image source={{ uri: item.avatar }} style={styles.friendAvatar} />

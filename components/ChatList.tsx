@@ -11,11 +11,11 @@ import {
   fetchChatRooms,
   createChatRoom,
   deleteChatRoom,
+  subscribeToFriends,
 } from "@/controller/DatabaseHandler";
 import { auth } from "@/controller/FirebaseHandler";
 import ChatRoomItem from "./ChatRoomItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
-import { subscribeToFriends } from "@/controller/DatabaseHandler";
 import { Friend as FriendModel } from "@/model/Friend";
 
 type ChatRoom = {
@@ -57,6 +57,7 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
       }));
       formattedRooms.sort((a, b) => a.name.localeCompare(b.name));
       setChatRooms(formattedRooms);
+      console.log("ChatRooms fetched: ", formattedRooms); 
     } catch (error) {
       console.error("Error fetching chat rooms: ", error);
     }
@@ -66,13 +67,13 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
     getChatRooms();
 
     const unsubscribe = subscribeToFriends((friendsList) => {
-      const friends = friendsList.map((friend: FriendModel) => ({
+      const formattedFriends = friendsList.map((friend: FriendModel) => ({
         id: friend.uid,
         name: friend.username,
         avatar: friend.profileImageUrl || "",
         isAdded: false,
       }));
-      setFriends(friends);
+      setFriends(formattedFriends);
     });
 
     return () => {
@@ -83,13 +84,25 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
   const handleCreateChatRoom = async () => {
     const userId = auth.currentUser?.uid;
     if (userId) {
+      // Get the IDs of the friends who are added to the chat room
+      const allowedUsers = friends.filter(friend => friend.isAdded).map(friend => friend.id);
+      // Include the current user's ID
+      allowedUsers.push(userId);
+      console.log("Allowed Users on Create:", allowedUsers); 
+
+      if (allowedUsers.length === 0) {
+        console.error("No friends added to the chat room.");
+        return;
+      }
+
       await createChatRoom(
         newChatRoomName,
         type,
-        newChatRoomImageUrl ||
-          "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
+        newChatRoomImageUrl || "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg",
+        allowedUsers
       );
-      getChatRooms();
+      console.log("Chat room created, calling getChatRooms");
+      await getChatRooms();
       setNewChatRoomName("");
       setNewChatRoomImageUrl("");
       setModalVisible(false);
@@ -100,7 +113,7 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
 
   const handleDeleteChatRoom = async (id: string) => {
     await deleteChatRoom(id);
-    getChatRooms();
+    await getChatRooms();
   };
 
   const onRefresh = () => {
@@ -109,12 +122,15 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
   };
 
   const toggleFriendAdded = (id: string) => {
-    setFriends((prevFriends) =>
-      prevFriends.map((friend) =>
+    setFriends((prevFriends) => {
+      const updatedFriends = prevFriends.map((friend) =>
         friend.id === id ? { ...friend, isAdded: !friend.isAdded } : friend
-      )
-    );
+      );
+      console.log("Toggle Added: ",updatedFriends);
+      return updatedFriends;
+    });
   };
+  
 
   const renderItem = ({ item }: { item: ChatRoom }) => (
     <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} type={type} />

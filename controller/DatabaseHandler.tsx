@@ -904,14 +904,17 @@ export const fetchAllUsernames = async (): Promise<{
 export const createChatRoom = async (
   roomName: string,
   type: string,
-  profileImageUrl: string = "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
+  profileImageUrl: string = "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg",
+  allowedUsers: string[] = []
 ) => {
   try {
+    console.log("Allowed Users:", allowedUsers); 
     const docRef = await addDoc(collection(db, "chatRooms"), {
       name: roomName,
       type: type,
       lastMessage: "",
-      avatar: profileImageUrl, // Use provided profile image URL or a default avatar
+      avatar: profileImageUrl,
+      allowedUsers: allowedUsers.length ? allowedUsers : [], 
     });
 
     console.log("Chat room created with ID: ", docRef.id);
@@ -921,15 +924,15 @@ export const createChatRoom = async (
   }
 };
 
-/**
- * Fetches chat rooms based on the type
- * @param {string} type - The type of chat rooms to fetch (e.g., 'buddy', 'friends')
- * @returns {Promise<any[]>} - An array of chat rooms
- */
 export const fetchChatRooms = async (type: string) => {
   const chatRoomsRef = collection(db, "chatRooms");
-  const q = query(chatRoomsRef, where("type", "==", type));
+  const currentUserUid = auth.currentUser?.uid;
 
+  if (!currentUserUid) {
+    throw new Error("User not authenticated");
+  }
+
+  const q = query(chatRoomsRef, where("type", "==", type), where("allowedUsers", "array-contains", currentUserUid));
   const querySnapshot = await getDocs(q);
   const chatRooms = [];
 
@@ -953,7 +956,6 @@ export const fetchChatRooms = async (type: string) => {
       avatar: doc.data().avatar,
     });
   }
-
   return chatRooms;
 };
 
