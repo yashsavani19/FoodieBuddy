@@ -115,14 +115,19 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Create New Chat Room</Text>
+        <Text style={styles.addButtonText}>New Chat</Text>
       </TouchableOpacity>
-      <Modal visible={modalVisible} animationType="slide">
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(!modalVisible)}
+      >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalContainer}
+          style={styles.modalView}
         >
-          <Text style={styles.modalTitle}>Create Chat Room</Text>
+          <Text style={styles.modalText}>Create New Chat Room</Text>
           <TextInput
             style={styles.input}
             placeholder="Chat Room Name"
@@ -134,9 +139,18 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
             placeholder="Image URL (optional)"
             value={newChatRoomImageUrl}
             onChangeText={setNewChatRoomImageUrl}
+            keyboardType="url"
+            autoCapitalize="none"
+            autoCorrect={false}
           />
-          <Button title="Create" onPress={handleCreateChatRoom} />
-          <Button title="Cancel" onPress={() => setModalVisible(false)} />
+          <View style={styles.buttonContainer}>
+            <Button title="Create" onPress={handleCreateChatRoom} />
+            <Button
+              title="Cancel"
+              onPress={() => setModalVisible(false)}
+              color="#ff6f00"
+            />
+          </View>
         </KeyboardAvoidingView>
       </Modal>
     </View>
@@ -146,34 +160,40 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#2E2E2E",
   },
   addButton: {
-    backgroundColor: "#ff6f00",
-    padding: 15,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
     position: "absolute",
     bottom: 20,
     right: 20,
+    backgroundColor: "#007BFF",
+    borderRadius: 15,
+    padding: 10,
+    width: 120,
   },
   addButtonText: {
-    color: "#ffffff",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
   },
-  modalContainer: {
+  modalView: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "rgba(0,0,0,0.8)",
     padding: 20,
   },
-  modalTitle: {
+  modalText: {
     fontSize: 24,
     fontWeight: "bold",
+    color: "#fff",
     marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   input: {
     width: "100%",
