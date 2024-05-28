@@ -1,35 +1,31 @@
-/**
- * ChatList.tsx
- * 
- * This file defines the ChatList component, which displays a list of chat rooms. The component supports fetching,
- * creating, and deleting chat rooms from a database, and it utilizes Firebase for user authentication and database
- * operations.
- * 
- * Props:
- * - type: A string indicating the type of chat rooms to display ("buddy" or "friends").
- * 
- * The component includes:
- * - A state for managing chat rooms, modal visibility, new chat room name, image URL, and refresh status.
- * - A useEffect hook to fetch chat rooms when the component mounts or when the type prop changes.
- * - Functions for handling the creation and deletion of chat rooms.
- * - A modal for creating new chat rooms, with a form for entering the chat room name and image URL.
- * - A FlatList for rendering the list of chat rooms with pull-to-refresh functionality.
- * - A button for opening the modal to create new chat rooms.
- */
+// This is the large file (original) that has been split into 
+// ChatList, ChatRoomItem, ChatListTabss
 
 import React, { useState, useEffect } from "react";
 import {
   View,
+  Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Image,
+  Modal,
+  TextInput,
+  Button,
+  KeyboardAvoidingView,
+  Platform,
   RefreshControl,
-  Text,
 } from "react-native";
-import { fetchChatRooms, createChatRoom, deleteChatRoom } from "@/controller/DatabaseHandler";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import {
+  fetchChatRooms,
+  createChatRoom,
+  deleteChatRoom,
+} from "@/controller/DatabaseHandler";
 import { auth } from "@/controller/FirebaseHandler";
-import ChatRoomItem from "./ChatRoomItem";
-import CreateChatRoomModal from "./CreateChatRoomModal";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import { NavigationProp } from "@react-navigation/native";
 
 type ChatRoom = {
   id: string;
@@ -37,6 +33,58 @@ type ChatRoom = {
   lastMessage: string;
   avatar: string;
   timestamp: Date;
+};
+
+const Tab = createMaterialTopTabNavigator();
+
+type ChatRoomItemProps = {
+  chatRoom: ChatRoom;
+  onDelete: (id: string) => void;
+  type: string;
+};
+
+const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type }) => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const handlePress = () => {
+    if (type === "buddy") {
+      navigation.navigate("BuddyChat", { chatRoomId: chatRoom.id });
+    } else {
+      navigation.navigate("ChatScreen", { chatRoomId: chatRoom.id });
+    }
+  };
+
+  return (
+    <TouchableOpacity onPress={handlePress}>
+      <View style={styles.chatRoomContainer}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={{
+              uri:
+                chatRoom.avatar ||
+                "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg",
+            }}
+            style={styles.avatar}
+          />
+        </View>
+        <View style={styles.chatRoomInfo}>
+          <Text style={styles.chatRoomName}>{chatRoom.name}</Text>
+          <View style={styles.timestampContainer}>
+            <Text style={styles.chatRoomLastMessage}>
+              {chatRoom.lastMessage}
+            </Text>
+            {/* <Text style={styles.chatRoomTimestamp}>{formatTimestamp(chatRoom.timestamp)}</Text> */}
+          </View>
+        </View>
+        <TouchableOpacity
+          onPress={() => onDelete(chatRoom.id)}
+          style={styles.deleteButton}
+        >
+          <Text style={styles.deleteButtonText}>Remove</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
 };
 
 type ChatListProps = {
@@ -77,61 +125,167 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
       await createChatRoom(
         newChatRoomName,
         type,
-        newChatRoomImageUrl || "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
+        newChatRoomImageUrl ||
+          "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
       );
-      getChatRooms();
+      setModalVisible(false);
       setNewChatRoomName("");
       setNewChatRoomImageUrl("");
-      setModalVisible(false);
+      await getChatRooms();
     } else {
-      console.error("No user is signed in.");
+      console.error("User is not authenticated");
     }
   };
 
   const handleDeleteChatRoom = async (id: string) => {
     await deleteChatRoom(id);
-    getChatRooms();
+    await getChatRooms();
   };
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    getChatRooms().then(() => setRefreshing(false));
+    await getChatRooms();
+    setRefreshing(false);
   };
-
-  const renderItem = ({ item }: { item: ChatRoom }) => (
-    <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} type={type} />
-  );
 
   return (
     <View style={styles.container}>
       <FlatList
         data={chatRooms}
-        renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        renderItem={({ item }) => (
+          <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} type={type} />
+        )}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
-      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-        <Text style={styles.addButtonText}>New Chat</Text>
+      <TouchableOpacity
+        style={styles.newChatButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.newChatButtonText}>New Chat</Text>
       </TouchableOpacity>
-      <CreateChatRoomModal
+      <Modal
+        animationType="slide"
+        transparent={true}
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onCreate={handleCreateChatRoom}
-        newChatRoomName={newChatRoomName}
-        setNewChatRoomName={setNewChatRoomName}
-        newChatRoomImageUrl={newChatRoomImageUrl}
-        setNewChatRoomImageUrl={setNewChatRoomImageUrl}
-      />
+        onRequestClose={() => setModalVisible(!modalVisible)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalView}
+        >
+          <Text style={styles.modalText}>Create New Chat Room</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Chat Room Name"
+            value={newChatRoomName}
+            onChangeText={setNewChatRoomName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Image URL (optional)"
+            value={newChatRoomImageUrl}
+            onChangeText={setNewChatRoomImageUrl}
+            keyboardType="url"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <View style={styles.buttonContainer}>
+            <Button title="Create" onPress={handleCreateChatRoom} />
+            <Button
+              title="Cancel"
+              onPress={() => setModalVisible(false)}
+              color="#ff6f00"
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 };
+
+const BuddyChatBot: React.FC = () => <ChatList type="buddy" />;
+const FriendsChat: React.FC = () => <ChatList type="friends" />;
+
+const ChatListTabs: React.FC = () => (
+  <Tab.Navigator
+    screenOptions={{
+      tabBarStyle: { backgroundColor: "#1e1e1e" },
+      tabBarIndicatorStyle: {
+        backgroundColor: "#ff6f00",
+        width: "30%",
+        borderRadius: 5,
+        height: 5,
+        alignSelf: "center",
+        marginLeft: 38.5,
+      },
+      tabBarLabelStyle: {
+        color: "#ffffff",
+        fontWeight: "bold",
+        textTransform: "none",
+        fontSize: 18,
+      },
+    }}
+  >
+    <Tab.Screen name="Buddy ChatBot" component={BuddyChatBot} />
+    <Tab.Screen name="Friends Chat" component={FriendsChat} />
+  </Tab.Navigator>
+);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#2E2E2E",
   },
-  addButton: {
+  chatRoomContainer: {
+    flexDirection: "row",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#333",
+    backgroundColor: "#ffffff",
+  },
+  avatarContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ccc",
+  },
+  chatRoomInfo: {
+    justifyContent: "center",
+    flex: 1,
+  },
+  chatRoomName: {
+    fontSize: 18,
+    fontWeight: "500",
+    color: "#000000",
+  },
+  chatRoomLastMessage: {
+    color: "#888",
+  },
+  chatRoomTimestamp: {
+    color: "#888", 
+    fontSize: 12,
+  },
+  deleteButton: {
+    backgroundColor: "#ff6f00",
+    padding: 10,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  newChatButton: {
     position: "absolute",
     bottom: 20,
     right: 20,
@@ -140,12 +294,43 @@ const styles = StyleSheet.create({
     padding: 10,
     width: 120,
   },
-  addButtonText: {
+  newChatButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
   },
+  modalView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.8)",
+    padding: 20,
+  },
+  modalText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    width: "100%",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  timestampContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", 
+    alignItems: "center",
+    width: "90%", 
+  },
 });
 
-export default ChatList;
+export default ChatListTabs;

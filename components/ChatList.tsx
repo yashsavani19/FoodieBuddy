@@ -1,39 +1,16 @@
-/**
- * ChatList.tsx
- * 
- * This file defines the ChatList component, which displays a list of chat rooms. The component supports fetching,
- * creating, and deleting chat rooms from a database, and it utilizes Firebase for user authentication and database
- * operations.
- * 
- * Props:
- * - type: A string indicating the type of chat rooms to display ("buddy" or "friends").
- * 
- * The component includes:
- * - A state for managing chat rooms, modal visibility, new chat room name, image URL, and refresh status.
- * - A useEffect hook to fetch chat rooms when the component mounts or when the type prop changes.
- * - Functions for handling the creation and deletion of chat rooms.
- * - A modal for creating new chat rooms, with a form for entering the chat room name and image URL.
- * - A FlatList for rendering the list of chat rooms with pull-to-refresh functionality.
- * - A button for opening the modal to create new chat rooms.
- */
-
 import React, { useState, useEffect } from "react";
 import {
   View,
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Modal,
-  TextInput,
-  Button,
-  KeyboardAvoidingView,
-  Platform,
   RefreshControl,
   Text,
 } from "react-native";
-import { fetchChatRooms, createChatRoom, deleteChatRoom } from "@/controller/DatabaseHandler";
+import { fetchChatRooms, createChatRoom, fetchAllUsernames, deleteChatRoom } from "@/controller/DatabaseHandler";
 import { auth } from "@/controller/FirebaseHandler";
 import ChatRoomItem from "./ChatRoomItem";
+import CreateChatRoomModal from "./CreateChatRoomModal";
 
 type ChatRoom = {
   id: string;
@@ -41,6 +18,13 @@ type ChatRoom = {
   lastMessage: string;
   avatar: string;
   timestamp: Date;
+};
+
+type Friend = {
+  id: string;
+  name: string;
+  avatar: string;
+  isAdded: boolean;
 };
 
 type ChatListProps = {
@@ -53,6 +37,7 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
   const [newChatRoomName, setNewChatRoomName] = useState("");
   const [newChatRoomImageUrl, setNewChatRoomImageUrl] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [friends, setFriends] = useState<Friend[]>([]);
 
   const getChatRooms = async () => {
     try {
@@ -71,8 +56,27 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
     }
   };
 
+  const getAllFriends = async () => {
+    try {
+      const userId = auth.currentUser?.uid;
+      const usernames = await fetchAllUsernames();
+      const friendsList: Friend[] = Object.keys(usernames)
+        .filter(uid => uid !== userId)
+        .map((uid) => ({
+          id: uid,
+          name: usernames[uid].username,
+          avatar: usernames[uid].profileImageUrl,
+          isAdded: false,
+        }));
+      setFriends(friendsList);
+    } catch (error) {
+      console.error("Error fetching friends: ", error);
+    }
+  };
+
   useEffect(() => {
     getChatRooms();
+    getAllFriends();
   }, [type]);
 
   const handleCreateChatRoom = async () => {
@@ -102,6 +106,14 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
     getChatRooms().then(() => setRefreshing(false));
   };
 
+  const toggleFriendAdded = (id: string) => {
+    setFriends((prevFriends) =>
+      prevFriends.map((friend) =>
+        friend.id === id ? { ...friend, isAdded: !friend.isAdded } : friend
+      )
+    );
+  };
+
   const renderItem = ({ item }: { item: ChatRoom }) => (
     <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} type={type} />
   );
@@ -117,42 +129,18 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
         <Text style={styles.addButtonText}>New Chat</Text>
       </TouchableOpacity>
-      <Modal
-        animationType="slide"
-        transparent={true}
+      <CreateChatRoomModal
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(!modalVisible)}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalView}
-        >
-          <Text style={styles.modalText}>Create New Chat Room</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Chat Room Name"
-            value={newChatRoomName}
-            onChangeText={setNewChatRoomName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Image URL (optional)"
-            value={newChatRoomImageUrl}
-            onChangeText={setNewChatRoomImageUrl}
-            keyboardType="url"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <View style={styles.buttonContainer}>
-            <Button title="Create" onPress={handleCreateChatRoom} />
-            <Button
-              title="Cancel"
-              onPress={() => setModalVisible(false)}
-              color="#ff6f00"
-            />
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+        onClose={() => setModalVisible(false)}
+        onCreate={handleCreateChatRoom}
+        newChatRoomName={newChatRoomName}
+        setNewChatRoomName={setNewChatRoomName}
+        newChatRoomImageUrl={newChatRoomImageUrl}
+        setNewChatRoomImageUrl={setNewChatRoomImageUrl}
+        friends={friends}
+        toggleFriendAdded={toggleFriendAdded}
+        setFriends={setFriends}
+      />
     </View>
   );
 };
@@ -176,33 +164,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     textAlign: "center",
-  },
-  modalView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.8)",
-    padding: 20,
-  },
-  modalText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 20,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  input: {
-    width: "100%",
-    padding: 15,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 15,
-    backgroundColor: "#fff",
   },
 });
 
