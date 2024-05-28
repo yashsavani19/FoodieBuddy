@@ -2,7 +2,7 @@
  * ChatRoomItem.tsx
  * 
  * This file defines the ChatRoomItem component, which is responsible for rendering individual chat rooms in the chat list.
- * The component includes an avatar, chat room name, last message, and a delete button for removing the chat room.
+ * The component includes an avatar, chat room name, last message, and a delete icon for removing the chat room.
  * The chat room can be of type "buddy" or "friends", and the navigation destination differs based on the type.
  * 
  * Props:
@@ -14,10 +14,11 @@
  */
 
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import { MaterialIcons } from "@expo/vector-icons";
 
 type ChatRoom = {
   id: string;
@@ -44,6 +45,25 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type })
     }
   };
 
+  const confirmDelete = () => {
+    Alert.alert(
+      "Delete Chat Room",
+      `Are you sure you want to delete the chat room "${chatRoom.name}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => onDelete(chatRoom.id),
+          style: "destructive",
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.chatRoomContainer}>
@@ -61,8 +81,8 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type })
             <Text style={styles.chatRoomLastMessage}>{chatRoom.lastMessage}</Text>
           </View>
         </View>
-        <TouchableOpacity onPress={() => onDelete(chatRoom.id)} style={styles.deleteButton}>
-          <Text style={styles.deleteButtonText}>Remove</Text>
+        <TouchableOpacity onPress={confirmDelete} style={styles.deleteButton}>
+          <MaterialIcons name="remove" size={24} color="red" />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -101,16 +121,10 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   deleteButton: {
-    backgroundColor: "#ff6f00",
     padding: 10,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-  },
-  deleteButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
   },
   timestampContainer: {
     flexDirection: "row",
