@@ -260,21 +260,21 @@ export const categories: Category[] = [
   // Ratings //
   {
     id: 41,
-    name: "1/5",
+    name: "2.5/5",
     type: "Rating",
-    rating: 1.0,
+    rating: 2.5,
   },
   {
     id: 42,
-    name: "2/5",
-    type: "Rating",
-    rating: 2.0,
-  },
-  {
-    id: 43,
     name: "3/5",
     type: "Rating",
     rating: 3.0,
+  },
+  {
+    id: 43,
+    name: "3.5/5",
+    type: "Rating",
+    rating: 3.5,
   },
   {
     id: 44,
@@ -284,9 +284,9 @@ export const categories: Category[] = [
   },
   {
     id: 45,
-    name: "5/5",
+    name: "4.5/5",
     type: "Rating",
-    rating: 5.0,
+    rating: 4.5,
   },
 
   // Open Status //
