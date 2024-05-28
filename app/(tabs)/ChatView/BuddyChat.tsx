@@ -9,9 +9,6 @@ import {
   Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Image,
-  Modal,
-  Text,
   Alert,
 } from "react-native";
 import Message, { MessageProps } from "../../../components/Message";
@@ -24,9 +21,8 @@ import { Restaurant } from "@/model/Restaurant";
 import RestaurantListItem from "../../../components/RestaurantListItem";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import TitleHeader from "@/components/TitleHeader";
-import { AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
 import SettingsModal from "@/components/SettingsModal";
+import NavBar from "@/components/NavBar";
 
 // Ensure the paths to the image assets are correct
 const userIcon = require("../../../assets/images/user-icon.png");
@@ -178,28 +174,14 @@ const Chat: React.FC = () => {
     setSettingsVisible(true);
   };
 
-  const closeSettings = () => {
-    setSettingsVisible(false);
-  };
-
   /**
    * Chat component with messages, input text box, and send button
    */
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <TitleHeader title="Buddy Chat" />
-        <View style={styles.navigationBar}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.navButton}
-          >
-            <AntDesign name="arrowleft" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={openSettings} style={styles.navButton}>
-            <MaterialIcons name="settings" size={22} color="white" />
-          </TouchableOpacity>
-        </View>
+        <TitleHeader title="Buddy ChatBot" />
+        <NavBar openSettings={openSettings} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}

@@ -12,9 +12,8 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
-  Modal,
 } from "react-native";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import {
   sendMessage,
   deleteMessage,
@@ -30,8 +29,7 @@ import {
   query,
   DocumentData,
 } from "firebase/firestore";
-import { AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from "@expo/vector-icons";
+import NavBar from "@/components/NavBar";
 import SettingsModal from "@/components/SettingsModal";
 
 interface Message {
@@ -50,7 +48,6 @@ interface RouteParams {
 
 const ChatScreen: React.FC = () => {
   const route = useRoute();
-  const navigation = useNavigation();
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -226,18 +223,8 @@ const ChatScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <TitleHeader title="Chat" />
-        <View style={styles.navigationBar}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.navButton}
-          >
-            <AntDesign name="arrowleft" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={openSettings} style={styles.navButton}>
-            <MaterialIcons name="settings" size={22} color="white" />
-          </TouchableOpacity>
-        </View>
+        <TitleHeader title="Friends Chat" />
+        <NavBar openSettings={openSettings} />
       </View>
       <FlatList
         ref={flatListRef}
@@ -286,19 +273,6 @@ const styles = StyleSheet.create({
   headerContainer: {
     paddingTop: 120,
     backgroundColor: "#fff",
-  },
-  navigationBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "#000",
-    width: "100%",
-    height: 40,
-  },
-  navButton: {
-    padding: 5,
   },
   messageContainer: {
     marginVertical: 5,
@@ -404,33 +378,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     marginRight: 10,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    width: 300,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  modalItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    width: "100%",
-    alignItems: "center",
-  },
-  modalItemText: {
-    fontSize: 16,
   },
 });
 
