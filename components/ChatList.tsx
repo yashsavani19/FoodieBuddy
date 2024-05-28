@@ -7,10 +7,12 @@ import {
   RefreshControl,
   Text,
 } from "react-native";
-import { fetchChatRooms, createChatRoom, fetchAllUsernames, deleteChatRoom } from "@/controller/DatabaseHandler";
+import { fetchChatRooms, createChatRoom, deleteChatRoom } from "@/controller/DatabaseHandler";
 import { auth } from "@/controller/FirebaseHandler";
 import ChatRoomItem from "./ChatRoomItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
+import { subscribeToFriends } from "@/controller/DatabaseHandler"; 
+import { Friend as FriendModel } from "@/model/Friend"; 
 
 type ChatRoom = {
   id: string;
@@ -56,27 +58,22 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
     }
   };
 
-  const getAllFriends = async () => {
-    try {
-      const userId = auth.currentUser?.uid;
-      const usernames = await fetchAllUsernames();
-      const friendsList: Friend[] = Object.keys(usernames)
-        .filter(uid => uid !== userId)
-        .map((uid) => ({
-          id: uid,
-          name: usernames[uid].username,
-          avatar: usernames[uid].profileImageUrl,
-          isAdded: false,
-        }));
-      setFriends(friendsList);
-    } catch (error) {
-      console.error("Error fetching friends: ", error);
-    }
-  };
-
   useEffect(() => {
     getChatRooms();
-    getAllFriends();
+
+    const unsubscribe = subscribeToFriends((friendsList) => {
+      const friends = friendsList.map((friend: FriendModel) => ({
+        id: friend.uid,
+        name: friend.username,
+        avatar: friend.profileImageUrl || '',
+        isAdded: false,
+      }));
+      setFriends(friends);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [type]);
 
   const handleCreateChatRoom = async () => {
@@ -139,7 +136,6 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
         setNewChatRoomImageUrl={setNewChatRoomImageUrl}
         friends={friends}
         toggleFriendAdded={toggleFriendAdded}
-        setFriends={setFriends}
       />
     </View>
   );

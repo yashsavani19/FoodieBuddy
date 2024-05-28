@@ -24,12 +24,15 @@ interface Friend {
 interface CreateChatRoomModalProps {
   visible: boolean;
   onClose: () => void;
-  onCreate: () => void;
+  onCreate: () => Promise<void>;
   newChatRoomName: string;
   setNewChatRoomName: (name: string) => void;
   newChatRoomImageUrl: string;
   setNewChatRoomImageUrl: (url: string) => void;
+  friends: Friend[];
+  toggleFriendAdded: (id: string) => void;
 }
+
 
 const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
   visible,
