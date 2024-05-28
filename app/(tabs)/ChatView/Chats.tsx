@@ -3,6 +3,7 @@ import React from "react";
 import { View } from "@/components/Themed";
 import TitleHeader from "@/components/TitleHeader";
 import ChatListTabs from "@/components/ChatListTabs";
+import ChatListTabss from "@/components/ChatListTabss";
 
 
 export default function ChatView() {
@@ -10,7 +11,7 @@ export default function ChatView() {
     <View style={styles.container}>
       <TitleHeader title="Chat" />
       <View style={styles.messageContainer}>
-        <ChatListTabs />
+        <ChatListTabss />
       </View>
     </View>
   );

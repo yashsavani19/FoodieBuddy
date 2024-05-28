@@ -174,6 +174,10 @@ const Chat: React.FC = () => {
     setSettingsVisible(true);
   };
 
+  const closeSettings = () => {
+    setSettingsVisible(false);
+  };
+
   /**
    * Chat component with messages, input text box, and send button
    */
@@ -235,10 +239,7 @@ const Chat: React.FC = () => {
           <FontAwesome name="repeat" size={24} color="grey" />
         </TouchableOpacity>
       </KeyboardAvoidingView>
-      <SettingsModal
-        visible={settingsVisible}
-        onClose={() => setSettingsVisible(false)}
-      />
+      <SettingsModal visible={settingsVisible} onClose={closeSettings} />
     </View>
   );
 };

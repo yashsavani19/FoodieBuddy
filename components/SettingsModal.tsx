@@ -1,3 +1,18 @@
+/**
+ * SettingsModal.tsx
+ * 
+ * This file defines the SettingsModal component, which is a modal used to display various settings options in the Buddy Chat
+ * and Friends Chat screens. The modal includes options for navigating to the Profile screen, Notifications screen, and 
+ * logging out. It also provides an option to close the modal.
+ * 
+ * Props:
+ * - visible: A boolean indicating whether the modal is visible.
+ * - onClose: A function that is called when the modal is requested to be closed.
+ * 
+ * The component uses React Native's Modal component to display the modal, and TouchableOpacity components for each settings
+ * option. The TouchableWithoutFeedback component is used to close the modal when the user taps outside the modal content.
+ */
+
 import React from "react";
 import {
   Modal,

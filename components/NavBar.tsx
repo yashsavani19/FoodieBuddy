@@ -1,3 +1,17 @@
+/**
+ * NavBar.tsx
+ * 
+ * This file defines the NavBar component, which is a navigation bar used in the Buddy Chat and Friends Chat screens.
+ * The NavBar component provides two buttons: one for navigating back to the previous screen and one for opening the
+ * settings screen.
+ * 
+ * Props:
+ * - openSettings: A function that is called when the settings button is pressed.
+ * 
+ * The component uses React Navigation's useNavigation hook to handle navigation actions.
+ * The AntDesign and MaterialIcons components from @expo/vector-icons are used to render the icons for the buttons.
+ */
+
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
