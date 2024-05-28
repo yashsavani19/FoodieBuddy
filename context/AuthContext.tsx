@@ -7,6 +7,7 @@ import {
   addUsername,
   checkUsername,
   updateUsername,
+  addPreferences,
 } from "@/controller/DatabaseHandler";
 
 interface SignInResponse {
@@ -70,7 +71,14 @@ export function AuthProvider(props: ProviderProps) {
       if (!user) {
         router.replace("/LoginView");
       } else if (user) {
+        
         console.log("User is logged in");
+        try {
+          addPreferences(user.uid);
+          console.log("Preferences added");
+        } catch (error) {
+          console.error("Error adding preferences: ", error);
+        }
         router.push("/(tabs)/RestaurantListViews/ListView");
       }
     }, [user, authInitialised, isNavigationReady]);
