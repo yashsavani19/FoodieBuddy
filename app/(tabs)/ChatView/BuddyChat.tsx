@@ -12,6 +12,7 @@ import {
   Image,
   Modal,
   Text,
+  Alert,
 } from "react-native";
 import Message, { MessageProps } from "../../../components/Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -21,10 +22,11 @@ import Colors from "@/constants/Colors";
 import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
 import RestaurantListItem from "../../../components/RestaurantListItem";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import TitleHeader from "@/components/TitleHeader";
 import { AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from "@expo/vector-icons";
+import SettingsModal from "@/components/SettingsModal";
 
 // Ensure the paths to the image assets are correct
 const userIcon = require("../../../assets/images/user-icon.png");
@@ -47,6 +49,17 @@ const Chat: React.FC = () => {
   const [recommendedRestaurant, setRecommendedRestaurant] =
     useState<Restaurant | null>(null);
   const navigation = useNavigation();
+
+  // Display "AI-learning" alert message when user enters the chat view
+  useFocusEffect(
+    React.useCallback(() => {
+      Alert.alert(
+        "For your information",
+        "Buddy is still learning, please be patient and understand that they can still make mistakes from time to time. Please check with the restaurant for allergen information."
+      );
+      return () => {};
+    }, [])
+  );
 
   /**
    * AI Chat function to send user message to AI and get response
@@ -177,7 +190,10 @@ const Chat: React.FC = () => {
       <View style={styles.headerContainer}>
         <TitleHeader title="Buddy Chat" />
         <View style={styles.navigationBar}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.navButton}
+          >
             <AntDesign name="arrowleft" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity onPress={openSettings} style={styles.navButton}>
@@ -237,33 +253,10 @@ const Chat: React.FC = () => {
           <FontAwesome name="repeat" size={24} color="grey" />
         </TouchableOpacity>
       </KeyboardAvoidingView>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
+      <SettingsModal
         visible={settingsVisible}
-        onRequestClose={closeSettings}
-      >
-        <TouchableWithoutFeedback onPress={closeSettings}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Settings</Text>
-              <TouchableOpacity onPress={() => { /* Handle Profile navigation */ }} style={styles.modalItem}>
-                <Text style={styles.modalItemText}>Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { /* Handle Notifications navigation */ }} style={styles.modalItem}>
-                <Text style={styles.modalItemText}>Notifications</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { /* Handle Logout */ }} style={styles.modalItem}>
-                <Text style={styles.modalItemText}>Logout</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={closeSettings} style={styles.modalItem}>
-                <Text style={[styles.modalItemText, { color: 'red' }]}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+        onClose={() => setSettingsVisible(false)}
+      />
     </View>
   );
 };
@@ -277,13 +270,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   navigationBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: '#000',
-    width: '100%',
+    backgroundColor: "#000",
+    width: "100%",
   },
   navButton: {
     padding: 5,
@@ -310,27 +303,27 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
     width: 300,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   modalItem: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   modalItemText: {
     fontSize: 16,

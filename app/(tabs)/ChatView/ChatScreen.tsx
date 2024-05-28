@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -15,13 +15,24 @@ import {
   Modal,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import { sendMessage, deleteMessage, fetchAllUsernames } from "@/controller/DatabaseHandler";
+import {
+  sendMessage,
+  deleteMessage,
+  fetchAllUsernames,
+} from "@/controller/DatabaseHandler";
 import { auth, db } from "@/controller/FirebaseHandler";
 import TitleHeader from "@/components/TitleHeader";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { collection, onSnapshot, orderBy, query, DocumentData } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  DocumentData,
+} from "firebase/firestore";
 import { AntDesign } from "@expo/vector-icons";
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from "@expo/vector-icons";
+import SettingsModal from "@/components/SettingsModal";
 
 interface Message {
   id: string;
@@ -50,24 +61,42 @@ const ChatScreen: React.FC = () => {
     let isMounted = true;
 
     const fetchUsernames = async () => {
-      const usernames = await fetchAllUsernames();
-      console.log("Fetched Usernames:", usernames);
-      return usernames;
+      try {
+        const usernames = await fetchAllUsernames();
+        console.log("Fetched Usernames:", usernames);
+        return usernames;
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+        return {};
+      }
     };
 
     const fetchMessagesAndSubscribe = async () => {
       console.log("Fetching messages...");
       const usernames = await fetchUsernames();
-      const messagesCollection = collection(db, "chatRooms", chatRoomId, "messages");
-      const messagesQuery = query(messagesCollection, orderBy("timestamp", "asc"));
+      const messagesCollection = collection(
+        db,
+        "chatRooms",
+        chatRoomId,
+        "messages"
+      );
+      const messagesQuery = query(
+        messagesCollection,
+        orderBy("timestamp", "asc")
+      );
 
       const unsubscribe = onSnapshot(messagesQuery, async (querySnapshot) => {
         console.log("Snapshot received");
         const msgs = await Promise.all(
           querySnapshot.docs.map(async (docSnapshot) => {
             const data = docSnapshot.data() as DocumentData;
-            const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
-            const usernameData = usernames[data.userId] || { username: "Unknown User", profileImageUrl: "" };
+            const timestamp = data.timestamp
+              ? data.timestamp.toDate()
+              : new Date();
+            const usernameData = usernames[data.userId] || {
+              username: "Unknown User",
+              profileImageUrl: "",
+            };
             return {
               id: docSnapshot.id,
               text: data.text,
@@ -99,16 +128,27 @@ const ChatScreen: React.FC = () => {
     };
   }, [chatRoomId]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
-      await sendMessage(chatRoomId, newMessage);
-      setNewMessage("");
+      try {
+        await sendMessage(chatRoomId, newMessage);
+        setNewMessage("");
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
-  };
+  }, [newMessage, chatRoomId]);
 
-  const handleDeleteMessage = async (messageId: string) => {
-    await deleteMessage(chatRoomId, messageId);
-  };
+  const handleDeleteMessage = useCallback(
+    async (messageId: string) => {
+      try {
+        await deleteMessage(chatRoomId, messageId);
+      } catch (error) {
+        console.error("Error deleting message:", error);
+      }
+    },
+    [chatRoomId]
+  );
 
   const confirmDeleteMessage = (messageId: string) => {
     Alert.alert(
@@ -139,16 +179,25 @@ const ChatScreen: React.FC = () => {
           <View
             style={[
               styles.messageBubbleContainer,
-              isCurrentUser ? styles.currentUserContainer : styles.otherUserContainer,
+              isCurrentUser
+                ? styles.currentUserContainer
+                : styles.otherUserContainer,
             ]}
           >
             {!isCurrentUser && (
               <View style={styles.otherUserHeader}>
                 <View style={styles.profileImageContainer}>
-                  <Text style={styles.usernameText} numberOfLines={1} ellipsizeMode="tail">
+                  <Text
+                    style={styles.usernameText}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     {item.username}
                   </Text>
-                  <Image source={{ uri: item.userProfileImage }} style={styles.profileImage} />
+                  <Image
+                    source={{ uri: item.userProfileImage }}
+                    style={styles.profileImage}
+                  />
                 </View>
                 <View style={[styles.messageBubble, styles.otherUserMessage]}>
                   <Text style={styles.otherUserMessageText}>{item.text}</Text>
@@ -179,7 +228,10 @@ const ChatScreen: React.FC = () => {
       <View style={styles.headerContainer}>
         <TitleHeader title="Chat" />
         <View style={styles.navigationBar}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.navButton}
+          >
             <AntDesign name="arrowleft" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity onPress={openSettings} style={styles.navButton}>
@@ -192,7 +244,9 @@ const ChatScreen: React.FC = () => {
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        onContentSizeChange={() =>
+          flatListRef.current?.scrollToEnd({ animated: true })
+        }
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
       <KeyboardAvoidingView
@@ -201,46 +255,26 @@ const ChatScreen: React.FC = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
-            <Image source={require('../../../assets/images/Buddy toggle.png')} style={styles.image} />
+            <Image
+              source={require("../../../assets/images/Buddy toggle.png")}
+              style={styles.image}
+            />
             <TextInput
               style={styles.input}
               placeholder="Type a message"
               value={newMessage}
               onChangeText={setNewMessage}
             />
-            <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
+            <TouchableOpacity
+              onPress={handleSendMessage}
+              style={styles.sendButton}
+            >
               <FontAwesome name="send" size={24} color="#f76116" />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={settingsVisible}
-        onRequestClose={closeSettings}
-      >
-        <TouchableWithoutFeedback onPress={closeSettings}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Settings</Text>
-              <TouchableOpacity onPress={() => { /* Handle Profile navigation */ }} style={styles.modalItem}>
-                <Text style={styles.modalItemText}>Profile</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { /* Handle Notifications navigation */ }} style={styles.modalItem}>
-                <Text style={styles.modalItemText}>Notifications</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => { /* Handle Logout */ }} style={styles.modalItem}>
-                <Text style={styles.modalItemText}>Logout</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={closeSettings} style={styles.modalItem}>
-                <Text style={[styles.modalItemText, { color: 'red' }]}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      <SettingsModal visible={settingsVisible} onClose={closeSettings} />
     </View>
   );
 };
@@ -254,13 +288,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   navigationBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: '#000',
-    width: '100%',
+    backgroundColor: "#000",
+    width: "100%",
     height: 40,
   },
   navButton: {
@@ -327,12 +361,12 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     color: "#fff",
-    fontWeight: '500'
+    fontWeight: "500",
   },
   otherUserMessageText: {
     fontSize: 16,
     color: "#000",
-    fontWeight: '500'
+    fontWeight: "500",
   },
   timestampText: {
     fontSize: 12,
@@ -346,8 +380,8 @@ const styles = StyleSheet.create({
     color: "#555",
     marginBottom: 2,
     marginLeft: 5,
-    textAlign: 'center',
-    width: '100%',
+    textAlign: "center",
+    width: "100%",
   },
   inputContainer: {
     flexDirection: "row",
@@ -373,27 +407,27 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
     width: 300,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   modalItem: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
   },
   modalItemText: {
     fontSize: 16,
