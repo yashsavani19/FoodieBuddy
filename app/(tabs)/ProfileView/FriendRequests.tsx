@@ -17,7 +17,6 @@ import { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
 import {
   confirmFriendRequest,
-  fetchFriendRequests,
   rejectFriendRequest,
   removeSentFriendRequest,
   subscribeToReceivedFriendRequests,
@@ -101,26 +100,32 @@ const SentRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
   );
 };
 
+/**
+ * Shows two lists, one received friend requests and one sent friend requests
+ * @returns FriendRequestsList component
+ */
 const FriendRequestsList = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [friendRequests, setFriendRequests] = useState<Friend[]>([]);
   const [orderedFriendRequests, setOrderedFriendRequests] = useState<Friend[]>([]);
   const [sentRequests, setSentRequests] = useState<Friend[]>([]);
   const [orderedSentRequests, setOrderedSentRequests] = useState<Friend[]>([]);
-  const { getFriends } = useContext(AppContext);
 
+  // Update friendRequest list object
   useEffect(() => {
     setOrderedFriendRequests(
       [...friendRequests].sort((a, b) => a.username.localeCompare(b.username))
     );
   }, [friendRequests]);
 
+  // Update sentRequests list object
   useEffect(() => {
     setOrderedSentRequests(
       [...sentRequests].sort((a, b) => a.username.localeCompare(b.username))
     );
   }, [sentRequests]);
 
+  // Subscribe to sent and received requests for realtime updates
   useEffect(() => {
     const unsubscribeReceived = subscribeToReceivedFriendRequests((receivedRequests) => {
       setFriendRequests(receivedRequests);

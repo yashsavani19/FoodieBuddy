@@ -42,17 +42,24 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
   );
 };
 
+/**
+ * FriendsList View Component
+ * Shows a list of friends
+ * @returns FriendsList component
+ */
 const FriendsList = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [orderedFriends, setOrderedFriends] = useState<Friend[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  // Update orderedFriends when friends changes
   useEffect(() => {
     if (friends.length > 0) {
       setOrderedFriends([...friends].sort((a, b) => a.username.localeCompare(b.username)));
     }
   }, [friends]);
 
+  // Subscribe to friends listener to update list when database changes
   useEffect(() => {
     const unsubscribe = subscribeToFriends((friends) => {
       setFriends(friends);

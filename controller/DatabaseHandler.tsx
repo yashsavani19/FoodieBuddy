@@ -709,95 +709,9 @@ export const fetchFriendRequests = async (): Promise<{
 
 /**
  *  Subscribes to friend requests listener
+ * @param callback callback function to execute on change
+ * @returns unsubscribe function
  */
-// type FriendRequestsCallback = (requests: {
-//   receivedRequests: Friend[];
-//   sentRequests: Friend[];
-// }) => void;
-
-// export const subscribeToFriendRequests = (
-//   callback: FriendRequestsCallback
-// ): (() => void) => {
-//   const uid = auth.currentUser?.uid;
-//   if (!uid) return () => {}; // Return a no-op if uid is not available
-
-//   const receivedRequestsCollection = `users/${uid}/friendRequests`;
-//   const sentRequestsCollection = `users/${uid}/sentFriendRequests`;
-
-//   const unsubscribeReceived = onSnapshot(
-//     collection(db, receivedRequestsCollection),
-//     async (snapshot) => {
-//       const receivedRequests: Friend[] = await Promise.all(
-//         snapshot.docs.map(async (doc) => {
-//           const username = await getUsername(doc.id);
-//           const profileImageUrl = await getProfileImageUrl(doc.id);
-//           return {
-//             uid: doc.id,
-//             username: username,
-//             profileImageUrl: profileImageUrl,
-//           };
-//         })
-//       );
-
-//       const sentRequestsSnapshot = await getDocs(
-//         collection(db, sentRequestsCollection)
-//       );
-//       const sentRequests: Friend[] = await Promise.all(
-//         sentRequestsSnapshot.docs.map(async (doc) => {
-//           const username = await getUsername(doc.id);
-//           const profileImageUrl = await getProfileImageUrl(doc.id);
-//           return {
-//             uid: doc.id,
-//             username: username,
-//             profileImageUrl: profileImageUrl,
-//           };
-//         })
-//       );
-
-//       callback({ receivedRequests, sentRequests });
-//     }
-//   );
-
-//   const unsubscribeSent = onSnapshot(
-//     collection(db, sentRequestsCollection),
-//     async (snapshot) => {
-//       const sentRequests: Friend[] = await Promise.all(
-//         snapshot.docs.map(async (doc) => {
-//           const username = await getUsername(doc.id);
-//           const profileImageUrl = await getProfileImageUrl(doc.id);
-//           return {
-//             uid: doc.id,
-//             username: username,
-//             profileImageUrl: profileImageUrl,
-//           };
-//         })
-//       );
-
-//       const receivedRequestsSnapshot = await getDocs(
-//         collection(db, receivedRequestsCollection)
-//       );
-//       const receivedRequests: Friend[] = await Promise.all(
-//         receivedRequestsSnapshot.docs.map(async (doc) => {
-//           const username = await getUsername(doc.id);
-//           const profileImageUrl = await getProfileImageUrl(doc.id);
-//           return {
-//             uid: doc.id,
-//             username: username,
-//             profileImageUrl: profileImageUrl,
-//           };
-//         })
-//       );
-
-//       callback({ receivedRequests, sentRequests });
-//     }
-//   );
-
-//   return () => {
-//     unsubscribeReceived();
-//     unsubscribeSent();
-//   };
-// };
-
 export const subscribeToReceivedFriendRequests = (
   callback: (receivedRequests: Friend[]) => void
 ): (() => void) => {
@@ -832,6 +746,11 @@ export const subscribeToReceivedFriendRequests = (
   };
 };
 
+/**
+ * Subscribes to sent friend requests listener
+ * @param callback callback function to execute on change
+ * @returns unsubscribe function
+ */
 export const subscribeToSentFriendRequests = (
   callback: (sentRequests: Friend[]) => void
 ): (() => void) => {
