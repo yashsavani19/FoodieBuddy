@@ -7,12 +7,16 @@ import {
   RefreshControl,
   Text,
 } from "react-native";
-import { fetchChatRooms, createChatRoom, deleteChatRoom } from "@/controller/DatabaseHandler";
+import {
+  fetchChatRooms,
+  createChatRoom,
+  deleteChatRoom,
+} from "@/controller/DatabaseHandler";
 import { auth } from "@/controller/FirebaseHandler";
 import ChatRoomItem from "./ChatRoomItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
-import { subscribeToFriends } from "@/controller/DatabaseHandler"; 
-import { Friend as FriendModel } from "@/model/Friend"; 
+import { subscribeToFriends } from "@/controller/DatabaseHandler";
+import { Friend as FriendModel } from "@/model/Friend";
 
 type ChatRoom = {
   id: string;
@@ -65,7 +69,7 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
       const friends = friendsList.map((friend: FriendModel) => ({
         id: friend.uid,
         name: friend.username,
-        avatar: friend.profileImageUrl || '',
+        avatar: friend.profileImageUrl || "",
         isAdded: false,
       }));
       setFriends(friends);
@@ -82,7 +86,8 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
       await createChatRoom(
         newChatRoomName,
         type,
-        newChatRoomImageUrl || "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
+        newChatRoomImageUrl ||
+          "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"
       );
       getChatRooms();
       setNewChatRoomName("");
@@ -121,9 +126,14 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
         data={chatRooms}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
-      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+      <TouchableOpacity
+        onPress={() => setModalVisible(true)}
+        style={styles.addButton}
+      >
         <Text style={styles.addButtonText}>New Chat</Text>
       </TouchableOpacity>
       <CreateChatRoomModal

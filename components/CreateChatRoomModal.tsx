@@ -11,8 +11,8 @@ import {
   FlatList,
   Image,
 } from "react-native";
-import { subscribeToFriends } from "@/controller/DatabaseHandler"; 
-import { Friend as FriendModel } from "@/model/Friend"; 
+import { subscribeToFriends } from "@/controller/DatabaseHandler";
+import { Friend as FriendModel } from "@/model/Friend";
 
 interface Friend {
   id: string;
@@ -33,7 +33,6 @@ interface CreateChatRoomModalProps {
   toggleFriendAdded: (id: string) => void;
 }
 
-
 const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
   visible,
   onClose,
@@ -47,12 +46,11 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
 
   useEffect(() => {
     if (visible) {
-      // Subscribe to friends when the modal is visible
       const unsubscribe = subscribeToFriends((friendsList) => {
         const friends = friendsList.map((friend: FriendModel) => ({
           id: friend.uid,
           name: friend.username,
-          avatar: friend.profileImageUrl || '',
+          avatar: friend.profileImageUrl || "",
           isAdded: false,
         }));
         setFriends(friends);
@@ -80,7 +78,9 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
         style={[styles.addButton, item.isAdded && styles.addedButton]}
         onPress={() => toggleFriendAdded(item.id)}
       >
-        <Text style={[styles.addButtonText, item.isAdded && styles.addedButtonText]}>
+        <Text
+          style={[styles.addButtonText, item.isAdded && styles.addedButtonText]}
+        >
           {item.isAdded ? "Added" : "Add"}
         </Text>
       </TouchableOpacity>
@@ -100,7 +100,11 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.modalOverlay}
       >
-        <TouchableOpacity style={styles.modalBackground} onPress={onClose} activeOpacity={1}>
+        <TouchableOpacity
+          style={styles.modalBackground}
+          onPress={onClose}
+          activeOpacity={1}
+        >
           <TouchableOpacity style={styles.modalContainer} activeOpacity={1}>
             <Text style={styles.modalTitle}>Create New Chat Room</Text>
             <TextInput
@@ -126,10 +130,16 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
               style={styles.friendsList}
             />
             <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={onClose} style={[styles.button, styles.cancelButton]}>
+              <TouchableOpacity
+                onPress={onClose}
+                style={[styles.button, styles.cancelButton]}
+              >
                 <Text style={styles.cancelButtonText}>Close</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onCreate} style={[styles.button, styles.createButton]}>
+              <TouchableOpacity
+                onPress={onCreate}
+                style={[styles.button, styles.createButton]}
+              >
                 <Text style={styles.createButtonText}>Create Chat</Text>
               </TouchableOpacity>
             </View>
