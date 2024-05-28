@@ -241,7 +241,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         }
         let newLocation = await Location.getCurrentPositionAsync({});
         setLocationArray(newLocation.coords);
-        console.log("Location updated:", location);
+        // console.log("Location updated:", location);
         resolve(newLocation.coords);
       } catch (error) {
         console.error("Error updating location:", error);
