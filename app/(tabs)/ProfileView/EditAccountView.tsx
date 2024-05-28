@@ -60,7 +60,10 @@ const EditAccountView: React.FC = () => {
     if (newUsername === "") return;
     if (newUsername === user?.displayName) return;
     console.log(`New username: ${newUsername}`);
-    const result = await changeUsername(newUsername);
+    const result = await changeUsername(
+      newUsername,
+      userObject?.profileImageUrl || ""
+    );
     // alert("Username updated successfully");
     if (result) setUsernameViewModal(true);
   };

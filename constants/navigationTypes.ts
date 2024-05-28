@@ -1,4 +1,6 @@
+import { Friend } from "@/model/Friend";
 import { Restaurant } from "@/model/Restaurant";
+import { Saved } from "@/model/Saved";
 
 // Navigation types to prevent "No overload matches this call" error when using navigation 
 export type RootStackParamList = {
@@ -11,10 +13,16 @@ export type RootStackParamList = {
   }; };
   ChatView: undefined;
   DetailsView: { Restaurant: Restaurant };
-  FavoriteSpotsView: undefined;
-  BookmarkedSpotsView: undefined;
-  VisitedSpotsView: undefined;
+  FavoriteSpotsView: { favouriteRestaurants: Saved[] };
+  BookmarkedSpotsView: { bookmarkedRestaurants: Saved[] };
+  VisitedSpotsView: { visitedRestaurants: Saved[] };
   EditAccountView: undefined;
+  FriendsView: undefined;
+  FriendsList: undefined;
+  AddFriends: undefined;
+  UserProfileView: undefined;
+  FriendProfile: { friend: Friend };
+  FriendRequests: undefined;
 };
 
 export type MapRouteParams = {

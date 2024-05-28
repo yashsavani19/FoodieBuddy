@@ -14,6 +14,9 @@ import {
   removeFavourite,
   addBookmark,
   addVisited,
+  fetchFriends,
+  addFriend,
+  removeFriend,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
@@ -25,6 +28,7 @@ import { Category } from "@/model/Category";
 import { categories } from "@/assets/data/categories-options";
 import { Alert } from "react-native";
 import { getRestaurantById } from "@/controller/FetchRestaurantById";
+import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 
 export type AppContextType = {
@@ -51,6 +55,10 @@ export type AppContextType = {
   addChatMessage: (message: IMessage) => void;
   userObject: User;
   setUser: () => Promise<void>;
+  friends: Friend[];
+  addFriendContext: (friend: Friend) => Promise<void>;
+  removeFriendContext: (friend: Friend) => Promise<void>;
+  getFriends: () => Promise<void>;
   selectedCategory: Category;
   setSelectedCategory: (category: Category) => void;
   searchTerm: string;
@@ -92,6 +100,10 @@ export const AppContext = createContext<AppContextType>({
   addChatMessage: async () => {},
   userObject: {},
   setUser: async () => {},
+  friends: [],
+  addFriendContext: async () => {},
+  removeFriendContext: async () => {},
+  getFriends: async () => {},
 
   selectedCategory: categories[0],
   setSelectedCategory: async () => {},
@@ -128,6 +140,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
   const [userObject, setUserObject] = useState<User>({});
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<Category>(/* initial value */);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -183,6 +196,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Visited updated");
   }, [visitedRestaurants]);
+  useEffect(() => {
+    console.log("Friends updated");
+  }, [friends]);
 
   const setUser = async () => {
     try {
@@ -208,6 +224,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         bookmarkedRestaurants: bookmarks,
         visitedRestaurants: visited,
       });
+      getFriends();
     } catch (error) {
       console.log(error);
     }
@@ -451,6 +468,36 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
+  // Fetch friends from database and add to context
+  const getFriends = async () => {
+    const friends = await fetchFriends();
+    if (friends) {
+      setFriends(friends);
+    }
+  };
+
+  const addFriendContext = async (friend: Friend) => {
+    try {
+      if (!user || !userObject) return;
+      const newFriends = [...friends, friend];
+      await addFriend(friend);
+      setFriends(newFriends);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const removeFriendContext = async (friend: Friend) => {
+    try {
+      if (!user || !userObject) return;
+      const newFriends = friends.filter((item) => item.uid !== friend.uid);
+      setFriends(newFriends);
+      await removeFriend(friend);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const contextValue = {
     dataLoading,
     setDataLoading,
@@ -475,6 +522,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     addChatMessage,
     userObject,
     setUser,
+    friends,
+    addFriendContext,
+    removeFriendContext,
+    getFriends,
     selectedCategory: selectedCategory || ({} as Category),
     setSearchTerm,
     setSelectedCategory,
