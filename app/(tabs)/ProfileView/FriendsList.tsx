@@ -6,16 +6,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { Friend } from "@/model/Friend";
 import TitleHeader from "@/components/TitleHeader";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
-import { AppContext } from "@/context/AppContext";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
-import { fetchFriends } from "@/controller/DatabaseHandler";
+import { subscribeToFriends } from "@/controller/DatabaseHandler";
 
 interface ListContainerProps {
   friend: Friend;
@@ -44,15 +43,25 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
 };
 
 const FriendsList = () => {
-  const { friends, getFriends } = useContext(AppContext);
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [orderedFriends, setOrderedFriends] = useState<Friend[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   useEffect(() => {
-    if(friends.length > 0) {
-      setOrderedFriends(friends.sort((a, b) => a.username.localeCompare(b.username)));
+    if (friends.length > 0) {
+      setOrderedFriends([...friends].sort((a, b) => a.username.localeCompare(b.username)));
     }
   }, [friends]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToFriends((friends) => {
+      setFriends(friends);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <View style={styles.container}>

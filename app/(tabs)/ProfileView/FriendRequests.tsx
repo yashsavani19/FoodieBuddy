@@ -20,6 +20,8 @@ import {
   fetchFriendRequests,
   rejectFriendRequest,
   removeSentFriendRequest,
+  subscribeToReceivedFriendRequests,
+  subscribeToSentFriendRequests,
 } from "@/controller/DatabaseHandler";
 
 interface FriendRequestProps {
@@ -28,16 +30,14 @@ interface FriendRequestProps {
 }
 
 const FriendRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
-  const { getFriends } = useContext(AppContext);
   const acceptRequest = async () => {
     await confirmFriendRequest(friend);
-    await getFriends();
     onPress();
+    alert("Friend request accepted from " + friend.username);
   };
 
   const rejectRequest = async () => {
     await rejectFriendRequest(friend);
-    await getFriends();
     onPress();
   };
 
@@ -104,19 +104,37 @@ const SentRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
 const FriendRequestsList = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [friendRequests, setFriendRequests] = useState<Friend[]>([]);
+  const [orderedFriendRequests, setOrderedFriendRequests] = useState<Friend[]>([]);
   const [sentRequests, setSentRequests] = useState<Friend[]>([]);
+  const [orderedSentRequests, setOrderedSentRequests] = useState<Friend[]>([]);
   const { getFriends } = useContext(AppContext);
 
   useEffect(() => {
-    refreshList();
-  }, []);
+    setOrderedFriendRequests(
+      [...friendRequests].sort((a, b) => a.username.localeCompare(b.username))
+    );
+  }, [friendRequests]);
 
-  const refreshList = async () => {
-    const requests = await fetchFriendRequests();
-    setFriendRequests(requests.receivedRequests);
-    setSentRequests(requests.sentRequests);
-    getFriends();
-  };
+  useEffect(() => {
+    setOrderedSentRequests(
+      [...sentRequests].sort((a, b) => a.username.localeCompare(b.username))
+    );
+  }, [sentRequests]);
+
+  useEffect(() => {
+    const unsubscribeReceived = subscribeToReceivedFriendRequests((receivedRequests) => {
+      setFriendRequests(receivedRequests);
+    });
+
+    const unsubscribeSent = subscribeToSentFriendRequests((sentRequests) => {
+      setSentRequests(sentRequests);
+    });
+
+    return () => {
+      unsubscribeReceived();
+      unsubscribeSent();
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -144,7 +162,7 @@ const FriendRequestsList = () => {
           </Text>
         </View>
         <ScrollView style={styles.scrollView}>
-          {friendRequests.length === 0 ? (
+          {orderedFriendRequests.length === 0 ? (
             <View style={styles.noFriends}>
               <Text style={styles.noFriendsText}>
                 You have no friend requests
@@ -152,11 +170,11 @@ const FriendRequestsList = () => {
             </View>
           ) : (
             <View style={styles.listContainer}>
-              {friendRequests.map((friend) => (
+              {orderedFriendRequests.map((friend) => (
                 <FriendRequest
                   key={friend.uid}
                   friend={friend}
-                  onPress={refreshList}
+                  onPress={() => {}}
                 />
               ))}
             </View>
@@ -173,7 +191,7 @@ const FriendRequestsList = () => {
               Sent Requests
             </Text>
           </View>
-          {sentRequests.length === 0 ? (
+          {orderedSentRequests.length === 0 ? (
             <View style={styles.noFriends}>
               <Text style={styles.noFriendsText}>
                 You have no sent friend requests
@@ -181,11 +199,11 @@ const FriendRequestsList = () => {
             </View>
           ) : (
             <View style={styles.listContainer}>
-              {sentRequests.map((friend) => (
+              {orderedSentRequests.map((friend) => (
                 <SentRequest
                   key={friend.uid}
                   friend={friend}
-                  onPress={refreshList}
+                  onPress={() => {}}
                 />
               ))}
             </View>

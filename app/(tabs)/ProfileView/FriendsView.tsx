@@ -51,12 +51,7 @@ const ListContainer: React.FC<ListContainerProps> = ({ mode, onPress }) => {
 
 const FriendsView = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const {getFriends} = useContext(AppContext);
 
-  useEffect(() => {
-    getFriends();
-  }, []);
-  
   return (
     <View style={styles.container}>
       {/* Title Header */}

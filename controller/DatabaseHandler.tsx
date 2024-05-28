@@ -9,6 +9,7 @@ import {
   deleteDoc,
   where,
   query,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
@@ -487,6 +488,37 @@ export const fetchFriends = async (): Promise<Friend[]> => {
 };
 
 /**
+ * Subscribe to friends listener
+ */
+
+export const subscribeToFriends = (
+  callback: (friends: Friend[]) => void
+): (() => void) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return () => {}; // Return a no-op if uid is not available
+  const friendCollection = `users/${uid}/friends`;
+
+  const unsubscribe = onSnapshot(
+    collection(db, friendCollection),
+    async (snapshot) => {
+      const friends: Friend[] = [];
+      for (const doc of snapshot.docs) {
+        const username = await getUsername(doc.id);
+        const profileImageUrl = await getProfileImageUrl(doc.id);
+        friends.push({
+          uid: doc.id,
+          username: username,
+          profileImageUrl: profileImageUrl,
+        });
+      }
+      callback(friends);
+    }
+  );
+
+  return unsubscribe;
+};
+
+/**
  * Adds friend to user's friends
  * @param friend friend object to add
  */
@@ -673,6 +705,165 @@ export const fetchFriendRequests = async (): Promise<{
     alert("Internal error fetching friend requests. Please try again later.");
     return {} as { receivedRequests: Friend[]; sentRequests: Friend[] };
   }
+};
+
+/**
+ *  Subscribes to friend requests listener
+ */
+// type FriendRequestsCallback = (requests: {
+//   receivedRequests: Friend[];
+//   sentRequests: Friend[];
+// }) => void;
+
+// export const subscribeToFriendRequests = (
+//   callback: FriendRequestsCallback
+// ): (() => void) => {
+//   const uid = auth.currentUser?.uid;
+//   if (!uid) return () => {}; // Return a no-op if uid is not available
+
+//   const receivedRequestsCollection = `users/${uid}/friendRequests`;
+//   const sentRequestsCollection = `users/${uid}/sentFriendRequests`;
+
+//   const unsubscribeReceived = onSnapshot(
+//     collection(db, receivedRequestsCollection),
+//     async (snapshot) => {
+//       const receivedRequests: Friend[] = await Promise.all(
+//         snapshot.docs.map(async (doc) => {
+//           const username = await getUsername(doc.id);
+//           const profileImageUrl = await getProfileImageUrl(doc.id);
+//           return {
+//             uid: doc.id,
+//             username: username,
+//             profileImageUrl: profileImageUrl,
+//           };
+//         })
+//       );
+
+//       const sentRequestsSnapshot = await getDocs(
+//         collection(db, sentRequestsCollection)
+//       );
+//       const sentRequests: Friend[] = await Promise.all(
+//         sentRequestsSnapshot.docs.map(async (doc) => {
+//           const username = await getUsername(doc.id);
+//           const profileImageUrl = await getProfileImageUrl(doc.id);
+//           return {
+//             uid: doc.id,
+//             username: username,
+//             profileImageUrl: profileImageUrl,
+//           };
+//         })
+//       );
+
+//       callback({ receivedRequests, sentRequests });
+//     }
+//   );
+
+//   const unsubscribeSent = onSnapshot(
+//     collection(db, sentRequestsCollection),
+//     async (snapshot) => {
+//       const sentRequests: Friend[] = await Promise.all(
+//         snapshot.docs.map(async (doc) => {
+//           const username = await getUsername(doc.id);
+//           const profileImageUrl = await getProfileImageUrl(doc.id);
+//           return {
+//             uid: doc.id,
+//             username: username,
+//             profileImageUrl: profileImageUrl,
+//           };
+//         })
+//       );
+
+//       const receivedRequestsSnapshot = await getDocs(
+//         collection(db, receivedRequestsCollection)
+//       );
+//       const receivedRequests: Friend[] = await Promise.all(
+//         receivedRequestsSnapshot.docs.map(async (doc) => {
+//           const username = await getUsername(doc.id);
+//           const profileImageUrl = await getProfileImageUrl(doc.id);
+//           return {
+//             uid: doc.id,
+//             username: username,
+//             profileImageUrl: profileImageUrl,
+//           };
+//         })
+//       );
+
+//       callback({ receivedRequests, sentRequests });
+//     }
+//   );
+
+//   return () => {
+//     unsubscribeReceived();
+//     unsubscribeSent();
+//   };
+// };
+
+export const subscribeToReceivedFriendRequests = (
+  callback: (receivedRequests: Friend[]) => void
+): (() => void) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return () => {}; // Return a no-op if uid is not available
+
+  const receivedRequestsCollection = `users/${uid}/friendRequests`;
+
+  const unsubscribeReceived = onSnapshot(
+    collection(db, receivedRequestsCollection),
+    async (snapshot) => {
+      const receivedRequests: Friend[] = await Promise.all(
+        snapshot.docs.map(async (doc) => {
+          const username = await getUsername(doc.id);
+          const profileImageUrl = await getProfileImageUrl(doc.id);
+          return {
+            uid: doc.id,
+            username: username,
+            profileImageUrl: profileImageUrl,
+          };
+        })
+      );
+      callback(receivedRequests);
+    },
+    (error) => {
+      console.error("Error fetching received friend requests: ", error);
+    }
+  );
+
+  return () => {
+    unsubscribeReceived();
+  };
+};
+
+export const subscribeToSentFriendRequests = (
+  callback: (sentRequests: Friend[]) => void
+): (() => void) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return () => {}; // Return a no-op if uid is not available
+
+  const sentRequestsCollection = `users/${uid}/sentFriendRequests`;
+
+  const unsubscribeSent = onSnapshot(
+    collection(db, sentRequestsCollection),
+    async (snapshot) => {
+      const sentRequests: Friend[] = await Promise.all(
+        snapshot.docs.map(async (doc) => {
+          const username = await getUsername(doc.id);
+          const profileImageUrl = await getProfileImageUrl(doc.id);
+          return {
+            uid: doc.id,
+            username: username,
+            profileImageUrl: profileImageUrl,
+          };
+        })
+      );
+      callback(sentRequests);
+    },
+    (error) => {
+      console.error("Error fetching sent friend requests: ", error);
+    }
+  );
+
+  return () => {
+    unsubscribeSent();
+  };
 };
 
 /**
