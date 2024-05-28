@@ -10,32 +10,29 @@ import {
 } from "@/constants/navigationTypes";
 import MapView from "react-native-maps";
 import { Category } from "@/model/Category";
+import DrawerWrapper from "@/components/FilterDrawerComponents/FilterDrawerWrapper";
 
 export default function Map() {
   const route = useRoute<RouteProp<RootStackParamList, "Map">>();
   const { geometry } = route.params || {};
-  const { setSelectedCategory, selectedCategory, searchTerm, setSearchTerm } = useContext(AppContext);
-
-  useEffect(() => { 
-    console.log(searchTerm)
-  },[searchTerm]) 
+  const { searchTerm, setSearchTerm } = useContext(AppContext);
 
   return (
-    <View style={styles.container}>
-      <TitleHeader 
-        searchBar={true} 
-        onSearchSubmit={setSearchTerm}
-        onCategorySelect={setSelectedCategory}
-        searchTerm={searchTerm}
-        selectedCategory={selectedCategory}
-      />
-      <View style={styles.mapContainer}>
-        <AppMappView 
-          geometry={geometry} 
+    <DrawerWrapper>
+      <View style={styles.container}>
+        <TitleHeader 
+          searchBar={true} 
+          onSearchSubmit={setSearchTerm}
+          searchTerm={searchTerm}
         />
+        <View style={styles.mapContainer}>
+          <AppMappView 
+            geometry={geometry} 
+          />
+        </View>
+        <View style={styles.placeListContainer}></View>
       </View>
-      <View style={styles.placeListContainer}></View>
-    </View>
+    </DrawerWrapper>
   );
 }
 

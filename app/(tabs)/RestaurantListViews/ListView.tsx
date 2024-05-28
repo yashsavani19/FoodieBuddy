@@ -15,23 +15,11 @@ import TitleHeader from "@/components/TitleHeader";
 
 const HomeView: FC = () => {
   const { 
-    searchFilterRestaurants, 
-    // categoryFilterRestaurants, 
-    // selectedFilters, setSelectedFilters,
     searchTerm, setSearchTerm,
     filteredRestaurants, 
     dataLoading, 
     restaurantListIsLoading,
   } = useContext(AppContext);
-
-  // Handle filtering of restaurants based on search term and selected category
-  // useEffect(() => {
-  //   categoryFilterRestaurants();
-  // }, [selectedFilters]);
-
-  useEffect(() => {
-    searchFilterRestaurants();
-  }, [searchTerm]);
 
   return (
     <DrawerWrapper>
