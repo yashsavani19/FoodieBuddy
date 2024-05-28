@@ -15,6 +15,7 @@ import { AppContext } from "@/context/AppContext";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
+import { fetchFriends } from "@/controller/DatabaseHandler";
 
 interface ListContainerProps {
   friend: Friend;
@@ -43,18 +44,14 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
 };
 
 const FriendsList = () => {
-  const { friends } = useContext(AppContext);
-  const [orderedFriends, setOrderedFriends] = useState<Friend[]>(
-    friends.sort((a, b) => a.username.localeCompare(b.username))
-  );
+  const { friends, getFriends } = useContext(AppContext);
+  const [orderedFriends, setOrderedFriends] = useState<Friend[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Sort friends alphabetically
   useEffect(() => {
-    const ordered = [...friends].sort((a, b) =>
-      a.username.localeCompare(b.username)
-    );
-    setOrderedFriends(ordered);
+    if(friends.length > 0) {
+      setOrderedFriends(friends.sort((a, b) => a.username.localeCompare(b.username)));
+    }
   }, [friends]);
 
   return (

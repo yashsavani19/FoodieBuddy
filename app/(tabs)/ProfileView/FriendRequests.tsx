@@ -28,13 +28,16 @@ interface FriendRequestProps {
 }
 
 const FriendRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
+  const { getFriends } = useContext(AppContext);
   const acceptRequest = async () => {
     await confirmFriendRequest(friend);
+    await getFriends();
     onPress();
   };
 
   const rejectRequest = async () => {
     await rejectFriendRequest(friend);
+    await getFriends();
     onPress();
   };
 
@@ -136,7 +139,9 @@ const FriendRequestsList = () => {
           >
             <AntDesign name="arrowleft" style={styles.backArrow} />
           </TouchableOpacity>
-          <Text style={styles.listItemText}>Friend Requests</Text>
+          <Text style={[styles.listItemText, { marginLeft: 15 }]}>
+            Friend Requests
+          </Text>
         </View>
         <ScrollView style={styles.scrollView}>
           {friendRequests.length === 0 ? (
@@ -164,7 +169,9 @@ const FriendRequestsList = () => {
               borderBottomColor: "#363232",
             }}
           >
-            <Text style={styles.listItemText}>Sent Requests</Text>
+            <Text style={[styles.listItemText, { marginLeft: 15 }]}>
+              Sent Requests
+            </Text>
           </View>
           {sentRequests.length === 0 ? (
             <View style={styles.noFriends}>
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     borderRadius: 15,
     margin: 5,
   },
@@ -222,7 +229,6 @@ const styles = StyleSheet.create({
   },
   listItemText: {
     fontSize: 18,
-    marginLeft: 10,
     fontWeight: "600",
   },
   listTitleContainer: {

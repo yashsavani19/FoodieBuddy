@@ -228,6 +228,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Visited updated");
   }, [visitedRestaurants]);
+  useEffect(() => {
+    console.log("Friends updated");
+  }, [friends]);
 
   const setUser = async () => {
     try {
@@ -476,6 +479,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
+  // Fetch friends from database and add to context
   const getFriends = async () => {
     const friends = await fetchFriends();
     if (friends) {
