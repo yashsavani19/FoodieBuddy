@@ -156,7 +156,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
               }}
             >
               <RestaurantMarker
-                rating={restaurant.rating ?? "N/A"}
+                rating={restaurant.rating === 0 || restaurant.rating === undefined ? "N/A" : restaurant.rating }
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />

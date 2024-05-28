@@ -59,15 +59,15 @@ export type AppContextType = {
   addFriendContext: (friend: Friend) => Promise<void>;
   removeFriendContext: (friend: Friend) => Promise<void>;
   getFriends: () => Promise<void>;
-  selectedCategory: Category;
-  setSelectedCategory: (category: Category) => void;
+  selectedFilters: Category[];
+  setSelectedFilters: (category: Category[]) => void;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   filteredRestaurants: Restaurant[];
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
   showNoRestaurantsFoundAlert: () => void;
-  searchFilterRestaurants: () => void;
-  categoryFilterRestaurants: () => void;
+  // searchFilterRestaurants: () => void;
+  filterRestaurants: () => void;
   isInputDisabled: boolean;
   setIsInputDisabled: (disabled: boolean) => void;
 };
@@ -105,15 +105,15 @@ export const AppContext = createContext<AppContextType>({
   removeFriendContext: async () => {},
   getFriends: async () => {},
 
-  selectedCategory: categories[0],
-  setSelectedCategory: async () => {},
+  selectedFilters: [],
+  setSelectedFilters: async () => {},
   searchTerm: "",
   setSearchTerm: async () => {},
   filteredRestaurants: [],
   setFilteredRestaurants: async () => {},
   showNoRestaurantsFoundAlert: async () => {},
-  searchFilterRestaurants: async () => {},
-  categoryFilterRestaurants: async () => {},
+  // searchFilterRestaurants: async () => {},
+  filterRestaurants: async () => {},
   isInputDisabled: false,
   setIsInputDisabled: async () => {},
 });
@@ -141,8 +141,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
   const [userObject, setUserObject] = useState<User>({});
   const [friends, setFriends] = useState<Friend[]>([]);
-  const [selectedCategory, setSelectedCategory] =
-    useState<Category>(/* initial value */);
+  const [selectedFilters, setSelectedFilters] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
@@ -196,6 +195,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Visited updated");
   }, [visitedRestaurants]);
+
+  useEffect(() => {
+    filterRestaurants();  
+  }, [searchTerm]);
   useEffect(() => {
     console.log("Friends updated");
   }, [friends]);
@@ -286,70 +289,80 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
 
   // Handle filtering of restaurants based on search term and selected category
-  const searchFilterRestaurants = () => {
-    setRestaurantListIsLoading(true);
-    let result = localRestaurants;
+  // const searchFilterRestaurants = () => {
+  //   setRestaurantListIsLoading(true);
+  //   let result = localRestaurants;
 
-    if (
-      searchTerm &&
-      ["restaurant", "bar", "bakery", "cafe"].includes(searchTerm.toLowerCase())
-    ) {
-      result = result.filter((restaurant) => {
-        return (
-          restaurant.categories &&
-          restaurant.categories
-            .map((category) => category.toLowerCase())
-            .includes(searchTerm.toLowerCase())
-        );
-      });
-    } else if (searchTerm) {
-      result = result.filter((restaurant) => {
-        return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
-      });
-    }
+  //   // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
+  //   // This happened before another category was selected...
+  //   if (!selectedFilters) {
+  //     setSelectedFilters([]);
+  //   }
 
-    // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
-    // This happened before another category was selected...
-    else if (!selectedCategory) {
-      setSelectedCategory(categories[0]);
-    }
-
-    setFilteredRestaurants(result);
-    setRestaurantListIsLoading(false);
-  };
+  //   setFilteredRestaurants(result);
+  //   setRestaurantListIsLoading(false);
+  // };
 
   // Handle filtering of restaurants based on search term and selected category
-  const categoryFilterRestaurants = () => {
+  const filterRestaurants = () => {
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
+  
+    if (selectedFilters) {
+      const categoriesToFilter = new Set(selectedFilters
+        .filter(filter => !["Rating","Price","Open Status"].includes(filter.type))
+        .map(filter => filter.apiName));
 
-    if (selectedCategory && selectedCategory.name !== "All") {
-      if (
-        selectedCategory &&
-        ["Restaurant", "Bar", "Bakery", "Cafe"].includes(selectedCategory.name)
-      ) {
+      const pricesToFilter = new Set(selectedFilters
+        .filter(filter => ["Price"].includes(filter.type))
+        .map(filter => filter.scale));
+
+      const ratingsToFilter = selectedFilters
+        .filter(filter => ["Rating"].includes(filter.type))
+        .map(filter => filter.rating)
+
+      const openStatusToFilter = selectedFilters
+        .filter(filter => ["Open Status"].includes(filter.type))
+        .map(filter => filter.apiName)
+
+      // filter restaurants by the selected categories (not intersection, but union of categories)
+      if (categoriesToFilter.size > 0) {
+        result = result.filter(restaurant =>
+          restaurant.categories?.some(category => categoriesToFilter.has(category))
+        );
+      }
+
+      // Filter restaurants by the selected price level/s
+      if (pricesToFilter.size > 0) {
+        result = result.filter(restaurant =>
+          pricesToFilter.has(parseInt(restaurant.price ?? 'null'))
+        );
+      }
+
+      // Filter restaurants by the selected rating and higher
+      if (ratingsToFilter.length > 0) {
+        result = result.filter(restaurant =>
+          restaurant.rating && ratingsToFilter[0] !== undefined && restaurant.rating >= ratingsToFilter[0]
+        );
+      }
+
+      // Filter restaurants that are currently open
+      if (openStatusToFilter.length > 0) {
+        result = result.filter(restaurant =>
+          restaurant.currentOpeningHours && restaurant.currentOpeningHours.openNow === true
+        );
+      }
+
+      if (searchTerm) {
         result = result.filter((restaurant) => {
-          return (
-            restaurant.categories &&
-            restaurant.categories
-              .map((category) => category.toLowerCase())
-              .includes(selectedCategory.name.toLowerCase())
-          );
-        });
-      } else {
-        result = result.filter((restaurant) => {
-          return (
-            restaurant.name &&
-            restaurant.name
-              .toLowerCase()
-              .includes(selectedCategory.name.toLowerCase())
-          );
+          return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
         });
       }
+    
+      setFilteredRestaurants(result);
+      // console.log("Filtered restaurants:", result);
+      setRestaurantListIsLoading(false);
     }
-
-    setFilteredRestaurants(result);
-    setRestaurantListIsLoading(false);
   };
 
   const [alertShown, setAlertShown] = useState(false);
@@ -526,14 +539,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     addFriendContext,
     removeFriendContext,
     getFriends,
-    selectedCategory: selectedCategory || ({} as Category),
+    selectedFilters: selectedFilters || ([] as Category[]),
     setSearchTerm,
-    setSelectedCategory,
+    setSelectedFilters,
     searchTerm,
     filteredRestaurants,
     setFilteredRestaurants,
-    searchFilterRestaurants,
-    categoryFilterRestaurants,
+    // searchFilterRestaurants,
+    filterRestaurants,
     showNoRestaurantsFoundAlert,
     isInputDisabled,
     setIsInputDisabled,

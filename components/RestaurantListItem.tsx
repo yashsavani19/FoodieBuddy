@@ -179,7 +179,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
             <Text style={styles.title}>{restaurant.name}</Text>
             <View style={{ flexDirection: "row", alignItems: "center", flex: 1, flexWrap: "wrap" }}>
               <Text style={{ fontWeight: "bold" }}>
-                {restaurant.rating !== undefined ? ( <StarRating rating={restaurant.rating} />) : ( "N/A" )}
+                {<StarRating rating={restaurant.rating} />}
               </Text>
               <Text style={styles.distance}>
                 {formatDistance(restaurant.distance)}

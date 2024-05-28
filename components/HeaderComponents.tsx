@@ -1,20 +1,24 @@
-import Filters from "./Filters";
+import Filters from "./SortButton";
 import Categories from "./Categories";
 import SearchBar from "./SearchBar";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, SafeAreaView } from "react-native";
+import FilterButton from "./FilterDrawerComponents/FilterButton";
 import { Category } from "@/model/Category";
-import { Filter } from "@/model/Filter";
-import React from "react";
+import { Sort } from "@/model/Sort";
+import React, { useContext, useEffect } from "react";
+import DrawerContext from "@/context/DrawerContext";
 
 // Define the props for the HeaderComponents component
 interface HeaderComponentsProps {
   title?: string;
   searchBar?: boolean;
   onSearchSubmit?: (searchTerm: string) => void;
-  onCategorySelect?: (category: Category) => void;
-  onFilterSelect?: (filter: Filter[]) => void;
+  onFiltersSelect?: (category: Category[]) => void;
+  onSortSelect?: (sort: Sort) => void;
   searchTerm?: string; 
   selectedCategory?: Category; 
+  toggleDrawer?: () => void;
+  open?: boolean;
 }
 
 /**
@@ -26,8 +30,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   title,
   searchBar,
   onSearchSubmit,
-  onCategorySelect,
-  onFilterSelect,
+  onSortSelect,
 }) => {
   const handleSearchSubmit = React.useCallback((searchTerm: string) => {
     if (onSearchSubmit) {
@@ -35,38 +38,44 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
     }
   }, [onSearchSubmit]);
 
-  // Define the function to handle the category select
-  const handleCategorySelect = (category: Category) => {
-    console.log(`Category selected: ${category.name}`);
-    if (onCategorySelect) {
-      onCategorySelect(category);
-    }
-  };
+  // // Define the function to handle the category select
+  // const handleCategorySelect = (category: Category) => {
+  //   console.log(`Category selected: ${category.name}`);
+  //   if (onCategorySelect) {
+  //     onCategorySelect(category);
+  //   }
+  // };
 
   // Define the function to handle the filter select
-  const handleFilterSelect = (filter: Filter[]) => {
-    console.log(`Filter selected: ${filter}`);
-    if (onFilterSelect) {
-      onFilterSelect(filter);
+  const handleSortSelect = (toSort: Sort) => {
+    if (onSortSelect) {
+      onSortSelect(toSort);
+      console.log("Sorter Selected", toSort);
     }
   };
 
   if (title) {
     return <Text style={styles.title}>{title}</Text>;
   }
+
+  const { open, setOpen } = useContext(DrawerContext);
+
   if (searchBar) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <SearchBar 
           onSearchSubmit={handleSearchSubmit} 
         />
         <View style={styles.filters}>
-          <Categories 
+          {/* <Categories 
             onCategorySelect={handleCategorySelect} 
+          /> */}
+          <FilterButton
+            onPress={() => setOpen(!open)}
           />
-          <Filters onFilterSelect={handleFilterSelect} />
+          <Filters onSortSelect={handleSortSelect} />
         </View>
-      </View>
+      </SafeAreaView>
     );
   }
 };
