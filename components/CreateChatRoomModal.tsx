@@ -11,6 +11,8 @@ import {
   FlatList,
   Image,
 } from "react-native";
+import { subscribeToFriends } from "@/controller/DatabaseHandler"; 
+import { Friend as FriendModel } from "@/model/Friend"; 
 
 interface Friend {
   id: string;
@@ -27,9 +29,6 @@ interface CreateChatRoomModalProps {
   setNewChatRoomName: (name: string) => void;
   newChatRoomImageUrl: string;
   setNewChatRoomImageUrl: (url: string) => void;
-  friends: Friend[];
-  setFriends: (friends: Friend[]) => void;
-  toggleFriendAdded: (id: string) => void;
 }
 
 const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
@@ -40,22 +39,34 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
   setNewChatRoomName,
   newChatRoomImageUrl,
   setNewChatRoomImageUrl,
-  friends,
-  setFriends,
-  toggleFriendAdded,
 }) => {
+  const [friends, setFriends] = useState<Friend[]>([]);
+
   useEffect(() => {
     if (visible) {
-      resetFriends();
+      // Subscribe to friends when the modal is visible
+      const unsubscribe = subscribeToFriends((friendsList) => {
+        const friends = friendsList.map((friend: FriendModel) => ({
+          id: friend.uid,
+          name: friend.username,
+          avatar: friend.profileImageUrl || '',
+          isAdded: false,
+        }));
+        setFriends(friends);
+      });
+
+      return () => {
+        unsubscribe();
+      };
     }
   }, [visible]);
 
-  const resetFriends = () => {
-    const resetFriendsList = friends.map(friend => ({
-      ...friend,
-      isAdded: false,
-    }));
-    setFriends(resetFriendsList);
+  const toggleFriendAdded = (id: string) => {
+    setFriends((prevFriends) =>
+      prevFriends.map((friend) =>
+        friend.id === id ? { ...friend, isAdded: !friend.isAdded } : friend
+      )
+    );
   };
 
   const renderFriend = ({ item }: { item: Friend }) => (
@@ -73,7 +84,6 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
     </View>
   );
 
-  // Sort friends alphabetically by name
   const sortedFriends = friends.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
