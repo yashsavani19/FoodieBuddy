@@ -176,6 +176,7 @@ export function AuthProvider(props: ProviderProps) {
       const registerResult = await register(email, password, username);
       if (registerResult) {
         alert("Registration successful");
+        await addUsername(username, Auth.getAuth().currentUser?.uid || "");
         await handleLogin(email, password);
         return true;
       }
@@ -205,6 +206,7 @@ export function AuthProvider(props: ProviderProps) {
     return false;
   };
 
+  // Register a user
   const register = async (
     email: string,
     password: string,
@@ -220,7 +222,6 @@ export function AuthProvider(props: ProviderProps) {
     if (currentAuth.currentUser !== null) {
       await Auth.sendEmailVerification(currentAuth.currentUser);
     }
-    await addUser(Auth.getAuth().currentUser?.uid || "", email, username);
     if (currentAuth.currentUser === null) {
       alert("Error registering user");
       return false;
@@ -228,7 +229,6 @@ export function AuthProvider(props: ProviderProps) {
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
-    await addUsername(username, currentAuth.currentUser.uid);
     return true;
   };
 
@@ -295,11 +295,18 @@ export const reSignIn = async (password: string): Promise<boolean> => {
   return false;
 };
 
-export const changeUsername = async (newUsername: string): Promise<boolean> => {
+export const changeUsername = async (
+  newUsername: string,
+  profileImageUrl: string
+): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
-      const result = await updateUsername(newUsername, user.uid);
+      const result = await updateUsername(
+        newUsername,
+        user.uid,
+        profileImageUrl
+      );
       console.log("changeUsername result: ", result);
       if (result) {
         await Auth.updateProfile(user, { displayName: newUsername });
