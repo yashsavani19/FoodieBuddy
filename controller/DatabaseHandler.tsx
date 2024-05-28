@@ -639,6 +639,8 @@ export const removeSentFriendRequest = async (friend: Friend) => {
 
     const friendCollection = `users/${uid}/sentFriendRequests`;
     await deleteDoc(doc(db, friendCollection, friend.uid));
+    const otherUserCollection = `users/${friend.uid}/friendRequests`;
+    await deleteDoc(doc(db, otherUserCollection, uid));
 
     console.log("Sent friend request successfully removed");
   } catch (e) {
