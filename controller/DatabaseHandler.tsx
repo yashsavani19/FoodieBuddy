@@ -334,7 +334,7 @@ export const addUsername = async (
     const result = await checkUsername(username);
 
     if (result) {
-      alert("Username already exists. Please choose a different one.");
+      // alert("Username already exists. Please choose a different one.");
       return false;
     }
 

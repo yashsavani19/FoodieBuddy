@@ -6,12 +6,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import TitleHeader from "@/components/TitleHeader";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import { AppContext } from "@/context/AppContext";
 
 interface ListContainerProps {
   mode: "friendsList" | "friendsRequest" | "addFriends";
@@ -50,6 +51,12 @@ const ListContainer: React.FC<ListContainerProps> = ({ mode, onPress }) => {
 
 const FriendsView = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const {getFriends} = useContext(AppContext);
+
+  useEffect(() => {
+    getFriends();
+  }, []);
+  
   return (
     <View style={styles.container}>
       {/* Title Header */}
