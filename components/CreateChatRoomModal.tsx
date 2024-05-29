@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Modal,
   View,
@@ -9,10 +9,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
-  Image,
 } from "react-native";
-import { subscribeToFriends } from "@/controller/DatabaseHandler";
-import { Friend as FriendModel } from "@/model/Friend";
+import FriendItem from "./FriendChatItem";
 
 interface Friend {
   id: string;
@@ -44,23 +42,6 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
   friends,
   toggleFriendAdded,
 }) => {
-  const renderFriend = ({ item }: { item: Friend }) => (
-    <View style={styles.friendContainer}>
-      <Image source={{ uri: item.avatar }} style={styles.friendAvatar} />
-      <Text style={styles.friendName}>{item.name}</Text>
-      <TouchableOpacity
-        style={[styles.addButton, item.isAdded && styles.addedButton]}
-        onPress={() => toggleFriendAdded(item.id)}
-      >
-        <Text
-          style={[styles.addButtonText, item.isAdded && styles.addedButtonText]}
-        >
-          {item.isAdded ? "Added" : "Add"}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   const sortedFriends = friends.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
@@ -99,7 +80,9 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
             <Text style={styles.friendsTitle}>Friends</Text>
             <FlatList
               data={sortedFriends}
-              renderItem={renderFriend}
+              renderItem={({ item }) => (
+                <FriendItem friend={item} toggleFriendAdded={toggleFriendAdded} />
+              )}
               keyExtractor={(item) => item.id}
               style={styles.friendsList}
             />
@@ -174,37 +157,6 @@ const styles = StyleSheet.create({
   friendsList: {
     width: "100%",
     marginBottom: 10,
-  },
-  friendContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 5,
-  },
-  friendAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  friendName: {
-    flex: 1,
-    fontSize: 14,
-  },
-  addButton: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-  },
-  addedButton: {
-    backgroundColor: "#ccc",
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 12,
-  },
-  addedButtonText: {
-    color: "#000",
   },
   buttonContainer: {
     flexDirection: "row",
