@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Modal as RNModal,
 } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
@@ -17,7 +18,7 @@ import BookmarksButton from "@/components/BookmarkButton";
 import VisitedButton from "@/components/VisitedButton";
 import { AppContext } from "@/context/AppContext";
 import * as ImagePicker from 'expo-image-picker';
-import Modal from 'react-native-modal';
+import ReactNativeModal from 'react-native-modal';
 import AntDesign from "@expo/vector-icons/build/AntDesign";
 
 export default function UserProfileView() {
@@ -29,6 +30,7 @@ export default function UserProfileView() {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isImageViewerVisible, setImageViewerVisible] = useState(false);
 
   function navigateToFavouriteSpots(): void {
     navigation.navigate("FavoriteSpotsView", {
@@ -98,17 +100,17 @@ export default function UserProfileView() {
         <View style={styles.profileSection}>
           {/* User Icon */}
           <View style={styles.iconWrapper}>
-            <TouchableOpacity onPress={toggleModal}>
+            <TouchableOpacity onPress={() => setImageViewerVisible(true)}>
               <Image
                 source={selectedImage ? { uri: selectedImage } : require("@/assets/images/user-icon.png")}
                 style={styles.profilePicture}
               />
-              <TouchableOpacity style={styles.cameraIconContainer}>
-                <Image
-                  source={require('@/assets/images/Change_PFP_icon.png')}
-                  style={styles.cameraIcon}
-                />
-              </TouchableOpacity>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cameraIconContainer} onPress={toggleModal}>
+              <Image
+                source={require('@/assets/images/Change_PFP_icon.png')}
+                style={styles.cameraIcon}
+              />
             </TouchableOpacity>
           </View>
           {/* User Display Name */}
@@ -132,7 +134,7 @@ export default function UserProfileView() {
           <VisitedButton onPress={navigateToVisitedSpots} />
         </View>
       </ScrollView>
-      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+      <ReactNativeModal isVisible={isModalVisible} onBackdropPress={toggleModal}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Profile Photo</Text>
           <View style={styles.modalButtonContainer}>
@@ -150,7 +152,18 @@ export default function UserProfileView() {
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </ReactNativeModal>
+      <RNModal visible={isImageViewerVisible} transparent={true} onRequestClose={() => setImageViewerVisible(false)}>
+        <View style={styles.imageViewerContainer}>
+          <TouchableOpacity style={styles.closeButton} onPress={() => setImageViewerVisible(false)}>
+            <AntDesign name="close" size={30} color="white" />
+          </TouchableOpacity>
+          <Image
+            source={selectedImage ? { uri: selectedImage } : require("@/assets/images/user-icon.png")}
+            style={styles.imageViewer}
+          />
+        </View>
+      </RNModal>
     </View>
   );
 }
@@ -232,19 +245,19 @@ const styles = StyleSheet.create({
     fontSize: 19,
     color: "#ededed",
   },
-  cameraIconContainer: {    
-      position: 'absolute',
-      right: 0,
-      bottom: 0,
-      backgroundColor: '#fff',
-      borderRadius: 15,    
+  cameraIconContainer: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#fff',
+    borderRadius: 50,
   },
   cameraIcon: {
-    width: 30, // Adjust the width and height as necessary
-    height: 30,
+    width: 35,
+    height: 35,
     resizeMode: 'contain',
   },
-    modalContent: {
+  modalContent: {
     backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
@@ -267,5 +280,21 @@ const styles = StyleSheet.create({
   modalButtonText: {
     marginTop: 10,
     fontSize: 16,
+  },
+  imageViewerContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageViewer: {
+    width: '90%',
+    height: '80%',
+    resizeMode: 'contain',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
   },
 });
