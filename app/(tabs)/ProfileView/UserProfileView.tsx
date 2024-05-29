@@ -10,6 +10,7 @@ import {
 import TitleHeader from "@/components/TitleHeader";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
+import { AntDesign } from "@expo/vector-icons";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 import FavouriteSpotsButton from "@/components/FavouriteSpotsButton";
@@ -20,9 +21,15 @@ import { AppContext } from "@/context/AppContext";
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants } =
+  const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants, preferences } =
     useContext(AppContext);
   const { user, signOut } = useAuth();
+
+  function navigateToFoodPreferences(): void {
+    navigation.navigate("FoodPreferencesView", {
+      preferences,
+    });
+  }
 
   function navigateToFavouriteSpots(): void {
     navigation.navigate("FavoriteSpotsView", {
@@ -52,7 +59,6 @@ export default function UserProfileView() {
       <TitleHeader title="Profile" />
       {/* ScrollView for scrollable content */}
       <ScrollView style={styles.scrollView}>
-        <ProfileFriendsNavBar mode="profile" />
         {/* Profile Section */}
         <View style={styles.profileSection}>
           {/* User Icon */}
@@ -78,9 +84,54 @@ export default function UserProfileView() {
         </View>
         {/* Menu Items Section */}
         <View style={styles.menuItemsSection}>
-          <FavouriteSpotsButton onPress={navigateToFavouriteSpots} />
-          <BookmarksButton onPress={navigateToBookmarkedSpots} />
-          <VisitedButton onPress={navigateToVisitedSpots} />
+          {/* Food Preferences Button */}
+          <TouchableOpacity
+            onPress={navigateToFoodPreferences}
+            style={styles.menuItem}
+          >
+            <Image
+              source={require("@/assets/images/preferences-icon.png")}
+              style={styles.savedIcons}
+            />
+            <Text style={styles.menuItemText}>Favorite Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
+          {/* Favorite Spots Button */}
+          <TouchableOpacity
+            onPress={navigateToFavouriteSpots}
+            style={styles.menuItem}
+          >
+            <Image
+              source={require("@/assets/images/fave-Selected.png")}
+              style={styles.savedIcons}
+            />
+            <Text style={styles.menuItemText}>Favorite Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
+          {/* Bookmarked Spots Button */}
+          <TouchableOpacity
+            onPress={navigateToBookmarkedSpots}
+            style={styles.menuItem}
+          >
+            <Image
+              source={require("@/assets/images/bookmark-Selected.png")}
+              style={styles.savedIcons}
+            />
+            <Text style={styles.menuItemText}>Bookmarked Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
+          {/* Visited Spots Button */}
+          <TouchableOpacity
+            onPress={navigateToVisitedSpots}
+            style={styles.menuItem}
+          >
+            <Image
+              source={require("@/assets/images/visited-Selected.png")}
+              style={styles.savedIcons}
+            />
+            <Text style={styles.menuItemText}>Visited Spots</Text>
+            <AntDesign name="right" style={styles.rightArrow} />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -90,7 +141,7 @@ export default function UserProfileView() {
 const styles = StyleSheet.create({
   rightArrow: {
     position: "absolute",
-    right: 20,
+    right: 10,
     fontSize: 35,
     color: "#ededed",
   },
@@ -107,7 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    marginTop: 100,
   },
 
   profileSection: {
@@ -148,7 +199,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#363232",
     fontSize: 10,
-    borderRadius: 20,
+    borderRadius: 200,
   },
   editAccountText: {
     fontSize: 15, // Font size for Edit Account
