@@ -83,7 +83,6 @@ const ChatScreen: React.FC = () => {
         orderBy("timestamp", "asc")
       );
 
-      // Unsubscribe from the previous listener if it exists
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
@@ -118,7 +117,6 @@ const ChatScreen: React.FC = () => {
         }
       });
 
-      // Store the unsubscribe function in the ref
       unsubscribeRef.current = unsubscribe;
     };
 
@@ -238,7 +236,7 @@ const ChatScreen: React.FC = () => {
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={styles.flatListContentContainer} // Ensure content padding
+        contentContainerStyle={styles.flatListContentContainer} 
         onContentSizeChange={() =>
           flatListRef.current?.scrollToEnd({ animated: true })
         }
@@ -246,7 +244,7 @@ const ChatScreen: React.FC = () => {
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 20} // Adjust for iOS
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 20} 
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
@@ -283,7 +281,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   flatListContentContainer: {
-    paddingBottom: 70, // Adjust to the height of the input area
+    paddingBottom: 70, 
   },
   messageContainer: {
     marginVertical: 5,
@@ -337,13 +335,13 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
     marginRight: 10,
-    marginLeft: 20, // Add margin to ensure the message doesn't go to the end
+    marginLeft: 20, 
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
-    marginRight: 20, // Add margin to ensure the message doesn't go to the end
+    marginRight: 20, 
   },
   messageText: {
     fontSize: 16,
