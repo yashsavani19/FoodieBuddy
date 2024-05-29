@@ -920,7 +920,7 @@ export const addPreferences = async (uid: string) => {
 // /**
 //  * Fetches user preferences
 //  */
-export const fetchPreferences = async (uid: string) => {
+export const fetchPreferences = async (uid: string): Promise<PreferenceList[]> => {
   try {
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
@@ -953,8 +953,11 @@ export const fetchPreferences = async (uid: string) => {
   } catch (e) {
     console.error("Error getting documents: ", e);
     alert("Internal error fetching preferences. Please try again later.");
+    return [];
   }
 };
+
+
 
 
 export const updatePreferences = async (uid: string, updatedPreferences: PreferenceList[]) => {

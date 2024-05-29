@@ -93,7 +93,7 @@ export default function UserProfileView() {
               source={require("@/assets/images/preferences-icon.png")}
               style={styles.savedIcons}
             />
-            <Text style={styles.menuItemText}>Favorite Spots</Text>
+            <Text style={styles.menuItemText}>Food Preferences</Text>
             <AntDesign name="right" style={styles.rightArrow} />
           </TouchableOpacity>
           {/* Favorite Spots Button */}
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 30,
-    marginVertical: 10,
+    marginVertical: 5,
     paddingVertical: 15,
     padding: 20,
     backgroundColor: "#363232",
@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
     color: "#000", // Black text
   },
   menuItemText: {
-    marginLeft: 20,
     fontSize: 19,
     color: "#ededed",
   },

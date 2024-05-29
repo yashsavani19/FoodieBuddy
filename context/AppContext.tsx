@@ -199,12 +199,22 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     return () => clearInterval(interval);
   }, [previousLocation]);
 
+  // useEffect(() => {
+  //   if (user) {
+  //     fetchPreferences(user.uid).then((prefs) => {
+  //       setPreferences(prefs || []);
+  //     });
+  //   }
+  // }, [user]);
   useEffect(() => {
-    if (user) {
-      fetchPreferences(user.uid).then((prefs) => {
-        setPreferences(prefs || []);
-      });
-    }
+    const loadUserPreferences = async () => {
+      if (user) {
+        const prefs = await fetchPreferences(user.uid);
+        setPreferences(prefs);
+      }
+    };
+  
+    loadUserPreferences();
   }, [user]);
   useEffect(() => {
     if (!user) {
