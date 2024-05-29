@@ -53,6 +53,7 @@ const ChatScreen: React.FC = () => {
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const flatListRef = useRef<FlatList<Message>>(null);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -81,6 +82,11 @@ const ChatScreen: React.FC = () => {
         messagesCollection,
         orderBy("timestamp", "asc")
       );
+
+      // Unsubscribe from the previous listener if it exists
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
 
       const unsubscribe = onSnapshot(messagesQuery, async (querySnapshot) => {
         console.log("Snapshot received");
@@ -112,16 +118,17 @@ const ChatScreen: React.FC = () => {
         }
       });
 
-      return () => {
-        isMounted = false;
-        console.log("Unsubscribing from snapshot");
-        unsubscribe();
-      };
+      // Store the unsubscribe function in the ref
+      unsubscribeRef.current = unsubscribe;
     };
 
     fetchMessagesAndSubscribe();
+
     return () => {
       isMounted = false;
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
     };
   }, [chatRoomId]);
 
@@ -231,6 +238,7 @@ const ChatScreen: React.FC = () => {
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        contentContainerStyle={styles.flatListContentContainer} // Ensure content padding
         onContentSizeChange={() =>
           flatListRef.current?.scrollToEnd({ animated: true })
         }
@@ -238,7 +246,7 @@ const ChatScreen: React.FC = () => {
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={90}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 20} // Adjust for iOS
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
@@ -273,6 +281,9 @@ const styles = StyleSheet.create({
   headerContainer: {
     paddingTop: 120,
     backgroundColor: "#fff",
+  },
+  flatListContentContainer: {
+    paddingBottom: 70, // Adjust to the height of the input area
   },
   messageContainer: {
     marginVertical: 5,
@@ -326,11 +337,13 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
     marginRight: 10,
+    marginLeft: 20, // Add margin to ensure the message doesn't go to the end
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
+    marginRight: 20, // Add margin to ensure the message doesn't go to the end
   },
   messageText: {
     fontSize: 16,
@@ -361,6 +374,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 10,
     alignItems: "center",
+    backgroundColor: "#f2f2f2",
+    borderColor: "#e2e2e2",
   },
   input: {
     flex: 1,
