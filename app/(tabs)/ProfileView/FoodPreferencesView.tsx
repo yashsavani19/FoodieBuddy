@@ -176,9 +176,11 @@ import { updatePreferences } from "@/controller/DatabaseHandler";
 import { PreferenceList } from "@/model/PreferenceList";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
+import { update } from "firebase/database";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences, userObject } = useContext(AppContext);
+  const { preferences, setPreferences, userObject, updateUserPreferences } =
+    useContext(AppContext);
   const [localPreferences, setLocalPreferences] =
     useState<PreferenceList[]>(preferences);
 
@@ -199,10 +201,17 @@ const FoodPreferencesView: React.FC = () => {
   };
 
   const savePreferences = async () => {
-    const uid = userObject?.uid;
-    if (uid) {
-      await updatePreferences(uid, localPreferences);
-      setPreferences(localPreferences);
+    try {
+      const uid = userObject?.uid;
+      if (uid) {
+        await updatePreferences(uid, localPreferences);
+        setPreferences(localPreferences);
+        console.log("Preferences saved successfully");
+      } else {
+        console.error("User ID is missing");
+      }
+    } catch (error) {
+      console.error("Error saving preferences: ", error);
     }
   };
 
@@ -223,8 +232,8 @@ const FoodPreferencesView: React.FC = () => {
               }
             />
           ))}
-          <SavePreferenceButton onSave={savePreferences} />
         </ScrollView>
+        <SavePreferenceButton onSave={savePreferences} />
       </View>
     </View>
   );
@@ -238,7 +247,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     padding: 20,
-    marginVertical:5,
+    marginVertical: 5,
   },
   content: {
     flex: 1,
