@@ -1,55 +1,84 @@
-/**
- * ChatListTabs.tsx
- * 
- * This file defines a component for displaying a top tab navigator with two tabs: Buddy ChatBot and Friends Chat.
- * The component utilizes React Navigation's MaterialTopTabNavigator for navigation between the tabs.
- * 
- * Each tab renders a ChatList component with a different type prop ("buddy" or "friends"), which determines the type
- * of chat rooms displayed. The ChatListTabs component is styled with custom tab bar styles, including background color,
- * indicator style, and label style.
- * 
- * The ChatRoomItem component is responsible for rendering individual chat room items in the chat list. It includes
- * functionality for navigating to the chat screen and deleting chat rooms. The component fetches chat rooms from a
- * database and supports creating new chat rooms through a modal form.
- * 
- * Components:
- * - BuddyChatBot: Renders a ChatList component with type="buddy".
- * - FriendsChat: Renders a ChatList component with type="friends".
- * - ChatListTabs: Contains the top tab navigator with BuddyChatBot and FriendsChat tabs.
- */
-
-import React from "react";
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import ChatList from "./ChatList";
 
-const Tab = createMaterialTopTabNavigator();
+const ChatListTabs: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<"buddy" | "friends">("buddy");
 
-const BuddyChatBot: React.FC = () => <ChatList type="buddy" />;
-const FriendsChat: React.FC = () => <ChatList type="friends" />;
+  return (
+    <View style={styles.container}>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "buddy" && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab("buddy")}
+        >
+          <Text
+            style={[
+              styles.tabButtonText,
+              activeTab === "buddy" && styles.activeTabButtonText,
+            ]}
+          >
+            Buddy ChatBot
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === "friends" && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab("friends")}
+        >
+          <Text
+            style={[
+              styles.tabButtonText,
+              activeTab === "friends" && styles.activeTabButtonText,
+            ]}
+          >
+            Friends Chat
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.chatListContainer}>
+        {activeTab === "buddy" ? <ChatList type="buddy" /> : <ChatList type="friends" />}
+      </View>
+    </View>
+  );
+};
 
-const ChatListTabs: React.FC = () => (
-  <Tab.Navigator
-    screenOptions={{
-      tabBarStyle: { backgroundColor: "#1e1e1e" },
-      tabBarIndicatorStyle: {
-        backgroundColor: "#ff6f00",
-        width: "30%",
-        borderRadius: 5,
-        height: 5,
-        alignSelf: "center",
-        marginLeft: 38.5,
-      },
-      tabBarLabelStyle: {
-        color: "#ffffff",
-        fontWeight: "bold",
-        textTransform: "none",
-        fontSize: 18,
-      },
-    }}
-  >
-    <Tab.Screen name="Buddy ChatBot" component={BuddyChatBot} />
-    <Tab.Screen name="Friends Chat" component={FriendsChat} />
-  </Tab.Navigator>
-);
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "#1e1e1e",
+    paddingVertical: 5,
+  },
+  tabButton: {
+    paddingVertical: 2,
+    paddingHorizontal: 20,
+  },
+  activeTabButton: {
+    borderBottomWidth: 3,
+    borderBottomColor: "#ff6f00",
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2,
+  },
+  tabButtonText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  activeTabButtonText: {
+    color: "#fff",
+  },
+  chatListContainer: {
+    flex: 1,
+  },
+});
 
 export default ChatListTabs;
