@@ -74,7 +74,6 @@ export function AuthProvider(props: ProviderProps) {
         
         console.log("User is logged in");
         try {
-          addPreferences(user.uid);
           console.log("Preferences added");
         } catch (error) {
           console.error("Error adding preferences: ", error);
@@ -185,6 +184,7 @@ export function AuthProvider(props: ProviderProps) {
       if (registerResult) {
         alert("Registration successful");
         await addUsername(username, Auth.getAuth().currentUser?.uid || "");
+        await addPreferences(Auth.getAuth().currentUser?.uid || "");
         await handleLogin(email, password);
         return true;
       }
