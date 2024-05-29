@@ -28,10 +28,10 @@ const NavBar: React.FC<NavBarProps> = ({ openSettings }) => {
   return (
     <View style={styles.navigationBar}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
-        <AntDesign name="arrowleft" size={24} color="white" />
+        <AntDesign name="arrowleft" size={24} color="#000" />
       </TouchableOpacity>
       <TouchableOpacity onPress={openSettings} style={styles.navButton}>
-        <MaterialIcons name="settings" size={22} color="white" />
+        <MaterialIcons name="settings" size={22} color="#000" />
       </TouchableOpacity>
     </View>
   );
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "#000",
+    backgroundColor: "#f2f2f2",
     width: "100%",
     height: 40,
   },
