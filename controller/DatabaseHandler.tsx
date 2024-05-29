@@ -953,7 +953,7 @@ export const fetchChatRooms = async (type: string) => {
 
     let lastMessage = lastMessageData ? lastMessageData.text : "";
     if (lastMessage.length > 50) {
-      lastMessage = `${lastMessage.substring(0, 50)}...`;
+      lastMessage = `${lastMessage.substring(0, 30)}...`;
     }
 
     chatRooms.push({
