@@ -234,17 +234,19 @@ const ChatScreen: React.FC = () => {
         <TitleHeader title="Friends Chat" />
         <NavBar openSettings={openSettings} />
       </View>
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.flatListContentContainer} 
-        onContentSizeChange={() =>
-          flatListRef.current?.scrollToEnd({ animated: true })
-        }
-        onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-      />
+      <View style={styles.contentContainer}>
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.flatListContentContainer}
+          onContentSizeChange={() =>
+            flatListRef.current?.scrollToEnd({ animated: true })
+          }
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.select({ ios: 90, android: 20 })}
@@ -282,6 +284,10 @@ const styles = StyleSheet.create({
   headerContainer: {
     paddingTop: Platform.OS === 'ios' ? height * 0.08 : height * 0.15, 
     backgroundColor: "#fff",
+  },
+  contentContainer: {
+    flex: 1,
+    paddingBottom: height * 0.1,
   },
   flatListContentContainer: {
     paddingBottom: height * 0.1, 
@@ -374,6 +380,7 @@ const styles = StyleSheet.create({
     width: width * 0.95,
     alignSelf: "center",
     borderRadius: width * 0.06,
+    height: height * 0.08,
   },
   input: {
     flex: 1,
@@ -383,7 +390,7 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.06,
     paddingHorizontal: width * 0.03,
     backgroundColor: "#fff",
-    height: height * 0.05,
+    height: "100%", 
   },
   sendButton: {
     marginLeft: width * 0.03,
