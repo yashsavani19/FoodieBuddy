@@ -7,37 +7,27 @@ import {
   FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID,
-  OPENAI_API_KEY,
-  OPENAI_ORG_ID,
 } from "@env";
 
 import {
-  initializeAuth,
   getAuth,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  sendSignInLinkToEmail,
-  signInWithCredential,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   AuthError,
-  getReactNativePersistence,
   onAuthStateChanged,
+  initializeAuth,
+  getReactNativePersistence,
 } from "firebase/auth";
+
+import { getDatabase } from "firebase/database";
 
 import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-import { addUser, fetchUser } from "./DatabaseHandler";
-
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
-
-import { Use } from "react-native-svg";
 import React, { useEffect, useState } from "react";
 import { getFirestore } from "firebase/firestore";
 /**
@@ -57,11 +47,12 @@ const firebaseConfig = {
 const provider = new GoogleAuthProvider();
 
 export const app = initializeApp(firebaseConfig);
-// export const auth = initializeAuth(app, {
-//   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-// });
-export const auth = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
+// export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const rtDb = getDatabase(app);
 
 export const useIsAuthenticated = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -237,5 +228,4 @@ const logout = async (): Promise<void> => {
 const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
 };
-
 

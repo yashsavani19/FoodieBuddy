@@ -1,56 +1,34 @@
-import React, { useContext } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-} from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { AppContext } from "@/context/AppContext";
-import SavedListItem from "@/components/SavedListItem";
-import { Saved } from "@/model/Saved";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
+import BackButton from "@/components/BackButton";
+import SavedList from "@/components/SavedLists/SavedList";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
+
+type BookmarkedSpotsRouteProp = RouteProp<
+  RootStackParamList,
+  "BookmarkedSpotsView"
+>;
 
 // BookmarkedSpotsView component
 const BookmarkedSpotsView: React.FC = () => {
-  const { bookmarkedRestaurants } = useContext(AppContext);
-  const navigation = useNavigation();
-  const renderItem = ({ item }: { item: Saved }) => (
-    <SavedListItem item={item} listType="bookmarked" />
-  );
+  const route = useRoute<BookmarkedSpotsRouteProp>();
+  const { bookmarkedRestaurants } = route.params;
 
   return (
     <View style={styles.container}>
       {/* Title Header */}
-      <TitleHeader title="Bookmark" /> {/* Display title header */}
+      <TitleHeader title="Bookmarks" />
       <View style={styles.content}>
-        {/* Back Button and Title */}
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.header}
-        >
-          <View style={styles.headerContent}>
-            <AntDesign name="arrowleft" size={24} color="white" />
-            <Text style={styles.title}>Back</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Display message if no restaurants bookmarked */}
-        {bookmarkedRestaurants.length === 0 && (
-          <View style={styles.noRestaurants}>
-            <Text style={styles.titleText}>No Bookmarked spots</Text>
-          </View>
-        )}
-        {/* FlatList to display bookmarked restaurants */}
-        <View style={styles.listContainer}>
-          <FlatList
-            data={bookmarkedRestaurants}
-            keyExtractor={(item) => item.restaurant.id.toString()}
-            renderItem={renderItem}
-          />
-        </View>
+        <BackButton />
+        {!bookmarkedRestaurants ||
+          (bookmarkedRestaurants.length === 0 && (
+            <View style={styles.noRestaurants}>
+              <Text style={styles.titleText}>No Bookmarked spots</Text>
+            </View>
+          ))}
+        <SavedList restaurants={bookmarkedRestaurants} type="bookmarked" />
       </View>
     </View>
   );

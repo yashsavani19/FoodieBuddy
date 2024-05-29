@@ -1,43 +1,29 @@
-import React, { useContext } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-} from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { AppContext } from "@/context/AppContext";
+import React from "react";
+import { View, Text, StyleSheet, FlatList } from "react-native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import SavedListItem from "@/components/SavedListItem";
 import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
+import BackButton from "@/components/BackButton";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import SavedList from "@/components/SavedLists/SavedList";
+
+type FavouriteSpotsRouteProp = RouteProp<
+  RootStackParamList,
+  "FavoriteSpotsView"
+>;
 
 const FavouriteSpotsView: React.FC = () => {
-
-  // Get favourite restaurants from context
-  const { favouriteRestaurants } = useContext(AppContext);
-
-  // Get navigation object
-  const navigation = useNavigation(); 
-
-  // Render each saved item
-  const renderItem = ({ item }: { item: Saved }) => (
-    <SavedListItem item={item} listType="favourite" /> 
-  );
+  const route = useRoute<FavouriteSpotsRouteProp>();
+  const { favouriteRestaurants } = route.params;
 
   return (
     <View style={styles.container}>
       {/* Display title header */}
-      <TitleHeader title="Favorites"/>
+      <TitleHeader title="Favorites" />
       <View style={styles.content}>
         {/* Back Button and Title */}
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
-          <View style={styles.headerContent}>
-            <AntDesign name="arrowleft" size={24} color="white" />
-            <Text style={styles.title}>Back</Text>
-          </View>
-        </TouchableOpacity>
+        <BackButton />
         {/* Display message if no favourite restaurants */}
         {favouriteRestaurants.length === 0 && (
           <View style={styles.noRestaurants}>
@@ -45,13 +31,7 @@ const FavouriteSpotsView: React.FC = () => {
           </View>
         )}
         {/* FlatList to display favourite restaurants */}
-        <View style={styles.listContainer}>
-          <FlatList
-            data={favouriteRestaurants}
-            keyExtractor={(item) => item.restaurant.id.toString()}
-            renderItem={renderItem}
-          />
-        </View>
+        <SavedList restaurants={favouriteRestaurants} type="favourite" />
       </View>
     </View>
   );
@@ -67,17 +47,17 @@ const styles = StyleSheet.create({
     marginTop: 120,
   },
   header: {
-    height: 40, 
-    backgroundColor: "black", 
+    height: 40,
+    backgroundColor: "black",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   headerContent: {
-    height: 40, 
+    height: 40,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10, 
+    paddingHorizontal: 10,
   },
   backButton: {
     paddingHorizontal: 10,
@@ -85,9 +65,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    flex: 1, 
-    textAlign: "center", 
-    color: 'white'
+    flex: 1,
+    textAlign: "center",
+    color: "white",
   },
   itemContainer: {
     flexDirection: "row",
@@ -121,4 +101,3 @@ const styles = StyleSheet.create({
 });
 
 export default FavouriteSpotsView;
-

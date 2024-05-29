@@ -2,7 +2,12 @@ import { useNavigationContainerRef, useRouter, useSegments } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import * as Auth from "firebase/auth";
 import { auth } from "../controller/FirebaseHandler";
-import { addUser } from "@/controller/DatabaseHandler";
+import {
+  addUser,
+  addUsername,
+  checkUsername,
+  updateUsername,
+} from "@/controller/DatabaseHandler";
 
 interface SignInResponse {
   data: Auth.User | undefined;
@@ -15,13 +20,13 @@ interface SignOutResponse {
 }
 
 interface AuthContextValue {
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (
     email: string,
     username: string,
     password: string,
     confirmPassword: string
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   signOut: () => void;
   user: Auth.User | null;
   authInitialised: boolean;
@@ -42,9 +47,7 @@ export function AuthProvider(props: ProviderProps) {
   const [authInitialised, setAuthInitialised] = useState(false);
 
   const useProtectedRoute = (user: Auth.User | null) => {
-    const segments = useSegments();
     const router = useRouter();
-    
     const [isNavigationReady, setIsNavigationReady] = useState(false);
     const rootNavigation = useNavigationContainerRef();
 
@@ -60,19 +63,17 @@ export function AuthProvider(props: ProviderProps) {
     }, [rootNavigation]);
 
     useEffect(() => {
-      if (!isNavigationReady) {
+      if (!isNavigationReady || !authInitialised) {
         return;
       }
 
-      const inAuthGroup = segments[0] === "(auth)";
-      if (!authInitialised) return;
-
-      if (!user && !inAuthGroup) {
-        router.push("/LoginView");
-      } else if (user && inAuthGroup) {
-        router.push("/RestaurantListViews/");
+      if (!user) {
+        router.replace("/LoginView");
+      } else if (user) {
+        console.log("User is logged in");
+        router.push("/(tabs)/RestaurantListViews/ListView");
       }
-    }, [user, segments, authInitialised, isNavigationReady]);
+    }, [user, authInitialised, isNavigationReady]);
   };
 
   useEffect(() => {
@@ -97,28 +98,29 @@ export function AuthProvider(props: ProviderProps) {
   const handleLogin = async (
     email: string,
     password: string
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     setAuthInitialised(false);
     try {
       if (!email || !password) {
         alert("Please enter both email and password.");
         setAuthInitialised(true);
-        return;
+        return false;
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         alert("Please enter a valid email address.");
         setAuthInitialised(true);
-        return;
+        return false;
       }
 
       await login(email, password);
       const currentUser = Auth.getAuth().currentUser;
       setAuthUser(currentUser);
-
+      return true;
     } catch (error: any) {
       handleAuthError(error);
+      return false;
     } finally {
       setAuthInitialised(true);
     }
@@ -157,23 +159,27 @@ export function AuthProvider(props: ProviderProps) {
     username: string,
     password: string,
     confirmPassword: string
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     // Alert Message if any of the fields is empty
     if (!email || !username || !password || !confirmPassword) {
       alert("Please fill in all fields");
-      return;
+      return false;
     }
 
     // Alert message for passwords don't match
     if (password !== confirmPassword) {
       alert("Passwords do not match");
-      return;
+      return false;
     }
 
     try {
-      await register(email, password, username);
-      alert("Registration successful");
-      await handleLogin(email, password);
+      const registerResult = await register(email, password, username);
+      if (registerResult) {
+        alert("Registration successful");
+        await addUsername(username, Auth.getAuth().currentUser?.uid || "");
+        await handleLogin(email, password);
+        return true;
+      }
     } catch (error: any) {
       const authError = error as Auth.AuthError;
       console.error(authError.code);
@@ -197,23 +203,33 @@ export function AuthProvider(props: ProviderProps) {
           break;
       }
     }
+    return false;
   };
 
+  // Register a user
   const register = async (
     email: string,
     password: string,
     username: string
-  ): Promise<void> => {
+  ): Promise<boolean> => {
+    const result = await checkUsername(username);
+    if (result) {
+      alert("Username already exists");
+      return false;
+    }
     await Auth.createUserWithEmailAndPassword(auth, email, password);
     const currentAuth = Auth.getAuth();
-    await addUser(Auth.getAuth().currentUser?.uid || "", email, username);
+    if (currentAuth.currentUser !== null) {
+      await Auth.sendEmailVerification(currentAuth.currentUser);
+    }
     if (currentAuth.currentUser === null) {
       alert("Error registering user");
-      return;
+      return false;
     }
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
+    return true;
   };
 
   // logout
@@ -251,6 +267,123 @@ export function AuthProvider(props: ProviderProps) {
     </AuthContext.Provider>
   );
 }
+
+export const reSignIn = async (password: string): Promise<boolean> => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      if (user.email === null) return false;
+      await Auth.reauthenticateWithCredential(
+        user,
+        Auth.EmailAuthProvider.credential(user.email, password)
+      );
+      return true;
+    }
+  } catch (error) {
+    const authError = error as Auth.AuthError;
+    switch (authError.code) {
+      //Special error cases being thrown by firebase
+      case "auth/invalid-credential":
+        alert("Wrong password.");
+        break;
+      default:
+        alert(`Reauth failed: ${authError.message}`);
+        break;
+    }
+    return false;
+  }
+  return false;
+};
+
+export const changeUsername = async (
+  newUsername: string,
+  profileImageUrl: string
+): Promise<boolean> => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      const result = await updateUsername(
+        newUsername,
+        user.uid,
+        profileImageUrl
+      );
+      console.log("changeUsername result: ", result);
+      if (result) {
+        await Auth.updateProfile(user, { displayName: newUsername });
+        console.log("Username updated successfully");
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error("Error updating username: ", error);
+  }
+  return false;
+};
+
+export const changeEmail = async (newEmail: string): Promise<boolean> => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      await Auth.verifyBeforeUpdateEmail(user, newEmail);
+    }
+    return true;
+  } catch (error) {
+    const authError = error as Auth.AuthError;
+    console.error("Error updating email: ", error);
+    switch (authError.code) {
+      //Special error cases being thrown by firebase
+      case "auth/email-already-in-use":
+        alert(`Email address already in use.`);
+        break;
+      case "auth/invalid-email":
+        alert(`Email address is invalid.`);
+        break;
+      case "auth/operation-not-allowed":
+        alert("Error during update: Operation not allowed.");
+        break;
+      default:
+        alert(`Update failed: ${authError.message}`);
+        break;
+    }
+    return false;
+  }
+  // alert(
+  //   "Email updated successfully, please verify your email address and login again for changes to take effect."
+  // );
+};
+
+export const changePassword = async (newPassword: string): Promise<boolean> => {
+  try {
+    const user = Auth.getAuth().currentUser;
+    if (user) {
+      await Auth.updatePassword(user, newPassword);
+    }
+    return true;
+  } catch (error: any) {
+    const authError = error as Auth.AuthError;
+    console.error(authError.code);
+    switch (authError.code) {
+      //Special error cases being thrown by firebase
+      case "auth/email-already-in-use":
+        alert(`Email address already in use.`);
+        break;
+      case "auth/invalid-email":
+        alert(`Email address is invalid.`);
+        break;
+      case "auth/operation-not-allowed":
+        alert("Error during registration: Operation not allowed.");
+        break;
+      case "auth/weak-password.":
+        console.log("Password is too weak!!");
+        alert("Password is too weak.");
+        break;
+      default:
+        alert(`Change password failed: ${authError.message}`);
+        break;
+    }
+  }
+  return false;
+};
 
 export const useAuth = () => {
   const authContext = useContext(AuthContext);

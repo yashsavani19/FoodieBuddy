@@ -1,10 +1,10 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 // 
 interface StarRatingProps {
-  rating: number;  
+  rating?: number;  
 }
 
 /**
@@ -13,8 +13,8 @@ interface StarRatingProps {
  * @returns - StarRating component
  */
 const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
-  const fullStars = Math.floor(rating);
-  const fractionalPart = rating % 1;
+  const fullStars = Math.floor(rating || 0);
+  const fractionalPart = (rating || 0) % 1;
   let halfStar = 0;
   let additionalFullStar = 0;
 
@@ -28,16 +28,19 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
 
   const noStars = 5 - fullStars - halfStar - additionalFullStar; // Adjust noStars calculation
 
+  // For when the database cleans the data and sets rating to 0 if not provided
+  if (rating === 0 || rating === undefined) { return (<Text>N/A</Text>) };
+
   return (
     <View style={{ flexDirection: 'row' }}>
       {[...Array(fullStars + additionalFullStar)].map((_, index) => (
-        <Icon testID="full-star" key={`full-${index}`} name="star" size={14} color="#ffd700" />
+        <Icon testID="full-star" key={`full-${index}`} name="star" size={14} color="#ffb100" />
       ))}
       {halfStar > 0 && (
-        <Icon testID="half-star" key="half-1" name="star-half-o" size={14} color="#ffd700" />
+        <Icon testID="half-star" key="half-1" name="star-half-o" size={14} color="#ffb100" />
       )}
       {[...Array(noStars)].map((_, index) => (
-        <Icon testID="empty-star" key={`empty-${index}`} name="star-o" size={14} color="#ffd700" />
+        <Icon testID="empty-star" key={`empty-${index}`} name="star-o" size={14} color="#ffb100" />
       ))}
     </View>
   );

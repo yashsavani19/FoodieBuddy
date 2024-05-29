@@ -9,27 +9,27 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { Filter } from "@/model/Filter";
-import { filterOptions } from "@/assets/data/filters";
+import { Sort } from "@/model/Sort";
+import { sortOptions } from "@/assets/data/sort-options";
 
 // Define the props for the Filters component
-interface FiltersProps {
-  onFilterSelect: (filter: Filter[]) => void;
+interface SortProps {
+  onSortSelect: (toSort: Sort) => void;
 }
 
 /**
- *  Filters component that allows the user to select a filter
- * @param param0 - onFilterSelect function to handle the selected filter
- * @returns - Filters component
+ *  SortButton component that allows the user to select a filter
+ * @param param0 - onSortSelect function to handle the selected sorter
+ * @returns - Sort component
  */
-const Filters: React.FC<FiltersProps> = ({ onFilterSelect }) => {
+const Filters: React.FC<SortProps> = ({ onSortSelect }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<Filter[]>([]);
+  const [selectedSort, setSelectedSort] = useState<Sort>(sortOptions[0]);
 
-  const handleFilterChange = (filters: Filter[]) => {
-    if (filters) {
-      onFilterSelect(filters);
-      setSelectedFilters(filters);
+  const handleFilterChange = (toSort: Sort) => {
+    if (toSort) {
+      onSortSelect(selectedSort);
+      setSelectedSort(selectedSort);
     }
   };
 
@@ -37,13 +37,13 @@ const Filters: React.FC<FiltersProps> = ({ onFilterSelect }) => {
     <View style={styles.container}>
       {Platform.OS === "android" ? (
         <Picker
-          selectedValue={selectedFilters}
+          selectedValue={selectedSort}
           mode="dialog"
           style={styles.picker}
           dropdownIconColor="#000"
           onValueChange={(itemValue) => handleFilterChange(itemValue)}
         >
-          {filterOptions.map((option) => (
+          {sortOptions.map((option) => (
             <Picker.Item
               key={option.filter}
               label={option.filter}
@@ -56,7 +56,7 @@ const Filters: React.FC<FiltersProps> = ({ onFilterSelect }) => {
         <>
           <View style={styles.loginButton}>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text>{selectedFilters[0]?.filter || "Filter"}</Text>
+              <Text>{selectedSort?.filter || "Sort By"}</Text>
             </TouchableOpacity>
           </View>
 
@@ -66,16 +66,16 @@ const Filters: React.FC<FiltersProps> = ({ onFilterSelect }) => {
             transparent={false}
             visible={modalVisible}
             onRequestClose={() => {
-              setSelectedFilters([filterOptions[0]]);
+              setSelectedSort(sortOptions[0]);
             }}
           >
             <View>
-              {filterOptions.map((option) => (
+              {sortOptions.map((option) => (
                 <Button
                   key={option.filter}
                   title={option.filter || "Filter"}
                   onPress={() => {
-                    handleFilterChange([option]);
+                    handleFilterChange(option);
                     setModalVisible(false);
                   }}
                 />

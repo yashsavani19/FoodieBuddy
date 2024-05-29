@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Platform } from "react-native";
 
@@ -19,13 +20,22 @@ const buddyLogo = require("@/assets/images/title-logo.png");
 
 // Define the LoginView component
 export default function LoginView() {
-  
   // State variables to store email and password entered by the user
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   // Retrieve the signIn function from the AuthContext
   const { signIn } = useAuth();
+
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setLoading(true);
+    const result = await signIn(email, password);
+    if (!result) {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -65,14 +75,28 @@ export default function LoginView() {
             />
           </View>
           {/* Login Button */}
-          <View style={styles.loginButton}>
-            <Button
-              title="Login"
-              color={Platform.OS === "ios" ? "white" : "black"}
-              onPress={() => {
-                signIn(email, password);
-              }}
-            />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+              {!loading ? (
+                <Text
+                  style={{
+                    color: "white",
+                    textAlign: "center",
+                    fontWeight: "600",
+                    fontSize: 20,
+                  }}
+                >
+                  Login
+                </Text>
+              ) : (
+                <ActivityIndicator
+                  size="large"
+                  color="#fff"
+                  animating={loading}
+                  style={{ marginTop: 10 }}
+                ></ActivityIndicator>
+              )}
+            </TouchableOpacity>
           </View>
           {/* Forgot Password Link */}
           <Link href={"/ResetPasswordView"}>
@@ -163,11 +187,13 @@ const styles = StyleSheet.create({
   },
 
   loginButton: {
-    width: 100,
-    borderRadius: 20,
-    backgroundColor: "#3383FF",
+    width: 126,
+    borderRadius: 15,
+    backgroundColor: "#3464AC",
     marginTop: 20,
     marginBottom: 15,
+    height: 45,
+    justifyContent: "center",
   },
 
   clickableText: {
