@@ -347,6 +347,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 <OpenStatusLabelDetails restaurant={restaurant} />
             </View>
           </View>
+          <View style={{paddingVertical: 10}}/>
           {/* Map View */}
           {/* <View style={styles.mapViewContainer}> */}
           {/* Wrap MapView inside a View */}
