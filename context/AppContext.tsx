@@ -25,9 +25,7 @@ import { User } from "@/model/User";
 import { User as AuthUser } from "firebase/auth";
 import { useAuth } from "./AuthContext";
 import { Category } from "@/model/Category";
-import { categories } from "@/assets/data/categories-options";
 import { Alert } from "react-native";
-import { getRestaurantById } from "@/controller/FetchRestaurantById";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 
@@ -65,11 +63,7 @@ export type AppContextType = {
   setSearchTerm: (term: string) => void;
   filteredRestaurants: Restaurant[];
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
-  showNoRestaurantsFoundAlert: () => void;
-  // searchFilterRestaurants: () => void;
   filterRestaurants: () => void;
-  isInputDisabled: boolean;
-  setIsInputDisabled: (disabled: boolean) => void;
 };
 
 interface ContextProviderProps {
@@ -104,18 +98,13 @@ export const AppContext = createContext<AppContextType>({
   addFriendContext: async () => {},
   removeFriendContext: async () => {},
   getFriends: async () => {},
-
   selectedFilters: [],
   setSelectedFilters: async () => {},
   searchTerm: "",
   setSearchTerm: async () => {},
   filteredRestaurants: [],
   setFilteredRestaurants: async () => {},
-  showNoRestaurantsFoundAlert: async () => {},
-  // searchFilterRestaurants: async () => {},
   filterRestaurants: async () => {},
-  isInputDisabled: false,
-  setIsInputDisabled: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -135,7 +124,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     []
   );
   const [visitedRestaurants, setVisitedRestaurants] = useState<Saved[]>([]);
-
   const [defaultMessage, setDefaultMessage] = useState<IMessage>({});
   const [chatMessages, setChatMessages] = useState<IMessage[]>([]);
   const [authUser, setAuthUser] = useState<AuthUser>({} as AuthUser);
@@ -146,7 +134,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -199,6 +186,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     filterRestaurants();  
   }, [searchTerm]);
+
   useEffect(() => {
     console.log("Friends updated");
   }, [friends]);
@@ -289,28 +277,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
 
   // Handle filtering of restaurants based on search term and selected category
-  // const searchFilterRestaurants = () => {
-  //   setRestaurantListIsLoading(true);
-  //   let result = localRestaurants;
-
-  //   // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
-  //   // This happened before another category was selected...
-  //   if (!selectedFilters) {
-  //     setSelectedFilters([]);
-  //   }
-
-  //   setFilteredRestaurants(result);
-  //   setRestaurantListIsLoading(false);
-  // };
-
-  // Handle filtering of restaurants based on search term and selected category
   const filterRestaurants = () => {
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
   
     if (selectedFilters) {
       const categoriesToFilter = new Set(selectedFilters
-        .filter(filter => !["Rating","Price","Open Status"].includes(filter.type))
+        .filter(filter => !["Rating","Price","Open Status","Dietary Preference","Takeaway Option"].includes(filter.type))
         .map(filter => filter.apiName));
 
       const pricesToFilter = new Set(selectedFilters
@@ -324,6 +297,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       const openStatusToFilter = selectedFilters
         .filter(filter => ["Open Status"].includes(filter.type))
         .map(filter => filter.apiName)
+
+      const dietsToFilter = new Set(selectedFilters
+        .filter(filter => ["Dietary Preference"].includes(filter.type))
+        .map(filter => filter.apiName));
 
       // filter restaurants by the selected categories (not intersection, but union of categories)
       if (categoriesToFilter.size > 0) {
@@ -353,46 +330,36 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         );
       }
 
+      // If there is a search term, filter restaurants by the search term
       if (searchTerm) {
         result = result.filter((restaurant) => {
           return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
         });
+      }
+
+      // If there is a dietary preference, filter restaurants by the dietary preference
+      if (dietsToFilter.size > 0) {
+        result = result.filter(restaurant =>
+          restaurant.categories?.some(category => dietsToFilter.has(category))
+        );
+      }
+
+      // Filter out Delivery and then Takeaway restaurants
+      if (selectedFilters.some(filter => filter.apiName === "meal_delivery")) {
+        result = result.filter(restaurant =>
+          restaurant.categories?.some(category => category === "meal_delivery")
+        );
+      }
+      if (selectedFilters.some(filter => filter.apiName === "meal_takeaway")) {
+        result = result.filter(restaurant =>
+          restaurant.categories?.some(category => category === "meal_takeaway")
+        );
       }
     
       setFilteredRestaurants(result);
       // console.log("Filtered restaurants:", result);
       setRestaurantListIsLoading(false);
     }
-  };
-
-  const [alertShown, setAlertShown] = useState(false);
-  //const [lastValidSearchTerm, setLastValidSearchTerm] = useState('');
-
-  const showNoRestaurantsFoundAlert = () => {
-    // Show alert if no matching results
-    if (
-      !restaurantListIsLoading &&
-      filteredRestaurants.length === 0 &&
-      !alertShown
-    ) {
-      Alert.alert("No Results", "No matching restaurants found.", [
-        {
-          text: "OK",
-          //onPress: () => setSearchTerm(lastValidSearchTerm) // Clear search term
-        },
-      ]);
-      //setIsInputDisabled(true);
-      setAlertShown(true);
-    } else if (filteredRestaurants.length > 0) {
-      //setIsInputDisabled(false);
-      //setLastValidSearchTerm(searchTerm);
-      setAlertShown(false);
-    }
-    console.log(
-      filteredRestaurants === undefined
-        ? "No restaurants found"
-        : filteredRestaurants.length + " restaurants found"
-    );
   };
 
   const addFavouriteContext = async (restaurant: Restaurant) => {
@@ -547,9 +514,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     setFilteredRestaurants,
     // searchFilterRestaurants,
     filterRestaurants,
-    showNoRestaurantsFoundAlert,
-    isInputDisabled,
-    setIsInputDisabled,
   };
 
   return (
