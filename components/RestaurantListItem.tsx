@@ -156,7 +156,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         resizeMode="cover"
       />
       {/* Open status label */}
-      <OpenStatusLabel restaurant={restaurant} />
+      <OpenStatusLabel restaurant={restaurant} listLabel={true} />
       <View style={styles.textContainer}>
         {/* Find on map button */}
         <Pressable
