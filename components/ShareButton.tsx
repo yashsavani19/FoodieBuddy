@@ -1,6 +1,6 @@
 import { View, Text, Pressable, Share } from "react-native";
 import React from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { Octicons } from "@expo/vector-icons";
 import { Restaurant } from "@/model/Restaurant";
 
 interface ShareButtonProps {
@@ -40,7 +40,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({ restaurant, size }) => {
   return (
     <View>
       <Pressable onPress={onShare}>
-        <Ionicons name="share-outline" size={size} />
+        <Octicons name="share" size={size} color={"#363232"}/>
       </Pressable>
     </View>
   );
