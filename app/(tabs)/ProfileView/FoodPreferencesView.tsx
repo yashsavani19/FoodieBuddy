@@ -7,11 +7,10 @@ import { AppContext } from "@/context/AppContext";
 import { updatePreferences } from "@/controller/DatabaseHandler";
 import { PreferenceList } from "@/model/PreferenceList";
 import TitleHeader from "@/components/TitleHeader";
-import BackButton from "@/components/BackButton";
-import { update } from "firebase/database";
+import BackButton from "@/components/BackButton";\
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences, userObject, updateUserPreferences } =
+  const { preferences, setPreferences, } =
     useContext(AppContext);
   const [localPreferences, setLocalPreferences] =
     useState<PreferenceList[]>(preferences);

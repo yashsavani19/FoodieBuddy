@@ -7,8 +7,6 @@ import {
   fetchBookmarks,
   fetchFavourites,
   fetchVisited,
-  fetchUser,
-  addUser,
   addFavourite,
   removeBookmark,
   removeFavourite,
@@ -27,12 +25,9 @@ import { User } from "@/model/User";
 import { User as AuthUser } from "firebase/auth";
 import { useAuth } from "./AuthContext";
 import { Category } from "@/model/Category";
-import { categories } from "@/assets/data/categories-options";
 import { Alert } from "react-native";
-import { getRestaurantById } from "@/controller/FetchRestaurantById";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
-import { Preference } from "@/model/Preference";
 import { PreferenceList } from "@/model/PreferenceList";
 
 export type AppContextType = {
@@ -70,7 +65,6 @@ export type AppContextType = {
   filteredRestaurants: Restaurant[];
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
   showNoRestaurantsFoundAlert: () => void;
-  // searchFilterRestaurants: () => void;
   filterRestaurants: () => void;
   isInputDisabled: boolean;
   setIsInputDisabled: (disabled: boolean) => void;
@@ -124,7 +118,6 @@ export const AppContext = createContext<AppContextType>({
   filteredRestaurants: [],
   setFilteredRestaurants: async () => {},
   showNoRestaurantsFoundAlert: async () => {},
-  // searchFilterRestaurants: async () => {},
   filterRestaurants: async () => {},
   isInputDisabled: false,
   setIsInputDisabled: async () => {},
@@ -165,7 +158,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const [preferences, setPreferences] = useState<PreferenceList[]>([]);
-  //LAST THING ADDED ------------------------------------------------------------------------------------------------------------
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -199,13 +191,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     return () => clearInterval(interval);
   }, [previousLocation]);
 
-  // useEffect(() => {
-  //   if (user) {
-  //     fetchPreferences(user.uid).then((prefs) => {
-  //       setPreferences(prefs || []);
-  //     });
-  //   }
-  // }, [user]);
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (user) {
@@ -213,7 +198,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setPreferences(prefs);
       }
     };
-  
+
     loadUserPreferences();
   }, [user]);
   useEffect(() => {
@@ -329,24 +314,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       chatMessages.splice(1, chatMessages.length - 11);
     }
   };
-
-  // Handle filtering of restaurants based on search term and selected category
-  // const searchFilterRestaurants = () => {
-  //   setRestaurantListIsLoading(true);
-  //   let result = localRestaurants;
-
-  //   // This prevents the restaurant list from being reset to the full list instead of filtered list every time a key is typed in search
-  //   // This happened before another category was selected...
-  //   if (!selectedFilters) {
-  //     setSelectedFilters([]);
-  //   }
-
-  //   setFilteredRestaurants(result);
-  //   setRestaurantListIsLoading(false);
-  // };
-
-  // Handle filtering of restaurants based on search term and selected category
-  const filterRestaurants = () => {
+ const filterRestaurants = () => {
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
@@ -418,13 +386,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       }
 
       setFilteredRestaurants(result);
-      // console.log("Filtered restaurants:", result);
       setRestaurantListIsLoading(false);
     }
   };
 
   const [alertShown, setAlertShown] = useState(false);
-  //const [lastValidSearchTerm, setLastValidSearchTerm] = useState('');
 
   const showNoRestaurantsFoundAlert = () => {
     // Show alert if no matching results
@@ -435,15 +401,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     ) {
       Alert.alert("No Results", "No matching restaurants found.", [
         {
-          text: "OK",
-          //onPress: () => setSearchTerm(lastValidSearchTerm) // Clear search term
-        },
+          text: "OK",},
       ]);
       //setIsInputDisabled(true);
       setAlertShown(true);
     } else if (filteredRestaurants.length > 0) {
-      //setIsInputDisabled(false);
-      //setLastValidSearchTerm(searchTerm);
       setAlertShown(false);
     }
     console.log(
@@ -462,7 +424,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         addedOn: new Date(),
       };
       setFavouriteRestaurants([...favouriteRestaurants, newFavourite]);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -476,7 +437,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       );
       setFavouriteRestaurants(newFavourites);
       await removeFavourite(placeId);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -491,7 +451,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         addedOn: new Date(),
       };
       setBookmarkedRestaurants([...bookmarkedRestaurants, newBookmark]);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -505,7 +464,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       );
       setBookmarkedRestaurants(newBookmarks);
       await removeBookmark(placeId);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -520,7 +478,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         addedOn: new Date(),
       };
       setVisitedRestaurants([...visitedRestaurants, newVisited]);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -533,7 +490,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         (item) => item.restaurant.id !== placeId
       );
       setVisitedRestaurants(newVisited);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -626,7 +582,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     searchTerm,
     filteredRestaurants,
     setFilteredRestaurants,
-    // searchFilterRestaurants,
     filterRestaurants,
     showNoRestaurantsFoundAlert,
     isInputDisabled,
