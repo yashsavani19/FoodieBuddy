@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
+  Dimensions,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import {
@@ -31,6 +32,8 @@ import {
 } from "firebase/firestore";
 import NavBar from "@/components/NavBar";
 import SettingsModal from "@/components/SettingsModal";
+
+const { width, height } = Dimensions.get('window');
 
 interface Message {
   id: string;
@@ -262,7 +265,7 @@ const ChatScreen: React.FC = () => {
               onPress={handleSendMessage}
               style={styles.sendButton}
             >
-              <FontAwesome name="send" size={24} color="#f76116" />
+              <FontAwesome name="send" size={width * 0.06} color="#f76116" />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
@@ -277,15 +280,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 120, 
+    paddingTop: Platform.OS === 'ios' ? height * 0.08 : height * 0.15, 
     backgroundColor: "#fff",
   },
   flatListContentContainer: {
-    paddingBottom: 70, 
+    paddingBottom: height * 0.1, 
   },
   messageContainer: {
-    marginVertical: 5,
-    paddingHorizontal: 10,
+    marginVertical: height * 0.01,
+    paddingHorizontal: width * 0.02,
   },
   messageBubbleContainer: {
     flexDirection: "row",
@@ -304,13 +307,13 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     alignItems: "center",
-    marginRight: 10,
-    width: 70,
+    marginRight: width * 0.03,
+    width: width * 0.18,
   },
   profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: width * 0.1,
+    height: width * 0.1,
+    borderRadius: (width * 0.1) / 2,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -321,79 +324,74 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     borderRadius: 20,
-    padding: 10,
-    // shadowColor: "#000",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 2,
-    // },
-    // shadowOpacity: 0.8,
-    // shadowRadius: 2,
-    // elevation: 5,
-    maxWidth: '90%', 
+    padding: width * 0.03,
+    maxWidth: "80%",
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
-    marginRight: 10,
-    marginLeft: 20, 
+    marginRight: width * 0.02,
+    marginLeft: width * 0.05,
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
-    marginRight: 20, 
+    marginRight: width * 0.05,
   },
   messageText: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: "#fff",
     fontWeight: "500",
   },
   otherUserMessageText: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: "#000",
     fontWeight: "500",
   },
   timestampText: {
-    fontSize: 12,
+    fontSize: width * 0.03,
     color: "#888",
     alignSelf: "center",
-    marginBottom: 2,
+    marginBottom: height * 0.002,
   },
   usernameText: {
-    fontSize: 12,
+    fontSize: width * 0.03,
     fontWeight: "bold",
     color: "#555",
-    marginBottom: 2,
-    marginLeft: 5,
+    marginBottom: height * 0.002,
+    marginLeft: width * 0.01,
     textAlign: "center",
     width: "100%",
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 10,
+    padding: width * 0.03,
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderColor: "#e2e2e2",
+    width: width * 0.95,
+    alignSelf: "center",
+    borderRadius: width * 0.06,
   },
   input: {
     flex: 1,
-    fontSize: 14,
+    fontSize: width * 0.04,
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    backgroundColor: "#f2f2f2",
-    height: 30,
+    borderRadius: width * 0.06,
+    paddingHorizontal: width * 0.03,
+    backgroundColor: "#fff",
+    height: height * 0.05,
   },
   sendButton: {
-    marginLeft: 10,
+    marginLeft: width * 0.03,
   },
   image: {
-    width: 40,
-    height: 40,
-    marginRight: 10,
+    width: width * 0.1,
+    height: width * 0.1,
+    marginRight: width * 0.03,
   },
 });
 
