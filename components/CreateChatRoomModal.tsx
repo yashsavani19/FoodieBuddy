@@ -16,7 +16,7 @@ import FriendItem from "./FriendChatItem";
 interface Friend {
   id: string;
   name: string;
-  avatar: string;
+  avatar: string | number;
   isAdded: boolean;
 }
 

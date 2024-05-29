@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 interface Friend {
   id: string;
   name: string;
-  avatar: string;
+  avatar: string | number;
   isAdded: boolean;
 }
 
@@ -14,9 +14,11 @@ interface FriendItemProps {
 }
 
 const FriendItem: React.FC<FriendItemProps> = ({ friend, toggleFriendAdded }) => {
+  const avatarSource = typeof friend.avatar === 'string' ? { uri: friend.avatar } : friend.avatar;
+  
   return (
     <View style={styles.friendContainer}>
-      <Image source={{ uri: friend.avatar }} style={styles.friendAvatar} />
+      <Image source={avatarSource} style={styles.friendAvatar} />
       <Text style={styles.friendName}>{friend.name}</Text>
       <TouchableOpacity
         style={[styles.addButton, friend.isAdded && styles.addedButton]}

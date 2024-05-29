@@ -923,7 +923,6 @@ export const createChatRoom = async (
     console.error("Error adding chat room: ", e.message);
   }
 };
-
 /**
  * Fetches chat rooms of a specified type that the current user is allowed to access.
  * 
@@ -952,10 +951,15 @@ export const fetchChatRooms = async (type: string) => {
     const lastMessageSnapshot = await getDocs(lastMessageQuery);
     const lastMessageData = lastMessageSnapshot.docs[0]?.data();
 
+    let lastMessage = lastMessageData ? lastMessageData.text : "";
+    if (lastMessage.length > 50) {
+      lastMessage = `${lastMessage.substring(0, 50)}...`;
+    }
+
     chatRooms.push({
       id: doc.id,
       name: doc.data().name,
-      lastMessage: lastMessageData ? lastMessageData.text : "",
+      lastMessage,
       lastMessageTimestamp: lastMessageData
         ? lastMessageData.timestamp.toDate()
         : null,
@@ -964,6 +968,7 @@ export const fetchChatRooms = async (type: string) => {
   }
   return chatRooms;
 };
+
 
 /**
  * Deletes a chat room by its ID
