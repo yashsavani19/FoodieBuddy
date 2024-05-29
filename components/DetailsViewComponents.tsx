@@ -7,6 +7,7 @@ import {
   Pressable,
   Linking,
   ScrollView,
+  Share,
 } from "react-native";
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
@@ -21,8 +22,9 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import BackButton from "./BackButton";
+import ShareButton from "./ShareButton";
 import { OpenStatusLabelDetails } from "./OpenIndicatorComponents/OpenStatusLabel";
 
 // Assume all images are imported correctly
@@ -229,14 +231,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
           <BackButton />
         </View>
         <ScrollView style={{paddingHorizontal: 15}}>
-          <View style={styles.imageTitleIconContainer}>
-            {/* <ScrollView style={{flex:1}}> */}
-            <Text style={styles.restaurantTitle}>{name}</Text>
-            <View style={styles.imageContainer}>
-              <Image
-                source={image ? { uri: image } : default_pic}
-                style={styles.restaurantImage}
-              />
+          <View>
+            <View style={{ alignItems: "center" }}>
+              <Text style={styles.restaurantTitle}>{name}</Text>
+              <View style={styles.imageContainer}>
+                <Image
+                  source={image ? { uri: image } : default_pic}
+                  style={styles.restaurantImage}
+                />
+              </View>
             </View>
             {/* Interaction Buttons */}
             <View style={styles.interactionContainer}>
@@ -269,19 +272,24 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                   />
                 </Pressable>
               </View>
-              <Pressable onPress={handleBookmarkPress}>
-                <Animated.Image
-                  source={{
-                    uri: isBookmarkPressed
-                      ? images.bookmarkSelectedIcon
-                      : images.bookmarkIcon,
-                  }}
-                  style={[
-                    styles.smallIcon,
-                    { transform: [{ scale: bookmarkScale }] },
-                  ]}
-                />
-              </Pressable>
+              <View style={styles.iconContainer}>
+                <Pressable onPress={handleBookmarkPress}>
+                  <Animated.Image
+                    source={{
+                      uri: isBookmarkPressed
+                        ? images.bookmarkSelectedIcon
+                        : images.bookmarkIcon,
+                    }}
+                    style={[
+                      styles.smallIcon,
+                      { transform: [{ scale: bookmarkScale }] },
+                    ]}
+                  />
+                </Pressable>
+              </View>
+              <View style={styles.iconContainer}>
+                <ShareButton restaurant={restaurant} size={24} />
+              </View>
             </View>
           </View>
 
@@ -414,10 +422,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   iconContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    width: 100,
-    height: "100%",
   },
   smallIcon: {
     width: 20,
@@ -425,10 +430,10 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   imageTitleIconContainer: {
-    width: "100%",
-    height: "auto",
-    justifyContent: "center",
-    alignItems: "center",
+    // width: "100%",
+    // height: "auto",
+    // justifyContent: "center",
+    // alignItems: "center",
   },
   imageContainer: {
     width: "100%",
@@ -439,6 +444,7 @@ const styles = StyleSheet.create({
   interactionContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-around",
     marginVertical: 8,
   },
   restaurantDetailsContainer: {
