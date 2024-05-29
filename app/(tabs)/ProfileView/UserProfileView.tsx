@@ -64,7 +64,7 @@ export default function UserProfileView() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.uri);
+      setSelectedImage(result.assets[0].uri);
       toggleModal();
     }
   };
@@ -77,7 +77,7 @@ export default function UserProfileView() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.uri);
+      setSelectedImage(result.assets[0].uri);
       toggleModal();
     }
   };
@@ -190,6 +190,7 @@ const styles = StyleSheet.create({
   profilePicture: {
     width: 100,
     height: 100,
+    borderRadius: 50,
   },
   username: {
     fontSize: 25,
@@ -203,6 +204,13 @@ const styles = StyleSheet.create({
   editButton: {
     fontSize: 20,
     margin: 10,
+    textAlign: 'center',
+    marginHorizontal: 5,
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    color: '#fff',
+    backgroundColor: '#007BFF',
   },
   menuItemsSection: {
     marginTop: 5,
@@ -218,17 +226,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#363232",
     fontSize: 10,
     borderRadius: 20,
-  },
-  editButton: {
-    fontSize: 20,
-    margin: 10,
-    textAlign: 'center',
-    marginHorizontal: 5,
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    color: '#fff',
-    backgroundColor: '#007BFF',
   },
   menuItemText: {
     marginLeft: 20,
