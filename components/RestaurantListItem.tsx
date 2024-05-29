@@ -9,6 +9,7 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import StarRating from "./StarRating";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import { AppContext } from "@/context/AppContext";
+import OpenStatusLabel from "./OpenIndicatorComponents/OpenStatusLabel";
 type RestaurantListItemProps = {
   restaurant: Restaurant;
 };
@@ -138,6 +139,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     }
     animateIcon(bookmarkScale);
   };
+
   return (
     <Pressable
       style={styles.container}
@@ -147,12 +149,14 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
       }}
     >
       {/* Restaurant image */}
-      <Image
+      <Image 
         testID="restaurant-image"
         source={{ uri: restaurant.image || images.defaultRestaurantImage }}
         style={styles.image}
         resizeMode="cover"
       />
+      {/* Open status label */}
+      <OpenStatusLabel restaurant={restaurant} />
       <View style={styles.textContainer}>
         {/* Find on map button */}
         <Pressable
