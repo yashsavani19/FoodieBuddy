@@ -1060,3 +1060,29 @@ export const deleteMessage = async (
     alert("Internal error deleting message. Please try again later.");
   }
 };
+
+export const updateTypingStatus = async (chatRoomId: string, userId: string, username: string, isTyping: boolean) => {
+  if (!userId) {
+    console.error("User not authenticated");
+    return;
+  }
+
+  try {
+    const typingStatusDoc = doc(db, "chatRooms", chatRoomId, "typingStatus", userId);
+    await setDoc(typingStatusDoc, { isTyping, username }, { merge: true });
+  } catch (error) {
+    console.error("Error updating typing status:", error);
+  }
+};
+
+export const listenToTypingStatus = (chatRoomId: string, callback: (typingUsers: { [key: string]: { isTyping: boolean, username: string } }) => void) => {
+  const typingStatusCollection = collection(db, "chatRooms", chatRoomId, "typingStatus");
+  return onSnapshot(typingStatusCollection, (snapshot) => {
+    const typingUsers: { [key: string]: { isTyping: boolean, username: string } } = {};
+    snapshot.forEach((doc) => {
+      const data = doc.data() as { isTyping: boolean, username: string };
+      typingUsers[doc.id] = data;
+    });
+    callback(typingUsers);
+  });
+};

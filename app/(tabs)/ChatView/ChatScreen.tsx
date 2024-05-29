@@ -19,6 +19,8 @@ import {
   sendMessage,
   deleteMessage,
   fetchAllUsernames,
+  updateTypingStatus,
+  listenToTypingStatus,
 } from "@/controller/DatabaseHandler";
 import { auth, db } from "@/controller/FirebaseHandler";
 import TitleHeader from "@/components/TitleHeader";
@@ -32,6 +34,7 @@ import {
 } from "firebase/firestore";
 import NavBar from "@/components/NavBar";
 import SettingsModal from "@/components/SettingsModal";
+import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 
 const { width, height } = Dimensions.get('window');
@@ -57,8 +60,10 @@ const ChatScreen: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<{ [key: string]: { isTyping: boolean, username: string } }>({});
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -127,11 +132,16 @@ const ChatScreen: React.FC = () => {
 
     fetchMessagesAndSubscribe();
 
+    const unsubscribeTypingStatus = listenToTypingStatus(chatRoomId, (typingUsers) => {
+      setTypingUsers(typingUsers);
+    });
+
     return () => {
       isMounted = false;
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
+      unsubscribeTypingStatus();
     };
   }, [chatRoomId]);
 
@@ -140,6 +150,7 @@ const ChatScreen: React.FC = () => {
       try {
         await sendMessage(chatRoomId, newMessage);
         setNewMessage("");
+        await updateTypingStatus(chatRoomId, auth.currentUser?.uid || "", auth.currentUser?.displayName || "Unknown User", false);
       } catch (error) {
         console.error("Error sending message:", error);
       }
@@ -177,6 +188,17 @@ const ChatScreen: React.FC = () => {
 
   const handleProfilePress = (friend: { profileImageUrl: string; username: string; uid: string }) => {
     navigation.navigate("FriendProfile", { friend });
+  };
+
+  const handleTyping = (text: string) => {
+    setNewMessage(text);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    updateTypingStatus(chatRoomId, auth.currentUser?.uid || "", auth.currentUser?.displayName || "Unknown User", true);
+    typingTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus(chatRoomId, auth.currentUser?.uid || "", auth.currentUser?.displayName || "Unknown User", false);
+    }, 3000);
   };
 
   const renderItem = ({ item }: { item: Message }) => {
@@ -254,6 +276,7 @@ const ChatScreen: React.FC = () => {
           }
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
+        <TypingIndicator typingUsers={typingUsers} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -269,7 +292,7 @@ const ChatScreen: React.FC = () => {
               style={styles.input}
               placeholder="Type a message"
               value={newMessage}
-              onChangeText={setNewMessage}
+              onChangeText={handleTyping}
             />
             <TouchableOpacity
               onPress={handleSendMessage}
