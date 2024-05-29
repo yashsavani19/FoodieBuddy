@@ -14,7 +14,7 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import { useRoute } from "@react-navigation/native";
+import { useRoute, useNavigation, NavigationProp } from "@react-navigation/native";
 import {
   sendMessage,
   deleteMessage,
@@ -32,6 +32,7 @@ import {
 } from "firebase/firestore";
 import NavBar from "@/components/NavBar";
 import SettingsModal from "@/components/SettingsModal";
+import { RootStackParamList } from "@/constants/navigationTypes";
 
 const { width, height } = Dimensions.get('window');
 
@@ -52,6 +53,7 @@ interface RouteParams {
 const ChatScreen: React.FC = () => {
   const route = useRoute();
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -173,6 +175,10 @@ const ChatScreen: React.FC = () => {
     );
   };
 
+  const handleProfilePress = (friend: { profileImageUrl: string; username: string; uid: string }) => {
+    navigation.navigate("FriendProfile", { friend });
+  };
+
   const renderItem = ({ item }: { item: Message }) => {
     const isCurrentUser = item.userId === auth.currentUser?.uid;
     const formattedDate = new Date(item.timestamp).toLocaleString();
@@ -191,19 +197,21 @@ const ChatScreen: React.FC = () => {
           >
             {!isCurrentUser && (
               <View style={styles.otherUserHeader}>
-                <View style={styles.profileImageContainer}>
-                  <Text
-                    style={styles.usernameText}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {item.username}
-                  </Text>
-                  <Image
-                    source={{ uri: item.userProfileImage }}
-                    style={styles.profileImage}
-                  />
-                </View>
+                <TouchableOpacity onPress={() => handleProfilePress({ profileImageUrl: item.userProfileImage, username: item.username, uid: item.userId })}>
+                  <View style={styles.profileImageContainer}>
+                    <Text
+                      style={styles.usernameText}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {item.username}
+                    </Text>
+                    <Image
+                      source={{ uri: item.userProfileImage }}
+                      style={styles.profileImage}
+                    />
+                  </View>
+                </TouchableOpacity>
                 <View style={[styles.messageBubble, styles.otherUserMessage]}>
                   <Text style={styles.otherUserMessageText}>{item.text}</Text>
                 </View>
