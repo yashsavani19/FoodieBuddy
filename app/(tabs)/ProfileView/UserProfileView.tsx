@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -16,6 +16,9 @@ import FavouriteSpotsButton from "@/components/FavouriteSpotsButton";
 import BookmarksButton from "@/components/BookmarkButton";
 import VisitedButton from "@/components/VisitedButton";
 import { AppContext } from "@/context/AppContext";
+import * as ImagePicker from 'expo-image-picker';
+import Modal from 'react-native-modal';
+import AntDesign from "@expo/vector-icons/build/AntDesign";
 
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
@@ -23,6 +26,9 @@ export default function UserProfileView() {
   const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants } =
     useContext(AppContext);
   const { user, signOut } = useAuth();
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   function navigateToFavouriteSpots(): void {
     navigation.navigate("FavoriteSpotsView", {
@@ -46,6 +52,41 @@ export default function UserProfileView() {
     navigation.navigate("EditAccountView");
   }
 
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const pickImageFromCamera = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.uri);
+      toggleModal();
+    }
+  };
+
+  const pickImageFromGallery = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setSelectedImage(result.uri);
+      toggleModal();
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    toggleModal();
+  };
+
   return (
     <View style={styles.container}>
       {/* Title Header */}
@@ -57,15 +98,17 @@ export default function UserProfileView() {
         <View style={styles.profileSection}>
           {/* User Icon */}
           <View style={styles.iconWrapper}>
-            <Image
-              source={require("@/assets/images/user-icon.png")}
-              style={styles.profilePicture}
-            />
-            <TouchableOpacity style={styles.cameraIconContainer}>
+            <TouchableOpacity onPress={toggleModal}>
               <Image
-                source={require('@/assets/images/Profile pic camera.png')}
-                style={styles.cameraIcon}
+                source={selectedImage ? { uri: selectedImage } : require("@/assets/images/user-icon.png")}
+                style={styles.profilePicture}
               />
+              <TouchableOpacity style={styles.cameraIconContainer}>
+                <Image
+                  source={require('@/assets/images/Profile pic camera.png')}
+                  style={styles.cameraIcon}
+                />
+              </TouchableOpacity>
             </TouchableOpacity>
           </View>
           {/* User Display Name */}
@@ -89,6 +132,25 @@ export default function UserProfileView() {
           <VisitedButton onPress={navigateToVisitedSpots} />
         </View>
       </ScrollView>
+      <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Profile Photo</Text>
+          <View style={styles.modalButtonContainer}>
+            <TouchableOpacity style={styles.modalButton} onPress={pickImageFromCamera}>
+              <AntDesign name="camerao" size={24} color="black" />
+              <Text style={styles.modalButtonText}>Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={pickImageFromGallery}>
+              <AntDesign name="picture" size={24} color="black" />
+              <Text style={styles.modalButtonText}>Gallery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={removeImage}>
+              <AntDesign name="delete" size={24} color="black" />
+              <Text style={styles.modalButtonText}>Remove</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -179,5 +241,29 @@ const styles = StyleSheet.create({
     bottom: -10,
     backgroundColor: '#fff',
     borderRadius: 15,
-    },
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+  },
+  modalButton: {
+    alignItems: "center",
+    marginHorizontal: 20,
+  },
+  modalButtonText: {
+    marginTop: 10,
+    fontSize: 16,
+  },
 });
