@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: "80%",
+    maxWidth: width * 0.8,
   },
   profileImageContainer: {
     alignItems: "center",
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   messageBubble: {
     borderRadius: 20,
     padding: width * 0.03,
-    maxWidth: "80%",
+    maxWidth: width * 0.9,
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     marginBottom: height * 0.002,
     marginLeft: width * 0.01,
     textAlign: "center",
-    width: "100%",
+    width: width,
   },
   inputContainer: {
     flexDirection: "row",
