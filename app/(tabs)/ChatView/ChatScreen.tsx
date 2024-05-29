@@ -36,7 +36,7 @@ import NavBar from "@/components/NavBar";
 import SettingsModal from "@/components/SettingsModal";
 import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import { useOpenAIHandler } from "@/controller/OpenAIHandler"; // Import the OpenAI handler
+import { useOpenAIHandler } from "@/controller/OpenAIHandler"; 
 
 const { width, height } = Dimensions.get('window');
 
@@ -58,17 +58,16 @@ const ChatScreen: React.FC = () => {
   const route = useRoute();
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler(); // Use OpenAI handler
+  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler(); 
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [typingUsers, setTypingUsers] = useState<{ [key: string]: { isTyping: boolean, username: string } }>({});
-  const [isBuddyOn, setIsBuddyOn] = useState(false); // State for toggle
+  const [isBuddyOn, setIsBuddyOn] = useState(false); 
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png"); // Load the local image
+  const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png"); 
 
   useEffect(() => {
     let isMounted = true;
@@ -181,7 +180,6 @@ const ChatScreen: React.FC = () => {
             username: "Buddy",
           };
 
-          // Check if buddy message already exists before updating state
           setMessages((prevMessages) => {
             if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
               return [...prevMessages, buddyMessage];
@@ -189,7 +187,6 @@ const ChatScreen: React.FC = () => {
             return prevMessages;
           });
 
-          // Store Buddy's message in Firestore
           await sendMessage(chatRoomId, buddyMessage.text, "buddy");
 
           flatListRef.current?.scrollToEnd({ animated: true });
@@ -230,8 +227,10 @@ const ChatScreen: React.FC = () => {
   };
 
   const handleProfilePress = (friend: { profileImageUrl: string | number; username: string; uid: string }) => {
-    navigation.navigate("FriendProfile", { friend });
-  };
+    if (friend.uid !== "buddy") {
+      navigation.navigate("FriendProfile", { friend });
+    }
+  };  
 
   const handleTyping = (text: string) => {
     setNewMessage(text);
@@ -256,7 +255,6 @@ const ChatScreen: React.FC = () => {
         username: "Buddy",
       };
 
-      // Check if buddy intro message already exists before updating state
       setMessages((prevMessages) => {
         if (!prevMessages.find((msg) => msg.id === buddyIntroMessage.id)) {
           return [...prevMessages, buddyIntroMessage];
@@ -264,7 +262,6 @@ const ChatScreen: React.FC = () => {
         return prevMessages;
       });
 
-      // Store Buddy's introduction message in Firestore
       await sendMessage(chatRoomId, buddyIntroMessage.text, "buddy");
     }
   };
