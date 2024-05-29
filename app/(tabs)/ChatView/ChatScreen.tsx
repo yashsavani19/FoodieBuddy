@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 80, 
+    paddingTop: Platform.OS === 'ios' ? 60 : 120, 
     backgroundColor: "#fff",
   },
   flatListContentContainer: {
