@@ -61,6 +61,12 @@ export default function UserProfileView() {
               source={require("@/assets/images/user-icon.png")}
               style={styles.profilePicture}
             />
+            <TouchableOpacity style={styles.cameraIconContainer}>
+              <Image
+                source={require('@/assets/images/Profile pic camera.png')}
+                style={styles.cameraIcon}
+              />
+            </TouchableOpacity>
           </View>
           {/* User Display Name */}
           <Text style={styles.username}>{user?.displayName || ""}</Text>
@@ -139,6 +145,7 @@ const styles = StyleSheet.create({
   menuItemsSection: {
     marginTop: 5,
   },
+ 
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -150,13 +157,27 @@ const styles = StyleSheet.create({
     fontSize: 10,
     borderRadius: 20,
   },
-  editAccountText: {
-    fontSize: 15, // Font size for Edit Account
-    color: "#000", // Black text
+  editButton: {
+    fontSize: 20,
+    margin: 10,
+    textAlign: 'center',
+    marginHorizontal: 5,
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    color: '#fff',
+    backgroundColor: '#007BFF',
   },
   menuItemText: {
     marginLeft: 20,
     fontSize: 19,
     color: "#ededed",
   },
+  cameraIconContainer: {
+    position: 'absolute',
+    right: -10,
+    bottom: -10,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    },
 });
