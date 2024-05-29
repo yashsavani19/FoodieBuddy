@@ -209,7 +209,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (user) {
-        const prefs = await fetchPreferences(user.uid);
+        const prefs = await fetchPreferences();
         setPreferences(prefs);
       }
     };
@@ -257,12 +257,18 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       if (visited) {
         setVisitedRestaurants(visited);
       }
+
+      const preferences = await fetchPreferences();
+      if (preferences) {
+        setPreferences(preferences);
+      }
       setUserObject({
         ...userObject,
         favouriteRestaurants: favourites,
         bookmarkedRestaurants: bookmarks,
         visitedRestaurants: visited,
       });
+
       getFriends();
     } catch (error) {
       console.log(error);
@@ -582,7 +588,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     });
     setPreferences(updatedPreferences);
     if (user) {
-      updatePreferences(user.uid, updatedPreferences);
+      updatePreferences(updatedPreferences);
     }
   };
 

@@ -304,7 +304,7 @@ export const fetchUser = async (uid: string) => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const userData = docSnap.data();
-      const preferences = await fetchPreferences(uid);
+      const preferences = await fetchPreferences();
       //------------TESTING PURPOSES----------------
 
       if (preferences !== undefined) {
@@ -920,8 +920,9 @@ export const addPreferences = async (uid: string) => {
 // /**
 //  * Fetches user preferences
 //  */
-export const fetchPreferences = async (uid: string): Promise<PreferenceList[]> => {
+export const fetchPreferences = async (): Promise<PreferenceList[]> => {
   try {
+    const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
     const preferences: PreferenceList[] = [];
@@ -960,8 +961,9 @@ export const fetchPreferences = async (uid: string): Promise<PreferenceList[]> =
 
 
 
-export const updatePreferences = async (uid: string, updatedPreferences: PreferenceList[]) => {
+export const updatePreferences = async (updatedPreferences: PreferenceList[]) => {
   try {
+    const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
 
     for (const category of updatedPreferences) {
