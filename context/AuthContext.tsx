@@ -47,9 +47,7 @@ export function AuthProvider(props: ProviderProps) {
   const [authInitialised, setAuthInitialised] = useState(false);
 
   const useProtectedRoute = (user: Auth.User | null) => {
-    const segments = useSegments();
     const router = useRouter();
-
     const [isNavigationReady, setIsNavigationReady] = useState(false);
     const rootNavigation = useNavigationContainerRef();
 
@@ -65,19 +63,17 @@ export function AuthProvider(props: ProviderProps) {
     }, [rootNavigation]);
 
     useEffect(() => {
-      if (!isNavigationReady) {
+      if (!isNavigationReady || !authInitialised) {
         return;
       }
 
-      const inAuthGroup = segments[0] === "(auth)";
-      if (!authInitialised) return;
-
-      if (!user && !inAuthGroup) {
-        router.push("/LoginView");
-      } else if (user && inAuthGroup) {
-        router.push("/RestaurantListViews/");
+      if (!user) {
+        router.replace("/LoginView");
+      } else if (user) {
+        console.log("User is logged in");
+        router.push("/(tabs)/RestaurantListViews/ListView");
       }
-    }, [user, segments, authInitialised, isNavigationReady]);
+    }, [user, authInitialised, isNavigationReady]);
   };
 
   useEffect(() => {
@@ -121,12 +117,12 @@ export function AuthProvider(props: ProviderProps) {
       await login(email, password);
       const currentUser = Auth.getAuth().currentUser;
       setAuthUser(currentUser);
+      return true;
     } catch (error: any) {
       handleAuthError(error);
       return false;
     } finally {
       setAuthInitialised(true);
-      return true;
     }
   };
 
@@ -180,6 +176,7 @@ export function AuthProvider(props: ProviderProps) {
       const registerResult = await register(email, password, username);
       if (registerResult) {
         alert("Registration successful");
+        await addUsername(username, Auth.getAuth().currentUser?.uid || "");
         await handleLogin(email, password);
         return true;
       }
@@ -209,6 +206,7 @@ export function AuthProvider(props: ProviderProps) {
     return false;
   };
 
+  // Register a user
   const register = async (
     email: string,
     password: string,
@@ -224,7 +222,6 @@ export function AuthProvider(props: ProviderProps) {
     if (currentAuth.currentUser !== null) {
       await Auth.sendEmailVerification(currentAuth.currentUser);
     }
-    await addUser(Auth.getAuth().currentUser?.uid || "", email, username);
     if (currentAuth.currentUser === null) {
       alert("Error registering user");
       return false;
@@ -232,7 +229,6 @@ export function AuthProvider(props: ProviderProps) {
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
-    await addUsername(username, currentAuth.currentUser.uid);
     return true;
   };
 
@@ -299,11 +295,18 @@ export const reSignIn = async (password: string): Promise<boolean> => {
   return false;
 };
 
-export const changeUsername = async (newUsername: string): Promise<boolean> => {
+export const changeUsername = async (
+  newUsername: string,
+  profileImageUrl: string
+): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
     if (user) {
-      const result = await updateUsername(newUsername, user.uid);
+      const result = await updateUsername(
+        newUsername,
+        user.uid,
+        profileImageUrl
+      );
       console.log("changeUsername result: ", result);
       if (result) {
         await Auth.updateProfile(user, { displayName: newUsername });

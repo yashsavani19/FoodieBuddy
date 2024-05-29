@@ -1,6 +1,6 @@
-import { Filter } from "@/model/Filter";
+import { Sort } from "@/model/Sort";
 
-export const filterOptions: Filter[] = [
+export const sortOptions: Sort[] = [
   { filter: "All", selected: true },
   { filter: "Popular", selected: false },
   { filter: "New", selected: false },

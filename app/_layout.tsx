@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { ContextProvider } from "@/context/AppContext";
 import Loading from "./Loading";
-import { DataFetcher } from "@/components/DataFetcher";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 

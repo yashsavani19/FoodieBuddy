@@ -12,7 +12,7 @@ export default function NotFoundScreen() {
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
-        <Pressable style={styles.container} onPress={()=>{navigation.navigate("index")}} >
+        <Pressable style={styles.container} onPress={()=>{navigation.navigate("ListView")}} >
           <Text style={styles.linkText}>Go to home screen!</Text>
         </Pressable>
       </View>
