@@ -985,9 +985,10 @@ export const deleteChatRoom = async (id: string): Promise<void> => {
  * 
  * @param {string} chatRoomId - ID of the chat room.
  * @param {string} text - Message text.
+ * @param {string} [userId] - Optional user ID (default is the current user's ID).
  * @returns {Promise<void>} - A promise that resolves when the message is sent.
  */
-export const sendMessage = async (chatRoomId: string, text: string) => {
+export const sendMessage = async (chatRoomId: string, text: string, userId?: string) => {
   try {
     const messagesCollection = collection(
       db,
@@ -997,7 +998,7 @@ export const sendMessage = async (chatRoomId: string, text: string) => {
     );
     await addDoc(messagesCollection, {
       text,
-      userId: auth.currentUser?.uid,
+      userId: userId || auth.currentUser?.uid, // Use the provided user ID or default to the current user's ID
       timestamp: serverTimestamp(), // Use serverTimestamp for consistent server-side timestamps
     });
   } catch (e) {

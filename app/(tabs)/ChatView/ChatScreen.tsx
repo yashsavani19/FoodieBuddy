@@ -36,6 +36,7 @@ import NavBar from "@/components/NavBar";
 import SettingsModal from "@/components/SettingsModal";
 import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import { useOpenAIHandler } from "@/controller/OpenAIHandler"; // Import the OpenAI handler
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,7 +45,7 @@ interface Message {
   text: string;
   userId: string;
   timestamp: Date;
-  userProfileImage: string;
+  userProfileImage: string | number;
   username: string;
 }
 
@@ -57,6 +58,7 @@ const ChatScreen: React.FC = () => {
   const route = useRoute();
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler(); // Use OpenAI handler
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -65,6 +67,8 @@ const ChatScreen: React.FC = () => {
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png"); // Load the local image
 
   useEffect(() => {
     let isMounted = true;
@@ -107,8 +111,8 @@ const ChatScreen: React.FC = () => {
               ? data.timestamp.toDate()
               : new Date();
             const usernameData = usernames[data.userId] || {
-              username: "Unknown User",
-              profileImageUrl: "",
+              username: data.userId === 'buddy' ? 'Buddy' : "Unknown User",
+              profileImageUrl: data.userId === 'buddy' ? buddyProfileImage : "",
             };
             return {
               id: docSnapshot.id,
@@ -149,14 +153,52 @@ const ChatScreen: React.FC = () => {
   const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
       try {
+        const messageId = Date.now().toString();
+        const userMessage: Message = {
+          id: messageId,
+          text: newMessage,
+          userId: auth.currentUser?.uid || "unknown",
+          timestamp: new Date(),
+          userProfileImage: auth.currentUser?.photoURL || "",
+          username: auth.currentUser?.displayName || "You",
+        };
+        setMessages((prevMessages) => [...prevMessages, userMessage]);
+        flatListRef.current?.scrollToEnd({ animated: true });
+
         await sendMessage(chatRoomId, newMessage);
         setNewMessage("");
         await updateTypingStatus(chatRoomId, auth.currentUser?.uid || "", auth.currentUser?.displayName || "Unknown User", false);
+
+        if (isBuddyOn) {
+          const aiResponse = await sendAIMessage(newMessage);
+          const buddyMessageId = Date.now().toString() + "ai";
+          const buddyMessage: Message = {
+            id: buddyMessageId,
+            text: aiResponse,
+            userId: "buddy",
+            timestamp: new Date(),
+            userProfileImage: buddyProfileImage,
+            username: "Buddy",
+          };
+
+          // Check if buddy message already exists before updating state
+          setMessages((prevMessages) => {
+            if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
+              return [...prevMessages, buddyMessage];
+            }
+            return prevMessages;
+          });
+
+          // Store Buddy's message in Firestore
+          await sendMessage(chatRoomId, buddyMessage.text, "buddy");
+
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }
       } catch (error) {
         console.error("Error sending message:", error);
       }
     }
-  }, [newMessage, chatRoomId]);
+  }, [newMessage, chatRoomId, isBuddyOn, sendAIMessage]);
 
   const handleDeleteMessage = useCallback(
     async (messageId: string) => {
@@ -187,7 +229,7 @@ const ChatScreen: React.FC = () => {
     );
   };
 
-  const handleProfilePress = (friend: { profileImageUrl: string; username: string; uid: string }) => {
+  const handleProfilePress = (friend: { profileImageUrl: string | number; username: string; uid: string }) => {
     navigation.navigate("FriendProfile", { friend });
   };
 
@@ -202,13 +244,36 @@ const ChatScreen: React.FC = () => {
     }, 3000);
   };
 
-  const handleBuddyToggle = () => {
+  const handleBuddyToggle = async () => {
     setIsBuddyOn(!isBuddyOn);
+    if (!isBuddyOn) {
+      const buddyIntroMessage: Message = {
+        id: Date.now().toString(),
+        text: "Hi there! I'm Buddy, your AI assistant. How can I help you today?",
+        userId: "buddy",
+        timestamp: new Date(),
+        userProfileImage: buddyProfileImage,
+        username: "Buddy",
+      };
+
+      // Check if buddy intro message already exists before updating state
+      setMessages((prevMessages) => {
+        if (!prevMessages.find((msg) => msg.id === buddyIntroMessage.id)) {
+          return [...prevMessages, buddyIntroMessage];
+        }
+        return prevMessages;
+      });
+
+      // Store Buddy's introduction message in Firestore
+      await sendMessage(chatRoomId, buddyIntroMessage.text, "buddy");
+    }
   };
 
   const renderItem = ({ item }: { item: Message }) => {
     const isCurrentUser = item.userId === auth.currentUser?.uid;
     const formattedDate = new Date(item.timestamp).toLocaleString();
+
+    const profileImageUri = item.userProfileImage || "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg";
 
     return (
       <TouchableOpacity onPress={() => confirmDeleteMessage(item.id)}>
@@ -224,7 +289,7 @@ const ChatScreen: React.FC = () => {
           >
             {!isCurrentUser && (
               <View style={styles.otherUserHeader}>
-                <TouchableOpacity onPress={() => handleProfilePress({ profileImageUrl: item.userProfileImage, username: item.username, uid: item.userId })}>
+                <TouchableOpacity onPress={() => handleProfilePress({ profileImageUrl: profileImageUri, username: item.username, uid: item.userId })}>
                   <View style={styles.profileImageContainer}>
                     <Text
                       style={styles.usernameText}
@@ -234,7 +299,7 @@ const ChatScreen: React.FC = () => {
                       {item.username}
                     </Text>
                     <Image
-                      source={{ uri: item.userProfileImage }}
+                      source={typeof profileImageUri === 'string' ? { uri: profileImageUri } : profileImageUri}
                       style={styles.profileImage}
                     />
                   </View>

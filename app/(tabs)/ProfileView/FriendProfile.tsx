@@ -91,7 +91,11 @@ const FriendProfile: React.FC = () => {
             <Image
               resizeMode="contain"
               style={styles.profileImage}
-              source={{ uri: friend.profileImageUrl }}
+              source={
+                typeof friend.profileImageUrl === 'string'
+                  ? { uri: friend.profileImageUrl }
+                  : friend.profileImageUrl
+              }
             />
             <Text style={{ fontSize: 24, fontWeight: "600" }}>
               {friend.username}

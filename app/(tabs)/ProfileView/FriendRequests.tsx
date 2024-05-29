@@ -46,7 +46,11 @@ const FriendRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
         <Image
           resizeMode="contain"
           style={styles.listImage}
-          source={{ uri: friend.profileImageUrl }}
+          source={
+            typeof friend.profileImageUrl === 'string'
+              ? { uri: friend.profileImageUrl }
+              : friend.profileImageUrl
+          }
         />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
@@ -79,11 +83,15 @@ const SentRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
   return (
     <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
       <View style={styles.listItem}>
-        <Image
-          resizeMode="contain"
-          style={styles.listImage}
-          source={{ uri: friend.profileImageUrl }}
-        />
+      <Image
+              resizeMode="contain"
+              style={styles.listImage}
+              source={
+                typeof friend.profileImageUrl === 'string'
+                  ? { uri: friend.profileImageUrl }
+                  : friend.profileImageUrl
+              }
+            />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
         </View>
