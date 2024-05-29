@@ -61,6 +61,7 @@ const ChatScreen: React.FC = () => {
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [typingUsers, setTypingUsers] = useState<{ [key: string]: { isTyping: boolean, username: string } }>({});
+  const [isBuddyOn, setIsBuddyOn] = useState(false); // State for toggle
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -201,6 +202,10 @@ const ChatScreen: React.FC = () => {
     }, 3000);
   };
 
+  const handleBuddyToggle = () => {
+    setIsBuddyOn(!isBuddyOn);
+  };
+
   const renderItem = ({ item }: { item: Message }) => {
     const isCurrentUser = item.userId === auth.currentUser?.uid;
     const formattedDate = new Date(item.timestamp).toLocaleString();
@@ -284,10 +289,12 @@ const ChatScreen: React.FC = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
-            <Image
-              source={require("../../../assets/images/Buddy toggle.png")}
-              style={styles.image}
-            />
+            <TouchableOpacity onPress={handleBuddyToggle}>
+              <Image
+                source={isBuddyOn ? require("../../../assets/images/buddy-toggle-on.png") : require("../../../assets/images/buddy-toggle-off.png")}
+                style={styles.image}
+              />
+            </TouchableOpacity>
             <TextInput
               style={styles.input}
               placeholder="Type a message"
