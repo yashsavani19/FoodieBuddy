@@ -105,7 +105,7 @@ export default function UserProfileView() {
               />
               <TouchableOpacity style={styles.cameraIconContainer}>
                 <Image
-                  source={require('@/assets/images/Profile pic camera.png')}
+                  source={require('@/assets/images/Change_PFP_icon.png')}
                   style={styles.cameraIcon}
                 />
               </TouchableOpacity>
@@ -232,14 +232,19 @@ const styles = StyleSheet.create({
     fontSize: 19,
     color: "#ededed",
   },
-  cameraIconContainer: {
-    position: 'absolute',
-    right: -10,
-    bottom: -10,
-    backgroundColor: '#fff',
-    borderRadius: 15,
+  cameraIconContainer: {    
+      position: 'absolute',
+      right: 0,
+      bottom: 0,
+      backgroundColor: '#fff',
+      borderRadius: 15,    
   },
-  modalContent: {
+  cameraIcon: {
+    width: 30, // Adjust the width and height as necessary
+    height: 30,
+    resizeMode: 'contain',
+  },
+    modalContent: {
     backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
