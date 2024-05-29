@@ -282,12 +282,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: Platform.OS === 'ios' ? height * 0.08 : height * 0.15, 
+    paddingTop: 120,
     backgroundColor: "#fff",
   },
   contentContainer: {
     flex: 1,
-    paddingBottom: height * 0.1,
   },
   flatListContentContainer: {
     paddingBottom: height * 0.1, 
@@ -390,7 +389,7 @@ const styles = StyleSheet.create({
     borderRadius: width * 0.06,
     paddingHorizontal: width * 0.03,
     backgroundColor: "#fff",
-    height: "100%", 
+    height: 40, 
   },
   sendButton: {
     marginLeft: width * 0.03,
