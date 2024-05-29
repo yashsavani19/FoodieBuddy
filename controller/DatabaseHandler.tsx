@@ -924,6 +924,12 @@ export const createChatRoom = async (
   }
 };
 
+/**
+ * Fetches chat rooms of a specified type that the current user is allowed to access.
+ * 
+ * @param {string} type - Type of the chat room.
+ * @returns {Promise<any[]>} - A promise that resolves to an array of chat rooms.
+ */
 export const fetchChatRooms = async (type: string) => {
   const chatRoomsRef = collection(db, "chatRooms");
   const currentUserUid = auth.currentUser?.uid;
@@ -975,9 +981,11 @@ export const deleteChatRoom = async (id: string): Promise<void> => {
 };
 
 /**
- * Sends a message in a chat room
- * @param chatRoomId - ID of the chat room
- * @param text - Message text
+ * Sends a message in a chat room.
+ * 
+ * @param {string} chatRoomId - ID of the chat room.
+ * @param {string} text - Message text.
+ * @returns {Promise<void>} - A promise that resolves when the message is sent.
  */
 export const sendMessage = async (chatRoomId: string, text: string) => {
   try {
@@ -999,9 +1007,10 @@ export const sendMessage = async (chatRoomId: string, text: string) => {
 };
 
 /**
- * Fetches messages in a chat room
- * @param chatRoomId - ID of the chat room
- * @returns an array of messages
+ * Fetches messages in a chat room.
+ * 
+ * @param {string} chatRoomId - ID of the chat room.
+ * @returns {Promise<any[]>} - A promise that resolves to an array of messages.
  */
 export const fetchMessages = async (chatRoomId: string) => {
   try {
@@ -1044,8 +1053,9 @@ export const fetchMessages = async (chatRoomId: string) => {
 
 /**
  * Deletes a message from a chat room by its ID
- * @param chatRoomId - ID of the chat room
- * @param messageId - ID of the message to delete
+ * @param {string} chatRoomId - ID of the chat room
+ * @param {string} messageId - ID of the message to delete
+ * @returns {Promise<void>} - A promise that resolves when the message is deleted
  */
 export const deleteMessage = async (
   chatRoomId: string,
@@ -1061,6 +1071,15 @@ export const deleteMessage = async (
   }
 };
 
+/**
+ * Updates the typing status of a user in a specified chat room.
+ * 
+ * @param {string} chatRoomId - The ID of the chat room.
+ * @param {string} userId - The ID of the user.
+ * @param {string} username - The username of the user.
+ * @param {boolean} isTyping - The current typing status of the user.
+ * @returns {Promise<void>} - A promise that resolves when the typing status is updated
+ */
 export const updateTypingStatus = async (chatRoomId: string, userId: string, username: string, isTyping: boolean) => {
   if (!userId) {
     console.error("User not authenticated");
@@ -1075,6 +1094,13 @@ export const updateTypingStatus = async (chatRoomId: string, userId: string, use
   }
 };
 
+/**
+ * Listens to typing status changes in a specified chat room and executes a callback with the updated typing users.
+ * 
+ * @param {string} chatRoomId - The ID of the chat room.
+ * @param {function} callback - The callback function to execute with the updated typing users.
+ * @returns {function} - Unsubscribe function to stop listening to typing status changes.
+ */
 export const listenToTypingStatus = (chatRoomId: string, callback: (typingUsers: { [key: string]: { isTyping: boolean, username: string } }) => void) => {
   const typingStatusCollection = collection(db, "chatRooms", chatRoomId, "typingStatus");
   return onSnapshot(typingStatusCollection, (snapshot) => {
