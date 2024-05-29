@@ -141,7 +141,7 @@ async function getRestaurantResults(location: LocationObjectCoords)
   let headers = {
     'Content-Type': 'application/json',
     'X-Goog-Api-Key': GOOGLE_API_KEY, 
-    'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.types,places.photos,places.rating,places.businessStatus,places.nationalPhoneNumber,places.location,places.id,places.currentOpeningHours',
+    'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.types,places.photos,places.rating,places.businessStatus,places.nationalPhoneNumber,places.location,places.id,places.currentOpeningHours,places.reviews',
   };
   
   const apiUrl = 'https://places.googleapis.com/v1/places:searchNearby';

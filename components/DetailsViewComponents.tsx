@@ -62,6 +62,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     website,
     distance,
     price,
+    reviews,
   } = restaurant;
 
   const {
@@ -227,7 +228,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
         <View>
           <BackButton />
         </View>
-        <ScrollView style={{paddingHorizontal: 15}}>
+        <ScrollView style={{ paddingHorizontal: 15 }}>
           <View>
             <View style={{ alignItems: "center" }}>
               <Text style={styles.restaurantTitle}>{name}</Text>
@@ -449,8 +450,8 @@ const styles = StyleSheet.create({
   },
   restaurantDetailsContainer: {
     flexDirection: "row",
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     flex: 1,
     width: "100%",
     padding: 20,
@@ -529,7 +530,7 @@ const styles = StyleSheet.create({
   phoneContainer: {
     marginVertical: 4,
     flexDirection: "row",
-    flex: 1, 
+    flex: 1,
   },
   addressContainer: {
     marginVertical: 4,
