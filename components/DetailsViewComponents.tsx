@@ -290,7 +290,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             {/* Left Container */}
             <View style={styles.leftContainer}>
               {/* Restaurant Info */}
-              <View style={styles.restaurantInfoContainer}>
                 <View style={styles.detailTextContainer}>
                   <Image source={star_icon} style={styles.smallIcon} />
                   <Text style={styles.infoText}>
@@ -324,18 +323,17 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                     {website ? `Website` : `N/A`}
                   </Text>
                 </View>
-              </View>
             </View>
 
             <View style={styles.rightContainer}>
               <View style={styles.detailTextContainer}>
-                <Image source={location_icon} style={styles.smallIcon} />
+                <Image source={location_icon} style={[styles.smallIcon, {marginTop: 5}]} />
                 <Text selectable={true} style={styles.infoText}>
                   {displayAddress}
                 </Text>
               </View>
               <View style={styles.detailTextContainer}>
-                <Image source={distance_icon} style={styles.smallIcon} />
+                <Image source={distance_icon} style={[styles.smallIcon, {marginTop: 2}]} />
                 <Text style={styles.infoText}>{formatDistance(distance)}</Text>
               </View>
                 <OpenStatusLabel restaurant={restaurant} listLabel={false} />
@@ -447,19 +445,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 1,
     width: "100%",
-    padding: "5%",
+    padding: "5%"
   },
   leftContainer: {
-    flexBasis: "45%",
+    width: "50%",
   },
   rightContainer: {
-    flexBasis: "55%",
-  },
-  restaurantInfoContainer: {
     width: "50%",
-    paddingRight: 15,
   },
   restaurantImage: {
     width: "100%",
@@ -485,6 +478,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     marginVertical: 4,
     textAlign: "left",
+    flex: 1
   },
   linkText: {
     fontSize: 14,
@@ -492,6 +486,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     textAlign: "left",
     textDecorationLine: "underline",
+    flex: 1
   },
   detailTextContainer: {
     marginVertical: 4,
