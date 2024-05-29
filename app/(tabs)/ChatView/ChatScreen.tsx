@@ -244,7 +244,7 @@ const ChatScreen: React.FC = () => {
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 20} 
+        keyboardVerticalOffset={Platform.select({ ios: 90, android: 20 })}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: 120,
+    paddingTop: Platform.OS === 'ios' ? 60 : 80, 
     backgroundColor: "#fff",
   },
   flatListContentContainer: {
@@ -285,6 +285,7 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     marginVertical: 5,
+    paddingHorizontal: 10,
   },
   messageBubbleContainer: {
     flexDirection: "row",
@@ -329,6 +330,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+    maxWidth: '90%', 
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
@@ -377,12 +379,13 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 14,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 25,
     paddingHorizontal: 15,
     backgroundColor: "#f2f2f2",
+    height: 30,
   },
   sendButton: {
     marginLeft: 10,
