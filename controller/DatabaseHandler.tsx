@@ -2,7 +2,6 @@ import { Preference } from "@/model/Preference";
 import {
   collection,
   doc,
-  addDoc,
   getDoc,
   getDocs,
   setDoc,
@@ -19,41 +18,6 @@ import { Restaurant } from "@/model/Restaurant";
 import { Friend } from "@/model/Friend";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
 import { PreferenceList } from "@/model/PreferenceList";
-// import { useAuth } from "@/context/AuthContext";
-/**
- * Getters and setters for user data
- * Schema:
- * users: {
- *     userId: {
- *         username: string,
- *         email: string,
- *         profilePicture: string,
- *         favourites: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         bookmarks: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         visited: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         preferences: {
- *             preferenceId: {
- *                 name: string,
- *             },
- *     },
- * }
- */
-
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   const cleanedData: Partial<Restaurant> = restaurant;
@@ -305,7 +269,8 @@ export const fetchUser = async (uid: string) => {
     if (docSnap.exists()) {
       const userData = docSnap.data();
       const preferences = await fetchPreferences();
-      //------------TESTING PURPOSES----------------
+
+      //------------LOGGING PURPOSES----------------
 
       if (preferences !== undefined) {
         preferences.forEach((category) => {
@@ -319,7 +284,7 @@ export const fetchUser = async (uid: string) => {
         console.log("Preferences is undefined");
       }
 
-      //------------TESTING PURPOSES----------------
+      //------------LOGGING PURPOSES----------------
 
       return { ...userData, preferences };
     } else {
@@ -957,9 +922,6 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
     return [];
   }
 };
-
-
-
 
 export const updatePreferences = async (updatedPreferences: PreferenceList[]) => {
   try {
