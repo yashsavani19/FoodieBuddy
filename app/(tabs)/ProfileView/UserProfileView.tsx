@@ -29,7 +29,9 @@ export default function UserProfileView() {
   const { user, signOut } = useAuth();
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isConfirmationModalVisible, setConfirmationModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageToConfirm, setImageToConfirm] = useState<string | null>(null);
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
 
   function navigateToFavouriteSpots(): void {
@@ -58,6 +60,10 @@ export default function UserProfileView() {
     setModalVisible(!isModalVisible);
   };
 
+  const toggleConfirmationModal = () => {
+    setConfirmationModalVisible(!isConfirmationModalVisible);
+  };
+
   const pickImageFromCamera = async () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
@@ -66,8 +72,9 @@ export default function UserProfileView() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      setImageToConfirm(result.assets[0].uri);
       toggleModal();
+      toggleConfirmationModal();
     }
   };
 
@@ -79,9 +86,16 @@ export default function UserProfileView() {
     });
 
     if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+      setImageToConfirm(result.assets[0].uri);
       toggleModal();
+      toggleConfirmationModal();
     }
+  };
+
+  const confirmImage = () => {
+    setSelectedImage(imageToConfirm);
+    setImageToConfirm(null);
+    toggleConfirmationModal();
   };
 
   const removeImage = () => {
@@ -149,6 +163,22 @@ export default function UserProfileView() {
             <TouchableOpacity style={styles.modalButton} onPress={removeImage}>
               <AntDesign name="delete" size={24} color="black" />
               <Text style={styles.modalButtonText}>Remove</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ReactNativeModal>
+      <ReactNativeModal isVisible={isConfirmationModalVisible} onBackdropPress={toggleConfirmationModal}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Confirm Photo</Text>
+          <Image source={{ uri: imageToConfirm }} style={styles.confirmImage} />
+          <View style={styles.modalButtonContainer}>
+            <TouchableOpacity style={styles.modalButton} onPress={confirmImage}>
+              <AntDesign name="check" size={24} color="black" />
+              <Text style={styles.modalButtonText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={toggleConfirmationModal}>
+              <AntDesign name="close" size={24} color="black" />
+              <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -250,7 +280,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#fff',
-    borderRadius: 50,
+    borderRadius: 25,
   },
   cameraIcon: {
     width: 35,
@@ -280,6 +310,12 @@ const styles = StyleSheet.create({
   modalButtonText: {
     marginTop: 10,
     fontSize: 16,
+  },
+  confirmImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginBottom: 20,
   },
   imageViewerContainer: {
     flex: 1,
