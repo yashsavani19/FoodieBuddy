@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     width: width * 0.95,
     alignSelf: "center",
     borderRadius: width * 0.06,
-    // height: height * 0.08,
+    height: 60
   },
   input: {
     flex: 1,
