@@ -1,5 +1,4 @@
 import { Friend } from "@/model/Friend";
-import { Preference } from "@/model/Preference";
 import { PreferenceList } from "@/model/PreferenceList";
 import { Restaurant } from "@/model/Restaurant";
 import { Saved } from "@/model/Saved";

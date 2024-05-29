@@ -12,10 +12,6 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import { AntDesign } from "@expo/vector-icons";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
-import FavouriteSpotsButton from "@/components/FavouriteSpotsButton";
-import BookmarksButton from "@/components/BookmarkButton";
-import VisitedButton from "@/components/VisitedButton";
 import { AppContext } from "@/context/AppContext";
 
 export default function UserProfileView() {
