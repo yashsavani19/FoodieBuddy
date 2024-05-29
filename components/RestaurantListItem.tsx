@@ -9,7 +9,7 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import StarRating from "./StarRating";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import { AppContext } from "@/context/AppContext";
-import OpenStatusLabel from "./OpenIndicatorComponents/OpenStatusLabel";
+import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
 type RestaurantListItemProps = {
   restaurant: Restaurant;
 };
@@ -156,7 +156,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
         resizeMode="cover"
       />
       {/* Open status label */}
-      <OpenStatusLabel restaurant={restaurant} listLabel={true} />
+      <OpenStatusLabelList restaurant={restaurant} />
       <View style={styles.textContainer}>
         {/* Find on map button */}
         <Pressable

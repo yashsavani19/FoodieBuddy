@@ -6,10 +6,9 @@ import { StyleSheet } from "react-native";
 
 type OpenStatusLabelProps = {
     restaurant: Restaurant;
-    listLabel: boolean;
   };
 
-const OpenStatusLabel: React.FC<OpenStatusLabelProps> = ({restaurant, listLabel}) => {
+export const OpenStatusLabelList: React.FC<OpenStatusLabelProps> = ({restaurant}) => {
         
     if (restaurant.currentOpeningHours)
     {
@@ -18,35 +17,37 @@ const OpenStatusLabel: React.FC<OpenStatusLabelProps> = ({restaurant, listLabel}
             color: restaurant.currentOpeningHours.openNow === true ? '#319F43' : '#E33629',
         }
 
-        if (listLabel) {
-            return (
-                <View style={styles.labelBackground} testID={labelContent.text}>
-                    <Text style={{ 
-                        color: '#363232', 
-                        fontWeight: 'bold',
-                        marginRight: 5
-                    }}>
-                    {labelContent.text}
-                    </Text>
-                    <MaterialCommunityIcons name="clock" size={26} color={labelContent.color} />
-                </View>
-            )
-        }
-
-        else {
-            return (
-                <View style={styles.labelNoBackground} testID={labelContent.text}>
-                    <MaterialCommunityIcons name="clock" size={24} color='#363232' />
-                    <Text style={{ 
-                        color: '#363232', 
-                        marginLeft: 6
-                    }}>
-                    {labelContent.text}
-                    </Text>
-                </View>
-            )
-        }
+        return (
+            <View style={styles.labelBackground} testID={labelContent.text}>
+                <Text style={{ 
+                    color: '#363232', 
+                    fontWeight: 'bold',
+                    marginRight: 5
+                }}>
+                {labelContent.text}
+                </Text>
+                <MaterialCommunityIcons name="clock" size={24} color={labelContent.color} />
+            </View>
+        )
     }
+  }
+
+  export const OpenStatusLabelDetails: React.FC<OpenStatusLabelProps> = ({restaurant}) => {
+    const labelContent = {
+        text: restaurant.currentOpeningHours.openNow === true ? 'Open' : 'Closed',
+    }
+
+    return (
+        <View style={styles.labelNoBackground} testID={labelContent.text}>
+            <MaterialCommunityIcons name="clock" size={22} color='#363232' />
+            <Text style={{ 
+                color: '#363232', 
+                marginLeft: 6
+            }}>
+            {labelContent.text}
+            </Text>
+        </View>
+    )
   }
 
   const styles = StyleSheet.create({
@@ -56,9 +57,11 @@ const OpenStatusLabel: React.FC<OpenStatusLabelProps> = ({restaurant, listLabel}
         top: 20, 
         backgroundColor: '#ffffff', 
         borderRadius: 5,
-        paddingVertical: 3,
-        paddingHorizontal: 8, 
+        paddingVertical: 1,
+        paddingRight: 6, 
+        paddingLeft: 8,
         flexDirection: 'row',
+        width: "25%",
         alignItems: 'center',
         justifyContent: 'space-between',
         elevation: 6,
@@ -69,7 +72,5 @@ const OpenStatusLabel: React.FC<OpenStatusLabelProps> = ({restaurant, listLabel}
         alignItems: 'center',
       }
   });
-
-export default OpenStatusLabel;
 
 

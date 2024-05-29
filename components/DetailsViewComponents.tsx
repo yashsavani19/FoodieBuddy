@@ -23,7 +23,7 @@ import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import { AntDesign } from "@expo/vector-icons";
 import BackButton from "./BackButton";
-import OpenStatusLabel from "./OpenIndicatorComponents/OpenStatusLabel";
+import { OpenStatusLabelDetails } from "./OpenIndicatorComponents/OpenStatusLabel";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -336,7 +336,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 <Image source={distance_icon} style={[styles.smallIcon, {marginTop: 2}]} />
                 <Text style={styles.infoText}>{formatDistance(distance)}</Text>
               </View>
-                <OpenStatusLabel restaurant={restaurant} listLabel={false} />
+                <OpenStatusLabelDetails restaurant={restaurant} />
             </View>
           </View>
           {/* Map View */}
