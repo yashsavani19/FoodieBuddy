@@ -69,7 +69,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
       // Construct URL for the restaurant's main photo if available
       const photoUrl = getPhotoUrl(result);
 
-      const detailResults = await getRestaurantDetails(result.id, false);
+      const detailResults = await getRestaurantDetails(result.id);
 
       //console.log("Fetched restaurant details:", detailResults);
 
@@ -172,14 +172,10 @@ export function getPhotoUrl(result: any)
  * @param id, all as boolean (true: get all details, false: get only websiteUri & priceLevel)
  * @returns Object with results data and priceScale
  */
-export async function getRestaurantDetails(id: string, all: boolean)
+export async function getRestaurantDetails(id: string)
 {
   // Fetch additional details about the place: website URL and price level
-  const headers = (all ? 
-  { 'Content-Type': 'application/json',
-    'X-Goog-Api-Key': GOOGLE_API_KEY, 
-    'X-Goog-FieldMask': 'websiteUri,location,displayName,photos,priceLevel,rating,formattedAddress,nationalPhoneNumber,businessStatus,types',
-  } : 
+  const headers = (
   { 'Content-Type': 'application/json',
     'X-Goog-Api-Key': GOOGLE_API_KEY, 
     'X-Goog-FieldMask': 'websiteUri,priceLevel',

@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../Themed';
 import CategoryContainer from './CategoryContainer';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { categories } from "@/assets/data/categories-options";
+import { categories } from "@/model/categories-options";
 import CategoryButton from './CategoryButton';
 import { Category } from '@/model/Category';
 import StarRating from '../StarRating';
