@@ -901,6 +901,7 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
       const preference: Preference = {
         name: data.name,
         selected: data.selected,
+        apiName: data.apiName,
       };
       if (!categoryMap[category]) {
         categoryMap[category] = [];

@@ -184,7 +184,6 @@ export function AuthProvider(props: ProviderProps) {
       if (registerResult) {
         alert("Registration successful");
         await addUsername(username, Auth.getAuth().currentUser?.uid || "");
-        await addPreferences(Auth.getAuth().currentUser?.uid || "");
         await handleLogin(email, password);
         return true;
       }
