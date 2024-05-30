@@ -21,7 +21,6 @@ import PreferencesButton from "@/components/SavedLists/PreferencesButton";
 import Constants from "expo-constants";
 
 export default function UserProfileView() {
-  // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants, preferences } =
     useContext(AppContext);
@@ -170,8 +169,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   editAccountText: {
-    fontSize: 15, // Font size for Edit Account
-    color: "#000", // Black text
+    fontSize: 15, 
+    color: "#000", 
   },
   menuItemText: {
     marginLeft: 20,

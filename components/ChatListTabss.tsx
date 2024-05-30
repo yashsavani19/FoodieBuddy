@@ -10,11 +10,9 @@ const ChatListTabs: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === "buddy" && styles.activeTabButton,
-          ]}
+          style={styles.tabButton}
           onPress={() => setActiveTab("buddy")}
+          disabled={activeTab === "buddy"}
         >
           <Text
             style={[
@@ -24,13 +22,17 @@ const ChatListTabs: React.FC = () => {
           >
             Buddy ChatBot
           </Text>
+          <View
+            style={[
+              styles.underline,
+              { backgroundColor: activeTab === "buddy" ? "#F26722" : "#00000000" },
+            ]}
+          />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[
-            styles.tabButton,
-            activeTab === "friends" && styles.activeTabButton,
-          ]}
+          style={styles.tabButton}
           onPress={() => setActiveTab("friends")}
+          disabled={activeTab === "friends"}
         >
           <Text
             style={[
@@ -40,10 +42,16 @@ const ChatListTabs: React.FC = () => {
           >
             Friends Chat
           </Text>
+          <View
+            style={[
+              styles.underline,
+              { backgroundColor: activeTab === "friends" ? "#F26722" : "#00000000" },
+            ]}
+          />
         </TouchableOpacity>
       </View>
       <View style={styles.chatListContainer}>
-        {activeTab === "buddy" ? <BuddyChat/> : <ChatList type="friends" />}
+        {activeTab === "buddy" ? <BuddyChat /> : <ChatList type="friends" />}
       </View>
     </View>
   );
@@ -56,26 +64,29 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#1e1e1e",
-    paddingVertical: 5,
+    backgroundColor: "#363232",
+    height: 40,
+    alignItems: "center",
   },
   tabButton: {
-    paddingVertical: 2,
-    paddingHorizontal: 20,
-  },
-  activeTabButton: {
-    borderBottomWidth: 3,
-    borderBottomColor: "#ff6f00",
-    borderBottomLeftRadius: 2,
-    borderBottomRightRadius: 2,
+    flexDirection: "column",
+    alignItems: "center",
   },
   tabButtonText: {
-    color: "#ffffff",
-    fontSize: 18,
+    color: "#fff",
     fontWeight: "bold",
+    fontSize: 16,
   },
   activeTabButtonText: {
     color: "#fff",
+  },
+  underline: {
+    height: 5,
+    backgroundColor: "#F26722",
+    width: 120,
+    marginBottom: -10,
+    borderRadius: 2,
+    marginTop: 3,
   },
   chatListContainer: {
     flex: 1,
