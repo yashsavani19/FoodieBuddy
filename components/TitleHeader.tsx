@@ -7,6 +7,7 @@ import { Category } from "@/model/Category";
 import { Sort } from "@/model/Sort";
 import Constants from "expo-constants";
 import { AppContext } from "@/context/AppContext";
+import ImFeelingLucky from "./ImFeelingLucky";
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
@@ -56,7 +57,15 @@ export default function TitleHeader({
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: images.logo }} style={styles.image} />
+      {onSearchSubmit ? (
+        <ImFeelingLucky
+          children={
+            <Image source={{ uri: images.logo }} style={styles.image} />
+          }
+        />
+      ) : (
+        <Image source={{ uri: images.logo }} style={styles.image} />
+      )}
       <HeaderComponents
         title={title}
         searchBar={searchBar}

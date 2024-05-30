@@ -2,7 +2,6 @@ import { Preference } from "@/model/Preference";
 import {
   collection,
   doc,
-  addDoc,
   getDoc,
   getDocs,
   setDoc,
@@ -13,47 +12,15 @@ import {
   orderBy,
   limit,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
 import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
 import { Friend } from "@/model/Friend";
-// import { useAuth } from "@/context/AuthContext";
-/**
- * Getters and setters for user data
- * Schema:
- * users: {
- *     userId: {
- *         username: string,
- *         email: string,
- *         profilePicture: string,
- *         favourites: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         bookmarks: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         visited: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         preferences: {
- *             preferenceId: {
- *                 name: string,
- *             },
- *     },
- * }
- */
-
+import { DefaultPreferences } from "@/model/DefaultPreferences";
+import { PreferenceList } from "@/model/PreferenceList";
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   const cleanedData: Partial<Restaurant> = restaurant;
@@ -67,7 +34,8 @@ const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   if (restaurant.isFavourite === undefined) restaurant.isFavourite = false;
   if (restaurant.isBookmarked === undefined) restaurant.isBookmarked = false;
   if (restaurant.isVisited === undefined) restaurant.isVisited = false;
-  if (restaurant.currentOpeningHours === undefined) restaurant.currentOpeningHours = "";
+  if (restaurant.currentOpeningHours === undefined)
+    restaurant.currentOpeningHours = "";
   return cleanedData;
 };
 
@@ -286,6 +254,7 @@ export const addUser = async (uid: string, email: string, username: string) => {
       email: email,
       username: username,
     });
+    await addPreferences(uid);
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding user. Please try again later.");
@@ -301,7 +270,26 @@ export const fetchUser = async (uid: string) => {
     const docRef = doc(db, userCollection);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data();
+      const userData = docSnap.data();
+      const preferences = await fetchPreferences();
+
+      //------------LOGGING PURPOSES----------------
+
+      if (preferences !== undefined) {
+        preferences.forEach((category) => {
+          category.preferences.forEach((preference) => {
+            console.log(
+              `Login Fetched Preference: ${preference.name}, Login Fetched Preference Selected: ${preference.selected}, Login Fetched Preference Category: ${category.title}`
+            );
+          });
+        });
+      }else{
+        console.log("Preferences is undefined");
+      }
+
+      //------------LOGGING PURPOSES----------------
+
+      return { ...userData, preferences };
     } else {
       console.error("No such document!");
       alert("User not found.");
@@ -1117,4 +1105,113 @@ export const listenToTypingStatus = (chatRoomId: string, callback: (typingUsers:
     });
     callback(typingUsers);
   });
+};
+
+
+
+export const addPreferences = async (uid: string) => {
+  try {
+    const preferenceCollection = `users/${uid}/preferences`;
+
+    for (const category of DefaultPreferences) {
+      for (const preference of category.preferences) {
+        const docRef = doc(
+          db,
+          preferenceCollection,
+          `${category.title}-${preference.name}`
+        );
+        console.log(
+          "Preference: ",
+          preference.name,
+          ", Selected: ",
+          preference.selected,
+          ", Category: ",
+          category.title
+        );
+        await setDoc(docRef, {
+          name: preference.name,
+          selected: preference.selected,
+          category: category.title,
+        });
+      }
+    }
+    console.log("Default preferences added to collection");
+  } catch (e) {
+    console.error("Error adding preferences: ", e);
+    alert("Internal error adding preferences. Please try again later.");
+  }
+};
+
+// /**
+//  * Fetches user preferences
+//  */
+export const fetchPreferences = async (): Promise<PreferenceList[]> => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const preferences: PreferenceList[] = [];
+
+    // Group preferences by category
+    const categoryMap: { [key: string]: Preference[] } = {};
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const category = data.category;
+      const preference: Preference = {
+        name: data.name,
+        selected: data.selected,
+        apiName: data.apiName,
+      };
+      if (!categoryMap[category]) {
+        categoryMap[category] = [];
+      }
+      categoryMap[category].push(preference);
+    });
+
+    for (const category in categoryMap) {
+      preferences.push({
+        title: category,
+        preferences: categoryMap[category],
+      });
+    }
+
+    return preferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+    return [];
+  }
+};
+
+export const updatePreferences = async (updatedPreferences: PreferenceList[]) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+
+    for (const category of updatedPreferences) {
+      for (const preference of category.preferences) {
+        const docRef = doc(
+          db,
+          preferenceCollection,
+          `${category.title}-${preference.name}`
+        );
+        console.log(
+          "Updating Preference: ",
+          preference.name,
+          ", Selected: ",
+          preference.selected,
+          ", Category: ",
+          category.title
+        );
+        await updateDoc(docRef, {
+          selected: preference.selected,
+        });
+      }
+    }
+    console.log("Preferences updated successfully");
+  } catch (e) {
+    console.error("Error updating preferences: ", e);
+    alert("Internal error updating preferences. Please try again later.");
+  }
 };
