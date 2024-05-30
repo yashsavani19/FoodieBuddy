@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { View } from "@/components/Themed";
 import TitleHeader from "@/components/TitleHeader";
 import ChatListTabs from "@/components/ChatListTabss";
+import Constants from "expo-constants";
 
 export default function ChatView() {
   return (
@@ -21,6 +22,6 @@ const styles = StyleSheet.create({
   },
   messageContainer: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
 });

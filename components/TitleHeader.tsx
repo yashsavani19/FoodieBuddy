@@ -78,8 +78,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: Colors.light.headerBackground,
     alignItems: "center",
-    borderTopWidth: Constants.statusBarHeight,
     borderTopColor: Colors.light.headerBackground,
+    paddingTop: Constants.statusBarHeight,
   },
   title: {
     width: "70%",
