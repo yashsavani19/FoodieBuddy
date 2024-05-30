@@ -65,11 +65,11 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
             <View style={styles.currentUserMessage} testID="sentTextBox">
               <Text style={styles.currentUserText}>{text}</Text>
             </View>
-            <Image
+            {/* <Image
               testID="message-image"
               source={imageUrl}
               style={styles.image}
-            />
+            /> */}
           </>
         )}
       </View>
@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
     padding: 10,
     maxWidth: "95%",
     borderBottomRightRadius: 0,
+    marginRight: 10,
   },
   buddyMessage: {
     backgroundColor: "#d3d3d3",
@@ -103,6 +104,7 @@ const styles = StyleSheet.create({
     padding: 10,
     maxWidth: "95%",
     borderBottomLeftRadius: 0,
+    marginLeft: 10,
   },
   buddyText: {
     color: "#000",
