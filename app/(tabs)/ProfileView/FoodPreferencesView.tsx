@@ -47,7 +47,7 @@ const FoodPreferencesView: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TitleHeader title="Food Preferences" />
+      <TitleHeader title="Preferences" />
       <View style={styles.content}>
         <BackButton />
 
@@ -62,8 +62,11 @@ const FoodPreferencesView: React.FC = () => {
               }
             />
           ))}
+          <View style={{marginBottom: 40}}/>
         </ScrollView>
-        <SavePreferenceButton onSave={savePreferences} />
+        <View style={{marginBottom: 5}}>
+          <SavePreferenceButton onSave={savePreferences} />
+        </View>
       </View>
     </View>
   );

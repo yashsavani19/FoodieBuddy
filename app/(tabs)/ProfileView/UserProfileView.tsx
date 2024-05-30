@@ -12,7 +12,12 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
 import { AntDesign } from "@expo/vector-icons";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
+import FavouriteSpotsButton from "@/components/SavedLists/FavouriteSpotsButton";
+import BookmarksButton from "@/components/SavedLists/BookmarkButton"; 
+import VisitedButton from "@/components/SavedLists/VisitedButton";
 import { AppContext } from "@/context/AppContext";
+import PreferencesButton from "@/components/SavedLists/PreferencesButton";
 
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
@@ -55,6 +60,8 @@ export default function UserProfileView() {
       <TitleHeader title="Profile" />
       {/* ScrollView for scrollable content */}
       <ScrollView style={styles.scrollView}>
+      <ProfileFriendsNavBar mode="profile" />
+
         {/* Profile Section */}
         <View style={styles.profileSection}>
           {/* User Icon */}
@@ -81,53 +88,17 @@ export default function UserProfileView() {
         {/* Menu Items Section */}
         <View style={styles.menuItemsSection}>
           {/* Food Preferences Button */}
-          <TouchableOpacity
-            onPress={navigateToFoodPreferences}
-            style={styles.menuItem}
-          >
-            <Image
-              source={require("@/assets/images/preferences-icon.png")}
-              style={styles.savedIcons}
-            />
-            <Text style={styles.menuItemText}>Food Preferences</Text>
-            <AntDesign name="right" style={styles.rightArrow} />
-          </TouchableOpacity>
+          <PreferencesButton onPress={navigateToFoodPreferences} />
+
           {/* Favorite Spots Button */}
-          <TouchableOpacity
-            onPress={navigateToFavouriteSpots}
-            style={styles.menuItem}
-          >
-            <Image
-              source={require("@/assets/images/fave-Selected.png")}
-              style={styles.savedIcons}
-            />
-            <Text style={styles.menuItemText}>Favorite Spots</Text>
-            <AntDesign name="right" style={styles.rightArrow} />
-          </TouchableOpacity>
+          <FavouriteSpotsButton onPress={navigateToFavouriteSpots} />
+
           {/* Bookmarked Spots Button */}
-          <TouchableOpacity
-            onPress={navigateToBookmarkedSpots}
-            style={styles.menuItem}
-          >
-            <Image
-              source={require("@/assets/images/bookmark-Selected.png")}
-              style={styles.savedIcons}
-            />
-            <Text style={styles.menuItemText}>Bookmarked Spots</Text>
-            <AntDesign name="right" style={styles.rightArrow} />
-          </TouchableOpacity>
+          <BookmarksButton onPress={navigateToBookmarkedSpots} />
+
           {/* Visited Spots Button */}
-          <TouchableOpacity
-            onPress={navigateToVisitedSpots}
-            style={styles.menuItem}
-          >
-            <Image
-              source={require("@/assets/images/visited-Selected.png")}
-              style={styles.savedIcons}
-            />
-            <Text style={styles.menuItemText}>Visited Spots</Text>
-            <AntDesign name="right" style={styles.rightArrow} />
-          </TouchableOpacity>
+          <VisitedButton onPress={navigateToVisitedSpots} />
+
         </View>
       </ScrollView>
     </View>
@@ -137,7 +108,7 @@ export default function UserProfileView() {
 const styles = StyleSheet.create({
   rightArrow: {
     position: "absolute",
-    right: 10,
+    right: 20,
     fontSize: 35,
     color: "#ededed",
   },
@@ -154,13 +125,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 100,
+    marginTop: 120,
   },
 
   profileSection: {
     alignItems: "center",
-    paddingTop: 50,
-    paddingBottom: 20,
+    paddingTop: 40,
+    paddingBottom: 10,
   },
   iconWrapper: {
     alignItems: "center",
@@ -190,18 +161,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 30,
-    marginVertical: 5,
+    marginVertical: 10,
     paddingVertical: 15,
     padding: 20,
     backgroundColor: "#363232",
     fontSize: 10,
-    borderRadius: 200,
+    borderRadius: 20,
   },
   editAccountText: {
     fontSize: 15, // Font size for Edit Account
     color: "#000", // Black text
   },
   menuItemText: {
+    marginLeft: 20,
     fontSize: 19,
     color: "#ededed",
   },
