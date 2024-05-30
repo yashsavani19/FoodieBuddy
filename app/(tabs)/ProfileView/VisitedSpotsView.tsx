@@ -5,6 +5,7 @@ import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
 import SavedList from "@/components/SavedLists/SavedList";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import Constants from "expo-constants";
 
 type VisitedSpotsRouteProp = RouteProp<RootStackParamList, "VisitedSpotsView">;
 
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   header: {
     height: 40,

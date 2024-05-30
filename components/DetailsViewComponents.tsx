@@ -26,6 +26,7 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 import BackButton from "./BackButton";
 import ShareButton from "./ShareButton";
 import { OpenStatusLabelDetails } from "./OpenIndicatorComponents/OpenStatusLabel";
+import Constants from "expo-constants";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -413,7 +414,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     // position: "absolute",
     width: "100%",
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   restaurantTitle: {
     fontSize: 25,
