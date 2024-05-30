@@ -22,6 +22,7 @@ import {
   subscribeToReceivedFriendRequests,
   subscribeToSentFriendRequests,
 } from "@/controller/DatabaseHandler";
+import Constants from "expo-constants";
 
 interface FriendRequestProps {
   friend: Friend;
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   scrollView: {},
   listContainer: {},

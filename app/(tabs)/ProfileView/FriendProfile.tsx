@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   backArrow: {
     fontSize: 35,

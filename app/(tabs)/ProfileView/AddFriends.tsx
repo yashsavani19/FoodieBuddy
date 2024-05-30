@@ -22,6 +22,7 @@ import {
 import { AppContext } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { set } from "firebase/database";
+import Constants from "expo-constants";
 
 interface ListContainerProps {
   friend: Friend;
@@ -73,7 +74,11 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
         <Image
           resizeMode="contain"
           style={styles.listImage}
-          source={{ uri: friend.profileImageUrl }}
+          source={
+            typeof friend.profileImageUrl === "string"
+              ? { uri: friend.profileImageUrl }
+              : friend.profileImageUrl
+          }
         />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
@@ -178,7 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   listContainer: {
     flex: 1,

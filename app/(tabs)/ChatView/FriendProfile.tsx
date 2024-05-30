@@ -24,6 +24,7 @@ import {
   removeFriend,
 } from "@/controller/DatabaseHandler";
 import { AppContext } from "@/context/AppContext";
+import Constants from "expo-constants";
 
 const FriendProfile: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   backArrow: {
     fontSize: 35,

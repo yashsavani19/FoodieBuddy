@@ -18,6 +18,7 @@ import BookmarksButton from "@/components/SavedLists/BookmarkButton";
 import VisitedButton from "@/components/SavedLists/VisitedButton";
 import { AppContext } from "@/context/AppContext";
 import PreferencesButton from "@/components/SavedLists/PreferencesButton";
+import Constants from "expo-constants";
 
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
 
   profileSection: {
