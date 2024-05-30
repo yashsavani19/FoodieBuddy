@@ -51,26 +51,22 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
       >
         {type === "received" ? (
           <>
-            <Image
-              testID="message-image"
-              source={imageUrl}
-              style={styles.image}
-            />
+            <View style={styles.buddyContainer}>
+              <Text style={styles.buddyName}>Buddy</Text>
+              <Image
+                testID="message-image"
+                source={imageUrl}
+                style={styles.image}
+              />
+            </View>
             <View style={styles.buddyMessage}>
               <Text style={styles.buddyText}>{text}</Text>
             </View>
           </>
         ) : (
-          <>
-            <View style={styles.currentUserMessage} testID="sentTextBox">
-              <Text style={styles.currentUserText}>{text}</Text>
-            </View>
-            {/* <Image
-              testID="message-image"
-              source={imageUrl}
-              style={styles.image}
-            /> */}
-          </>
+          <View style={styles.currentUserMessage} testID="sentTextBox">
+            <Text style={styles.currentUserText}>{text}</Text>
+          </View>
         )}
       </View>
     );
@@ -83,6 +79,17 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: "center",
     marginBottom: 10,
+  },
+  buddyContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  buddyName: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#555",
+    marginBottom: 2,
   },
   image: {
     width: 40,
@@ -104,7 +111,7 @@ const styles = StyleSheet.create({
     padding: 10,
     maxWidth: "95%",
     borderBottomLeftRadius: 0,
-    marginLeft: 10,
+    marginLeft: 5,
   },
   buddyText: {
     color: "#000",
