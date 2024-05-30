@@ -73,7 +73,11 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
         <Image
           resizeMode="contain"
           style={styles.listImage}
-          source={{ uri: friend.profileImageUrl }}
+          source={
+            typeof friend.profileImageUrl === "string"
+              ? { uri: friend.profileImageUrl }
+              : friend.profileImageUrl
+          }
         />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
