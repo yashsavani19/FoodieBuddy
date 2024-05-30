@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import ChatList from "./ChatList";
 
 const ChatListTabs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"buddy" | "friends">("buddy");
+  const [activeTab, setActiveTab] = useState<"buddy" | "friends">("friends");
 
   return (
     <View style={styles.container}>
