@@ -227,6 +227,7 @@ const Chat: React.FC = () => {
                   name="send"
                   size={24}
                   color={Colors.light.iconColor}
+                  style={styles.sendButton}
                 />
               </TouchableOpacity>
             </View>
@@ -267,6 +268,7 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     justifyContent: "space-between",
+    backgroundColor: "#f2f2f2",
   },
   messagesList: {
     flex: 1,
@@ -274,15 +276,24 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     padding: 10,
+    alignItems: "center",
+    backgroundColor: "#f2f2f2",
+    borderColor: "#e2e2e2",
+    width: "95%",
+    alignSelf: "center",
+    borderRadius: 20,
+    height: 60,
+    justifyContent: "space-between",
   },
   input: {
     flex: 1,
     fontSize: 16,
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 15,
-    marginRight: 10,
-    paddingLeft: 10,
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    backgroundColor: "#fff",
+    height: 40, 
   },
   modalOverlay: {
     flex: 1,
@@ -310,6 +321,9 @@ const styles = StyleSheet.create({
   },
   modalItemText: {
     fontSize: 16,
+  },
+  sendButton: {
+    marginLeft: 10,
   },
 });
 

@@ -359,7 +359,7 @@ const ChatScreen: React.FC = () => {
             </TouchableOpacity>
             <TextInput
               style={styles.input}
-              placeholder="Type a message"
+              placeholder="Type a message..."
               value={newMessage}
               onChangeText={handleTyping}
             />
@@ -389,11 +389,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flatListContentContainer: {
-    paddingBottom: height * 0.1, 
+    paddingBottom: 100, 
   },
   messageContainer: {
-    marginVertical: height * 0.01,
-    paddingHorizontal: width * 0.02,
+    marginVertical: 10,
+    paddingHorizontal: 10,
   },
   messageBubbleContainer: {
     flexDirection: "row",
@@ -408,96 +408,88 @@ const styles = StyleSheet.create({
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: width * 0.8,
+    maxWidth: 320,
   },
   profileImageContainer: {
     alignItems: "center",
-    marginRight: width * 0.03,
-    width: width * 0.18,
+    marginRight: 12,
+    width: 60,
   },
   profileImage: {
-    width: width * 0.1,
-    height: width * 0.1,
-    borderRadius: (width * 0.1) / 2,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   messageBubble: {
     borderRadius: 20,
-    padding: width * 0.03,
-    maxWidth: width * 0.9,
+    padding: 10,
+    maxWidth: 320,
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
-    marginRight: width * 0.02,
-    marginLeft: width * 0.05,
+    marginRight: 10,
+    marginLeft: 20,
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
-    marginRight: width * 0.05,
+    marginRight: 30,
   },
   messageText: {
-    fontSize: width * 0.04,
+    fontSize: 16,
     color: "#fff",
     fontWeight: "500",
   },
   otherUserMessageText: {
-    fontSize: width * 0.04,
+    fontSize: 16,
     color: "#000",
     fontWeight: "500",
   },
   timestampText: {
-    fontSize: width * 0.03,
+    fontSize: 12,
     color: "#888",
     alignSelf: "center",
-    marginBottom: height * 0.002,
+    marginBottom: 2,
   },
   usernameText: {
-    fontSize: width * 0.03,
+    fontSize: 12,
     fontWeight: "bold",
     color: "#555",
-    marginBottom: height * 0.002,
-    marginLeft: width * 0.01,
+    marginBottom: 2,
     textAlign: "center",
     width: width,
   },
   inputContainer: {
     flexDirection: "row",
-    padding: width * 0.03,
+    padding: 10,
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderColor: "#e2e2e2",
-    width: width * 0.95,
+    width: "95%",
     alignSelf: "center",
-    borderRadius: width * 0.06,
+    borderRadius: 20,
     height: 60
   },
   input: {
     flex: 1,
-    fontSize: width * 0.04,
+    fontSize: 16,
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: width * 0.06,
-    paddingHorizontal: width * 0.03,
+    borderRadius: 20,
+    paddingHorizontal: 15,
     backgroundColor: "#fff",
     height: 40, 
   },
   sendButton: {
-    marginLeft: width * 0.03,
+    marginLeft: 10,
   },
   image: {
-    width: width * 0.1,
-    height: width * 0.1,
-    marginRight: width * 0.03,
+    width: 40,
+    height: 40,
+    marginRight: 10,
   },
 });
 
