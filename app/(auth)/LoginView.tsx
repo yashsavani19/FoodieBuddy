@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  BackHandler,
 } from "react-native";
 import { Platform } from "react-native";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, View } from "@/components/Themed";
 import { Link } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -28,6 +29,11 @@ export default function LoginView() {
   const { signIn } = useAuth();
 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
+    return () => backHandler.remove()
+  }, [])
 
   const handleLogin = async () => {
     setLoading(true);
