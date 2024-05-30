@@ -33,21 +33,25 @@ export const OpenStatusLabelList: React.FC<OpenStatusLabelProps> = ({restaurant}
   }
 
   export const OpenStatusLabelDetails: React.FC<OpenStatusLabelProps> = ({restaurant}) => {
-    const labelContent = {
-        text: restaurant.currentOpeningHours.openNow === true ? 'Open' : 'Closed',
-    }
 
-    return (
-        <View style={styles.labelNoBackground} testID={labelContent.text}>
-            <MaterialCommunityIcons name="clock" size={22} color='#363232' />
-            <Text style={{ 
-                color: '#363232', 
-                marginLeft: 6
-            }}>
-            {labelContent.text}
-            </Text>
-        </View>
-    )
+    if (restaurant.currentOpeningHours)
+    {
+        const labelContent = {
+            text: restaurant.currentOpeningHours.openNow === true ? 'Open' : 'Closed',
+        }
+
+        return (
+            <View style={styles.labelNoBackground} testID={labelContent.text}>
+                <MaterialCommunityIcons name="clock" size={22} color='#363232' />
+                <Text style={{ 
+                    color: '#363232', 
+                    marginLeft: 6
+                }}>
+                {labelContent.text}
+                </Text>
+            </View>
+        )
+    }
   }
 
   const styles = StyleSheet.create({

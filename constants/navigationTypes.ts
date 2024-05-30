@@ -1,4 +1,5 @@
 import { Friend } from "@/model/Friend";
+import { PreferenceList } from "@/model/PreferenceList";
 import { Restaurant } from "@/model/Restaurant";
 import { Saved } from "@/model/Saved";
 
@@ -23,6 +24,7 @@ export type RootStackParamList = {
   UserProfileView: undefined;
   FriendProfile: { friend: Friend };
   FriendRequests: undefined;
+  FoodPreferencesView: { preferences: PreferenceList[] };
 };
 
 export type MapRouteParams = {

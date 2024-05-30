@@ -7,8 +7,6 @@ import {
   fetchBookmarks,
   fetchFavourites,
   fetchVisited,
-  fetchUser,
-  addUser,
   addFavourite,
   removeBookmark,
   removeFavourite,
@@ -17,6 +15,8 @@ import {
   fetchFriends,
   addFriend,
   removeFriend,
+  fetchPreferences,
+  updatePreferences,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
@@ -28,6 +28,7 @@ import { Category } from "@/model/Category";
 import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
+import { PreferenceList } from "@/model/PreferenceList";
 
 export type AppContextType = {
   dataLoading: boolean;
@@ -64,6 +65,14 @@ export type AppContextType = {
   filteredRestaurants: Restaurant[];
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
   filterRestaurants: () => void;
+
+  preferences: PreferenceList[];
+  setPreferences: (prefs: PreferenceList[]) => void;
+  updateUserPreferences: (
+    category: string,
+    preferenceName: string,
+    selected: boolean
+  ) => void;
 };
 
 interface ContextProviderProps {
@@ -105,6 +114,10 @@ export const AppContext = createContext<AppContextType>({
   filteredRestaurants: [],
   setFilteredRestaurants: async () => {},
   filterRestaurants: async () => {},
+
+  preferences: [],
+  setPreferences: () => {},
+  updateUserPreferences: () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -134,6 +147,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
+
+  const [preferences, setPreferences] = useState<PreferenceList[]>([]);
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -168,6 +183,16 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   }, [previousLocation]);
 
   useEffect(() => {
+    const loadUserPreferences = async () => {
+      if (user) {
+        const prefs = await fetchPreferences();
+        setPreferences(prefs);
+      }
+    };
+
+    loadUserPreferences();
+  }, [user]);
+  useEffect(() => {
     if (!user) {
       setUserObject({});
     }
@@ -184,7 +209,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   }, [visitedRestaurants]);
 
   useEffect(() => {
-    filterRestaurants();  
+    filterRestaurants();
   }, [searchTerm]);
 
   useEffect(() => {
@@ -209,12 +234,18 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       if (visited) {
         setVisitedRestaurants(visited);
       }
+
+      const preferences = await fetchPreferences();
+      if (preferences) {
+        setPreferences(preferences);
+      }
       setUserObject({
         ...userObject,
         favouriteRestaurants: favourites,
         bookmarkedRestaurants: bookmarks,
         visitedRestaurants: visited,
       });
+
       getFriends();
     } catch (error) {
       console.log(error);
@@ -280,23 +311,30 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const filterRestaurants = () => {
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
-  
-    if (selectedFilters) {
-      const categoriesToFilter = new Set(selectedFilters
-        .filter(filter => !["Rating","Price","Open Status","Dietary Preference","Takeaway Option"].includes(filter.type))
-        .map(filter => filter.apiName));
 
-      const pricesToFilter = new Set(selectedFilters
-        .filter(filter => ["Price"].includes(filter.type))
-        .map(filter => filter.scale));
+    if (selectedFilters) {
+      const categoriesToFilter = new Set(
+        selectedFilters
+          .filter(
+            (filter) =>
+              !["Rating", "Price", "Open Status","Dietary Preference","Takeaway Option"].includes(filter.type)
+          )
+          .map((filter) => filter.apiName)
+      );
+
+      const pricesToFilter = new Set(
+        selectedFilters
+          .filter((filter) => ["Price"].includes(filter.type))
+          .map((filter) => filter.scale)
+      );
 
       const ratingsToFilter = selectedFilters
-        .filter(filter => ["Rating"].includes(filter.type))
-        .map(filter => filter.rating)
+        .filter((filter) => ["Rating"].includes(filter.type))
+        .map((filter) => filter.rating);
 
       const openStatusToFilter = selectedFilters
-        .filter(filter => ["Open Status"].includes(filter.type))
-        .map(filter => filter.apiName)
+        .filter((filter) => ["Open Status"].includes(filter.type))
+        .map((filter) => filter.apiName);
 
       const dietsToFilter = new Set(selectedFilters
         .filter(filter => ["Dietary Preference"].includes(filter.type))
@@ -304,36 +342,45 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
       // filter restaurants by the selected categories (not intersection, but union of categories)
       if (categoriesToFilter.size > 0) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => categoriesToFilter.has(category))
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some((category) =>
+            categoriesToFilter.has(category)
+          )
         );
       }
 
       // Filter restaurants by the selected price level/s
       if (pricesToFilter.size > 0) {
-        result = result.filter(restaurant =>
-          pricesToFilter.has(parseInt(restaurant.price ?? 'null'))
+        result = result.filter((restaurant) =>
+          pricesToFilter.has(parseInt(restaurant.price ?? "null"))
         );
       }
 
       // Filter restaurants by the selected rating and higher
       if (ratingsToFilter.length > 0) {
-        result = result.filter(restaurant =>
-          restaurant.rating && ratingsToFilter[0] !== undefined && restaurant.rating >= ratingsToFilter[0]
+        result = result.filter(
+          (restaurant) =>
+            restaurant.rating &&
+            ratingsToFilter[0] !== undefined &&
+            restaurant.rating >= ratingsToFilter[0]
         );
       }
 
       // Filter restaurants that are currently open
       if (openStatusToFilter.length > 0) {
-        result = result.filter(restaurant =>
-          restaurant.currentOpeningHours && restaurant.currentOpeningHours.openNow === true
+        result = result.filter(
+          (restaurant) =>
+            restaurant.currentOpeningHours &&
+            restaurant.currentOpeningHours.openNow === true
         );
       }
 
       // If there is a search term, filter restaurants by the search term
       if (searchTerm) {
         result = result.filter((restaurant) => {
-          return restaurant.name.toLowerCase().includes(searchTerm.toLowerCase());
+          return restaurant.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
         });
       }
 
@@ -355,9 +402,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           restaurant.categories?.some(category => category === "meal_takeaway")
         );
       }
-    
+
       setFilteredRestaurants(result);
-      // console.log("Filtered restaurants:", result);
       setRestaurantListIsLoading(false);
     }
   };
@@ -371,7 +417,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         addedOn: new Date(),
       };
       setFavouriteRestaurants([...favouriteRestaurants, newFavourite]);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -385,7 +430,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       );
       setFavouriteRestaurants(newFavourites);
       await removeFavourite(placeId);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -400,7 +444,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         addedOn: new Date(),
       };
       setBookmarkedRestaurants([...bookmarkedRestaurants, newBookmark]);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -414,7 +457,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       );
       setBookmarkedRestaurants(newBookmarks);
       await removeBookmark(placeId);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -429,7 +471,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         addedOn: new Date(),
       };
       setVisitedRestaurants([...visitedRestaurants, newVisited]);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -442,7 +483,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         (item) => item.restaurant.id !== placeId
       );
       setVisitedRestaurants(newVisited);
-      // setUser();
     } catch (error) {
       console.log(error);
     }
@@ -475,6 +515,29 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       await removeFriend(friend);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const updateUserPreferences = (
+    category: string,
+    preferenceName: string,
+    selected: boolean
+  ) => {
+    const updatedPreferences = preferences.map((cat) => {
+      if (cat.title === category) {
+        const updatedCategory = cat.preferences.map((pref) => {
+          if (pref.name === preferenceName) {
+            return { ...pref, selected };
+          }
+          return pref;
+        });
+        return { ...cat, preferences: updatedCategory };
+      }
+      return cat;
+    });
+    setPreferences(updatedPreferences);
+    if (user) {
+      updatePreferences(updatedPreferences);
     }
   };
 
@@ -512,8 +575,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     searchTerm,
     filteredRestaurants,
     setFilteredRestaurants,
-    // searchFilterRestaurants,
     filterRestaurants,
+
+    preferences,
+    setPreferences,
+    updateUserPreferences,
   };
 
   return (
