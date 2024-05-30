@@ -183,14 +183,14 @@ const Chat: React.FC = () => {
    */
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
+      {/* <View style={styles.headerContainer}>
         <TitleHeader title="Buddy ChatBot" />
         <NavBar openSettings={openSettings} />
-      </View>
+      </View> */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} // You might need to adjust this offset based on your header height or other UI elements
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} 
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.innerContainer}>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import ChatList from "./ChatList";
+import BuddyChat from "@/app/(tabs)/ChatView/BuddyChat";
 
 const ChatListTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"buddy" | "friends">("friends");
@@ -42,7 +43,7 @@ const ChatListTabs: React.FC = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.chatListContainer}>
-        {activeTab === "buddy" ? <ChatList type="buddy" /> : <ChatList type="friends" />}
+        {activeTab === "buddy" ? <BuddyChat/> : <ChatList type="friends" />}
       </View>
     </View>
   );
