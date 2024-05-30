@@ -15,6 +15,7 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "expo-router";
 import { subscribeToFriends } from "@/controller/DatabaseHandler";
+import Constants from "expo-constants";
 
 interface ListContainerProps {
   friend: Friend;
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   scrollView: {},
   listContainer: {},

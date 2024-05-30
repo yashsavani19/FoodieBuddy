@@ -5,6 +5,7 @@ import BackButton from "@/components/BackButton";
 import SavedList from "@/components/SavedLists/SavedList";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import Constants from "expo-constants";
 
 type BookmarkedSpotsRouteProp = RouteProp<
   RootStackParamList,
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   header: {
     height: 40,

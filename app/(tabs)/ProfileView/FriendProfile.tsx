@@ -17,6 +17,7 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import FavouriteSpotsButton from "@/components/FavouriteSpotsButton";
 import VisitedButton from "@/components/VisitedButton";
 import BookmarksButton from "@/components/BookmarkButton";
+import Constants from "expo-constants";
 import {
   fetchFriendsBookmarks,
   fetchFriendsFavourites,
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   backArrow: {
     fontSize: 35,

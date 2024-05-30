@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import TitleHeader from "@/components/TitleHeader";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 import { AntDesign } from "@expo/vector-icons";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import { AppContext } from "@/context/AppContext";
+import Constants from "expo-constants";
 
 interface ListContainerProps {
   mode: "friendsList" | "friendsRequest" | "addFriends";
@@ -57,7 +57,7 @@ const FriendsView = () => {
       {/* Title Header */}
       <TitleHeader title="Friends" />
       {/* ScrollView for scrollable content */}
-      <View style={{ marginTop: 120 }}>
+      <View style={{ marginTop: Constants.statusBarHeight + 100 }}>
         <ProfileFriendsNavBar mode="friends" />
       </View>
       <ScrollView style={styles.scrollView}>
