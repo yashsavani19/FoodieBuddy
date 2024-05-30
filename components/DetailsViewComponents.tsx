@@ -7,6 +7,7 @@ import {
   Pressable,
   Linking,
   ScrollView,
+  Share,
 } from "react-native";
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
@@ -21,7 +22,10 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import BackButton from "./BackButton";
+import ShareButton from "./ShareButton";
+import { OpenStatusLabelDetails } from "./OpenIndicatorComponents/OpenStatusLabel";
 import Constants from "expo-constants";
 
 // Assume all images are imported correctly
@@ -34,6 +38,7 @@ const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location.png");
 const price_icon = require("@/assets/images/price-tag.png");
+
 
 // Props interface for the component
 interface DetailsViewComponentsProps {
@@ -60,6 +65,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     website,
     distance,
     price,
+    currentOpeningHours
   } = restaurant;
 
   const {
@@ -226,14 +232,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
           <BackButton />
         </View>
         <ScrollView style={{paddingHorizontal: 15}}>
-          <View style={styles.imageTitleIconContainer}>
-            {/* <ScrollView style={{flex:1}}> */}
-            <Text style={styles.restaurantTitle}>{name}</Text>
-            <View style={styles.imageContainer}>
-              <Image
-                source={image ? { uri: image } : default_pic}
-                style={styles.restaurantImage}
-              />
+          <View>
+            <View style={{ alignItems: "center" }}>
+              <Text style={styles.restaurantTitle}>{name}</Text>
+              <View style={styles.imageContainer}>
+                <Image
+                  source={image ? { uri: image } : default_pic}
+                  style={styles.restaurantImage}
+                />
+              </View>
             </View>
             {/* Interaction Buttons */}
             <View style={styles.interactionContainer}>
@@ -266,19 +273,24 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                   />
                 </Pressable>
               </View>
-              <Pressable onPress={handleBookmarkPress}>
-                <Animated.Image
-                  source={{
-                    uri: isBookmarkPressed
-                      ? images.bookmarkSelectedIcon
-                      : images.bookmarkIcon,
-                  }}
-                  style={[
-                    styles.smallIcon,
-                    { transform: [{ scale: bookmarkScale }] },
-                  ]}
-                />
-              </Pressable>
+              <View style={styles.iconContainer}>
+                <Pressable onPress={handleBookmarkPress}>
+                  <Animated.Image
+                    source={{
+                      uri: isBookmarkPressed
+                        ? images.bookmarkSelectedIcon
+                        : images.bookmarkIcon,
+                    }}
+                    style={[
+                      styles.smallIcon,
+                      { transform: [{ scale: bookmarkScale }] },
+                    ]}
+                  />
+                </Pressable>
+              </View>
+              <View style={styles.iconContainer}>
+                <ShareButton restaurant={restaurant} size={24} />
+              </View>
             </View>
           </View>
 
@@ -287,56 +299,56 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             {/* Left Container */}
             <View style={styles.leftContainer}>
               {/* Restaurant Info */}
-              <View style={styles.restaurantInfoContainer}>
-                <View style={styles.ratingContainer}>
+                <View style={styles.detailTextContainer}>
                   <Image source={star_icon} style={styles.smallIcon} />
                   <Text style={styles.infoText}>
                     {rating ? `${rating} / 5` : `N/A`}
                   </Text>
                 </View>
 
-                <View style={styles.priceLevelContainer}>
+                <View style={styles.detailTextContainer}>
                   <Image source={price_icon} style={styles.smallIcon} />
                   <Text style={styles.infoText}>
                     {price ? displayPriceLevel(parseInt(price)) : `N/A`}
                   </Text>
                 </View>
 
-                <View style={styles.phoneContainer}>
+                <View style={styles.detailTextContainer}>
                   <Image source={phone_icon} style={styles.smallIcon} />
                   <Text
                     selectable={phone != undefined}
-                    style={phone ? styles.infoTextUnderlined : styles.infoText}
+                    style={phone ? styles.linkText : styles.infoText}
                   >
                     {phone ? phone.replace(/\s/g, "") : `N/A`}
                   </Text>
                 </View>
 
-                <View style={styles.websiteContainer}>
+                <View style={styles.detailTextContainer}>
                   <Image source={website_icon} style={styles.smallIcon} />
                   <Text
                     onPress={() => handleWebsitePress(restaurant.website)}
-                    style={styles.infoTextUnderlined}
+                    style={styles.linkText}
                   >
                     {website ? `Website` : `N/A`}
                   </Text>
                 </View>
-              </View>
             </View>
 
             <View style={styles.rightContainer}>
-              <View style={styles.addressContainer}>
-                <Image source={location_icon} style={styles.smallIcon} />
+              <View style={styles.detailTextContainer}>
+                <Image source={location_icon} style={[styles.smallIcon, {marginTop: 5}]} />
                 <Text selectable={true} style={styles.infoText}>
                   {displayAddress}
                 </Text>
               </View>
-              <View style={styles.distanceContainer}>
-                <Image source={distance_icon} style={styles.smallIcon} />
+              <View style={styles.detailTextContainer}>
+                <Image source={distance_icon} style={[styles.smallIcon, {marginTop: 2}]} />
                 <Text style={styles.infoText}>{formatDistance(distance)}</Text>
               </View>
+                <OpenStatusLabelDetails restaurant={restaurant} />
             </View>
           </View>
+          <View style={{paddingVertical: 10}}/>
           {/* Map View */}
           {/* <View style={styles.mapViewContainer}> */}
           {/* Wrap MapView inside a View */}
@@ -412,24 +424,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   iconContainer: {
-    flexDirection: "row",
     alignItems: "center",
-    width: 100,
-    height: "100%",
   },
   smallIcon: {
     width: 20,
     height: 20,
     resizeMode: "contain",
-    marginLeft: 2,
   },
   imageTitleIconContainer: {
-    width: "100%",
-    height: "auto",
-    justifyContent: "center",
-    alignItems: "center",
+    // width: "100%",
+    // height: "auto",
+    // justifyContent: "center",
+    // alignItems: "center",
   },
-
   imageContainer: {
     width: "100%",
     height: "auto",
@@ -439,37 +446,27 @@ const styles = StyleSheet.create({
   interactionContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-around",
     marginVertical: 8,
   },
   restaurantDetailsContainer: {
     flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 1,
     width: "100%",
-    padding: 20,
-    paddingRight: "5%",
-    paddingLeft: 0,
+    padding: "5%"
   },
-  restaurantInfoContainer: {
+  leftContainer: {
     width: "50%",
-    paddingRight: 15,
+  },
+  rightContainer: {
+    width: "50%",
   },
   restaurantImage: {
     width: "100%",
     height: 200, // Set a fixed height or make it responsive as needed
     borderRadius: 10,
     marginTop: 8,
-  },
-  addressRating: {
-    fontSize: 16,
-    color: "#333",
-    marginVertical: 4,
-  },
-  ratingContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 4,
   },
   mapLinkText: {
     // fontSize: 16,
@@ -483,51 +480,26 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
   },
-  phoneWebsite: {
-    fontSize: 16,
-    color: "#333",
-    marginVertical: 4,
-  },
-  restaurantDistance: {
-    fontSize: 16,
-    color: "#333",
-    marginVertical: 4,
-  },
-
   infoText: {
     fontSize: 14,
-    color: "black",
+    color: "#333",
     marginLeft: 6,
+    marginVertical: 4,
     textAlign: "left",
+    flex: 1
   },
-  infoTextUnderlined: {
+  linkText: {
     fontSize: 14,
     color: "black",
     marginLeft: 6,
     textAlign: "left",
     textDecorationLine: "underline",
+    flex: 1
   },
-
-  websiteContainer: {
+  detailTextContainer: {
     marginVertical: 4,
     flexDirection: "row",
-  },
-  priceLevelContainer: {
-    marginVertical: 4,
-    flexDirection: "row",
-  },
-  distanceContainer: {
-    marginVertical: 4,
-    flexDirection: "row",
-  },
-  phoneContainer: {
-    marginVertical: 4,
-    flexDirection: "row",
-    flex: 1, 
-  },
-  addressContainer: {
-    marginVertical: 4,
-    flexDirection: "row",
+    //justifyContent: 'space-between',
   },
   findOnMapBtn: {
     marginVertical: 5,
@@ -540,12 +512,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     //alignSelf: "flex-end",
     zIndex: 1,
-  },
-  leftContainer: {
-    flex: 2,
-  },
-  rightContainer: {
-    flex: 1,
   },
   map: {
     width: "100%",

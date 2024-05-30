@@ -14,9 +14,9 @@ import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { NavigationProp, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import FavouriteSpotsButton from "@/components/FavouriteSpotsButton";
-import VisitedButton from "@/components/VisitedButton";
-import BookmarksButton from "@/components/BookmarkButton";
+import FavouriteSpotsButton from "@/components/SavedLists/FavouriteSpotsButton";
+import VisitedButton from "@/components/SavedLists/VisitedButton";
+import BookmarksButton from "@/components/SavedLists/BookmarkButton";
 import {
   fetchFriendsBookmarks,
   fetchFriendsFavourites,

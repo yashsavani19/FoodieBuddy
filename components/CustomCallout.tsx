@@ -1,10 +1,10 @@
 // CustomCallout.tsx
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { WebView } from 'react-native-webview';
-import StarRating from './StarRating';
-import images from '@/assets/data/images';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { WebView } from "react-native-webview";
+import StarRating from "./StarRating";
+import images from "@/assets/data/images";
 
 interface CustomCalloutProps {
   name: string;
@@ -12,7 +12,11 @@ interface CustomCalloutProps {
   image?: string;
 }
 
-const CustomCallout: React.FC<CustomCalloutProps> = ({ name, rating, image }) => {
+const CustomCallout: React.FC<CustomCalloutProps> = ({
+  name,
+  rating,
+  image,
+}) => {
   return (
     <View style={styles.calloutContainer}>
       <Text style={styles.name}>{name}</Text>
@@ -23,9 +27,12 @@ const CustomCallout: React.FC<CustomCalloutProps> = ({ name, rating, image }) =>
         style={styles.webViewStyle}
         source={{
           html: `
-            <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
-              <img src="${image || images.defaultRestaurantImage}" style="width: 100%; height: 100%; object-fit: cover; object-position: center center;"/>
-            </div>
+          <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%;">
+          <img src="${
+            image || images.defaultRestaurantImage
+          }" style="width: 100%; height: 100%; object-fit: cover; object-position: center center;"/>
+      </div>
+      
           `,
         }}
         automaticallyAdjustContentInsets={true}
@@ -42,20 +49,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     backgroundColor: "white",
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 5,
   },
   name: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 16,
     marginBottom: 5,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 5,
   },
   price: {
@@ -65,7 +67,7 @@ const styles = StyleSheet.create({
     width: 180,
     height: 100,
     borderRadius: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginTop: 5,
   },
 });

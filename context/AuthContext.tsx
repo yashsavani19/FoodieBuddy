@@ -7,6 +7,7 @@ import {
   addUsername,
   checkUsername,
   updateUsername,
+  addPreferences,
 } from "@/controller/DatabaseHandler";
 
 interface SignInResponse {
@@ -70,7 +71,13 @@ export function AuthProvider(props: ProviderProps) {
       if (!user) {
         router.replace("/LoginView");
       } else if (user) {
+        
         console.log("User is logged in");
+        try {
+          console.log("Preferences added");
+        } catch (error) {
+          console.error("Error adding preferences: ", error);
+        }
         router.push("/(tabs)/RestaurantListViews/ListView");
       }
     }, [user, authInitialised, isNavigationReady]);
@@ -229,6 +236,11 @@ export function AuthProvider(props: ProviderProps) {
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
+  
+    // Add user to Firestore and add default preferences
+    await addUser(currentAuth.currentUser.uid, email, username);
+    await addPreferences(currentAuth.currentUser.uid); // Ensure this is done
+  
     return true;
   };
 

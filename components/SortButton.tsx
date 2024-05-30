@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Sort } from "@/model/Sort";
-import { sortOptions } from "@/assets/data/sort-options";
+import { sortOptions } from "@/model/sort-options";
 
 // Define the props for the Filters component
 interface SortProps {

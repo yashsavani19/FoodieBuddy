@@ -1,8 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import SavedListItem from "@/components/SavedListItem";
-import { Saved } from "@/model/Saved";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
 import { RootStackParamList } from "@/constants/navigationTypes";

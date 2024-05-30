@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Modal,
@@ -13,12 +12,14 @@ import {
   Dimensions,
 } from "react-native";
 import FriendItem from "./FriendChatItem";
+
 interface Friend {
   id: string;
   name: string;
   avatar: string;
   isAdded: boolean;
 }
+
 interface CreateChatRoomModalProps {
   visible: boolean;
   onClose: () => void;
@@ -30,6 +31,7 @@ interface CreateChatRoomModalProps {
   friends: Friend[];
   toggleFriendAdded: (id: string) => void;
 }
+
 const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
   visible,
   onClose,
@@ -53,12 +55,13 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.modalOverlay}
       >
-        <TouchableOpacity
-          style={styles.modalBackground}
-          onPress={onClose}
-          activeOpacity={1}
-        >
-          <TouchableOpacity style={styles.modalContainer} activeOpacity={1}>
+        <View style={styles.modalBackground}>
+          <TouchableOpacity
+            style={styles.closeTouchable}
+            onPress={onClose}
+            activeOpacity={1}
+          />
+          <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Create New Chat Room</Text>
             <TextInput
               style={styles.input}
@@ -79,7 +82,10 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
             <FlatList
               data={sortedFriends}
               renderItem={({ item }) => (
-                <FriendItem friend={item} toggleFriendAdded={toggleFriendAdded} />
+                <FriendItem
+                  friend={item}
+                  toggleFriendAdded={toggleFriendAdded}
+                />
               )}
               keyExtractor={(item) => item.id}
               style={styles.friendsList}
@@ -98,12 +104,13 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
                 <Text style={styles.createButtonText}>Create Chat</Text>
               </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          </View>
+        </View>
       </KeyboardAvoidingView>
     </Modal>
   );
 };
+
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
@@ -117,8 +124,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  closeTouchable: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
   modalContainer: {
-    height: 400,
+    height: 380,
     width: Dimensions.get("window").width * 0.95,
     backgroundColor: "#fff",
     borderRadius: 20,
@@ -185,4 +200,5 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 });
+
 export default CreateChatRoomModal;
