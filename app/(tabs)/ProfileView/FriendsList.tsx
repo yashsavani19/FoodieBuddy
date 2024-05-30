@@ -31,7 +31,11 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
         <Image
           resizeMode="contain"
           style={styles.listImage}
-          source={{ uri: friend.profileImageUrl }}
+          source={
+            typeof friend.profileImageUrl === "string"
+              ? { uri: friend.profileImageUrl }
+              : friend.profileImageUrl
+          }
         />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
@@ -55,7 +59,9 @@ const FriendsList = () => {
   // Update orderedFriends when friends changes
   useEffect(() => {
     if (friends.length > 0) {
-      setOrderedFriends([...friends].sort((a, b) => a.username.localeCompare(b.username)));
+      setOrderedFriends(
+        [...friends].sort((a, b) => a.username.localeCompare(b.username))
+      );
     }
   }, [friends]);
 
