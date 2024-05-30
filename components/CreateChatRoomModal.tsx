@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
+  Dimensions,
 } from "react-native";
 import FriendItem from "./FriendChatItem";
 interface Friend {
@@ -117,8 +118,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContainer: {
-    height: 500,
-    width: 320,
+    height: 400,
+    width: Dimensions.get("window").width * 0.95,
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 15,
