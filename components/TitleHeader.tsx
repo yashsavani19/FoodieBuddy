@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "absolute",
-    height: 120,
+    height: Constants.statusBarHeight + 100,
     width: "100%",
     flexDirection: "row",
     justifyContent: "center",

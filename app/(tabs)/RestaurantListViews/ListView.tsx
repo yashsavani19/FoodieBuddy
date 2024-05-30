@@ -12,6 +12,7 @@ import RestaurantListItem from "@/components/RestaurantListItem";
 import { AppContext } from "@/context/AppContext";
 import Colors from "@/constants/Colors";
 import TitleHeader from "@/components/TitleHeader";
+import Constants from "expo-constants";
 
 const HomeView: FC = () => {
   const { 
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     backgroundColor: Colors.backgroundColor,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   noMatches: {
     flex: 1,
