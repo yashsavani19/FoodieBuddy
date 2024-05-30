@@ -14,7 +14,11 @@ import {
   Image,
   Dimensions,
 } from "react-native";
-import { useRoute, useNavigation, NavigationProp } from "@react-navigation/native";
+import {
+  useRoute,
+  useNavigation,
+  NavigationProp,
+} from "@react-navigation/native";
 import {
   sendMessage,
   deleteMessage,
@@ -36,10 +40,10 @@ import NavBar from "@/components/NavBar";
 import SettingsModal from "@/components/SettingsModal";
 import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import { useOpenAIHandler } from "@/controller/OpenAIHandler"; 
+import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import Constants from "expo-constants";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 interface Message {
   id: string;
@@ -59,16 +63,18 @@ const ChatScreen: React.FC = () => {
   const route = useRoute();
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler(); 
+  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<{ [key: string]: { isTyping: boolean, username: string } }>({});
-  const [isBuddyOn, setIsBuddyOn] = useState(false); 
+  const [typingUsers, setTypingUsers] = useState<{
+    [key: string]: { isTyping: boolean; username: string };
+  }>({});
+  const [isBuddyOn, setIsBuddyOn] = useState(false);
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png"); 
+  const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
 
   useEffect(() => {
     let isMounted = true;
@@ -111,8 +117,8 @@ const ChatScreen: React.FC = () => {
               ? data.timestamp.toDate()
               : new Date();
             const usernameData = usernames[data.userId] || {
-              username: data.userId === 'buddy' ? 'Buddy' : "Unknown User",
-              profileImageUrl: data.userId === 'buddy' ? buddyProfileImage : "",
+              username: data.userId === "buddy" ? "Buddy" : "Unknown User",
+              profileImageUrl: data.userId === "buddy" ? buddyProfileImage : "",
             };
             return {
               id: docSnapshot.id,
@@ -137,9 +143,12 @@ const ChatScreen: React.FC = () => {
 
     fetchMessagesAndSubscribe();
 
-    const unsubscribeTypingStatus = listenToTypingStatus(chatRoomId, (typingUsers) => {
-      setTypingUsers(typingUsers);
-    });
+    const unsubscribeTypingStatus = listenToTypingStatus(
+      chatRoomId,
+      (typingUsers) => {
+        setTypingUsers(typingUsers);
+      }
+    );
 
     return () => {
       isMounted = false;
@@ -167,7 +176,12 @@ const ChatScreen: React.FC = () => {
 
         await sendMessage(chatRoomId, newMessage);
         setNewMessage("");
-        await updateTypingStatus(chatRoomId, auth.currentUser?.uid || "", auth.currentUser?.displayName || "Unknown User", false);
+        await updateTypingStatus(
+          chatRoomId,
+          auth.currentUser?.uid || "",
+          auth.currentUser?.displayName || "Unknown User",
+          false
+        );
 
         if (isBuddyOn) {
           const aiResponse = await sendAIMessage(newMessage);
@@ -227,20 +241,34 @@ const ChatScreen: React.FC = () => {
     );
   };
 
-  const handleProfilePress = (friend: { profileImageUrl: string | number; username: string; uid: string }) => {
+  const handleProfilePress = (friend: {
+    profileImageUrl: string | number;
+    username: string;
+    uid: string;
+  }) => {
     if (friend.uid !== "buddy") {
       navigation.navigate("FriendProfile", { friend });
     }
-  };  
+  };
 
   const handleTyping = (text: string) => {
     setNewMessage(text);
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    updateTypingStatus(chatRoomId, auth.currentUser?.uid || "", auth.currentUser?.displayName || "Unknown User", true);
+    updateTypingStatus(
+      chatRoomId,
+      auth.currentUser?.uid || "",
+      auth.currentUser?.displayName || "Unknown User",
+      true
+    );
     typingTimeoutRef.current = setTimeout(() => {
-      updateTypingStatus(chatRoomId, auth.currentUser?.uid || "", auth.currentUser?.displayName || "Unknown User", false);
+      updateTypingStatus(
+        chatRoomId,
+        auth.currentUser?.uid || "",
+        auth.currentUser?.displayName || "Unknown User",
+        false
+      );
     }, 3000);
   };
 
@@ -271,7 +299,9 @@ const ChatScreen: React.FC = () => {
     const isCurrentUser = item.userId === auth.currentUser?.uid;
     const formattedDate = new Date(item.timestamp).toLocaleString();
 
-    const profileImageUri = item.userProfileImage || "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg";
+    const profileImageUri =
+      item.userProfileImage ||
+      "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg";
 
     return (
       <TouchableOpacity onPress={() => confirmDeleteMessage(item.id)}>
@@ -287,7 +317,15 @@ const ChatScreen: React.FC = () => {
           >
             {!isCurrentUser && (
               <View style={styles.otherUserHeader}>
-                <TouchableOpacity onPress={() => handleProfilePress({ profileImageUrl: profileImageUri, username: item.username, uid: item.userId })}>
+                <TouchableOpacity
+                  onPress={() =>
+                    handleProfilePress({
+                      profileImageUrl: profileImageUri,
+                      username: item.username,
+                      uid: item.userId,
+                    })
+                  }
+                >
                   <View style={styles.profileImageContainer}>
                     <Text
                       style={styles.usernameText}
@@ -297,7 +335,11 @@ const ChatScreen: React.FC = () => {
                       {item.username}
                     </Text>
                     <Image
-                      source={typeof profileImageUri === 'string' ? { uri: profileImageUri } : profileImageUri}
+                      source={
+                        typeof profileImageUri === "string"
+                          ? { uri: profileImageUri }
+                          : profileImageUri
+                      }
                       style={styles.profileImage}
                     />
                   </View>
@@ -354,7 +396,11 @@ const ChatScreen: React.FC = () => {
           <View style={styles.inputContainer}>
             <TouchableOpacity onPress={handleBuddyToggle}>
               <Image
-                source={isBuddyOn ? require("../../../assets/images/buddy-toggle-on.png") : require("../../../assets/images/buddy-toggle-off.png")}
+                source={
+                  isBuddyOn
+                    ? require("../../../assets/images/buddy-toggle-on.png")
+                    : require("../../../assets/images/buddy-toggle-off.png")
+                }
                 style={styles.image}
               />
             </TouchableOpacity>
@@ -388,9 +434,10 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+    backgroundColor: "#f2f2f2",
   },
   flatListContentContainer: {
-    paddingBottom: 100, 
+    paddingBottom: 100,
   },
   messageContainer: {
     marginVertical: 10,
@@ -469,10 +516,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderColor: "#e2e2e2",
-    width: "95%",
+    paddingHorizontal: 20,
     alignSelf: "center",
-    borderRadius: 20,
-    height: 60
+    height: 60,
   },
   input: {
     flex: 1,
@@ -482,7 +528,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 15,
     backgroundColor: "#fff",
-    height: 40, 
+    height: 40,
   },
   sendButton: {
     marginLeft: 10,

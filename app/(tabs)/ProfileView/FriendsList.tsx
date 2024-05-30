@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -55,6 +56,7 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
 const FriendsList = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [orderedFriends, setOrderedFriends] = useState<Friend[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // Update orderedFriends when friends changes
@@ -70,6 +72,7 @@ const FriendsList = () => {
   useEffect(() => {
     const unsubscribe = subscribeToFriends((friends) => {
       setFriends(friends);
+      setIsLoading(false);
     });
 
     return () => {
@@ -93,7 +96,11 @@ const FriendsList = () => {
             <AntDesign name="arrowleft" style={styles.backArrow} />
           </TouchableOpacity>
         </View>
-        {friends.length === 0 ? (
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#363232" />
+          </View>
+        ) : friends.length === 0 ? (
           <View style={styles.noFriends}>
             <Text style={styles.noFriendsText}>You have no friends yet</Text>
           </View>
@@ -129,7 +136,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     padding: 10,
-
     height: 80,
   },
   listItemText: {
@@ -163,5 +169,10 @@ const styles = StyleSheet.create({
     fontSize: 35,
     color: "#363232",
     padding: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

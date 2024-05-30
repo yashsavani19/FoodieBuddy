@@ -12,13 +12,14 @@ import {
   Dimensions,
 } from "react-native";
 import FriendItem from "./FriendChatItem";
+import { Friend } from "@/model/ChatFriend";
 
-interface Friend {
-  id: string;
-  name: string;
-  avatar: string;
-  isAdded: boolean;
-}
+// interface Friend {
+//   id: string;
+//   name: string;
+//   avatar: string;
+//   isAdded: boolean;
+// }
 
 interface CreateChatRoomModalProps {
   visible: boolean;
