@@ -37,6 +37,7 @@ import SettingsModal from "@/components/SettingsModal";
 import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler"; 
+import Constants from "expo-constants";
 
 const { width, height } = Dimensions.get('window');
 
@@ -382,7 +383,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: 120,
+    paddingTop: Constants.statusBarHeight + 100,
     backgroundColor: "#fff",
   },
   contentContainer: {
