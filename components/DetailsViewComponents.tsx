@@ -21,8 +21,8 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
-import { AntDesign } from "@expo/vector-icons";
 import BackButton from "./BackButton";
+import Constants from "expo-constants";
 
 // Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     // position: "absolute",
     width: "100%",
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   restaurantTitle: {
     fontSize: 25,
