@@ -30,7 +30,7 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
           source={require("../assets/images/buddy-icon.png")}
           style={styles.image}
         />
-        <View testID="loading-view" style={styles.receivedTextBox}>
+        <View testID="loading-view" style={styles.buddyMessage}>
           <ActivityIndicator style={{ margin: 5 }} size="small" color="white" />
         </View>
       </View>
@@ -56,14 +56,14 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
               source={imageUrl}
               style={styles.image}
             />
-            <View style={styles.receivedTextBox}>
-              <Text style={styles.text}>{text}</Text>
+            <View style={styles.buddyMessage}>
+              <Text style={styles.buddyText}>{text}</Text>
             </View>
           </>
         ) : (
           <>
-            <View style={styles.sentTextBox} testID="sentTextBox">
-              <Text style={styles.text}>{text}</Text>
+            <View style={styles.currentUserMessage} testID="sentTextBox">
+              <Text style={styles.currentUserText}>{text}</Text>
             </View>
             <Image
               testID="message-image"
@@ -80,7 +80,7 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
 const styles = StyleSheet.create({
   messageContainer: {
     flexDirection: "row",
-    padding: 0,
+    padding: 5,
     alignItems: "center",
     marginBottom: 10,
   },
@@ -89,24 +89,30 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     margin: 5,
-    marginVertical: 10,
   },
-  sentTextBox: {
-    backgroundColor: "#3464ac",
-    borderRadius: 15,
-    borderBottomEndRadius: 3,
+  currentUserMessage: {
+    backgroundColor: "#f76116",
+    borderRadius: 20,
     padding: 10,
+    maxWidth: "95%",
+    borderBottomRightRadius: 0,
   },
-  receivedTextBox: {
-    backgroundColor: "#363232",
-    borderRadius: 15,
-    borderBottomStartRadius: 3,
+  buddyMessage: {
+    backgroundColor: "#d3d3d3",
+    borderRadius: 20,
     padding: 10,
-    flexDirection: "row",
+    maxWidth: "95%",
+    borderBottomLeftRadius: 0,
   },
-  text: {
-    color: "white",
+  buddyText: {
+    color: "#000",
     fontSize: 16,
+    fontWeight: '500',
+  },
+  currentUserText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: '500',
   },
   suggestionText: {
     color: "black",
@@ -114,10 +120,11 @@ const styles = StyleSheet.create({
   },
   sentMessage: {
     justifyContent: "flex-end",
-    marginLeft: 100,
+    marginLeft: "25%",
   },
   receivedMessage: {
-    marginRight: 100,
+    justifyContent: "flex-start",
+    marginRight: "25%",
   },
   loading: {
     backgroundColor: "white",
