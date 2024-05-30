@@ -10,6 +10,7 @@ import {
   Platform,
   FlatList,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import FriendItem from "./FriendChatItem";
 
@@ -62,10 +63,7 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
           activeOpacity={1}
         >
           <View style={styles.modalContainer}>
-            <TouchableOpacity
-              style={styles.modalContent}
-              activeOpacity={1}
-            >
+            <TouchableOpacity style={styles.modalContent} activeOpacity={1}>
               <Text style={styles.modalTitle}>Create New Chat Room</Text>
               <TextInput
                 style={styles.input}
@@ -83,14 +81,18 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
                 autoCorrect={false}
               />
               <Text style={styles.friendsTitle}>Friends</Text>
-              <FlatList
-                data={sortedFriends}
-                renderItem={({ item }) => (
-                  <FriendItem friend={item} toggleFriendAdded={toggleFriendAdded} />
-                )}
-                keyExtractor={(item) => item.id}
-                style={styles.friendsList}
-              />
+              <ScrollView style={styles.friendsList}>
+                <FlatList
+                  data={sortedFriends}
+                  renderItem={({ item }) => (
+                    <FriendItem
+                      friend={item}
+                      toggleFriendAdded={toggleFriendAdded}
+                    />
+                  )}
+                  keyExtractor={(item) => item.id}
+                />
+              </ScrollView>
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   onPress={onClose}
