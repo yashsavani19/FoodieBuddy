@@ -8,6 +8,7 @@ import { updatePreferences } from "@/controller/DatabaseHandler";
 import { PreferenceList } from "@/model/PreferenceList";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
+import Constants from "expo-constants";
 
 const FoodPreferencesView: React.FC = () => {
   const { preferences, setPreferences, } =
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
 });
 
