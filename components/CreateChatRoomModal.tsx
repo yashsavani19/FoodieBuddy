@@ -8,9 +8,8 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  FlatList,
+  SectionList,
   Dimensions,
-  ScrollView,
 } from "react-native";
 import FriendItem from "./FriendChatItem";
 
@@ -81,18 +80,17 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
                 autoCorrect={false}
               />
               <Text style={styles.friendsTitle}>Friends</Text>
-              <ScrollView style={styles.friendsList}>
-                <FlatList
-                  data={sortedFriends}
-                  renderItem={({ item }) => (
-                    <FriendItem
-                      friend={item}
-                      toggleFriendAdded={toggleFriendAdded}
-                    />
-                  )}
-                  keyExtractor={(item) => item.id}
-                />
-              </ScrollView>
+              <SectionList
+                sections={[{ title: 'Friends', data: sortedFriends }]}
+                renderItem={({ item }) => (
+                  <FriendItem
+                    friend={item}
+                    toggleFriendAdded={toggleFriendAdded}
+                  />
+                )}
+                keyExtractor={(item) => item.id}
+                style={styles.friendsList}
+              />
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   onPress={onClose}
