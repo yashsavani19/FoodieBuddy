@@ -1,10 +1,9 @@
-// CustomCallout.tsx
-
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { WebView } from "react-native-webview";
 import StarRating from "./StarRating";
 import images from "@/assets/data/images";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 interface CustomCalloutProps {
   name: string;
@@ -31,8 +30,7 @@ const CustomCallout: React.FC<CustomCalloutProps> = ({
           <img src="${
             image || images.defaultRestaurantImage
           }" style="width: 100%; height: 100%; object-fit: cover; object-position: center center;"/>
-      </div>
-      
+          </div>
           `,
         }}
         automaticallyAdjustContentInsets={true}
@@ -45,30 +43,30 @@ const CustomCallout: React.FC<CustomCalloutProps> = ({
 
 const styles = StyleSheet.create({
   calloutContainer: {
-    width: 200,
-    padding: 10,
-    borderRadius: 10,
+    width: wp('50%'),
+    padding: wp('3%'),
+    borderRadius: wp('2%'),
     backgroundColor: "white",
   },
   name: {
     fontWeight: "bold",
-    fontSize: 16,
-    marginBottom: 5,
+    fontSize: wp('4%'),
+    marginBottom: hp('1%'),
   },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 5,
+    marginBottom: hp('1%'),
   },
   price: {
-    marginLeft: 5,
+    marginLeft: wp('1%'),
   },
   webViewStyle: {
-    width: 180,
-    height: 100,
-    borderRadius: 10,
+    width: wp('45%'),
+    height: hp('15%'),
+    borderRadius: wp('2%'),
     overflow: "hidden",
-    marginTop: 5,
+    marginTop: hp('1%'),
   },
 });
 
