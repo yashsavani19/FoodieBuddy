@@ -2,7 +2,7 @@ import {Sort} from './Sort';
 
 export const SortOptions: Sort[] = [
     {
-        sort: "Preference", selected: false
+    sort: "Preference", selected: false
     },
     {
     sort: "Price: Low to High", selected: false
