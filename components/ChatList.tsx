@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#2E2E2E",
-    paddingTop: hp('0.2%'),
+    paddingTop: hp('0.1%'),
   },
   addButton: {
     position: "absolute",
