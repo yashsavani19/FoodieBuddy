@@ -1,30 +1,43 @@
 import axios from "axios";
-import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
 import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
 import { IMessage } from "@/model/AITypes";
-import { useCallback, useContext, useState } from "react";
-import { AppContext } from "@/context/AppContext";
+import { useCallback, useState } from "react";
 
 export function useOpenAIHandler() {
-  const { localRestaurants } = useContext(AppContext);
+  const [systemPrompt, setSystemPromptState] = useState<string>("");
   const [messages, setMessages] = useState<IMessage[]>([
     {
       role: "system",
-      content: DefaultAISystemPrompt(localRestaurants),
+      content: systemPrompt,
     },
   ]);
+
+  const setSystemPrompt = useCallback((inputSystemPrompt: string) => {
+    setSystemPromptState(inputSystemPrompt);
+    setMessages([
+      {
+        role: "system",
+        content: inputSystemPrompt,
+      },
+    ]);
+    // console.log("System Prompt:", inputSystemPrompt);
+  }, []);
 
   const resetMessages = useCallback(() => {
     setMessages([
       {
         role: "system",
-        content: DefaultAISystemPrompt(localRestaurants),
+        content: systemPrompt,
       },
     ]);
-  }, [localRestaurants]);
+  }, [systemPrompt]);
 
   const sendMessage = useCallback(
     async (message: string): Promise<string> => {
+      if (!systemPrompt) {
+        throw new Error("System prompt is not set.");
+      }
+
       try {
         const userMessage: IMessage = { role: "user", content: message };
 
@@ -36,13 +49,21 @@ export function useOpenAIHandler() {
           }
           return newMessages;
         });
-        console.log("Sent Messages:", messages);
+
+        // console.log("Sent Messages:", messages);
 
         const response = await axios.post(
           `https://api.openai.com/v1/chat/completions`,
           {
             model: "gpt-3.5-turbo",
-            messages: [...messages, userMessage],
+            messages: [
+              {
+                role: "system",
+                content: systemPrompt,
+              },
+              ...messages,
+              userMessage,
+            ],
           },
           {
             headers: {
@@ -69,8 +90,8 @@ export function useOpenAIHandler() {
         );
       }
     },
-    [] // Removed messages from dependencies
+    [systemPrompt, messages]
   );
 
-  return { messages, sendMessage, resetMessages };
+  return { messages, sendMessage, resetMessages, setSystemPrompt };
 }

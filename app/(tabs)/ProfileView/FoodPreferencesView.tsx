@@ -11,7 +11,7 @@ import Constants from "expo-constants";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences userObject } = useContext(AppContext);
+  const { preferences, setPreferences, userObject } = useContext(AppContext);
   const [localPreferences, setLocalPreferences] = useState<PreferenceList[]>(
     userObject.preferences || []
   );

@@ -20,9 +20,8 @@ import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
 import RestaurantListItem from "../../../components/RestaurantListItem";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import TitleHeader from "@/components/TitleHeader";
 import SettingsModal from "@/components/SettingsModal";
-import NavBar from "@/components/NavBar";
+import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
 
 // Ensure the paths to the image assets are correct
 const userIcon = require("../../../assets/images/user-icon.png");
@@ -35,7 +34,7 @@ const buddyIcon = require("../../../assets/images/buddy-icon.png");
  */
 const Chat: React.FC = () => {
   const { localRestaurants } = useContext(AppContext);
-  const { sendMessage, resetMessages } = useOpenAIHandler();
+  const { sendMessage, resetMessages, setSystemPrompt } = useOpenAIHandler();
   const [messages, setMessages] = useState<MessageProps[]>([
     initialBuddyMessage,
   ]);
@@ -56,6 +55,10 @@ const Chat: React.FC = () => {
       return () => {};
     }, [])
   );
+
+  useEffect(() => {
+    setSystemPrompt(DefaultAISystemPrompt(localRestaurants));
+  }, []);
 
   /**
    * AI Chat function to send user message to AI and get response
@@ -190,7 +193,7 @@ const Chat: React.FC = () => {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} 
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.innerContainer}>
@@ -293,7 +296,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 15,
     backgroundColor: "#fff",
-    height: 40, 
+    height: 40,
   },
   modalOverlay: {
     flex: 1,
