@@ -8,7 +8,7 @@ interface SavePreferenceButtonProps {
 const SavePreferenceButton: React.FC<SavePreferenceButtonProps> = ({ onSave }) => {
   return (
     <TouchableOpacity style={styles.button} onPress={onSave}>
-      <Text style={styles.buttonText}>Save Preferences</Text>
+      <Text style={styles.buttonText}>Save Preferences </Text>
     </TouchableOpacity>
   );
 };

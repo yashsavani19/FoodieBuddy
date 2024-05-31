@@ -14,8 +14,8 @@ import MapView, {
   PROVIDER_GOOGLE,
   MapMarker,
 } from "react-native-maps";
-import MapViewStyle from "./../app/Utils/MapViewStyle.json";
-import RestaurantMarker from "./../components/RestaurantMarker";
+import MapViewStyle from "../app/Utils/MapViewStyle.json";
+import RestaurantMarker from "./RestaurantMarker";
 import { AppContext } from "../context/AppContext";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";

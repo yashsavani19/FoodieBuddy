@@ -488,7 +488,7 @@ export const fetchFriends = async (): Promise<Friend[]> => {
     querySnapshot.forEach(async (doc) => {
       const username = await getUsername(doc.id);
       const profileImageUrl = await getProfileImageUrl(doc.id);
-      console.log("Friends fetched: ", username, profileImageUrl, doc.id);
+      // console.log("Friends fetched: ", username, profileImageUrl, doc.id);
       friends.push({
         uid: doc.id,
         username: username,
