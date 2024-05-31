@@ -95,7 +95,7 @@ export const updateProfilePicture = async (
     const userCollection = `users/${userId}`;
     await setDoc(
       doc(db, userCollection),
-      { profilePicture: profileImageUrl },
+      { profileImageUrl: profileImageUrl },
       { merge: true }
     );
     const user = await fetchUser(userId);
@@ -103,7 +103,7 @@ export const updateProfilePicture = async (
       const usernameCollection = `usernames/${user.username}`;
       await setDoc(
         doc(db, usernameCollection),
-        { profilePicture: profileImageUrl },
+        { profileImageUrl: profileImageUrl },
         { merge: true }
       );
     }
