@@ -20,10 +20,9 @@ import { AppContext } from "@/context/AppContext";
 import * as ImagePicker from 'expo-image-picker';
 import ReactNativeModal from 'react-native-modal';
 import AntDesign from "@expo/vector-icons/build/AntDesign";
-import { uploadProfilePicture, updateProfilePicture, fetchUser } from "@/controller/FirebaseHandler";
+import { uploadProfilePicture, updateProfilePicture, fetchUser } from "@/controller/ProfilePictureHandler";
 
 export default function UserProfileView() {
-  // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants } =
     useContext(AppContext);
