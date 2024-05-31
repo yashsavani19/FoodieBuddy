@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     textAlign: "center",
     width: width,
-    maxWidth: 80,
+    maxWidth: width * 0.1,
     
   },
   inputContainer: {
