@@ -40,8 +40,8 @@ export default function UserProfileView() {
       const userId = user?.uid;
       if (userId) {
         const userData = await fetchUser(userId);
-        if (userData?.profilePicture) {
-          setSelectedImage(userData.profilePicture);
+        if (userData?.profileImageUrl) {
+          setSelectedImage(userData.profileImageUrl);
         }
       }
     };
