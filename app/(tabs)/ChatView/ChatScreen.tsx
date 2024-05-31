@@ -18,6 +18,7 @@ import {
   useRoute,
   useNavigation,
   NavigationProp,
+  TabRouter,
 } from "@react-navigation/native";
 import {
   sendMessage,
@@ -42,28 +43,34 @@ import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import Constants from "expo-constants";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  Easing,
+  runOnJS,
+} from "react-native-reanimated";
+import { DefaultStyle } from "react-native-reanimated/lib/typescript/reanimated2/hook/commonTypes";
+import { ImageSourcePropType } from "react-native";
+import { Message } from "@/model/Message";
+import { useGroupOpenAIHandler } from "@/controller/ChatGroupAIHandler";
 
 const { width, height } = Dimensions.get("window");
-
-interface Message {
-  id: string;
-  text: string;
-  userId: string;
-  timestamp: Date;
-  userProfileImage: string | number;
-  username: string;
-}
 
 interface RouteParams {
   chatRoomId: string;
   chatRoomName: string;
 }
 
+interface AnimatedImageProps {
+  source: ImageSourcePropType;
+}
+
 const ChatScreen: React.FC = () => {
   const route = useRoute();
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler();
+  const { sendMessage: sendAIMessage, resetMessages } = useGroupOpenAIHandler();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -159,6 +166,8 @@ const ChatScreen: React.FC = () => {
     };
   }, [chatRoomId]);
 
+  // Saturation animation style
+
   const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
       try {
@@ -183,29 +192,29 @@ const ChatScreen: React.FC = () => {
           false
         );
 
-        if (isBuddyOn) {
-          const aiResponse = await sendAIMessage(newMessage);
-          const buddyMessageId = Date.now().toString() + "ai";
-          const buddyMessage: Message = {
-            id: buddyMessageId,
-            text: aiResponse,
-            userId: "buddy",
-            timestamp: new Date(),
-            userProfileImage: buddyProfileImage,
-            username: "Buddy",
-          };
+        // if (isBuddyOn) {
+        //   // const aiResponse = await sendAIMessage("");
+        //   const buddyMessageId = Date.now().toString() + "ai";
+        //   const buddyMessage: Message = {
+        //     id: buddyMessageId,
+        //     text: aiResponse,
+        //     userId: "buddy",
+        //     timestamp: new Date(),
+        //     userProfileImage: buddyProfileImage,
+        //     username: "Buddy",
+        //   };
 
-          setMessages((prevMessages) => {
-            if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
-              return [...prevMessages, buddyMessage];
-            }
-            return prevMessages;
-          });
+        //   setMessages((prevMessages) => {
+        //     if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
+        //       return [...prevMessages, buddyMessage];
+        //     }
+        //     return prevMessages;
+        //   });
 
-          await sendMessage(chatRoomId, buddyMessage.text, "buddy");
+        //   await sendMessage(chatRoomId, buddyMessage.text, "buddy");
 
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }
+        //   flatListRef.current?.scrollToEnd({ animated: true });
+        // }
       } catch (error) {
         console.error("Error sending message:", error);
       }
@@ -270,6 +279,30 @@ const ChatScreen: React.FC = () => {
         false
       );
     }, 3000);
+  };
+
+  const handleBuddyPress = async () => {
+    const aiResponse = await sendAIMessage(messages);
+    const buddyMessageId = Date.now().toString() + "ai";
+    const buddyMessage: Message = {
+      id: buddyMessageId,
+      text: aiResponse,
+      userId: "buddy",
+      timestamp: new Date(),
+      userProfileImage: buddyProfileImage,
+      username: "Buddy",
+    };
+
+    setMessages((prevMessages) => {
+      if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
+        return [...prevMessages, buddyMessage];
+      }
+      return prevMessages;
+    });
+
+    await sendMessage(chatRoomId, buddyMessage.text, "buddy");
+
+    flatListRef.current?.scrollToEnd({ animated: true });
   };
 
   const handleBuddyToggle = async () => {
@@ -394,13 +427,9 @@ const ChatScreen: React.FC = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={handleBuddyToggle}>
+            <TouchableOpacity onPress={handleBuddyPress}>
               <Image
-                source={
-                  isBuddyOn
-                    ? require("../../../assets/images/buddy-toggle-on.png")
-                    : require("../../../assets/images/buddy-toggle-off.png")
-                }
+                source={require("../../../assets/images/buddy-toggle-on.png")}
                 style={styles.image}
               />
             </TouchableOpacity>
@@ -453,6 +482,7 @@ const styles = StyleSheet.create({
   otherUserContainer: {
     justifyContent: "flex-start",
   },
+  animatedView: {},
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
