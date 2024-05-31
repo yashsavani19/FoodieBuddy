@@ -11,22 +11,21 @@ import {
 import TitleHeader from "@/components/TitleHeader";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { useAuth } from "@/context/AuthContext";
-import { AntDesign } from "@expo/vector-icons";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
-import FavouriteSpotsButton from "@/components/SavedLists/FavouriteSpotsButton";
-import BookmarksButton from "@/components/SavedLists/BookmarkButton";
-import VisitedButton from "@/components/SavedLists/VisitedButton";
+import FavouriteSpotsButton from "@/components/FavouriteSpotsButton";
+import BookmarksButton from "@/components/BookmarkButton";
+import VisitedButton from "@/components/VisitedButton";
 import { AppContext } from "@/context/AppContext";
 import * as ImagePicker from 'expo-image-picker';
 import ReactNativeModal from 'react-native-modal';
+import AntDesign from "@expo/vector-icons/build/AntDesign";
 import { uploadProfilePicture, updateProfilePicture, fetchUser, deleteProfilePicture } from "@/controller/ProfilePictureHandler";
-import PreferencesButton from "@/components/SavedLists/PreferencesButton";
-import Constants from "expo-constants";
 
 export default function UserProfileView() {
+  // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants, preferences } =
+  const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants } =
     useContext(AppContext);
   const { user, signOut } = useAuth();
 
@@ -49,12 +48,6 @@ export default function UserProfileView() {
 
     loadProfilePicture();
   }, [user]);
-
-  function navigateToFoodPreferences(): void {
-    navigation.navigate("FoodPreferencesView", {
-      preferences,
-    });
-  }
 
   function navigateToFavouriteSpots(): void {
     navigation.navigate("FavoriteSpotsView", {
@@ -179,7 +172,6 @@ export default function UserProfileView() {
         </View>
         {/* Menu Items Section */}
         <View style={styles.menuItemsSection}>
-          <PreferencesButton onPress={navigateToFoodPreferences} />
           <FavouriteSpotsButton onPress={navigateToFavouriteSpots} />
           <BookmarksButton onPress={navigateToBookmarkedSpots} />
           <VisitedButton onPress={navigateToVisitedSpots} />
@@ -255,13 +247,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   scrollView: {
-    marginTop: Constants.statusBarHeight + 100,
+    marginTop: 120,
   },
 
   profileSection: {
     alignItems: "center",
-    paddingTop: 40,
-    paddingBottom: 10,
+    paddingTop: 50,
+    paddingBottom: 20,
   },
   iconWrapper: {
     alignItems: "center",
@@ -295,6 +287,7 @@ const styles = StyleSheet.create({
   menuItemsSection: {
     marginTop: 5,
   },
+ 
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -370,4 +363,3 @@ const styles = StyleSheet.create({
     right: 20,
   },
 });
-
