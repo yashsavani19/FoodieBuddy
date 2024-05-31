@@ -30,6 +30,7 @@ import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 import React, { useEffect, useState } from "react";
 import { getFirestore } from "firebase/firestore";
+
 /**
  * Firebase configuration
  */
@@ -71,7 +72,7 @@ export const useIsAuthenticated = () => {
 
 // Handlers
 
-//Handle login
+// Handle login
 export const handleLogin = async (
   email: string,
   password: string
@@ -121,7 +122,7 @@ export const handleLogin = async (
   }
 };
 
-//Handle Register
+// Handle register
 export const handleRegister = async (
   email: string,
   username: string,
@@ -147,7 +148,7 @@ export const handleRegister = async (
     const authError = error as AuthError;
     console.error(authError.code);
     switch (authError.code) {
-      //Special error cases being thrown by firebase
+      // Special error cases being thrown by firebase
       case "auth/email-already-in-use":
         alert(`Email address already in use.`);
         break;
@@ -168,7 +169,7 @@ export const handleRegister = async (
   }
 };
 
-//Handle Reset Password
+// Handle reset password
 export const handleResetPassword = async (email: string): Promise<void> => {
   // Check if the email is not empty
   if (email.replaceAll(" ", "").length === 0) {
@@ -194,7 +195,7 @@ export const handleResetPassword = async (email: string): Promise<void> => {
   }
 };
 
-//Handle Logout
+// Handle logout
 export const handleLogout = () => {
   try {
     logout();
@@ -205,27 +206,22 @@ export const handleLogout = () => {
 };
 
 // Methods
-//login
+// Login
 const login = async (email: string, password: string): Promise<void> => {
   await signInWithEmailAndPassword(auth, email, password);
 };
 
-//Login with Google
-
-//Register
+// Register
 const register = async (email: string, password: string): Promise<void> => {
   await createUserWithEmailAndPassword(auth, email, password);
 };
 
-//Authenticate by sending email link
-
-//Logout
+// Logout
 const logout = async (): Promise<void> => {
   await signOut(auth);
 };
 
-//Reset Password
+// Reset password
 const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
 };
-

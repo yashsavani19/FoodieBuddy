@@ -509,6 +509,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     textAlign: "center",
     width: width,
+    maxWidth: 80,
+    
   },
   inputContainer: {
     flexDirection: "row",
