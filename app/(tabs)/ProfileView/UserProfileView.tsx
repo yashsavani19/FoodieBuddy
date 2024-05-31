@@ -90,7 +90,7 @@ export default function UserProfileView() {
   const pickImageFromCamera = async () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [1, 1],
       quality: 1,
     });
 
@@ -104,7 +104,7 @@ export default function UserProfileView() {
   const pickImageFromGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [1, 1],
       quality: 1,
     });
 
