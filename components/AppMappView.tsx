@@ -270,8 +270,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                         </Text>
                         <Text style={styles.stepDistance}>
                           {" "}
-                           ({step.distance})
-                        </Text>
+                           ({step.distance}) </Text>
                       </View>
                     </View>
                     {index < directionsSummary.steps.length - 1 && (
