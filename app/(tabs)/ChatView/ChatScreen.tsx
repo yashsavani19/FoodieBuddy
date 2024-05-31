@@ -12,7 +12,6 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
-  Dimensions,
 } from "react-native";
 import {
   useRoute,
@@ -42,8 +41,7 @@ import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import Constants from "expo-constants";
-
-const { width, height } = Dimensions.get("window");
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 interface Message {
   id: string;
@@ -75,7 +73,6 @@ const ChatScreen: React.FC = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
-  const {width} = Dimensions.get("window");
 
   useEffect(() => {
     let isMounted = true;
@@ -415,7 +412,7 @@ const ChatScreen: React.FC = () => {
               onPress={handleSendMessage}
               style={styles.sendButton}
             >
-              <FontAwesome name="send" size={width * 0.06} color="#f76116" />
+              <FontAwesome name="send" size={wp('6%')} color="#f76116" />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
@@ -430,7 +427,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: Constants.statusBarHeight + 100,
+    paddingTop: Constants.statusBarHeight + hp('15%'),
     backgroundColor: "#fff",
   },
   contentContainer: {
@@ -438,11 +435,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
   },
   flatListContentContainer: {
-    paddingBottom: 100,
+    paddingBottom: hp('5%'),
   },
   messageContainer: {
-    marginVertical: 10,
-    paddingHorizontal: 10,
+    marginVertical: hp('1%'),
+    paddingHorizontal: wp('2%'),
   },
   messageBubbleContainer: {
     flexDirection: "row",
@@ -457,89 +454,88 @@ const styles = StyleSheet.create({
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: width * 0.80,
+    maxWidth: wp('80%'),
   },
   profileImageContainer: {
     alignItems: "center",
-    marginRight: 12,
-    width: width * 0.1,
+    marginRight: wp('3%'),
+    width: wp('10%'),
   },
   profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: wp('10%'),
+    height: wp('10%'),
+    borderRadius: wp('5%'),
   },
   messageBubble: {
-    borderRadius: 20,
-    padding: 10,
-    maxWidth: 320,
+    borderRadius: wp('5%'),
+    padding: wp('3%'),
+    maxWidth: wp('70%'),
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
-    marginRight: 10,
-    marginLeft: 20,
+    marginRight: wp('2%'),
+    marginLeft: wp('5%'),
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
-    marginRight: 30,
+    marginRight: wp('7.5%'),
   },
   messageText: {
-    fontSize: 16,
+    fontSize: wp('4%'),
     color: "#fff",
     fontWeight: "500",
   },
   otherUserMessageText: {
-    fontSize: 16,
+    fontSize: wp('4%'),
     color: "#000",
     fontWeight: "500",
   },
   timestampText: {
-    fontSize: 12,
+    fontSize: wp('3%'),
     color: "#888",
     alignSelf: "center",
-    marginBottom: 2,
+    marginBottom: hp('0.5%'),
   },
   usernameText: {
-    fontSize: 12,
+    fontSize: wp('3%'),
     fontWeight: "bold",
     color: "#555",
-    marginBottom: 2,
+    marginBottom: hp('0.5%'),
     textAlign: "center",
-    width: width,
-    maxWidth: width * 0.1,
-    
+    width: wp('15%'),
+    maxWidth: wp('10%'),
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 10,
+    padding: wp('2%'),
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderColor: "#e2e2e2",
-    paddingHorizontal: 20,
+    paddingHorizontal: wp('5%'),
     alignSelf: "center",
-    height: 60,
+    height: hp('7.5%'),
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: wp('4%'),
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 15,
+    borderRadius: wp('5%'),
+    paddingHorizontal: wp('3%'),
     backgroundColor: "#fff",
-    height: 40,
+    height: hp('5%'),
   },
   sendButton: {
-    marginLeft: 10,
+    marginLeft: wp('2%'),
   },
   image: {
-    width: 40,
-    height: 40,
-    marginRight: 10,
+    width: wp('10%'),
+    height: wp('10%'),
+    marginRight: wp('2%'),
   },
 });
 

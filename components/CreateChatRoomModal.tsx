@@ -9,10 +9,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
-  Dimensions,
 } from "react-native";
 import FriendItem from "./FriendChatItem";
 import { Friend } from "@/model/ChatFriend";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 // interface Friend {
 //   id: string;
@@ -134,42 +134,37 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
-    height: 380,
-    width: Dimensions.get("window").width * 0.95,
+    height: hp('50%'),
+    width: wp('95%'),
     backgroundColor: "#fff",
     borderRadius: 20,
-    padding: 15,
+    padding: wp('4%'),
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: wp('4.5%'),
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: hp('2%'),
     textAlign: "center",
   },
   input: {
     width: "100%",
-    padding: 8,
+    padding: hp('1.2%'),
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: hp('1.2%'),
     backgroundColor: "#fff",
   },
   friendsTitle: {
-    fontSize: 16,
+    fontSize: wp('4%'),
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: hp('1%'),
     textAlign: "center",
   },
   friendsList: {
     width: "100%",
-    marginBottom: 10,
+    marginBottom: hp('1%'),
   },
   buttonContainer: {
     flexDirection: "row",
@@ -178,21 +173,16 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    padding: 8,
+    padding: hp('1.2%'),
     borderRadius: 10,
     alignItems: "center",
-    marginHorizontal: 5,
+    marginHorizontal: wp('1%'),
   },
   cancelButton: {
     backgroundColor: "#ccc",
   },
   createButton: {
     backgroundColor: "#007BFF",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
   },
   cancelButtonText: {
     color: "#000",
