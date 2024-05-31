@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ImageSourcePropType,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 
 // Message props interface
@@ -15,6 +16,8 @@ export interface MessageProps {
   text?: string;
   type: "sent" | "received" | "loading" | "suggestion";
 }
+
+const {width} = Dimensions.get("window");
 
 /**
  * Message component for chat messages
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f76116",
     borderRadius: 20,
     padding: 10,
-    maxWidth: "95%",
+    maxWidth: width * 0.80,
     borderBottomRightRadius: 0,
     marginRight: 10,
   },
@@ -109,7 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#d3d3d3",
     borderRadius: 20,
     padding: 10,
-    maxWidth: "95%",
+    maxWidth: width * 0.80,
     borderBottomLeftRadius: 0,
     marginLeft: 5,
   },

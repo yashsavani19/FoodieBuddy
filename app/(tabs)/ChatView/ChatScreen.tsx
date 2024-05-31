@@ -75,6 +75,7 @@ const ChatScreen: React.FC = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
+  const {width} = Dimensions.get("window");
 
   useEffect(() => {
     let isMounted = true;
@@ -456,12 +457,12 @@ const styles = StyleSheet.create({
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: 320,
+    maxWidth: width * 0.80,
   },
   profileImageContainer: {
     alignItems: "center",
     marginRight: 12,
-    width: 60,
+    width: width * 0.1,
   },
   profileImage: {
     width: 40,
@@ -509,7 +510,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     textAlign: "center",
     width: width,
-    maxWidth: 80,
+    maxWidth: width * 0.2,
     
   },
   inputContainer: {
