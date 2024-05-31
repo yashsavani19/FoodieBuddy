@@ -52,6 +52,23 @@ import { Friend } from "@/model/Friend";
  */
 
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
+
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+
+// ...
+
+export const uploadImage = async (image: File, uid: string) => {
+  try {
+    const storage = getStorage();
+    const storageRef = ref(storage, `users/${uid}/profilePicture.jpg`);
+    await uploadBytes(storageRef, image);
+    console.log("Image uploaded successfully");
+  } catch (e) {
+    console.error("Error uploading image: ", e);
+    alert("Internal error uploading image. Please try again later.");
+  }
+};
+
 const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   const cleanedData: Partial<Restaurant> = restaurant;
   if (restaurant.phone === undefined) restaurant.phone = "";

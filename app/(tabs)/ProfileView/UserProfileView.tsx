@@ -20,9 +20,10 @@ import { AppContext } from "@/context/AppContext";
 import * as ImagePicker from 'expo-image-picker';
 import ReactNativeModal from 'react-native-modal';
 import AntDesign from "@expo/vector-icons/build/AntDesign";
-import { uploadProfilePicture, updateProfilePicture, fetchUser } from "@/controller/ProfilePictureHandler";
+import { uploadProfilePicture, updateProfilePicture, fetchUser, deleteProfilePicture } from "@/controller/ProfilePictureHandler";
 
 export default function UserProfileView() {
+  // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants } =
     useContext(AppContext);
@@ -121,8 +122,12 @@ export default function UserProfileView() {
     toggleConfirmationModal();
   };
 
-  const removeImage = () => {
-    setSelectedImage(null);
+  const removeImage = async () => {
+    const userId = user?.uid;
+    if (userId) {
+      await deleteProfilePicture(userId);
+      setSelectedImage(null);
+    }
     toggleModal();
   };
 
