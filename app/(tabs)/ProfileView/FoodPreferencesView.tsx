@@ -1,5 +1,4 @@
-
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import PreferenceCategoryContainer from "@/components/PreferencesComponents/PreferenceCategoryContainer";
 import SavePreferenceButton from "@/components/PreferencesComponents/SavePreferenceButton";
@@ -9,12 +8,22 @@ import { PreferenceList } from "@/model/PreferenceList";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
 import Constants from "expo-constants";
+import { DefaultPreferences } from "@/model/DefaultPreferences";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences, userObject } =
-    useContext(AppContext);
-  const [localPreferences, setLocalPreferences] =
-    useState<PreferenceList[]>(userObject.preferences || []);
+  const { preferences, setPreferences userObject } = useContext(AppContext);
+  const [localPreferences, setLocalPreferences] = useState<PreferenceList[]>(
+    userObject.preferences || []
+  );
+
+  // If no preferences are passed, load default preferences
+  useEffect(() => {
+    if (preferences.length === 0) {
+      const defaultPreferences: PreferenceList[] = DefaultPreferences;
+      setPreferences(defaultPreferences);
+      setLocalPreferences(defaultPreferences);
+    }
+  }, []);
 
   const togglePreference = (category: string, preferenceName: string) => {
     const updatedPreferences = localPreferences.map((categoryItem) =>
@@ -34,11 +43,11 @@ const FoodPreferencesView: React.FC = () => {
 
   const savePreferences = async () => {
     try {
-      try{
+      try {
         await updatePreferences(localPreferences);
         setPreferences(localPreferences);
         console.log("Preferences saved successfully");
-      } catch (error){
+      } catch (error) {
         console.error("User ID is missing");
       }
     } catch (error) {
@@ -63,9 +72,9 @@ const FoodPreferencesView: React.FC = () => {
               }
             />
           ))}
-          <View style={{marginBottom: 40}}/>
+          <View style={{ marginBottom: 40 }} />
         </ScrollView>
-        <View style={{marginBottom: 5}}>
+        <View style={{ marginBottom: 5 }}>
           <SavePreferenceButton onSave={savePreferences} />
         </View>
       </View>

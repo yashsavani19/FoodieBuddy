@@ -2,6 +2,7 @@ import { Preference } from "@/model/Preference";
 import {
   collection,
   doc,
+  addDoc,
   getDoc,
   getDocs,
   setDoc,
@@ -1248,7 +1249,9 @@ export const updatePreferences = async (updatedPreferences: PreferenceList[]) =>
           ", Category: ",
           category.title
         );
-        await updateDoc(docRef, {
+        await setDoc(docRef, {
+          category: category.title,
+          name: preference.name,
           selected: preference.selected,
         });
       }
