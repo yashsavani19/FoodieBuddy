@@ -9,6 +9,7 @@ import { RouteProp } from "@react-navigation/native";
 import DetailsViewComponents from "@/components/DetailsViewComponents";
 import { useNavigation } from "expo-router";
 
+
 // Define the type for the route prop
 type DetailsViewRouteProp = RouteProp<RootStackParamList, "DetailsView">;
 
@@ -31,7 +32,7 @@ export default function DetailsView() {
   if (!Restaurant) {
     return (
       <View style={styles.centered}>
-        <Text> Something Restaurant not found.</Text>
+        <Text>Restaurant not found.</Text>
       </View>
     );
   }

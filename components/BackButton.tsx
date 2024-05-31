@@ -20,7 +20,7 @@ export default BackButton;
 const styles = StyleSheet.create({
   header: {
     height: 40,
-    backgroundColor: "black",
+    backgroundColor: "#2B2B2B",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },

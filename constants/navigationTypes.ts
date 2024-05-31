@@ -1,4 +1,5 @@
 import { Friend } from "@/model/Friend";
+import { PreferenceList } from "@/model/PreferenceList";
 import { Restaurant } from "@/model/Restaurant";
 import { Saved } from "@/model/Saved";
 
@@ -11,7 +12,8 @@ export type RootStackParamList = {
       lng: number;
     };
   }; };
-  ChatView: undefined;
+  ChatScreen: { chatRoomId: string };
+  BuddyChat: { chatRoomId: string };
   DetailsView: { Restaurant: Restaurant };
   FavoriteSpotsView: { favouriteRestaurants: Saved[] };
   BookmarkedSpotsView: { bookmarkedRestaurants: Saved[] };
@@ -23,6 +25,7 @@ export type RootStackParamList = {
   UserProfileView: undefined;
   FriendProfile: { friend: Friend };
   FriendRequests: undefined;
+  FoodPreferencesView: { preferences: PreferenceList[] };
 };
 
 export type MapRouteParams = {

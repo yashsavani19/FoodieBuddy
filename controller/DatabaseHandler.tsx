@@ -10,47 +10,18 @@ import {
   where,
   query,
   onSnapshot,
+  orderBy,
+  limit,
+  serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
 import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
 import { Friend } from "@/model/Friend";
-// import { useAuth } from "@/context/AuthContext";
-/**
- * Getters and setters for user data
- * Schema:
- * users: {
- *     userId: {
- *         username: string,
- *         email: string,
- *         profilePicture: string,
- *         favourites: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         bookmarks: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         visited: {
- *             placeId: {
- *                 placeId: string,
- *                 addedOn: Timestamp,
- *             },
- *         },
- *         preferences: {
- *             preferenceId: {
- *                 name: string,
- *             },
- *     },
- * }
- */
-
+import { DefaultPreferences } from "@/model/DefaultPreferences";
+import { PreferenceList } from "@/model/PreferenceList";
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 
 import { getStorage, ref, uploadBytes } from "firebase/storage";
@@ -81,7 +52,8 @@ const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   if (restaurant.isFavourite === undefined) restaurant.isFavourite = false;
   if (restaurant.isBookmarked === undefined) restaurant.isBookmarked = false;
   if (restaurant.isVisited === undefined) restaurant.isVisited = false;
-  if (restaurant.currentOpeningHours === undefined) restaurant.currentOpeningHours = "";
+  if (restaurant.currentOpeningHours === undefined)
+    restaurant.currentOpeningHours = "";
   return cleanedData;
 };
 
@@ -300,6 +272,7 @@ export const addUser = async (uid: string, email: string, username: string) => {
       email: email,
       username: username,
     });
+    await addPreferences(uid);
   } catch (e) {
     console.error("Error adding document: ", e);
     alert("Internal error adding user. Please try again later.");
@@ -315,7 +288,26 @@ export const fetchUser = async (uid: string) => {
     const docRef = doc(db, userCollection);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data();
+      const userData = docSnap.data();
+      const preferences = await fetchPreferences();
+
+      //------------LOGGING PURPOSES----------------
+
+      if (preferences !== undefined) {
+        preferences.forEach((category) => {
+          category.preferences.forEach((preference) => {
+            console.log(
+              `Login Fetched Preference: ${preference.name}, Login Fetched Preference Selected: ${preference.selected}, Login Fetched Preference Category: ${category.title}`
+            );
+          });
+        });
+      }else{
+        console.log("Preferences is undefined");
+      }
+
+      //------------LOGGING PURPOSES----------------
+
+      return { ...userData, preferences };
     } else {
       console.error("No such document!");
       alert("User not found.");
@@ -873,5 +865,373 @@ export const fetchFriendsVisited = async (uid: string) => {
   } catch (e) {
     console.error("Error getting documents: ", e);
     alert("Internal error fetching friends visited. Please try again later.");
+  }
+};
+
+/**
+ * Fetches all usernames from the usernames collection
+ * @returns an array of usernames
+ */
+export const fetchAllUsernames = async (): Promise<{
+  [key: string]: { username: string; profileImageUrl: string };
+}> => {
+  try {
+    const usernameCollection = collection(db, "usernames");
+    const querySnapshot = await getDocs(usernameCollection);
+    const usernameDict: {
+      [key: string]: { username: string; profileImageUrl: string };
+    } = {};
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      usernameDict[data.uid] = {
+        username: doc.id,
+        profileImageUrl:
+          data.profileImageUrl ||
+          "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg",
+      };
+    });
+
+    return usernameDict;
+  } catch (e) {
+    console.error("Error fetching usernames: ", e);
+    alert("Internal error fetching usernames. Please try again later.");
+    return {};
+  }
+};
+
+/**
+ * Creates a new chat room
+ * @param {string} roomName - The name of the chat room
+ * @param {string} type - The type of chat room (e.g., 'buddy', 'friends')
+ * @param {string} profileImageUrl - The image URL for the chat room (default is a placeholder image)
+ * @returns {Promise<void>}
+ */
+export const createChatRoom = async (
+  roomName: string,
+  type: string,
+  profileImageUrl: string = "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg",
+  allowedUsers: string[] = []
+) => {
+  try {
+    console.log("Allowed Users:", allowedUsers); 
+    const docRef = await addDoc(collection(db, "chatRooms"), {
+      name: roomName,
+      type: type,
+      lastMessage: "",
+      avatar: profileImageUrl,
+      allowedUsers: allowedUsers.length ? allowedUsers : [], 
+    });
+
+    console.log("Chat room created with ID: ", docRef.id);
+  } catch (error) {
+    const e = error as Error;
+    console.error("Error adding chat room: ", e.message);
+  }
+};
+/**
+ * Fetches chat rooms of a specified type that the current user is allowed to access.
+ * 
+ * @param {string} type - Type of the chat room.
+ * @returns {Promise<any[]>} - A promise that resolves to an array of chat rooms.
+ */
+export const fetchChatRooms = async (type: string) => {
+  const chatRoomsRef = collection(db, "chatRooms");
+  const currentUserUid = auth.currentUser?.uid;
+
+  if (!currentUserUid) {
+    throw new Error("User not authenticated");
+  }
+
+  const q = query(chatRoomsRef, where("type", "==", type), where("allowedUsers", "array-contains", currentUserUid));
+  const querySnapshot = await getDocs(q);
+  const chatRooms = [];
+
+  for (const doc of querySnapshot.docs) {
+    const lastMessageRef = collection(db, `chatRooms/${doc.id}/messages`);
+    const lastMessageQuery = query(
+      lastMessageRef,
+      orderBy("timestamp", "desc"),
+      limit(1)
+    );
+    const lastMessageSnapshot = await getDocs(lastMessageQuery);
+    const lastMessageData = lastMessageSnapshot.docs[0]?.data();
+
+    let lastMessage = lastMessageData ? lastMessageData.text : "";
+    if (lastMessage.length > 50) {
+      lastMessage = `${lastMessage.substring(0, 30)}...`;
+    }
+
+    chatRooms.push({
+      id: doc.id,
+      name: doc.data().name,
+      lastMessage,
+      lastMessageTimestamp: lastMessageData
+        ? lastMessageData.timestamp.toDate()
+        : null,
+      avatar: doc.data().avatar,
+    });
+  }
+  return chatRooms;
+};
+
+
+/**
+ * Deletes a chat room by its ID
+ * @param {string} id - The ID of the chat room to delete
+ * @returns {Promise<void>}
+ */
+export const deleteChatRoom = async (id: string): Promise<void> => {
+  try {
+    const chatRoomDoc = doc(db, "chatRooms", id);
+    await deleteDoc(chatRoomDoc);
+    console.log("Chat room deleted with ID: ", id);
+  } catch (error) {
+    console.error("Error deleting chat room: ", error);
+  }
+};
+
+/**
+ * Sends a message in a chat room.
+ * 
+ * @param {string} chatRoomId - ID of the chat room.
+ * @param {string} text - Message text.
+ * @param {string} [userId] - Optional user ID (default is the current user's ID).
+ * @returns {Promise<void>} - A promise that resolves when the message is sent.
+ */
+export const sendMessage = async (chatRoomId: string, text: string, userId?: string) => {
+  try {
+    const messagesCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "messages"
+    );
+    await addDoc(messagesCollection, {
+      text,
+      userId: userId || auth.currentUser?.uid, // Use the provided user ID or default to the current user's ID
+      timestamp: serverTimestamp(), // Use serverTimestamp for consistent server-side timestamps
+    });
+  } catch (e) {
+    console.error("Error sending message: ", e);
+    alert("Internal error sending message. Please try again later.");
+  }
+};
+
+/**
+ * Fetches messages in a chat room.
+ * 
+ * @param {string} chatRoomId - ID of the chat room.
+ * @returns {Promise<any[]>} - A promise that resolves to an array of messages.
+ */
+export const fetchMessages = async (chatRoomId: string) => {
+  try {
+    const messagesCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "messages"
+    );
+    const messagesQuery = query(
+      messagesCollection,
+      orderBy("timestamp", "asc")
+    );
+    const querySnapshot = await getDocs(messagesQuery);
+    const messages: any[] = [];
+    const placeholderImage =
+      "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg"; // Replace with your placeholder image URL
+
+    for (const docSnapshot of querySnapshot.docs) {
+      const data = docSnapshot.data();
+      const timestamp = data.timestamp ? data.timestamp.toDate() : new Date();
+      const userDoc = await getDoc(doc(db, "users", data.userId));
+      const userProfile = userDoc.exists() ? userDoc.data() : {};
+      messages.push({
+        id: docSnapshot.id,
+        text: data.text,
+        userId: data.userId,
+        timestamp,
+        userProfileImage: userProfile.profilePicture || placeholderImage,
+      });
+    }
+
+    return messages;
+  } catch (e) {
+    console.error("Error fetching messages: ", e);
+    alert("Internal error fetching messages. Please try again later.");
+    return [];
+  }
+};
+
+/**
+ * Deletes a message from a chat room by its ID
+ * @param {string} chatRoomId - ID of the chat room
+ * @param {string} messageId - ID of the message to delete
+ * @returns {Promise<void>} - A promise that resolves when the message is deleted
+ */
+export const deleteMessage = async (
+  chatRoomId: string,
+  messageId: string
+): Promise<void> => {
+  try {
+    const messageDoc = doc(db, "chatRooms", chatRoomId, "messages", messageId);
+    await deleteDoc(messageDoc);
+    console.log("Message deleted with ID: ", messageId);
+  } catch (e) {
+    console.error("Error deleting message: ", e);
+    alert("Internal error deleting message. Please try again later.");
+  }
+};
+
+/**
+ * Updates the typing status of a user in a specified chat room.
+ * 
+ * @param {string} chatRoomId - The ID of the chat room.
+ * @param {string} userId - The ID of the user.
+ * @param {string} username - The username of the user.
+ * @param {boolean} isTyping - The current typing status of the user.
+ * @returns {Promise<void>} - A promise that resolves when the typing status is updated
+ */
+export const updateTypingStatus = async (chatRoomId: string, userId: string, username: string, isTyping: boolean) => {
+  if (!userId) {
+    console.error("User not authenticated");
+    return;
+  }
+
+  try {
+    const typingStatusDoc = doc(db, "chatRooms", chatRoomId, "typingStatus", userId);
+    await setDoc(typingStatusDoc, { isTyping, username }, { merge: true });
+  } catch (error) {
+    console.error("Error updating typing status:", error);
+  }
+};
+
+/**
+ * Listens to typing status changes in a specified chat room and executes a callback with the updated typing users.
+ * 
+ * @param {string} chatRoomId - The ID of the chat room.
+ * @param {function} callback - The callback function to execute with the updated typing users.
+ * @returns {function} - Unsubscribe function to stop listening to typing status changes.
+ */
+export const listenToTypingStatus = (chatRoomId: string, callback: (typingUsers: { [key: string]: { isTyping: boolean, username: string } }) => void) => {
+  const typingStatusCollection = collection(db, "chatRooms", chatRoomId, "typingStatus");
+  return onSnapshot(typingStatusCollection, (snapshot) => {
+    const typingUsers: { [key: string]: { isTyping: boolean, username: string } } = {};
+    snapshot.forEach((doc) => {
+      const data = doc.data() as { isTyping: boolean, username: string };
+      typingUsers[doc.id] = data;
+    });
+    callback(typingUsers);
+  });
+};
+
+
+
+export const addPreferences = async (uid: string) => {
+  try {
+    const preferenceCollection = `users/${uid}/preferences`;
+
+    for (const category of DefaultPreferences) {
+      for (const preference of category.preferences) {
+        const docRef = doc(
+          db,
+          preferenceCollection,
+          `${category.title}-${preference.name}`
+        );
+        console.log(
+          "Preference: ",
+          preference.name,
+          ", Selected: ",
+          preference.selected,
+          ", Category: ",
+          category.title
+        );
+        await setDoc(docRef, {
+          name: preference.name,
+          selected: preference.selected,
+          category: category.title,
+        });
+      }
+    }
+    console.log("Default preferences added to collection");
+  } catch (e) {
+    console.error("Error adding preferences: ", e);
+    alert("Internal error adding preferences. Please try again later.");
+  }
+};
+
+// /**
+//  * Fetches user preferences
+//  */
+export const fetchPreferences = async (): Promise<PreferenceList[]> => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const preferences: PreferenceList[] = [];
+
+    // Group preferences by category
+    const categoryMap: { [key: string]: Preference[] } = {};
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const category = data.category;
+      const preference: Preference = {
+        name: data.name,
+        selected: data.selected,
+        apiName: data.apiName,
+      };
+      if (!categoryMap[category]) {
+        categoryMap[category] = [];
+      }
+      categoryMap[category].push(preference);
+    });
+
+    for (const category in categoryMap) {
+      preferences.push({
+        title: category,
+        preferences: categoryMap[category],
+      });
+    }
+
+    return preferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+    return [];
+  }
+};
+
+export const updatePreferences = async (updatedPreferences: PreferenceList[]) => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+
+    for (const category of updatedPreferences) {
+      for (const preference of category.preferences) {
+        const docRef = doc(
+          db,
+          preferenceCollection,
+          `${category.title}-${preference.name}`
+        );
+        console.log(
+          "Updating Preference: ",
+          preference.name,
+          ", Selected: ",
+          preference.selected,
+          ", Category: ",
+          category.title
+        );
+        await setDoc(docRef, {
+          category: category.title,
+          name: preference.name,
+          selected: preference.selected,
+        });
+      }
+    }
+    console.log("Preferences updated successfully");
+  } catch (e) {
+    console.error("Error updating preferences: ", e);
+    alert("Internal error updating preferences. Please try again later.");
   }
 };

@@ -22,6 +22,7 @@ import {
   subscribeToReceivedFriendRequests,
   subscribeToSentFriendRequests,
 } from "@/controller/DatabaseHandler";
+import Constants from "expo-constants";
 
 interface FriendRequestProps {
   friend: Friend;
@@ -46,7 +47,11 @@ const FriendRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
         <Image
           resizeMode="contain"
           style={styles.listImage}
-          source={{ uri: friend.profileImageUrl }}
+          source={
+            typeof friend.profileImageUrl === "string"
+              ? { uri: friend.profileImageUrl }
+              : friend.profileImageUrl
+          }
         />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
@@ -82,7 +87,11 @@ const SentRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
         <Image
           resizeMode="contain"
           style={styles.listImage}
-          source={{ uri: friend.profileImageUrl }}
+          source={
+            typeof friend.profileImageUrl === "string"
+              ? { uri: friend.profileImageUrl }
+              : friend.profileImageUrl
+          }
         />
         <View style={styles.listTitleContainer}>
           <Text style={styles.listItemText}>{friend.username}</Text>
@@ -107,7 +116,9 @@ const SentRequest: React.FC<FriendRequestProps> = ({ friend, onPress }) => {
 const FriendRequestsList = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [friendRequests, setFriendRequests] = useState<Friend[]>([]);
-  const [orderedFriendRequests, setOrderedFriendRequests] = useState<Friend[]>([]);
+  const [orderedFriendRequests, setOrderedFriendRequests] = useState<Friend[]>(
+    []
+  );
   const [sentRequests, setSentRequests] = useState<Friend[]>([]);
   const [orderedSentRequests, setOrderedSentRequests] = useState<Friend[]>([]);
 
@@ -127,9 +138,11 @@ const FriendRequestsList = () => {
 
   // Subscribe to sent and received requests for realtime updates
   useEffect(() => {
-    const unsubscribeReceived = subscribeToReceivedFriendRequests((receivedRequests) => {
-      setFriendRequests(receivedRequests);
-    });
+    const unsubscribeReceived = subscribeToReceivedFriendRequests(
+      (receivedRequests) => {
+        setFriendRequests(receivedRequests);
+      }
+    );
 
     const unsubscribeSent = subscribeToSentFriendRequests((sentRequests) => {
       setSentRequests(sentRequests);
@@ -238,7 +251,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   scrollView: {},
   listContainer: {},

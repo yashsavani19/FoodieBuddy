@@ -11,6 +11,7 @@ import {
 import MapView from "react-native-maps";
 import { Category } from "@/model/Category";
 import DrawerWrapper from "@/components/FilterDrawerComponents/FilterDrawerWrapper";
+import Constants from "expo-constants";
 
 export default function Map() {
   const route = useRoute<RouteProp<RootStackParamList, "Map">>();
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   placeListContainer: {
     position: "absolute",
