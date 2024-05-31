@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   Modal as RNModal,
+  Platform,
 } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
@@ -15,11 +16,11 @@ import { AntDesign } from "@expo/vector-icons";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import ProfileFriendsNavBar from "@/components/ProfileFriendsNavBar";
 import FavouriteSpotsButton from "@/components/SavedLists/FavouriteSpotsButton";
-import BookmarksButton from "@/components/SavedLists/BookmarkButton"; 
+import BookmarksButton from "@/components/SavedLists/BookmarkButton";
 import VisitedButton from "@/components/SavedLists/VisitedButton";
 import { AppContext } from "@/context/AppContext";
-import * as ImagePicker from 'expo-image-picker';
-import ReactNativeModal from 'react-native-modal';
+import * as ImagePicker from "expo-image-picker";
+import ReactNativeModal from "react-native-modal";
 import { uploadProfilePicture, updateProfilePicture, fetchUser, deleteProfilePicture } from "@/controller/ProfilePictureHandler";
 import PreferencesButton from "@/components/SavedLists/PreferencesButton";
 import Constants from "expo-constants";
@@ -49,6 +50,21 @@ export default function UserProfileView() {
 
     loadProfilePicture();
   }, [user]);
+
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS !== 'web') {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+          alert('Sorry, we need camera roll permissions to make this work!');
+        }
+        const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+        if (cameraStatus.status !== 'granted') {
+          alert('Sorry, we need camera permissions to make this work!');
+        }
+      }
+    })();
+  }, []);
 
   function navigateToFoodPreferences(): void {
     navigation.navigate("FoodPreferencesView", {
@@ -89,6 +105,7 @@ export default function UserProfileView() {
   // Image Picker Functions
   const pickImageFromCamera = async () => {
     const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -103,6 +120,7 @@ export default function UserProfileView() {
 
   const pickImageFromGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -145,8 +163,7 @@ export default function UserProfileView() {
       <TitleHeader title="Profile" />
       {/* ScrollView for scrollable content */}
       <ScrollView style={styles.scrollView}>
-      <ProfileFriendsNavBar mode="profile" />
-
+        <ProfileFriendsNavBar mode="profile" />
         {/* Profile Section */}
         <View style={styles.profileSection}>
           {/* User Icon */}
@@ -171,7 +188,7 @@ export default function UserProfileView() {
             {/* Edit Account Button */}
             <TouchableOpacity style={styles.editButtonContainer} onPress={editAccount}>
               <Text style={styles.editButton}>Edit Account</Text>
-            </TouchableOpacity >
+            </TouchableOpacity>
             {/* Logout Button */}
             <TouchableOpacity style={styles.editButtonContainer} onPress={signOut}>
               <Text style={styles.editButton}>Logout</Text>
@@ -191,7 +208,6 @@ export default function UserProfileView() {
 
           {/* Visited Spots Button */}
           <VisitedButton onPress={navigateToVisitedSpots} />
-
         </View>
       </ScrollView>
       <ReactNativeModal isVisible={isModalVisible} onBackdropPress={toggleModal}>
@@ -251,14 +267,12 @@ const styles = StyleSheet.create({
     fontSize: 35,
     color: "#ededed",
   },
-
   savedIcons: {
     width: 35,
     height: 35,
     resizeMode: "contain",
     marginRight: 20,
   },
-
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -266,7 +280,6 @@ const styles = StyleSheet.create({
   scrollView: {
     marginTop: Constants.statusBarHeight + 100,
   },
-
   profileSection: {
     alignItems: "center",
     paddingTop: 40,
@@ -290,7 +303,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
   },
- 
   editButton: {
     fontSize: 20,
     textAlign: 'center',
@@ -307,7 +319,6 @@ const styles = StyleSheet.create({
   menuItemsSection: {
     marginTop: 5,
   },
- 
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -387,3 +398,4 @@ const styles = StyleSheet.create({
     right: 20,
   },
 });
+
