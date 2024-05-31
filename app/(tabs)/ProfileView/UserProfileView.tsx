@@ -20,7 +20,6 @@ import VisitedButton from "@/components/SavedLists/VisitedButton";
 import { AppContext } from "@/context/AppContext";
 import * as ImagePicker from 'expo-image-picker';
 import ReactNativeModal from 'react-native-modal';
-import AntDesign from "@expo/vector-icons/build/AntDesign";
 import { uploadProfilePicture, updateProfilePicture, fetchUser, deleteProfilePicture } from "@/controller/ProfilePictureHandler";
 import PreferencesButton from "@/components/SavedLists/PreferencesButton";
 import Constants from "expo-constants";
