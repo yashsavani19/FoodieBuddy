@@ -465,6 +465,7 @@ export const fetchFriends = async (): Promise<Friend[]> => {
   try {
     const uid = auth.currentUser?.uid;
     const friendCollection = `users/${uid}/friends`;
+    const preferencesCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, friendCollection));
     const friends: Friend[] = [];
     querySnapshot.forEach(async (doc) => {
@@ -475,8 +476,9 @@ export const fetchFriends = async (): Promise<Friend[]> => {
         uid: doc.id,
         username: username,
         profileImageUrl: profileImageUrl,
+        preferences: await fetchFriendsPreferences(doc.id),
       });
-    });
+    }); 
     return friends;
   } catch (e) {
     console.error("Error getting documents: ", e);
@@ -1148,6 +1150,48 @@ export const addPreferences = async (uid: string) => {
 export const fetchPreferences = async (): Promise<PreferenceList[]> => {
   try {
     const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const preferences: PreferenceList[] = [];
+
+    // Group preferences by category
+    const categoryMap: { [key: string]: Preference[] } = {};
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const category = data.category;
+      const preference: Preference = {
+        name: data.name,
+        selected: data.selected,
+        apiName: data.apiName,
+      };
+      if (!categoryMap[category]) {
+        categoryMap[category] = [];
+      }
+      categoryMap[category].push(preference);
+    });
+
+    for (const category in categoryMap) {
+      preferences.push({
+        title: category,
+        preferences: categoryMap[category],
+      });
+    }
+
+    return preferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+    return [];
+  }
+};
+
+/**
+ * Gets friends preferences
+ * @param uid user id
+ */
+export const fetchFriendsPreferences = async (uid: string) => {
+  try {
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
     const preferences: PreferenceList[] = [];

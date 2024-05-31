@@ -11,10 +11,10 @@ import BackButton from "@/components/BackButton";
 import Constants from "expo-constants";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences, } =
+  const { preferences, setPreferences, userObject } =
     useContext(AppContext);
   const [localPreferences, setLocalPreferences] =
-    useState<PreferenceList[]>(preferences);
+    useState<PreferenceList[]>(userObject.preferences || []);
 
   const togglePreference = (category: string, preferenceName: string) => {
     const updatedPreferences = localPreferences.map((categoryItem) =>

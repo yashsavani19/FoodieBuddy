@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useEffect, useRef, useState } from "react";
+import { ReactNode, createContext, useEffect, useState } from "react";
 import { Restaurant } from "../model/Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "../model/Saved";
@@ -25,7 +25,6 @@ import { User } from "@/model/User";
 import { User as AuthUser } from "firebase/auth";
 import { useAuth } from "./AuthContext";
 import { Category } from "@/model/Category";
-import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceList } from "@/model/PreferenceList";
@@ -186,7 +185,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     const loadUserPreferences = async () => {
       if (user) {
         const prefs = await fetchPreferences();
-        setPreferences(prefs);
+        setUserObject({ ...userObject, preferences: prefs });
       }
     };
 
@@ -235,9 +234,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setVisitedRestaurants(visited);
       }
 
-      const preferences = await fetchPreferences();
-      if (preferences) {
-        setPreferences(preferences);
+      const userPreferences = await fetchPreferences();
+      if (userPreferences) {
+        setUserObject({ ...userObject, preferences: userPreferences });
       }
       setUserObject({
         ...userObject,
@@ -317,7 +316,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         selectedFilters
           .filter(
             (filter) =>
-              !["Rating", "Price", "Open Status","Dietary Preference","Takeaway Option"].includes(filter.type)
+              ![
+                "Rating",
+                "Price",
+                "Open Status",
+                "Dietary Preference",
+                "Takeaway Option",
+              ].includes(filter.type)
           )
           .map((filter) => filter.apiName)
       );
@@ -336,9 +341,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         .filter((filter) => ["Open Status"].includes(filter.type))
         .map((filter) => filter.apiName);
 
-      const dietsToFilter = new Set(selectedFilters
-        .filter(filter => ["Dietary Preference"].includes(filter.type))
-        .map(filter => filter.apiName));
+      const dietsToFilter = new Set(
+        selectedFilters
+          .filter((filter) => ["Dietary Preference"].includes(filter.type))
+          .map((filter) => filter.apiName)
+      );
 
       // filter restaurants by the selected categories (not intersection, but union of categories)
       if (categoriesToFilter.size > 0) {
@@ -386,20 +393,28 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
       // If there is a dietary preference, filter restaurants by the dietary preference
       if (dietsToFilter.size > 0) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => dietsToFilter.has(category))
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some((category) => dietsToFilter.has(category))
         );
       }
 
       // Filter out Delivery and then Takeaway restaurants
-      if (selectedFilters.some(filter => filter.apiName === "meal_delivery")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_delivery")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_delivery")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_delivery"
+          )
         );
       }
-      if (selectedFilters.some(filter => filter.apiName === "meal_takeaway")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_takeaway")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_takeaway")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_takeaway"
+          )
         );
       }
 
@@ -523,7 +538,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     preferenceName: string,
     selected: boolean
   ) => {
-    const updatedPreferences = preferences.map((cat) => {
+    const updatedPreferences = userObject.preferences?.map((cat) => {
       if (cat.title === category) {
         const updatedCategory = cat.preferences.map((pref) => {
           if (pref.name === preferenceName) {
@@ -535,8 +550,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       }
       return cat;
     });
-    setPreferences(updatedPreferences);
-    if (user) {
+    // setPreferences(updatedPreferences);
+    setUserObject({ ...userObject, preferences: updatedPreferences });
+    if (user && updatedPreferences) {
       updatePreferences(updatedPreferences);
     }
   };
