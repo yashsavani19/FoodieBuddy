@@ -6,25 +6,29 @@ import {
   Image,
   Pressable,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { handleResetPassword } from "@/controller/FirebaseHandler";
 import React, { useState } from "react";
 import { Text, View } from "@/components/Themed";
 import { Link } from "expo-router";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 // Import the image for the logo
 const buddyLogo = require("@/assets/images/title-logo.png");
 
 // Define the LoginView component
 export default function LoginView() {
-  
-   // State variables to store user registration details
+  // State variables to store user registration details
   const [email, setEmail] = useState("");
 
   return (
     <View style={styles.container}>
       {/* Application logo */}
-      <Image source={buddyLogo} style={styles.logo}/>
+      <Image source={buddyLogo} style={styles.logo} />
       <ScrollView>
         <SafeAreaView style={styles.innerContainer}>
           {/* Input field for email */}
@@ -42,19 +46,18 @@ export default function LoginView() {
           </View>
           {/* Button to trigger password reset */}
           <View style={styles.buttonContainer}>
-            <Pressable style={styles.resetButton}>
-              <Button
-                title="Send Link to Email"
-                color="black"
-                onPress={() => handleResetPassword(email)}
-              />
-            </Pressable>
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={() => handleResetPassword(email)}
+            >
+              <Text style={styles.resetButtonText}>Send Link to Email </Text>
+            </TouchableOpacity>
           </View>
           {/* Link to navigate back to LoginView */}
           <View style={styles.loginAgainContainer}>
-            <Text style={styles.textStyle}>Password Reset Done?</Text>
+            <Text style={styles.textStyle}>Password Reset Done? </Text>
             <Link href={"/LoginView"}>
-              <Text style={styles.clickableText}> Login Again!</Text>
+              <Text style={styles.clickableText}> Login Again! </Text>
             </Link>
           </View>
         </SafeAreaView>
@@ -71,75 +74,77 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 20,
+    fontSize: wp("5%"),
     fontWeight: "bold",
   },
-
   innerContainer: {
-    marginTop: 50,
+    marginTop: hp("3%"),
     flex: 1,
     alignItems: "center",
     backgroundColor: "#f26722",
   },
   inputContainer: {
-    width: 300,
-    height: 50,
+    width: wp("80%"),
+    height: hp("6%"),
     borderRadius: 15,
-    margin: 10,
+    margin: hp("1%"),
     flexDirection: "row",
     alignItems: "center",
   },
   input: {
     flex: 1,
-    height: 50,
+    height: hp("6%"),
     borderColor: "transparent",
     borderWidth: 1,
   },
-
   inputLogo: {
-    width: 30,
-    height: 30,
+    width: wp("8%"),
+    height: hp("6%"),
     resizeMode: "contain",
-    margin: 15,
+    margin: wp("2%"),
   },
-
   logo: {
     width: "100%",
-    height: 200,
-    marginTop: 75,
+    height: hp("25%"),
+    marginTop: hp("10%"),
     resizeMode: "contain",
   },
-
   buttonContainer: {
     backgroundColor: "#f26722",
   },
-
   resetButton: {
-    width: 200,
-    borderRadius: 20,
-    backgroundColor: "#3383FF",
-    marginTop: 20,
-    marginBottom: 15,
+    width: wp("50%"),
+    borderRadius: 15,
+    backgroundColor: "#3464AC",
+    marginTop: hp("2%"),
+    marginBottom: hp("1.5%"),
+    height: hp("6%"),
+    justifyContent: "center",
+    alignItems: "center",
   },
-
+  resetButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: wp("5%"),
+  },
   clickableText: {
     color: "blue",
     textDecorationLine: "underline",
-    fontSize: 15,
+    fontSize: wp("4%"),
   },
-
   textStyle: {
-    fontSize: 15,
+    fontSize: wp("4%"),
     color: "white",
     fontWeight: "bold",
   },
-
   loginAgainContainer: {
     backgroundColor: "#f26722",
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
-    margin: 10,
+    padding: wp("2%"),
+    margin: wp("2%"),
+    justifyContent: "center",
   },
 });
