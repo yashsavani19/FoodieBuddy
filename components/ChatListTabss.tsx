@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import ChatList from "./ChatList";
 import BuddyChat from "@/app/(tabs)/ChatView/BuddyChat";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 const ChatListTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"buddy" | "friends">("friends");
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "#363232",
-    height: 40,
+    height: hp('5%'),
     alignItems: "center",
   },
   tabButton: {
@@ -75,18 +76,18 @@ const styles = StyleSheet.create({
   tabButtonText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: wp('4.2%'),
   },
   activeTabButtonText: {
     color: "#fff",
   },
   underline: {
-    height: 5,
+    height: hp('0.6%'),
     backgroundColor: "#F26722",
-    width: 120,
-    marginBottom: -10,
-    borderRadius: 2,
-    marginTop: 3,
+    width: wp('33%'),
+    marginBottom: hp('-1%'),
+    borderRadius: wp('0.5%'),
+    marginTop: hp('0.5%'),
   },
   chatListContainer: {
     flex: 1,

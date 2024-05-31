@@ -1,18 +1,3 @@
-/**
- * SettingsModal.tsx
- * 
- * This file defines the SettingsModal component, which is a modal used to display various settings options in the Buddy Chat
- * and Friends Chat screens. The modal includes options for navigating to the Profile screen, Notifications screen, and 
- * logging out. It also provides an option to close the modal.
- * 
- * Props:
- * - visible: A boolean indicating whether the modal is visible.
- * - onClose: A function that is called when the modal is requested to be closed.
- * 
- * The component uses React Native's Modal component to display the modal, and TouchableOpacity components for each settings
- * option. The TouchableWithoutFeedback component is used to close the modal when the user taps outside the modal content.
- */
-
 import React from "react";
 import {
   Modal,
@@ -22,6 +7,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
 } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 interface SettingsModalProps {
   visible: boolean;
@@ -67,25 +53,25 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContainer: {
-    width: 300,
+    width: wp('80%'),
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
+    borderRadius: wp('2.5%'),
+    padding: wp('5%'),
     alignItems: "center",
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: wp('5%'),
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: hp('2.5%'),
   },
   modalItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: hp('1.5%'),
+    paddingHorizontal: wp('5%'),
     width: "100%",
     alignItems: "center",
   },
   modalItemText: {
-    fontSize: 16,
+    fontSize: wp('4%'),
   },
 });
 
