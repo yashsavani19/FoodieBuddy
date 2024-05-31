@@ -75,7 +75,7 @@ export const useIsAuthenticated = () => {
 export const uploadProfilePicture = async (uri: string, userId: string): Promise<string | null> => {
   try {
     const blob = await (await fetch(uri)).blob();
-    const storage = getStorage();
+    const storage = getStorage();    
     const storageRef = ref(storage, `profilePictures/${userId}`);
     await uploadBytes(storageRef, blob);
     const downloadURL = await getDownloadURL(storageRef);
@@ -87,10 +87,26 @@ export const uploadProfilePicture = async (uri: string, userId: string): Promise
 };
 
 // Update Firestore with profile picture URL
-export const updateProfilePicture = async (userId: string, profileImageUrl: string) => {
+export const updateProfilePicture = async (
+  userId: string,
+  profileImageUrl: string
+) => {
   try {
     const userCollection = `users/${userId}`;
-    await setDoc(doc(db, userCollection), { profilePicture: profileImageUrl }, { merge: true });
+    await setDoc(
+      doc(db, userCollection),
+      { profilePicture: profileImageUrl },
+      { merge: true }
+    );
+    const user = await fetchUser(userId);
+    if (user) {
+      const usernameCollection = `usernames/${user.username}`;
+      await setDoc(
+        doc(db, usernameCollection),
+        { profilePicture: profileImageUrl },
+        { merge: true }
+      );
+    }
     console.log("Profile picture URL updated successfully");
   } catch (error) {
     console.error("Error updating profile picture URL: ", error);
