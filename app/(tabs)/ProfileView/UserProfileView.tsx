@@ -79,6 +79,7 @@ export default function UserProfileView() {
     setConfirmationModalVisible(!isConfirmationModalVisible);
   };
 
+  // Image Picker Functions
   const pickImageFromCamera = async () => {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,

@@ -4,8 +4,7 @@ import { getFirestore, setDoc, doc, getDoc } from "firebase/firestore";
 const storage = getStorage();
 const db = getFirestore();
 
-// Remove the duplicate declaration of fetchUser
-
+//Upload profile picture to Firebase Storage
 export const uploadProfilePicture = async (uri: string, userId: string): Promise<string | null> => {
   try {
     const blob = await (await fetch(uri)).blob();
@@ -19,6 +18,7 @@ export const uploadProfilePicture = async (uri: string, userId: string): Promise
   }
 };
 
+//Update profile picture URL in Firestore
 export const updateProfilePicture = async (userId: string, profileImageUrl: string) => {
   try {
     const userCollection = `users/${userId}`;
@@ -42,6 +42,7 @@ export const updateProfilePicture = async (userId: string, profileImageUrl: stri
   }
 };
 
+//Fetch user from Firestore
 export const fetchUser = async (uid: string) => {
   try {
     const userCollection = `users/${uid}`;
@@ -59,7 +60,7 @@ export const fetchUser = async (uid: string) => {
   }
 };
 
-// New function to delete profile picture
+// delete profile picture from UserProfile
 export const deleteProfilePicture = async (userId: string) => {
   try {
     const storageRef = ref(storage, `profilePictures/${userId}`);
