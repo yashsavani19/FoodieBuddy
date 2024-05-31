@@ -72,7 +72,7 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend, onPress }) => {
         disabled={true}
       >
         <Image
-          resizeMode="contain"
+          // resizeMode="contain"
           style={styles.listImage}
           source={
             typeof friend.profileImageUrl === "string"
