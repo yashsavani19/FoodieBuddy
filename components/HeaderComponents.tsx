@@ -1,5 +1,4 @@
 import Filters from "./SortButton";
-import Categories from "./Categories";
 import SearchBar from "./SearchBar";
 import { Text, View, StyleSheet, SafeAreaView } from "react-native";
 import FilterButton from "./FilterDrawerComponents/FilterButton";
