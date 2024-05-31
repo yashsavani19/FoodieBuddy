@@ -20,6 +20,7 @@
     "@react-native-assets/slider": "^7.2.1",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/slider": "^4.5.2",
+    "@react-native-firebase/storage": "^20.0.0",
     "@react-native-google-signin/google-signin": "^11.0.1",
     "@react-native-picker/picker": "2.6.1",
     "@react-navigation/native": "^6.0.2",

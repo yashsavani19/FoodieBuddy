@@ -29,7 +29,9 @@ import { initializeApp } from "firebase/app";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 import React, { useEffect, useState } from "react";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, setDoc, doc, getDoc } from "firebase/firestore"; // Added `doc` and `getDoc` import
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
 /**
  * Firebase configuration
  */
@@ -69,9 +71,53 @@ export const useIsAuthenticated = () => {
   return isAuthenticated;
 };
 
+// Handle uploading profile picture
+export const uploadProfilePicture = async (uri: string, userId: string): Promise<string | null> => {
+  try {
+    const blob = await (await fetch(uri)).blob();
+    const storage = getStorage();
+    const storageRef = ref(storage, `profilePictures/${userId}`);
+    await uploadBytes(storageRef, blob);
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading profile picture: ", error);
+    return null;
+  }
+};
+
+// Update Firestore with profile picture URL
+export const updateProfilePicture = async (userId: string, profileImageUrl: string) => {
+  try {
+    const userCollection = `users/${userId}`;
+    await setDoc(doc(db, userCollection), { profilePicture: profileImageUrl }, { merge: true });
+    console.log("Profile picture URL updated successfully");
+  } catch (error) {
+    console.error("Error updating profile picture URL: ", error);
+  }
+};
+
+// Function to fetch user profile from Firestore
+export const fetchUser = async (uid: string) => {
+  try {
+    const userCollection = `users/${uid}`;
+    const docRef = doc(db, userCollection);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      console.error("No such document!");
+      alert("User not found.");
+    }
+  } catch (e) {
+    console.error("Error getting document: ", e);
+    alert("Internal error fetching user. Please try again later.");
+  }
+};
+
 // Handlers
 
-//Handle login
+// Handle login
 export const handleLogin = async (
   email: string,
   password: string
@@ -121,7 +167,7 @@ export const handleLogin = async (
   }
 };
 
-//Handle Register
+// Handle register
 export const handleRegister = async (
   email: string,
   username: string,
@@ -147,7 +193,7 @@ export const handleRegister = async (
     const authError = error as AuthError;
     console.error(authError.code);
     switch (authError.code) {
-      //Special error cases being thrown by firebase
+      // Special error cases being thrown by firebase
       case "auth/email-already-in-use":
         alert(`Email address already in use.`);
         break;
@@ -168,7 +214,7 @@ export const handleRegister = async (
   }
 };
 
-//Handle Reset Password
+// Handle reset password
 export const handleResetPassword = async (email: string): Promise<void> => {
   // Check if the email is not empty
   if (email.replaceAll(" ", "").length === 0) {
@@ -194,7 +240,7 @@ export const handleResetPassword = async (email: string): Promise<void> => {
   }
 };
 
-//Handle Logout
+// Handle logout
 export const handleLogout = () => {
   try {
     logout();
@@ -205,27 +251,22 @@ export const handleLogout = () => {
 };
 
 // Methods
-//login
+// Login
 const login = async (email: string, password: string): Promise<void> => {
   await signInWithEmailAndPassword(auth, email, password);
 };
 
-//Login with Google
-
-//Register
+// Register
 const register = async (email: string, password: string): Promise<void> => {
   await createUserWithEmailAndPassword(auth, email, password);
 };
 
-//Authenticate by sending email link
-
-//Logout
+// Logout
 const logout = async (): Promise<void> => {
   await signOut(auth);
 };
 
-//Reset Password
+// Reset password
 const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
 };
-

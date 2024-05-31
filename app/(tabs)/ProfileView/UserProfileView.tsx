@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -20,6 +20,7 @@ import { AppContext } from "@/context/AppContext";
 import * as ImagePicker from 'expo-image-picker';
 import ReactNativeModal from 'react-native-modal';
 import AntDesign from "@expo/vector-icons/build/AntDesign";
+import { uploadProfilePicture, updateProfilePicture, fetchUser } from "@/controller/FirebaseHandler";
 
 export default function UserProfileView() {
   // Navigation hook for navigating to other screens
@@ -33,6 +34,20 @@ export default function UserProfileView() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageToConfirm, setImageToConfirm] = useState<string | null>(null);
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
+
+  useEffect(() => {
+    const loadProfilePicture = async () => {
+      const userId = user?.uid;
+      if (userId) {
+        const userData = await fetchUser(userId);
+        if (userData?.profilePicture) {
+          setSelectedImage(userData.profilePicture);
+        }
+      }
+    };
+
+    loadProfilePicture();
+  }, [user]);
 
   function navigateToFavouriteSpots(): void {
     navigation.navigate("FavoriteSpotsView", {
@@ -92,8 +107,17 @@ export default function UserProfileView() {
     }
   };
 
-  const confirmImage = () => {
-    setSelectedImage(imageToConfirm);
+  const confirmImage = async () => {
+    if (imageToConfirm) {
+      const userId = user?.uid;
+      if (userId) {
+        const profileImageUrl = await uploadProfilePicture(imageToConfirm, userId);
+        if (profileImageUrl) {
+          await updateProfilePicture(userId, profileImageUrl);
+          setSelectedImage(profileImageUrl);
+        }
+      }
+    }
     setImageToConfirm(null);
     toggleConfirmationModal();
   };
@@ -280,7 +304,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#fff',
-    borderRadius: 25,
+    borderRadius: 50,
   },
   cameraIcon: {
     width: 35,
