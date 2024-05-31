@@ -169,11 +169,11 @@ export default function UserProfileView() {
           {/* Account Actions (e.g., Logout) */}
           <View style={styles.accountActions}>
             {/* Edit Account Button */}
-            <TouchableOpacity onPress={editAccount}>
+            <TouchableOpacity style={styles.editButtonContainer} onPress={editAccount}>
               <Text style={styles.editButton}>Edit Account</Text>
-            </TouchableOpacity>
+            </TouchableOpacity >
             {/* Logout Button */}
-            <TouchableOpacity onPress={signOut}>
+            <TouchableOpacity style={styles.editButtonContainer} onPress={signOut}>
               <Text style={styles.editButton}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -290,15 +290,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
   },
+ 
   editButton: {
     fontSize: 20,
-    margin: 10,
     textAlign: 'center',
+    color: '#fff',
+  },
+  editButtonContainer: {
+    margin: 10,
     marginHorizontal: 5,
     borderRadius: 25,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    color: '#fff',
     backgroundColor: '#007BFF',
   },
   menuItemsSection: {
