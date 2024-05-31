@@ -267,7 +267,7 @@ const ChatScreen: React.FC = () => {
         auth.currentUser?.displayName || "Unknown User",
         false
       );
-    }, 3000);
+    }, 2000);
   };
 
   const handleBuddyToggle = async () => {

@@ -1,7 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
-
-const { width } = Dimensions.get('window');
+import { View, Text, StyleSheet } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 interface TypingIndicatorProps {
   typingUsers: { [key: string]: { isTyping: boolean, username: string } };
@@ -24,11 +23,11 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({ typingUsers }) => {
 
 const styles = StyleSheet.create({
   typingIndicatorContainer: {
-    padding: width * 0.02,
+    padding: wp('1%'),
     alignItems: "center",
   },
   typingText: {
-    fontSize: width * 0.04,
+    fontSize: wp('3.5%'),
     color: "#999",
   },
 });
