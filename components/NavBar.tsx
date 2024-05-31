@@ -13,16 +13,17 @@
  */
 
 import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 
 interface NavBarProps {
   openSettings: () => void;
+  title?: string;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ openSettings }) => {
+const NavBar: React.FC<NavBarProps> = ({ openSettings, title }) => {
   const navigation = useNavigation();
 
   return (
@@ -30,6 +31,7 @@ const NavBar: React.FC<NavBarProps> = ({ openSettings }) => {
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
         <AntDesign name="arrowleft" size={24} color="#000" />
       </TouchableOpacity>
+      <Text style={styles.titleText}>{title}</Text>
       <TouchableOpacity onPress={openSettings} style={styles.navButton}>
         <MaterialIcons name="settings" size={22} color="#000" />
       </TouchableOpacity>
@@ -47,6 +49,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
     width: "100%",
     height: 40,
+  },
+  titleText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#000",
   },
   navButton: {
     padding: 5,

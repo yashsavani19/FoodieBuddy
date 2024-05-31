@@ -12,7 +12,7 @@ export type RootStackParamList = {
       lng: number;
     };
   }; };
-  ChatScreen: { chatRoomId: string };
+  ChatScreen: { chatRoomId: string, chatRoomName?: string };
   BuddyChat: { chatRoomId: string };
   DetailsView: { Restaurant: Restaurant };
   FavoriteSpotsView: { favouriteRestaurants: Saved[] };

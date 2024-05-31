@@ -54,7 +54,7 @@ interface Message {
 
 interface RouteParams {
   chatRoomId: string;
-  chatRoomName: string;
+  chatRoomName?: string;
 }
 
 const ChatScreen: React.FC = () => {
@@ -370,7 +370,7 @@ const ChatScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <TitleHeader title="Friends Chat" />
-        <NavBar openSettings={openSettings} />
+        <NavBar openSettings={openSettings} title={chatRoomName} />
       </View>
       <View style={styles.contentContainer}>
         <FlatList
