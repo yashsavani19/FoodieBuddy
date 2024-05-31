@@ -21,18 +21,28 @@ import VisitedButton from "@/components/SavedLists/VisitedButton";
 import { AppContext } from "@/context/AppContext";
 import * as ImagePicker from "expo-image-picker";
 import ReactNativeModal from "react-native-modal";
-import { uploadProfilePicture, updateProfilePicture, fetchUser, deleteProfilePicture } from "@/controller/ProfilePictureHandler";
+import {
+  uploadProfilePicture,
+  updateProfilePicture,
+  fetchUser,
+  deleteProfilePicture,
+} from "@/controller/ProfilePictureHandler";
 import PreferencesButton from "@/components/SavedLists/PreferencesButton";
 import Constants from "expo-constants";
 
 export default function UserProfileView() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { bookmarkedRestaurants, favouriteRestaurants, visitedRestaurants, preferences } =
-    useContext(AppContext);
+  const {
+    bookmarkedRestaurants,
+    favouriteRestaurants,
+    visitedRestaurants,
+    preferences,
+  } = useContext(AppContext);
   const { user, signOut } = useAuth();
 
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isConfirmationModalVisible, setConfirmationModalVisible] = useState(false);
+  const [isConfirmationModalVisible, setConfirmationModalVisible] =
+    useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [imageToConfirm, setImageToConfirm] = useState<string | null>(null);
   const [isImageViewerVisible, setImageViewerVisible] = useState(false);
@@ -53,14 +63,15 @@ export default function UserProfileView() {
 
   useEffect(() => {
     (async () => {
-      if (Platform.OS !== 'web') {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-          alert('Sorry, we need camera roll permissions to make this work!');
+      if (Platform.OS !== "web") {
+        const { status } =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+          alert("Sorry, we need camera roll permissions to make this work!");
         }
         const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-        if (cameraStatus.status !== 'granted') {
-          alert('Sorry, we need camera permissions to make this work!');
+        if (cameraStatus.status !== "granted") {
+          alert("Sorry, we need camera permissions to make this work!");
         }
       }
     })();
@@ -95,6 +106,10 @@ export default function UserProfileView() {
   }
 
   const toggleModal = () => {
+    if (Platform.OS === "ios") {
+      alert("Setting a profile image is not yet supported on iOS");
+      return;
+    }
     setModalVisible(!isModalVisible);
   };
 
@@ -125,8 +140,8 @@ export default function UserProfileView() {
       aspect: [1, 1],
       quality: 1,
     });
-
     if (!result.canceled) {
+      console.log(result.assets[0].uri);
       setImageToConfirm(result.assets[0].uri);
       toggleModal();
       toggleConfirmationModal();
@@ -137,7 +152,10 @@ export default function UserProfileView() {
     if (imageToConfirm) {
       const userId = user?.uid;
       if (userId) {
-        const profileImageUrl = await uploadProfilePicture(imageToConfirm, userId);
+        const profileImageUrl = await uploadProfilePicture(
+          imageToConfirm,
+          userId
+        );
         if (profileImageUrl) {
           await updateProfilePicture(userId, profileImageUrl);
           setSelectedImage(profileImageUrl);
@@ -170,27 +188,42 @@ export default function UserProfileView() {
           <View style={styles.iconWrapper}>
             <TouchableOpacity onPress={() => setImageViewerVisible(true)}>
               <Image
-                source={selectedImage ? { uri: selectedImage } : require("@/assets/images/user-icon.png")}
+                source={
+                  selectedImage
+                    ? { uri: selectedImage }
+                    : require("@/assets/images/user-icon.png")
+                }
                 style={styles.profilePicture}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.cameraIconContainer} onPress={toggleModal}>
-              <Image
-                source={require('@/assets/images/Change_PFP_icon.png')}
-                style={styles.cameraIcon}
-              />
-            </TouchableOpacity>
+            {Platform.OS === "ios" ? null : (
+              <TouchableOpacity
+                style={styles.cameraIconContainer}
+                onPress={toggleModal}
+              >
+                <Image
+                  source={require("@/assets/images/Change_PFP_icon.png")}
+                  style={styles.cameraIcon}
+                />
+              </TouchableOpacity>
+            )}
           </View>
           {/* User Display Name */}
           <Text style={styles.username}>{user?.displayName || ""}</Text>
           {/* Account Actions (e.g., Logout) */}
           <View style={styles.accountActions}>
             {/* Edit Account Button */}
-            <TouchableOpacity style={styles.editButtonContainer} onPress={editAccount}>
+            <TouchableOpacity
+              style={styles.editButtonContainer}
+              onPress={editAccount}
+            >
               <Text style={styles.editButton}>Edit Account</Text>
             </TouchableOpacity>
             {/* Logout Button */}
-            <TouchableOpacity style={styles.editButtonContainer} onPress={signOut}>
+            <TouchableOpacity
+              style={styles.editButtonContainer}
+              onPress={signOut}
+            >
               <Text style={styles.editButton}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -210,15 +243,24 @@ export default function UserProfileView() {
           <VisitedButton onPress={navigateToVisitedSpots} />
         </View>
       </ScrollView>
-      <ReactNativeModal isVisible={isModalVisible} onBackdropPress={toggleModal}>
+      <ReactNativeModal
+        isVisible={isModalVisible}
+        onBackdropPress={toggleModal}
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Profile Photo</Text>
           <View style={styles.modalButtonContainer}>
-            <TouchableOpacity style={styles.modalButton} onPress={pickImageFromCamera}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={pickImageFromCamera}
+            >
               <AntDesign name="camerao" size={24} color="black" />
               <Text style={styles.modalButtonText}>Camera</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={pickImageFromGallery}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={pickImageFromGallery}
+            >
               <AntDesign name="picture" size={24} color="black" />
               <Text style={styles.modalButtonText}>Gallery</Text>
             </TouchableOpacity>
@@ -229,7 +271,10 @@ export default function UserProfileView() {
           </View>
         </View>
       </ReactNativeModal>
-      <ReactNativeModal isVisible={isConfirmationModalVisible} onBackdropPress={toggleConfirmationModal}>
+      <ReactNativeModal
+        isVisible={isConfirmationModalVisible}
+        onBackdropPress={toggleConfirmationModal}
+      >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Confirm Photo</Text>
           <Image source={{ uri: imageToConfirm }} style={styles.confirmImage} />
@@ -238,20 +283,34 @@ export default function UserProfileView() {
               <AntDesign name="check" size={24} color="black" />
               <Text style={styles.modalButtonText}>Save</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton} onPress={toggleConfirmationModal}>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={toggleConfirmationModal}
+            >
               <AntDesign name="close" size={24} color="black" />
               <Text style={styles.modalButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ReactNativeModal>
-      <RNModal visible={isImageViewerVisible} transparent={true} onRequestClose={() => setImageViewerVisible(false)}>
+      <RNModal
+        visible={isImageViewerVisible}
+        transparent={true}
+        onRequestClose={() => setImageViewerVisible(false)}
+      >
         <View style={styles.imageViewerContainer}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => setImageViewerVisible(false)}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setImageViewerVisible(false)}
+          >
             <AntDesign name="close" size={30} color="white" />
           </TouchableOpacity>
           <Image
-            source={selectedImage ? { uri: selectedImage } : require("@/assets/images/user-icon.png")}
+            source={
+              selectedImage
+                ? { uri: selectedImage }
+                : require("@/assets/images/user-icon.png")
+            }
             style={styles.imageViewer}
           />
         </View>
@@ -305,8 +364,8 @@ const styles = StyleSheet.create({
   },
   editButton: {
     fontSize: 20,
-    textAlign: 'center',
-    color: '#fff',
+    textAlign: "center",
+    color: "#fff",
   },
   editButtonContainer: {
     margin: 10,
@@ -314,7 +373,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#007BFF',
+    backgroundColor: "#007BFF",
   },
   menuItemsSection: {
     marginTop: 5,
@@ -331,8 +390,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   editAccountText: {
-    fontSize: 15, 
-    color: "#000", 
+    fontSize: 15,
+    color: "#000",
   },
   menuItemText: {
     marginLeft: 20,
@@ -340,16 +399,16 @@ const styles = StyleSheet.create({
     color: "#ededed",
   },
   cameraIconContainer: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     bottom: 0,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 50,
   },
   cameraIcon: {
     width: 35,
     height: 35,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   modalContent: {
     backgroundColor: "white",
@@ -383,19 +442,18 @@ const styles = StyleSheet.create({
   },
   imageViewerContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   imageViewer: {
-    width: '90%',
-    height: '80%',
-    resizeMode: 'contain',
+    width: "90%",
+    height: "80%",
+    resizeMode: "contain",
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 40,
     right: 20,
   },
 });
-
