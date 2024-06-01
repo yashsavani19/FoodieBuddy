@@ -73,6 +73,9 @@ export type AppContextType = {
     preferenceName: string,
     selected: boolean
   ) => void;
+
+  preferencesAPINames: string[];
+  setPreferencesAPINames: (names: string[]) => void;
 };
 
 interface ContextProviderProps {
@@ -118,6 +121,9 @@ export const AppContext = createContext<AppContextType>({
   preferences: [],
   setPreferences: () => {},
   updateUserPreferences: () => {},
+
+  preferencesAPINames: [],
+  setPreferencesAPINames: () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -150,6 +156,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const [preferences, setPreferences] = useState<PreferenceCategoryList[]>([]);
 
+  const [preferencesAPINames, setPreferencesAPINames] = useState<string[]>([]);
+
   const setRestaurants = async () => {
     setDataLoading(true);
     try {
@@ -172,6 +180,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       setDataLoading(false);
     }
   };
+
+  
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -216,6 +226,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     console.log("Friends updated");
   }, [friends]);
 
+  useEffect(() => {
+    console.log("Preferences API Names Updated");
+  }, [preferencesAPINames]);
+
   const setUser = async () => {
     try {
       setAuthUser(user as AuthUser);
@@ -235,15 +249,22 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setVisitedRestaurants(visited);
       }
 
-      const {preferences} = await fetchPreferences();
+      const {preferences, apiNames} = await fetchPreferences();
       if (preferences) {
         setPreferences(preferences);
       }
+      
+      if (apiNames) {
+        console.log("API Names:", apiNames);
+        setPreferencesAPINames(apiNames);
+      }
+
       setUserObject({
         ...userObject,
         favouriteRestaurants: favourites,
         bookmarkedRestaurants: bookmarks,
         visitedRestaurants: visited,
+        userPreferencesAPIName: preferencesAPINames,
       });
 
       getFriends();
@@ -580,6 +601,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     preferences,
     setPreferences,
     updateUserPreferences,
+
+    preferencesAPINames,
+    setPreferencesAPINames,
   };
 
   return (
