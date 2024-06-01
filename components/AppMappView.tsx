@@ -107,6 +107,7 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           style={styles.map}
           provider={PROVIDER_GOOGLE}
           showsUserLocation={true}
+          followsUserLocation={true}
           customMapStyle={MapViewStyle}
           showsCompass={true}
           region={{
@@ -309,9 +310,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: hp('8%'),
     // left: wp('100%'),
-    transform: [{ translateX: -wp('2.8%') }],
+    transform: [{ translateX: -wp('3%') }],
     backgroundColor: "rgba(255, 255, 255, 0.7)",
-    padding: wp("1.6%"),
+    padding: wp("1.8%"),
     borderRadius: wp("0.5%"),
     alignItems: "center",
     alignSelf: 'flex-end'
