@@ -1,16 +1,15 @@
+// EditAccountView.tsx
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Button,
   ScrollView,
   SafeAreaView,
   Keyboard,
-  Animated,
-  Touchable,
   TouchableOpacity,
+  TextInput,
 } from "react-native";
-import React, { useContext, useEffect, useRef } from "react";
 import TitleHeader from "@/components/TitleHeader";
 import { AppContext } from "@/context/AppContext";
 import {
@@ -26,22 +25,28 @@ import EditTextField from "@/components/EditAccountComponents/EditTextField";
 import BaseModal from "@/components/modals/BaseModal";
 import BaseButton from "@/components/modals/BaseButton";
 import Constants from "expo-constants";
+import { deleteUserAccount } from "@/controller/FirebaseHandler";
+import { useNavigation } from "@react-navigation/native";
 
 const EditAccountView: React.FC = () => {
+  const navigation = useNavigation(); // Initialize useNavigation
   const { userObject } = useContext(AppContext);
-  const { user } = useAuth();
-  const [newUsername, setNewUsername] = React.useState(user?.displayName || "");
-  const [showUsername, setShowUsername] = React.useState(false);
-  const [newEmail, setNewEmail] = React.useState(user?.email || "");
-  const [showEmail, setShowEmail] = React.useState(false);
-  const [oldPassword, setOldPassword] = React.useState("");
-  const [newPassword, setNewPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [viewEmailModal, setEmailViewModal] = React.useState(false);
-  const [viewUsernameModal, setUsernameViewModal] = React.useState(false);
-  const [viewPasswordModal, setPasswordViewModal] = React.useState(false);
-  const [showDeleteButton, setShowDeleteButton] = React.useState(true);
+  const { user, signOut } = useAuth();
+  const [newUsername, setNewUsername] = useState(user?.displayName || "");
+  const [showUsername, setShowUsername] = useState(false);
+  const [newEmail, setNewEmail] = useState(user?.email || "");
+  const [showEmail, setShowEmail] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [viewEmailModal, setEmailViewModal] = useState(false);
+  const [viewUsernameModal, setUsernameViewModal] = useState(false);
+  const [viewPasswordModal, setPasswordViewModal] = useState(false);
+  const [showDeleteButton, setShowDeleteButton] = useState(true);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
@@ -65,7 +70,6 @@ const EditAccountView: React.FC = () => {
       newUsername,
       userObject?.profileImageUrl || ""
     );
-    // alert("Username updated successfully");
     if (result) setUsernameViewModal(true);
   };
 
@@ -138,6 +142,22 @@ const EditAccountView: React.FC = () => {
       setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const authenticated = await reSignIn(deletePassword);
+      if (authenticated) {
+        await deleteUserAccount(deletePassword);
+        alert("Account deleted successfully");
+        await signOut(); // Log out the user after deleting the account
+      } else {
+        setDeleteError("Incorrect password. Please try again.");
+      }
+    } catch (error) {
+      setDeleteError("Error deleting account. Please try again later.");
+      console.error("Error deleting account: ", error);
     }
   };
 
@@ -277,7 +297,7 @@ const EditAccountView: React.FC = () => {
         {showDeleteButton && (
           <TouchableOpacity
             onPress={() => {
-              alert("Delete account pressed");
+              setIsDeleteModalVisible(true);
             }}
             style={styles.deleteButton}
           >
@@ -316,6 +336,45 @@ const EditAccountView: React.FC = () => {
           setPasswordViewModal(false);
         }}
         buttons={[button3]}
+      />
+      <BaseModal
+        title={"Confirm Account Deletion"}
+        visible={isDeleteModalVisible}
+        onClose={() => {
+          setIsDeleteModalVisible(false);
+        }}
+        bodyText={
+          <>
+            <Text>Are you sure you want to delete your account?</Text>
+            <EditTextField
+              title={deletePassword}
+              isVisible={true}
+              onSubmit={setDeletePassword}
+              placeholder="Verify password"
+              imageSrc="password"
+              isSecure={true}
+            />
+            {deleteError && (
+              <Text style={{ color: "red", textAlign: "center" }}>
+                {deleteError}
+              </Text>
+            )}
+          </>
+        }
+        buttons={[
+          <BaseButton
+            key="cancel"
+            title={"No"}
+            onPress={() => setIsDeleteModalVisible(false)}
+            buttonColour={"#3464ac"}
+          />,
+          <BaseButton
+            key="delete"
+            title={"Delete Account"}
+            onPress={handleDeleteAccount}
+            buttonColour={"#cc4343"}
+          />,
+        ]}
       />
     </View>
   );
