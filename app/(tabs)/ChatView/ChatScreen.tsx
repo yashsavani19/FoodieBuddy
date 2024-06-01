@@ -90,6 +90,7 @@ const ChatScreen: React.FC = () => {
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const buddyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
   const [buddyActive, setBuddyActive] = useState(false);
 
@@ -264,6 +265,9 @@ const ChatScreen: React.FC = () => {
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
+    if (buddyTimeoutRef.current) {
+      clearTimeout(buddyTimeoutRef.current);
+    }
     updateTypingStatus(
       chatRoomId,
       auth.currentUser?.uid || "",
@@ -278,12 +282,14 @@ const ChatScreen: React.FC = () => {
         false
       );
     }, 3000);
+    buddyTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
+    }, 6000);
   };
 
   const handleBuddyPress = async () => {
     await updateTypingStatus(chatRoomId, "Buddy", "Buddy", true);
-    // setBuddyActive(true);
-    // Set system prompt for group chat
+
     const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
     setSystemPrompt(systemPrompt);
 
@@ -294,28 +300,45 @@ const ChatScreen: React.FC = () => {
       .join("\n");
 
     console.log("Recent Messages:", recentMessages);
-    const aiResponse = await sendAIMessage(recentMessages);
-    const buddyMessageId = Date.now().toString() + "ai";
-    const buddyMessage: Message = {
-      id: buddyMessageId,
-      text: aiResponse,
-      userId: "buddy",
-      timestamp: new Date(),
-      userProfileImage: buddyProfileImage,
-      username: "Buddy",
-    };
-    // setBuddyActive(false);
-    setMessages((prevMessages) => {
-      if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
-        return [...prevMessages, buddyMessage];
-      }
-      return prevMessages;
-    });
+    try {
+      const aiResponse = await sendAIMessage(recentMessages);
+      const buddyMessageId = Date.now().toString() + "ai";
+      const buddyMessage: Message = {
+        id: buddyMessageId,
+        text: aiResponse,
+        userId: "buddy",
+        timestamp: new Date(),
+        userProfileImage: buddyProfileImage,
+        username: "Buddy",
+      };
 
-    await sendMessage(chatRoomId, buddyMessage.text, "buddy");
+      setMessages((prevMessages) => {
+        if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
+          return [...prevMessages, buddyMessage];
+        }
+        return prevMessages;
+      });
 
-    flatListRef.current?.scrollToEnd({ animated: true });
-    updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
+      await sendMessage(chatRoomId, buddyMessage.text, "buddy");
+
+      flatListRef.current?.scrollToEnd({ animated: true });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage =
+        "Sorry, I'm having trouble right now. Please try again later.";
+      const buddyMessageId = Date.now().toString() + "ai";
+      const buddyMessage: Message = {
+        id: buddyMessageId,
+        text: errorMessage,
+        userId: "buddy",
+        timestamp: new Date(),
+        userProfileImage: buddyProfileImage,
+        username: "Buddy",
+      };
+      setMessages((prevMessages) => [...prevMessages, buddyMessage]);
+    } finally {
+      updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
+    }
   };
 
   const renderItem = ({ item }: { item: Message }) => {
@@ -418,9 +441,9 @@ const ChatScreen: React.FC = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
             {buddyActive ? (
-              <>
-              <ActivityIndicator size="large" color="#f76116" />
-              </>
+              <View style={{ marginRight: 14 }}>
+                <ActivityIndicator size="large" color="#f76116" />
+              </View>
             ) : (
               <TouchableOpacity onPress={handleBuddyPress}>
                 <Image
