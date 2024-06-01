@@ -1,19 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  Modal,
-  ScrollView,
-} from "react-native";
-import MapView, {
-  Marker,
-  Callout,
-  Circle,
-  PROVIDER_GOOGLE,
-  MapMarker,
-} from "react-native-maps";
+import { StyleSheet, View, TouchableOpacity, Modal } from "react-native";
+import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE, MapMarker } from "react-native-maps";
 import MapViewStyle from "../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./RestaurantMarker";
 import { AppContext } from "../context/AppContext";
@@ -22,10 +9,9 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import MapViewDirections from "react-native-maps-directions";
 import { GOOGLE_API_KEY } from "@env";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { MaterialIcons } from "@expo/vector-icons";
-import { getDirectionIcon } from "../app/Utils/directionIcons";
 import CustomCallout from "./CustomCallout";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import { widthPercentageToDP as wp } from "react-native-responsive-screen";
+import DirectionModal from "./DirectionModal";
 
 interface AppMappViewProps {
   geometry?: {
@@ -221,74 +207,13 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
             <MaterialCommunityIcons name="directions" size={wp('6%')} color="#5A5A5A" />
           </TouchableOpacity>
         )}
-        <Modal
-          visible={isModalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <TouchableOpacity
-                style={styles.modeToggleWrapper}
-                onPress={toggleMode}
-              >
-                <View style={styles.modeToggleContainer}>
-                  <MaterialCommunityIcons
-                    name="walk"
-                    size={wp('6%')}
-                    color={mode === "WALKING" ? "#e46860" : "#fff"}
-                  />
-                  <MaterialCommunityIcons
-                    name="car"
-                    size={wp('8%')}
-                    color={mode === "DRIVING" ? "#e46860" : "#fff"}
-                  />
-                  <Text style={styles.modeToggleText}>
-                    {mode === "WALKING"
-                      ? "Walking Directions"
-                      : "Driving Directions"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <Text style={styles.directionsSummaryText}>
-                Distance: {directionsSummary?.distance} | Duration:{" "}
-                {directionsSummary?.duration}
-              </Text>
-              <ScrollView style={styles.directionsList}>
-                {directionsSummary?.steps.map((step, index) => (
-                  <View key={index}>
-                    <View style={styles.stepContainer}>
-                      <MaterialIcons
-                        name={getDirectionIcon(step.instruction)}
-                        size={wp('6%')}
-                        color="black"
-                        style={styles.stepIcon}
-                      />
-                      <View style={styles.stepInstructionContainer}>
-                        <Text style={styles.stepInstruction}>
-                          {step.instruction}
-                        </Text>
-                        <Text style={styles.stepDistance}>
-                          {" "}
-                           ({step.distance}) </Text>
-                      </View>
-                    </View>
-                    {index < directionsSummary.steps.length - 1 && (
-                      <View style={styles.divider} />
-                    )}
-                  </View>
-                ))}
-              </ScrollView>
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                style={styles.closeButton}
-              >
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+        <DirectionModal
+          isVisible={isModalVisible}
+          onClose={() => setModalVisible(false)}
+          directionsSummary={directionsSummary}
+          mode={mode}
+          toggleMode={toggleMode}
+        />
       </View>
     )
   );
@@ -301,119 +226,14 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  name: {
-    fontWeight: "bold",
-    fontSize: wp('4%'),
-    marginBottom: hp('1%'),
-  },
   directionsButton: {
     position: "absolute",
-    top: hp('8%'),
-    // left: wp('100%'),
+    top: wp('15%'),
     transform: [{ translateX: -wp('3%') }],
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     padding: wp("1.8%"),
     borderRadius: wp("0.5%"),
     alignItems: "center",
     alignSelf: 'flex-end'
-  },
-  directionsButtonText: {
-    color: "#fff",
-    marginLeft: wp('2%'),
-    fontWeight: "bold",
-  },
-  modeToggleWrapper: {
-    width: "100%",
-    backgroundColor: "#000",
-    borderRadius: 10,
-    paddingVertical: hp('1.5%'),
-    paddingHorizontal: wp('4%'),
-    marginBottom: hp('2%'),
-  },
-  modeToggleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  modeToggleText: {
-    fontSize: wp('4%'),
-    fontWeight: "bold",
-    color: "#fff",
-    marginLeft: wp('2%'),
-    left: wp('4%'),
-  },
-  webViewStyle: {
-    width: wp('60%'),
-    height: hp('15%'),
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "90%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: wp('5%'),
-    alignItems: "center",
-  },
-  directionsSummaryText: {
-    fontSize: wp('4%'),
-    marginVertical: hp('0.5%'),
-    paddingBottom: hp('0.5%'),
-    alignContent: "space-between",
-    fontWeight: "bold",
-    marginBottom: hp('2%'),
-  },
-  directionsList: {
-    width: "100%",
-    height: hp('25%'),
-  },
-  stepContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: hp('1%'),
-    marginTop: hp('1%'),
-  },
-  stepIcon: {
-    marginRight: wp('2%'),
-  },
-  stepInstructionContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    flexShrink: 1,
-  },
-  stepInstruction: {
-    fontSize: wp('3.5%'),
-    color: "#555",
-    flexShrink: 1,
-    flexWrap: "wrap",
-    maxWidth: "90%",
-  },
-  stepDistance: {
-    fontSize: wp('3.5%'),
-    color: "#555",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#e0e0e0",
-    marginVertical: hp('1%'),
-  },
-  closeButton: {
-    marginTop: hp('2%'),
-    backgroundColor: "#000",
-    paddingVertical: hp('1.5%'),
-    paddingHorizontal: wp('5%'),
-    borderRadius: 5,
-    width: "100%",
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: wp('4%'),
-    alignSelf: "center",
   },
 });
