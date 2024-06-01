@@ -25,8 +25,9 @@ import EditTextField from "@/components/EditAccountComponents/EditTextField";
 import BaseModal from "@/components/modals/BaseModal";
 import BaseButton from "@/components/modals/BaseButton";
 import Constants from "expo-constants";
-import { deleteUserAccount } from "@/controller/FirebaseHandler"; // Make sure this import path is correct
-import { useNavigation } from "@react-navigation/native"; // Add this import
+import { deleteUserAccount } from "@/controller/FirebaseHandler"; 
+import { useNavigation } from "@react-navigation/native"; 
+import LoginView from "@/app/(auth)/LoginView";             
 
 const EditAccountView: React.FC = () => {
   const navigation = useNavigation(); // Initialize useNavigation

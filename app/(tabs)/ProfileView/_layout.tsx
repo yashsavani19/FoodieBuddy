@@ -2,8 +2,10 @@ import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Stack } from "expo-router";
 import { useColorScheme } from "@/components/useColorScheme";
-import LoginView from "@/app/(auth)/LoginView"; // Make sure this import path is correct
-
+import LoginView from "@/app/(auth)/LoginView"; 
+import UserProfileView from './UserProfileView';
+import FriendsView from './FriendsView';
+// import other screens...
 export const unstable_settings = {
   // Configuration settings for navigation
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -35,13 +37,10 @@ export default function TabLayout() {
       <Stack.Screen name="FriendProfile" options={{ headerShown: false }} />
       <Stack.Screen name="FavoriteSpotsView" options={{ headerShown: false }} />
       <Stack.Screen name="FoodPreferencesView" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="BookmarkedSpotsView"
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="BookmarkedSpotsView" options={{ headerShown: false }} />
       <Stack.Screen name="VisitedSpotsView" options={{ headerShown: false }} />
       <Stack.Screen name="EditAccountView" options={{ headerShown: false }} />
-      <Stack.Screen name="LoginView"  options={{ headerShown: false }} />
+      <Stack.Screen name="LoginView" component={LoginView} options={{ headerShown: false }} />
     </Stack>
   );
 }
