@@ -27,7 +27,7 @@ const FriendItem: React.FC<FriendItemProps> = ({ friend, toggleFriendAdded }) =>
         <Text
           style={[styles.addButtonText, friend.isAdded && styles.addedButtonText]}
         >
-          {friend.isAdded ? "Added" : "Add"}
+          {friend.isAdded ? "Added " : "Add "}
         </Text>
       </TouchableOpacity>
     </View>
@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     marginRight: 10,
+    marginLeft: 20
   },
   friendName: {
     flex: 1,
@@ -55,9 +56,11 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 10,
+    marginRight: 20
   },
   addedButton: {
     backgroundColor: "#ccc",
+    marginRight: 20
   },
   addButtonText: {
     color: "#fff",

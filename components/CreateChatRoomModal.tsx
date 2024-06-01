@@ -63,7 +63,7 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
             activeOpacity={1}
           />
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Create New Chat Room</Text>
+            <Text style={styles.modalTitle}>Create New Chat Room </Text>
             <TextInput
               style={styles.input}
               placeholder="Chat Room Name"
@@ -79,7 +79,7 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <Text style={styles.friendsTitle}>Friends</Text>
+            <Text style={styles.friendsTitle}>Friends </Text>
             <FlatList
               data={sortedFriends}
               renderItem={({ item }) => (
@@ -96,13 +96,13 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
                 onPress={onClose}
                 style={[styles.button, styles.cancelButton]}
               >
-                <Text style={styles.cancelButtonText}>Close</Text>
+                <Text style={styles.cancelButtonText}>Close </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={onCreate}
                 style={[styles.button, styles.createButton]}
               >
-                <Text style={styles.createButtonText}>Create Chat</Text>
+                <Text style={styles.createButtonText}>Create Chat </Text>
               </TouchableOpacity>
             </View>
           </View>

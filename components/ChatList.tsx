@@ -157,7 +157,7 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
             onPress={() => setModalVisible(true)}
             style={styles.addButton}
           >
-            <Text style={styles.addButtonText}>New Chat</Text>
+            <Text style={styles.addButtonText}>New Chat </Text>
           </TouchableOpacity>
           <CreateChatRoomModal
             visible={modalVisible}

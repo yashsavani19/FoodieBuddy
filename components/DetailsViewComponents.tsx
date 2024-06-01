@@ -1,3 +1,4 @@
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   Text,
   View,
@@ -7,28 +8,28 @@ import {
   Pressable,
   Linking,
   ScrollView,
-  Share,
+  Animated,
 } from "react-native";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { NavigationProp } from "@react-navigation/native";
-import { RootStackParamList } from "@/constants/navigationTypes";
-import { Animated } from "react-native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
 import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
 import BackButton from "./BackButton";
 import ShareButton from "./ShareButton";
 import { OpenStatusLabelDetails } from "./OpenIndicatorComponents/OpenStatusLabel";
 import Constants from "expo-constants";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
-// Assume all images are imported correctly
 const default_pic = require("@/assets/images/default_pic.png");
 const visited_selected = require("@/assets/images/visited-Selected.png");
 const visited_unselected = require("@/assets/images/visited-unselected-icon.png");
@@ -39,23 +40,15 @@ const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location.png");
 const price_icon = require("@/assets/images/price-tag.png");
 
-
-// Props interface for the component
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
   backFunction: () => void;
 }
 
-/**
- * DetailsViewComponents component that displays the details of a restaurant.
- * @param param0 - The props for the component.
- * @returns - The DetailsViewComponents component.
- */
 const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   restaurant,
   backFunction,
 }) => {
-  // Destructuring for ease of use
   const {
     name,
     image,
@@ -65,7 +58,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     website,
     distance,
     price,
-    currentOpeningHours
+    currentOpeningHours,
   } = restaurant;
 
   const {
@@ -82,16 +75,15 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   const [isVisitedPressed, setVisitedPressed] = useState(false);
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
-  const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
 
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
   const visitedScale = useState(new Animated.Value(1))[0];
 
-  // Navigation hook
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Function to animate the icon when pressed
+  const mapRef = useRef<MapView>(null);
+
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
       Animated.timing(scale, {
@@ -107,7 +99,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     ]).start();
   };
 
-  // UseEffect to check if the restaurant is bookmarked
   useEffect(() => {
     if (bookmarkedRestaurants) {
       for (let i = 0; i < bookmarkedRestaurants.length; i++) {
@@ -124,7 +115,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   }, [bookmarkedRestaurants]);
 
-  // UseEffect to check if the restaurant is favourited
   useEffect(() => {
     if (favouriteRestaurants) {
       for (let i = 0; i < favouriteRestaurants.length; i++) {
@@ -139,7 +129,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   }, [favouriteRestaurants]);
 
-  // UseEffect to check if the restaurant is visited
   useEffect(() => {
     if (visitedRestaurants) {
       for (let i = 0; i < visitedRestaurants.length; i++) {
@@ -156,7 +145,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     }
   }, [favouriteRestaurants]);
 
-  // Function stubs for handling button presses (to be implemented)
   const handleFavouritePress = () => {
     console.log("Favourite pressed");
     if (isBookmarkPressed) {
@@ -173,7 +161,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     animateIcon(faveScale);
   };
 
-  // Function to handle the bookmark button press
   const handleBookmarkPress = () => {
     console.log("Bookmark pressed");
     if (isFavePressed) {
@@ -202,36 +189,42 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
     animateIcon(visitedScale);
   };
 
-  // Function stub for handling map view press
+  const handleCenterMapPress = () => {
+    if (mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: restaurant.geometry.location.lat,
+          longitude: restaurant.geometry.location.lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000
+      );
+    }
+  };
+
   const handleMapViewPress = () => {
-    console.log("Map view pressed");
-    setFindOnMapPressed(!isFindOnMapPressed);
     navigation.navigate("Map", { geometry: restaurant.geometry });
   };
 
-  // Function to handle the website press
   const handleWebsitePress = (websiteUrl: string) => {
     if (websiteUrl) {
-      // Open the restaurant's website in the device's browser
       Linking.openURL(websiteUrl);
-      // Log a message to the console
       console.log(`Opening website: ${websiteUrl}`);
     } else {
       console.log("No website URL provided.");
     }
   };
 
-  // Return the JSX for the component
   return (
     <View style={styles.container}>
       <TitleHeader title="Details" />
 
       <View style={styles.contentContainer}>
-        {/* Image Title Container */}
         <View>
           <BackButton />
         </View>
-        <ScrollView style={{paddingHorizontal: 15}}>
+        <ScrollView style={{ paddingHorizontal: wp("4%") }}>
           <View>
             <View style={{ alignItems: "center" }}>
               <Text style={styles.restaurantTitle}>{name}</Text>
@@ -242,15 +235,13 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 />
               </View>
             </View>
-            {/* Interaction Buttons */}
             <View style={styles.interactionContainer}>
-              {/* Visited Button */}
               <View style={styles.iconContainer}>
                 <Pressable onPress={handleVisitedPress}>
                   <Animated.Image
                     source={
                       isVisitedPressed ? visited_selected : visited_unselected
-                    } // Assuming visited uses the same icon as fave
+                    }
                     style={[
                       styles.smallIcon,
                       { transform: [{ scale: visitedScale }] },
@@ -294,77 +285,69 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
             </View>
           </View>
 
-          {/* Restaurant Details */}
           <View style={styles.restaurantDetailsContainer}>
-            {/* Left Container */}
             <View style={styles.leftContainer}>
-              {/* Restaurant Info */}
-                <View style={styles.detailTextContainer}>
-                  <Image source={star_icon} style={styles.smallIcon} />
-                  <Text style={styles.infoText}>
-                    {rating ? `${rating} / 5` : `N/A`}
-                  </Text>
-                </View>
+              <View style={styles.detailTextContainer}>
+                <Image source={star_icon} style={styles.smallIcon} />
+                <Text style={styles.infoText}>
+                  {rating ? `${rating} / 5` : `N/A`}
+                </Text>
+              </View>
 
-                <View style={styles.detailTextContainer}>
-                  <Image source={price_icon} style={styles.smallIcon} />
-                  <Text style={styles.infoText}>
-                    {price ? displayPriceLevel(parseInt(price)) : `N/A`}
-                  </Text>
-                </View>
+              <View style={styles.detailTextContainer}>
+                <Image source={price_icon} style={styles.smallIcon} />
+                <Text style={styles.infoText}>
+                  {price ? displayPriceLevel(parseInt(price)) : `N/A`}
+                </Text>
+              </View>
 
-                <View style={styles.detailTextContainer}>
-                  <Image source={phone_icon} style={styles.smallIcon} />
-                  <Text
-                    selectable={phone != undefined}
-                    style={phone ? styles.linkText : styles.infoText}
-                  >
-                    {phone ? phone.replace(/\s/g, "") : `N/A`}
-                  </Text>
-                </View>
+              <View style={styles.detailTextContainer}>
+                <Image source={phone_icon} style={styles.smallIcon} />
+                <Text
+                  selectable={phone != undefined}
+                  style={phone ? styles.linkText : styles.infoText}
+                >
+                  {phone ? phone.replace(/\s/g, "") : `N/A`}
+                </Text>
+              </View>
 
-                <View style={styles.detailTextContainer}>
-                  <Image source={website_icon} style={styles.smallIcon} />
-                  <Text
-                    onPress={() => handleWebsitePress(restaurant.website)}
-                    style={styles.linkText}
-                  >
-                    {website ? `Website` : `N/A`}
-                  </Text>
-                </View>
+              <View style={styles.detailTextContainer}>
+                <Image source={website_icon} style={styles.smallIcon} />
+                <Text
+                  onPress={() => handleWebsitePress(restaurant.website)}
+                  style={styles.linkText}
+                >
+                  {website ? `Website` : `N/A`}
+                </Text>
+              </View>
             </View>
 
             <View style={styles.rightContainer}>
               <View style={styles.detailTextContainer}>
-                <Image source={location_icon} style={[styles.smallIcon, {marginTop: 5}]} />
+                <Image
+                  source={location_icon}
+                  style={[styles.smallIcon, { marginTop: hp("0.6%") }]}
+                />
                 <Text selectable={true} style={styles.infoText}>
                   {displayAddress}
                 </Text>
               </View>
               <View style={styles.detailTextContainer}>
-                <Image source={distance_icon} style={[styles.smallIcon, {marginTop: 2}]} />
+                <Image
+                  source={distance_icon}
+                  style={[styles.smallIcon, { marginTop: hp("0.3%") }]}
+                />
                 <Text style={styles.infoText}>{formatDistance(distance)}</Text>
               </View>
-                <OpenStatusLabelDetails restaurant={restaurant} />
+              <OpenStatusLabelDetails restaurant={restaurant} />
             </View>
           </View>
-          <View style={{paddingVertical: 10}}/>
-          {/* Map View */}
-          {/* <View style={styles.mapViewContainer}> */}
-          {/* Wrap MapView inside a View */}
+          <View style={{ paddingVertical: hp("1%") }} />
           <View style={styles.mapContainer}>
-            <View style={styles.findOnMapBtnView}>
-              <TouchableOpacity
-                onPress={handleMapViewPress}
-                style={styles.findOnMapBtn}
-              >
-                <Text style={styles.mapLinkText}>Find on Map</Text>
-              </TouchableOpacity>
-            </View>
             <MapView
+              ref={mapRef}
               style={styles.map}
               customMapStyle={MapViewStyle}
-              // Set initial region using restaurant's latitude and longitude
               initialRegion={{
                 latitude: restaurant.geometry.location.lat,
                 longitude: restaurant.geometry.location.lng,
@@ -372,7 +355,6 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 longitudeDelta: 0.01,
               }}
             >
-              {/* Add a marker to indicate the restaurant's location */}
               <Marker
                 coordinate={{
                   latitude: restaurant.geometry.location.lat,
@@ -381,11 +363,23 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 title={restaurant.name}
               />
             </MapView>
-            {/* </View> */}
+            <View style={styles.mapButtonsContainer}>
+              <TouchableOpacity
+                style={styles.mapButton}
+                onPress={handleCenterMapPress}
+              >
+                <Ionicons name="locate" size={24} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.mapButton}
+                onPress={handleMapViewPress}
+              >
+                <MaterialIcons name="map" size={24} color="black" />
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </View>
-      {/* </ScrollView> */}
     </View>
   );
 };
@@ -396,46 +390,39 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: "100%",
     height: "auto",
-    paddingBottom: 42,
+    paddingBottom: hp("5%"),
   },
   backButtonContainer: {
     width: "100%",
     height: "auto",
     alignItems: "center",
-    padding: 10,
+    padding: hp("1%"),
     backgroundColor: "#363232",
-    fontSize: 20,
+    fontSize: wp("5%"),
   },
   backButton: {
-    fontSize: 16,
+    fontSize: wp("4%"),
     color: "white",
     fontWeight: "bold",
   },
   contentContainer: {
-    // position: "absolute",
     width: "100%",
     marginTop: Constants.statusBarHeight + 100,
   },
   restaurantTitle: {
-    fontSize: 25,
+    fontSize: wp("6.5%"),
     fontWeight: "bold",
     color: "black",
-    marginTop: 8,
+    marginTop: hp("1%"),
     textAlign: "center",
   },
   iconContainer: {
     alignItems: "center",
   },
   smallIcon: {
-    width: 20,
-    height: 20,
+    width: wp("5%"),
+    height: wp("5%"),
     resizeMode: "contain",
-  },
-  imageTitleIconContainer: {
-    // width: "100%",
-    // height: "auto",
-    // justifyContent: "center",
-    // alignItems: "center",
   },
   imageContainer: {
     width: "100%",
@@ -447,14 +434,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-around",
-    marginVertical: 8,
+    marginVertical: hp("1%"),
   },
   restaurantDetailsContainer: {
     flexDirection: "row",
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     width: "100%",
-    padding: "5%"
+    padding: wp("5%"),
   },
   leftContainer: {
     width: "50%",
@@ -464,54 +451,39 @@ const styles = StyleSheet.create({
   },
   restaurantImage: {
     width: "100%",
-    height: 200, // Set a fixed height or make it responsive as needed
-    borderRadius: 10,
-    marginTop: 8,
+    height: hp("25%"),
+    borderRadius: wp("2.5%"),
+    marginTop: hp("1%"),
   },
   mapLinkText: {
-    // fontSize: 16,
-    // color: "#0066CC",
     backgroundColor: "#0066CC",
     color: "white",
-    padding: "2%",
-    paddingHorizontal: "5%",
-    borderRadius: 5,
+    padding: wp("2%"),
+    paddingHorizontal: wp("5%"),
+    borderRadius: wp("1%"),
     textAlign: "center",
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: wp("3.5%"),
   },
   infoText: {
-    fontSize: 14,
+    fontSize: wp("3.5%"),
     color: "#333",
-    marginLeft: 6,
-    marginVertical: 4,
+    marginLeft: wp("1.5%"),
+    marginVertical: hp("0.5%"),
     textAlign: "left",
-    flex: 1
+    flex: 1,
   },
   linkText: {
-    fontSize: 14,
+    fontSize: wp("3.5%"),
     color: "black",
-    marginLeft: 6,
+    marginLeft: wp("1.5%"),
     textAlign: "left",
     textDecorationLine: "underline",
-    flex: 1
+    flex: 1,
   },
   detailTextContainer: {
-    marginVertical: 4,
+    marginVertical: hp("0.5%"),
     flexDirection: "row",
-    //justifyContent: 'space-between',
-  },
-  findOnMapBtn: {
-    marginVertical: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  findOnMapBtnView: {
-    bottom: 10,
-    right: 10,
-    position: "absolute",
-    //alignSelf: "flex-end",
-    zIndex: 1,
   },
   map: {
     width: "100%",
@@ -519,35 +491,48 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
-    borderRadius: 10,
+    borderRadius: wp("2.5%"),
     overflow: "hidden",
     elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3,
-    height: 300,
-    marginBottom: 20,
-    // width: '100%',
+    height: hp("37.5%"),
+    marginBottom: hp("2.5%"),
+  },
+  mapButtonsContainer: {
+    position: "absolute",
+    top: hp("1%"),
+    right: wp("2%"),
+    alignItems: "center",
+  },
+  mapButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    padding: wp("2%"),
+    borderRadius: wp("2%"),
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: hp("1%"),
   },
   header: {
-    height: 40, // Adjust the height
-    backgroundColor: "black", // Change background color
+    height: hp("5%"),
+    backgroundColor: "black",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   headerContent: {
-    height: 40, // Adjust the height
+    height: hp("5%"),
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 10, // Add padding for spacing
+    paddingHorizontal: wp("2.5%"),
   },
   title: {
-    fontSize: 20,
+    fontSize: wp("5%"),
     fontWeight: "bold",
-    flex: 1, // added for title alignment
-    textAlign: "center", // align the title
+    flex: 1,
+    textAlign: "center",
     color: "white",
   },
 });
