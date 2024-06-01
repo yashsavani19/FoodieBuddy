@@ -25,6 +25,8 @@ const FoodPreferencesView: React.FC = () => {
     }
   }, []);
 
+  //NEED TO ADD THE EMPTY USER EFFECT ARRAY OF STRING FOR USER PREFERENCES FOR DATABASE UPDATING. 
+
   const togglePreference = (category: string, preferenceName: string) => {
     const updatedPreferences = localPreferences.map((categoryItem) =>
       categoryItem.title === category
