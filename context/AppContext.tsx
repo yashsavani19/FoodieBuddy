@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useEffect, useRef, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useRef, useState } from "react";
 import { Restaurant } from "../model/Restaurant";
 import { LocationObjectCoords } from "expo-location";
 import { Saved } from "../model/Saved";
@@ -65,6 +65,8 @@ export type AppContextType = {
   filteredRestaurants: Restaurant[];
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
   filterRestaurants: () => void;
+  distance: number;
+  setDistance: (distance: number) => void;
 
   preferences: PreferenceList[];
   setPreferences: (prefs: PreferenceList[]) => void;
@@ -114,7 +116,8 @@ export const AppContext = createContext<AppContextType>({
   filteredRestaurants: [],
   setFilteredRestaurants: async () => {},
   filterRestaurants: async () => {},
-
+  distance: 1000.0,
+  setDistance: () => {},
   preferences: [],
   setPreferences: () => {},
   updateUserPreferences: () => {},
@@ -147,8 +150,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
-
   const [preferences, setPreferences] = useState<PreferenceList[]>([]);
+  const [distance, setDistance] = useState<number>(1000.0);
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -156,7 +159,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       await updateLocation().then(async (locationCoords) => {
         console.log("Location before fetching:", locationCoords);
         const nearbyRestaurants = await fetchNearbyRestaurants(
-          locationCoords as LocationObjectCoords
+          locationCoords as LocationObjectCoords,
+          distance
         );
 
         // Sort restaurants by distance (May need improving in future)
@@ -201,9 +205,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Favourites updated");
   }, [favouriteRestaurants]);
+
   useEffect(() => {
     console.log("Bookmarks updated");
   }, [bookmarkedRestaurants]);
+
   useEffect(() => {
     console.log("Visited updated");
   }, [visitedRestaurants]);
@@ -576,7 +582,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     filteredRestaurants,
     setFilteredRestaurants,
     filterRestaurants,
-
+    distance,
+    setDistance,
     preferences,
     setPreferences,
     updateUserPreferences,
