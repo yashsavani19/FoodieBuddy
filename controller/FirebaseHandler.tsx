@@ -234,21 +234,25 @@ export const deleteUserAccount = async (password: string) => {
   }
 };
 
-const deleteUserData = async (userId: string) => {
-  try {
-    // Delete user-related data from other collections
-    const collections = ["usernames", "preferences", "bookmarkedRestaurants", "favouriteRestaurants", "visitedRestaurants"];
-    for (const collectionName of collections) {
-      const q = query(collection(db, collectionName), where("userId", "==", userId));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        await deleteDoc(doc.ref);
-      });
+// Delete database user data
+export const deleteUserData = async (uid: string) => {
+  if (auth.currentUser) {
+    try {
+      const userCollection = `users/${uid}`;
+      await deleteDoc(doc(db, userCollection));
+      const usernameCollection = `usernames`;
+      const username = auth.currentUser.displayName;
+      if (username) {
+        await deleteDoc(doc(db, usernameCollection, username));
+      }
+      console.log("User data deleted with ID: ", uid);
+    } catch (e) {
+      console.error("Error deleting user data: ", e);
+      alert("Internal error deleting user data. Please try again later.");
     }
-  } catch (error) {
-    console.error("Error deleting user data: ", error);
   }
 };
+
 
 // Methods
 // Login
