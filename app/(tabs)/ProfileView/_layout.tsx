@@ -40,7 +40,6 @@ export default function TabLayout() {
       <Stack.Screen name="BookmarkedSpotsView" options={{ headerShown: false }} />
       <Stack.Screen name="VisitedSpotsView" options={{ headerShown: false }} />
       <Stack.Screen name="EditAccountView" options={{ headerShown: false }} />
-      <Stack.Screen name="LoginView" component={LoginView} options={{ headerShown: false }} />
     </Stack>
   );
 }

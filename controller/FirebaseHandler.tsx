@@ -1,14 +1,4 @@
-import {
-  FIREBASE_API_KEY,
-  FIREBASE_AUTH_DOMAIN,
-  FIREBASE_DATABASE_URL,
-  FIREBASE_PROJECT_URL,
-  FIREBASE_STORAGE_BUCKET,
-  FIREBASE_MESSAGING_SENDER_ID,
-  FIREBASE_APP_ID,
-  FIREBASE_MEASUREMENT_ID,
-} from "@env";
-
+// FirebaseHandler.js
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -31,7 +21,19 @@ import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-import { getFirestore } from "firebase/firestore";
+import { deleteDoc, doc, getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
+
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_DATABASE_URL,
+  FIREBASE_PROJECT_URL,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID,
+} from "@env";
 
 /**
  * Firebase configuration
@@ -208,20 +210,44 @@ export const handleLogout = () => {
 };
 
 // Delete user account
-export const deleteUserAccount = async (password: string): Promise<boolean> => {
-  const user = auth.currentUser;
-  if (user && user.email) {
-    const credential = EmailAuthProvider.credential(user.email, password);
-    try {
-      await reauthenticateWithCredential(user, credential);
-      await deleteUser(user);
-      return true;
-    } catch (error) {
-      console.error("Error deleting user account: ", error);
-      return false;
-    }
+export const deleteUserAccount = async (password: string) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No authenticated user");
+
+    // Reauthenticate the user
+    const credential = EmailAuthProvider.credential(user.email || '', password);
+    await reauthenticateWithCredential(user, credential);
+
+    // Delete user data from Firestore
+    const userDocRef = doc(db, "users", user.uid);
+    await deleteDoc(userDocRef);
+
+    // Delete user-related data from other collections
+    await deleteUserData(user.uid);
+
+    // Delete the user
+    await deleteUser(user);
+  } catch (error) {
+    console.error("Error deleting user account: ", error);
+    throw error;
   }
-  return false;
+};
+
+const deleteUserData = async (userId: string) => {
+  try {
+    // Delete user-related data from other collections
+    const collections = ["usernames", "preferences", "bookmarkedRestaurants", "favouriteRestaurants", "visitedRestaurants"];
+    for (const collectionName of collections) {
+      const q = query(collection(db, collectionName), where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        await deleteDoc(doc.ref);
+      });
+    }
+  } catch (error) {
+    console.error("Error deleting user data: ", error);
+  }
 };
 
 // Methods

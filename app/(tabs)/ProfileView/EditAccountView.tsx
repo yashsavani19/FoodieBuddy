@@ -1,3 +1,4 @@
+// EditAccountView.tsx
 import React, { useContext, useEffect, useState } from "react";
 import {
   View,
@@ -8,7 +9,6 @@ import {
   Keyboard,
   TouchableOpacity,
   TextInput,
-  Modal as RNModal,
 } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
 import { AppContext } from "@/context/AppContext";
@@ -25,14 +25,13 @@ import EditTextField from "@/components/EditAccountComponents/EditTextField";
 import BaseModal from "@/components/modals/BaseModal";
 import BaseButton from "@/components/modals/BaseButton";
 import Constants from "expo-constants";
-import { deleteUserAccount } from "@/controller/FirebaseHandler"; 
-import { useNavigation } from "@react-navigation/native"; 
-import LoginView from "@/app/(auth)/LoginView";             
+import { deleteUserAccount } from "@/controller/FirebaseHandler";
+import { useNavigation } from "@react-navigation/native";
 
 const EditAccountView: React.FC = () => {
   const navigation = useNavigation(); // Initialize useNavigation
   const { userObject } = useContext(AppContext);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [newUsername, setNewUsername] = useState(user?.displayName || "");
   const [showUsername, setShowUsername] = useState(false);
   const [newEmail, setNewEmail] = useState(user?.email || "");
@@ -152,8 +151,7 @@ const EditAccountView: React.FC = () => {
       if (authenticated) {
         await deleteUserAccount(deletePassword);
         alert("Account deleted successfully");
-        // Redirect to login or home screen
-        navigation.navigate("LoginView"); // Navigate to LoginView after account deletion
+        await signOut(); // Log out the user after deleting the account
       } else {
         setDeleteError("Incorrect password. Please try again.");
       }
