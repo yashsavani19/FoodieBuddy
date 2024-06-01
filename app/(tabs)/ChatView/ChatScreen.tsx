@@ -19,6 +19,7 @@ import {
   Alert,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import {
   useRoute,
@@ -90,6 +91,7 @@ const ChatScreen: React.FC = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
+  const [buddyActive, setBuddyActive] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -174,7 +176,20 @@ const ChatScreen: React.FC = () => {
     };
   }, [chatRoomId]);
 
-  // Saturation animation style
+  // Check if Buddy is typing
+  useEffect(() => {
+    const buddyTyping = Object.values(typingUsers).some(
+      (user) => user.username === "Buddy" && user.isTyping
+    );
+    console.log("Typing Buddy:", buddyTyping);
+    if (buddyTyping) {
+      setBuddyActive(true);
+      console.log("Buddy is typing...");
+    } else {
+      console.log("Buddy is not typing...");
+      setBuddyActive(false);
+    }
+  }, [typingUsers]);
 
   const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
@@ -266,17 +281,18 @@ const ChatScreen: React.FC = () => {
   };
 
   const handleBuddyPress = async () => {
+    await updateTypingStatus(chatRoomId, "Buddy", "Buddy", true);
+    // setBuddyActive(true);
     // Set system prompt for group chat
     const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
     setSystemPrompt(systemPrompt);
 
     // compile recent messages and send to AI
     let recentMessages: string = messages
-      .map((msg) => {
-        return msg.userId !== "Buddy" ? msg.username + ": " + msg.text : null;
-      })
+      .filter((msg) => msg.username !== "Buddy")
+      .map((msg) => `${msg.username}: ${msg.text}`)
       .join("\n");
-      
+
     console.log("Recent Messages:", recentMessages);
     const aiResponse = await sendAIMessage(recentMessages);
     const buddyMessageId = Date.now().toString() + "ai";
@@ -288,7 +304,7 @@ const ChatScreen: React.FC = () => {
       userProfileImage: buddyProfileImage,
       username: "Buddy",
     };
-
+    // setBuddyActive(false);
     setMessages((prevMessages) => {
       if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
         return [...prevMessages, buddyMessage];
@@ -299,29 +315,7 @@ const ChatScreen: React.FC = () => {
     await sendMessage(chatRoomId, buddyMessage.text, "buddy");
 
     flatListRef.current?.scrollToEnd({ animated: true });
-  };
-
-  const handleBuddyToggle = async () => {
-    setIsBuddyOn(!isBuddyOn);
-    if (!isBuddyOn) {
-      const buddyIntroMessage: Message = {
-        id: Date.now().toString(),
-        text: "Hi there! I'm Buddy, your AI assistant. How can I help you today?",
-        userId: "buddy",
-        timestamp: new Date(),
-        userProfileImage: buddyProfileImage,
-        username: "Buddy",
-      };
-
-      setMessages((prevMessages) => {
-        if (!prevMessages.find((msg) => msg.id === buddyIntroMessage.id)) {
-          return [...prevMessages, buddyIntroMessage];
-        }
-        return prevMessages;
-      });
-
-      await sendMessage(chatRoomId, buddyIntroMessage.text, "buddy");
-    }
+    updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
   };
 
   const renderItem = ({ item }: { item: Message }) => {
@@ -423,12 +417,18 @@ const ChatScreen: React.FC = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={handleBuddyPress}>
-              <Image
-                source={require("../../../assets/images/buddy-toggle-on.png")}
-                style={styles.image}
-              />
-            </TouchableOpacity>
+            {buddyActive ? (
+              <>
+              <ActivityIndicator size="large" color="#f76116" />
+              </>
+            ) : (
+              <TouchableOpacity onPress={handleBuddyPress}>
+                <Image
+                  source={require("../../../assets/images/buddy-toggle-on.png")}
+                  style={styles.image}
+                />
+              </TouchableOpacity>
+            )}
             <TextInput
               style={styles.input}
               placeholder="Type a message..."
