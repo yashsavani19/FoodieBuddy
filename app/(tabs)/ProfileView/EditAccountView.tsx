@@ -7,6 +7,8 @@ import {
   SafeAreaView,
   Keyboard,
   TouchableOpacity,
+  TextInput,
+  Modal as RNModal
 } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
 import { AppContext } from "@/context/AppContext";
@@ -16,7 +18,6 @@ import {
   changeUsername,
   reSignIn,
   useAuth,
-  deleteUserAccount,
 } from "@/context/AuthContext";
 import BackButton from "@/components/BackButton";
 import TitleButton from "@/components/EditAccountComponents/TitleButton";
@@ -24,6 +25,7 @@ import EditTextField from "@/components/EditAccountComponents/EditTextField";
 import BaseModal from "@/components/modals/BaseModal";
 import BaseButton from "@/components/modals/BaseButton";
 import Constants from "expo-constants";
+import { deleteUserAccount } from "@/controller/FirebaseHandler"; // Make sure this import path is correct
 
 const EditAccountView: React.FC = () => {
   const { userObject } = useContext(AppContext);
@@ -145,9 +147,10 @@ const EditAccountView: React.FC = () => {
     try {
       const authenticated = await reSignIn(deletePassword);
       if (authenticated) {
-        await deleteUserAccount();
+        await deleteUserAccount(deletePassword);
         alert("Account deleted successfully");
         // Redirect to login or home screen
+        (navigator as any).navigate("Login"); // Make sure this route exists in your navigation
       } else {
         setDeleteError("Incorrect password. Please try again.");
       }

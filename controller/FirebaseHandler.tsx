@@ -12,6 +12,9 @@ import {
 import {
   getAuth,
   signInWithEmailAndPassword,
+  deleteUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signOut,
@@ -28,7 +31,6 @@ import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-import React, { useEffect, useState } from "react";
 import { getFirestore } from "firebase/firestore";
 
 /**
@@ -203,6 +205,23 @@ export const handleLogout = () => {
   } catch (error: any) {
     alert(`Logout failed: ${error.message}`);
   }
+};
+
+// Delete user account
+export const deleteUserAccount = async (password: string): Promise<boolean> => {
+  const user = auth.currentUser;
+  if (user && user.email) {
+    const credential = EmailAuthProvider.credential(user.email, password);
+    try {
+      await reauthenticateWithCredential(user, credential);
+      await deleteUser(user);
+      return true;
+    } catch (error) {
+      console.error("Error deleting user account: ", error);
+      return false;
+    }
+  }
+  return false;
 };
 
 // Methods
