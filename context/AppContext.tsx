@@ -185,8 +185,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (user) {
-        const prefs = await fetchPreferences();
-        setPreferences(prefs);
+        const {preferences}  = await fetchPreferences();
+        setPreferences(preferences);
       }
     };
 
@@ -235,7 +235,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setVisitedRestaurants(visited);
       }
 
-      const preferences = await fetchPreferences();
+      const {preferences} = await fetchPreferences();
       if (preferences) {
         setPreferences(preferences);
       }
