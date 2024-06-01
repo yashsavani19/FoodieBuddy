@@ -289,7 +289,7 @@ export const fetchUser = async (uid: string) => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const userData = docSnap.data();
-      const preferences = await fetchPreferences();
+      const {preferences} = await fetchPreferences();
 
       //------------LOGGING PURPOSES----------------
 
@@ -1193,13 +1193,13 @@ export const addPreferences = async (uid: string) => {
 // /**
 //  * Fetches user preferences
 //  */
-export const fetchPreferences = async (): Promise<PreferenceCategoryList[]> => {
+export const fetchPreferences = async (): Promise<{ preferences: PreferenceCategoryList[], apiNames: string[] }> => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
     const preferences: PreferenceCategoryList[] = [];
-    const apiNames: String[] = [];
+    const apiNames: string[] = [];
 
     // Group preferences by category
     const categoryMap: { [key: string]: Preference[] } = {};
@@ -1221,8 +1221,6 @@ export const fetchPreferences = async (): Promise<PreferenceCategoryList[]> => {
       }
     });
 
-    
-
     for (const category in categoryMap) {
       preferences.push({
         title: category,
@@ -1230,11 +1228,11 @@ export const fetchPreferences = async (): Promise<PreferenceCategoryList[]> => {
       });
     }
 
-    return preferences;
+    return { preferences, apiNames };
   } catch (e) {
     console.error("Error getting documents: ", e);
     alert("Internal error fetching preferences. Please try again later.");
-    return [];
+    return { preferences: [], apiNames: [] };
   }
 };
 
