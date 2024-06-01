@@ -49,6 +49,14 @@ import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import Constants from "expo-constants";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  Easing,
+  runOnJS,
+} from "react-native-reanimated";
+import { DefaultStyle } from "react-native-reanimated/lib/typescript/reanimated2/hook/commonTypes";
 import { ImageSourcePropType } from "react-native";
 import { Message } from "@/model/Message";
 import { GroupChatDefaultSystemPrompt } from "@/model/DefaultGroupChatAISystemPrompt";
