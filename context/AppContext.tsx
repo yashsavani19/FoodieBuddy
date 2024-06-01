@@ -218,6 +218,15 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     filterRestaurants();
   }, [searchTerm]);
 
+  // Update the restaurants when the max distance changes
+  useEffect(() => {
+    async function updateAndFilterRestaurants() {
+      await setRestaurants();
+      filterRestaurants();
+    }
+    updateAndFilterRestaurants();
+  }, [distance]);
+
   useEffect(() => {
     console.log("Friends updated");
   }, [friends]);
@@ -292,6 +301,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       if (distance > DISTANCE_THRESHOLD) {
         console.log("Distance threshold exceeded. Updating restaurants...");
         setRestaurants();
+        filterRestaurants();
         setPreviousLocation(tempLocation);
       }
     } else {
@@ -318,7 +328,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
-    if (selectedFilters) {
+    if (selectedFilters.length > 0) {
       const categoriesToFilter = new Set(
         selectedFilters
           .filter(
@@ -408,10 +418,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           restaurant.categories?.some(category => category === "meal_takeaway")
         );
       }
-
-      setFilteredRestaurants(result);
-      setRestaurantListIsLoading(false);
     }
+    setFilteredRestaurants(result);
+    setRestaurantListIsLoading(false);
   };
 
   const addFavouriteContext = async (restaurant: Restaurant) => {

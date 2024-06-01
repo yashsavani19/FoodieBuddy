@@ -20,12 +20,6 @@ const DrawerWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     filterRestaurants();
   };
 
-  // Update the restaurants when the distance changes
-  useEffect(() => {
-    setRestaurants();
-    filterRestaurants();
-  }, [distance]);
-
   const handleClose = () => {
     setOpen(false);
     setTimeout(() => { // Scroll back to top with a 0.5s delay
