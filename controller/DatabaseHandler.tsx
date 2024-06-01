@@ -1217,7 +1217,9 @@ export const fetchPreferences = async (): Promise<{ preferences: PreferenceCateg
       }
       categoryMap[category].push(preference);
       if (preference.selected) {
+        console.log(`Selected Preference: ${preference.name}, API Name: ${preference.apiName}`);
         apiNames.push(preference.apiName);
+        
       }
     });
 
@@ -1262,6 +1264,7 @@ export const updatePreferences = async (
           category: category.title,
           name: preference.name,
           selected: preference.selected,
+          apiName: preference.apiName,
         });
       }
     }
