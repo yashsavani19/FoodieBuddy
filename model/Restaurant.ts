@@ -20,4 +20,5 @@ export interface Restaurant {
     isBookmarked?: boolean;
     isVisited?: boolean;
     currentOpeningHours?: any;
+    preferenceScore?: number;
 }
