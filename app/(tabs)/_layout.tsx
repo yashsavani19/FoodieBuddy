@@ -88,7 +88,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="Map"
+        name="MapView"
         options={{
           title: "Map",
           tabBarLabel: "",

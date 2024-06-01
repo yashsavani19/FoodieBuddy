@@ -7,23 +7,19 @@ import {
   FIREBASE_MESSAGING_SENDER_ID,
   FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID,
-  OPENAI_API_KEY,
-  OPENAI_ORG_ID,
 } from "@env";
 
 import {
-  initializeAuth,
   getAuth,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
-  sendSignInLinkToEmail,
-  signInWithCredential,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
   AuthError,
-  getReactNativePersistence,
   onAuthStateChanged,
+  initializeAuth,
+  getReactNativePersistence,
 } from "firebase/auth";
 
 import { getDatabase } from "firebase/database";
@@ -32,16 +28,9 @@ import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-import { addUser, fetchUser } from "./DatabaseHandler";
-
-import {
-  GoogleSignin,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
-
-import { Use } from "react-native-svg";
 import React, { useEffect, useState } from "react";
 import { getFirestore } from "firebase/firestore";
+
 /**
  * Firebase configuration
  */
@@ -59,10 +48,10 @@ const firebaseConfig = {
 const provider = new GoogleAuthProvider();
 
 export const app = initializeApp(firebaseConfig);
-// export const auth = initializeAuth(app, {
-//   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-// });
-export const auth = getAuth(app);
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
+// export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const rtDb = getDatabase(app);
 
@@ -83,7 +72,7 @@ export const useIsAuthenticated = () => {
 
 // Handlers
 
-//Handle login
+// Handle login
 export const handleLogin = async (
   email: string,
   password: string
@@ -133,7 +122,7 @@ export const handleLogin = async (
   }
 };
 
-//Handle Register
+// Handle register
 export const handleRegister = async (
   email: string,
   username: string,
@@ -159,7 +148,7 @@ export const handleRegister = async (
     const authError = error as AuthError;
     console.error(authError.code);
     switch (authError.code) {
-      //Special error cases being thrown by firebase
+      // Special error cases being thrown by firebase
       case "auth/email-already-in-use":
         alert(`Email address already in use.`);
         break;
@@ -180,7 +169,7 @@ export const handleRegister = async (
   }
 };
 
-//Handle Reset Password
+// Handle reset password
 export const handleResetPassword = async (email: string): Promise<void> => {
   // Check if the email is not empty
   if (email.replaceAll(" ", "").length === 0) {
@@ -206,7 +195,7 @@ export const handleResetPassword = async (email: string): Promise<void> => {
   }
 };
 
-//Handle Logout
+// Handle logout
 export const handleLogout = () => {
   try {
     logout();
@@ -217,27 +206,22 @@ export const handleLogout = () => {
 };
 
 // Methods
-//login
+// Login
 const login = async (email: string, password: string): Promise<void> => {
   await signInWithEmailAndPassword(auth, email, password);
 };
 
-//Login with Google
-
-//Register
+// Register
 const register = async (email: string, password: string): Promise<void> => {
   await createUserWithEmailAndPassword(auth, email, password);
 };
 
-//Authenticate by sending email link
-
-//Logout
+// Logout
 const logout = async (): Promise<void> => {
   await signOut(auth);
 };
 
-//Reset Password
+// Reset password
 const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
 };
-

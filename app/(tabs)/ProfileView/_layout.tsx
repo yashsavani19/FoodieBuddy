@@ -28,7 +28,13 @@ export default function TabLayout() {
       {/* Each screen has header hidden */}
       <Stack.Screen name="UserProfileView" options={{ headerShown: false }} />
       {/* UserProfileView screen */}
+      <Stack.Screen name="FriendsView" options={{ headerShown: false }} />
+      <Stack.Screen name="FriendsList" options={{ headerShown: false }} />
+      <Stack.Screen name="AddFriends" options={{ headerShown: false }} />
+      <Stack.Screen name="FriendRequests" options={{ headerShown: false }} />
+      <Stack.Screen name="FriendProfile" options={{ headerShown: false }} />
       <Stack.Screen name="FavoriteSpotsView" options={{ headerShown: false }} />
+      <Stack.Screen name="FoodPreferencesView" options={{ headerShown: false }} />
       {/* FavoriteSpotsView screen */}
       <Stack.Screen
         name="BookmarkedSpotsView"

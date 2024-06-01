@@ -1,26 +1,18 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
-import { StyleSheet, View, Text } from "react-native";
-import MapView, {
-  Marker,
-  Callout,
-  Circle,
-  PROVIDER_GOOGLE,
-  MapMarker,
-} from "react-native-maps";
-
-import MapViewStyle from "./../app/Utils/MapViewStyle.json";
-import RestaurantMarker from "./../components/RestaurantMarker";
-import { WebView } from "react-native-webview";
-import StarRating from "./StarRating";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
+import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE, MapMarker } from "react-native-maps";
+import MapViewStyle from "../app/Utils/MapViewStyle.json";
+import RestaurantMarker from "./RestaurantMarker";
 import { AppContext } from "../context/AppContext";
-import images from "@/assets/data/images";
-import { formatDistance } from "@/app/Utils/FormatDistance";
-import { useNavigation } from "expo-router";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import { NavigationProp } from "@react-navigation/native";
-import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
+import MapViewDirections from "react-native-maps-directions";
+import { GOOGLE_API_KEY } from "@env";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import CustomCallout from "./CustomCallout";
+import { widthPercentageToDP as wp } from "react-native-responsive-screen";
+import DirectionModal from "./DirectionModal";
 
-// Define the props for the AppMapView component
 interface AppMappViewProps {
   geometry?: {
     location: {
@@ -28,26 +20,61 @@ interface AppMappViewProps {
       lng: number;
     };
   };
+  initialDirections?: {
+    origin: { latitude: number; longitude: number };
+    destination: { latitude: number; longitude: number };
+  };
+  selectedRestaurantId?: string; 
 }
 
-/**
- * AppMapView component that displays a map with markers for nearby restaurants.
- * @param param0 - The props for the component.
- * @returns The AppMapView component.
- */
-export default function AppMappView({ geometry }: AppMappViewProps) {
+export default function AppMappView({ geometry, initialDirections, selectedRestaurantId }: AppMappViewProps) {
   const { location, filteredRestaurants } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
-  const handleMapPress = () => setSelectedMarkerId(null);
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [directions, setDirections] = useState<{
+    origin: { latitude: number; longitude: number };
+    destination: { latitude: number; longitude: number };
+  } | null>(initialDirections || null);
+  const [directionsSummary, setDirectionsSummary] = useState<{
+    distance: string;
+    duration: string;
+    steps: Array<{ instruction: string; distance: string }>;
+  } | null>(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [mode, setMode] = useState<"WALKING" | "DRIVING">("WALKING");
 
-  // Return nothing if no location is available
   if (!location) return null;
 
-  // Effect to animate map to selected restaurant's location
+  const handleMapPress = () => {
+    setSelectedMarkerId(null);
+    setDirections(null);
+  };
+
+  const handleMarkerPress = (index: number, restaurant: any) => {
+    console.log(`Marker for ${restaurant.name} pressed`);
+    if (selectedMarkerId === index) {
+      setSelectedMarkerId(null);
+    } else {
+      setDirections({
+        origin: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+        destination: {
+          latitude: restaurant.geometry.location.lat,
+          longitude: restaurant.geometry.location.lng,
+        },
+      });
+      setSelectedMarkerId(index);
+      setTimeout(() => {
+        markerRefs.current[index]?.showCallout();
+      }, 500);
+    }
+  };
+
   useEffect(() => {
     if (geometry && mapRef.current) {
       mapRef.current.animateToRegion(
@@ -62,22 +89,27 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
     }
   }, [geometry, mapReady]);
 
-  // Effect to show callout for selected restaurant
   useEffect(() => {
-    if (geometry) {
+    if (selectedRestaurantId && mapReady) {
       const markerIndex = filteredRestaurants.findIndex(
-        (restaurant) =>
-          restaurant.geometry.location.lat === geometry.location.lat &&
-          restaurant.geometry.location.lng === geometry.location.lng
+        (restaurant) => restaurant.id === selectedRestaurantId
       );
       if (markerIndex !== -1 && markerRefs.current[markerIndex]) {
-        markerRefs.current[markerIndex]?.showCallout();
-        setSelectedMarkerId(markerIndex);
+        handleMarkerPress(markerIndex, filteredRestaurants[markerIndex]);
       }
     }
-  }, [geometry, mapReady, filteredRestaurants]);
+  }, [selectedRestaurantId, mapReady, filteredRestaurants]);
 
-  // Render the component
+  useEffect(() => {
+    setDirections(initialDirections || null);
+    setDirectionsSummary(null);
+    setSelectedMarkerId(null);
+  }, [filteredRestaurants]);
+
+  const toggleMode = () => {
+    setMode((prevMode) => (prevMode === "WALKING" ? "DRIVING" : "WALKING"));
+  };
+
   return (
     location &&
     location.latitude && (
@@ -86,7 +118,9 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           style={styles.map}
           provider={PROVIDER_GOOGLE}
           showsUserLocation={true}
+          followsUserLocation={true}
           customMapStyle={MapViewStyle}
+          showsCompass={true}
           region={{
             latitude: location.latitude,
             longitude: location.longitude,
@@ -97,7 +131,6 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
           ref={mapRef}
           onMapReady={() => setMapReady(true)}
         >
-          {/* Blue transparent circle around the user's current location */}
           <Circle
             center={{
               latitude: location.latitude,
@@ -108,32 +141,22 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
             strokeColor="rgba(173, 216, 230, 0.2)"
             strokeWidth={2}
           />
-
-          {/* Render markers for each nearby restaurant */}
           {filteredRestaurants.map((restaurant, index) => (
             <Marker
-              testID="Marker"
               key={`${index}`}
               ref={(ref) => (markerRefs.current[index] = ref)}
               coordinate={{
                 latitude: restaurant.geometry.location.lat,
                 longitude: restaurant.geometry.location.lng,
               }}
-              onPress={() => {
-                if (selectedMarkerId === index) {
-                  setSelectedMarkerId(null);
-                } else {
-                  setSelectedMarkerId(index);
-                }
-              }}
+              onPress={() => handleMarkerPress(index, restaurant)}
             >
               <RestaurantMarker
-                rating={restaurant.rating ?? "N/A"}
+                rating={restaurant.rating === 0 || restaurant.rating === undefined ? "N/A" : restaurant.rating}
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
-              {/*Information on Restaurant*/}
-              <Callout
+              <Callout tooltip
                 onPress={() => {
                   if (selectedMarkerId !== null) {
                     navigation.navigate("DetailsView", {
@@ -142,68 +165,84 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                   }
                 }}
               >
-                <View style={styles.calloutContainer}>
-                  <Text style={styles.name}>{restaurant.name}</Text>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    {restaurant.rating !== undefined && (
-                      <StarRating rating={restaurant.rating} />
-                    )}
-                    <Text>
-                      {" "}
-                      {restaurant.price &&
-                        displayPriceLevel(parseInt(restaurant.price))}
-                    </Text>
-                  </View>
-                  <Text>Distance: {formatDistance(restaurant.distance)}</Text>
-                  <WebView
-                    style={styles.webViewStyle}
-                    source={{
-                      html: `
-                        <div style="display: flex; justify-content: center; height: 100%; width: 100%; object-fit: cover; object-position: center"">
-                          <img src="${
-                            restaurant.image != null
-                              ? restaurant.image
-                              : images.defaultRestaurantImage
-                          }" style="width: 100%; object-fit: cover;"/>
-                        </div>
-                      `,
-                    }}
-                    automaticallyAdjustContentInsets={true}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                  />
-                </View>
+                <CustomCallout
+                  name={restaurant.name}
+                  rating={restaurant.rating}
+                  image={restaurant.image}
+                />
               </Callout>
             </Marker>
           ))}
+          {directions && (
+            <MapViewDirections
+              origin={directions.origin}
+              destination={directions.destination}
+              apikey={GOOGLE_API_KEY}
+              mode={mode}
+              strokeWidth={3}
+              strokeColor="#e46860"
+              onReady={(result) => {
+                const steps = result.legs[0].steps.map((step) => {
+                  const instruction = step.html_instructions
+                    .replace(/<[^>]+>/g, "")
+                    .replace(/(?<=\w)(?=[A-Z])/g, " ");
+                  let distanceText = step.distance.text;
+                  if (distanceText.includes("mi")) {
+                    distanceText =
+                      (parseFloat(distanceText) * 1609.34).toFixed(0) + " m";
+                  } else if (distanceText.includes("ft")) {
+                    distanceText =
+                      (parseFloat(distanceText) * 0.3048).toFixed(0) + " m";
+                  }
+                  return { instruction, distance: distanceText };
+                });
+                setDirectionsSummary({
+                  distance: result.distance.toFixed(1) + " km",
+                  duration: result.duration.toFixed(0) + " min",
+                  steps,
+                });
+              }}
+              onError={(errorMessage) => {
+                console.log("Error in MapViewDirections:", errorMessage);
+              }}
+            />
+          )}
         </MapView>
+        {selectedMarkerId !== null && (
+          <TouchableOpacity
+            style={styles.directionsButton}
+            onPress={() => setModalVisible(true)}
+          >
+            <MaterialCommunityIcons name="directions" size={wp('6%')} color="#5A5A5A" />
+          </TouchableOpacity>
+        )}
+        <DirectionModal
+          isVisible={isModalVisible}
+          onClose={() => setModalVisible(false)}
+          directionsSummary={directionsSummary}
+          mode={mode}
+          toggleMode={toggleMode}
+        />
       </View>
     )
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  map: { width: "100%", height: "100%" },
-  calloutContainer: {
-    width: 200,
-    padding: 4,
+  container: {
+    flex: 1,
   },
-  name: {
-    fontWeight: "bold",
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 5,
-  },
-  webViewStyle: {
-    height: 100,
-    width: 190,
-  },
-  descText: {
-    fontWeight: "bold",
-    textAlign: "left",
-    paddingLeft: 10,
+  directionsButton: {
+    position: "absolute",
+    top: wp('15%'),
+    transform: [{ translateX: -wp('3%') }],
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    padding: wp("1.8%"),
+    borderRadius: wp("0.5%"),
+    alignItems: "center",
+    alignSelf: 'flex-end'
   },
 });

@@ -19,5 +19,5 @@ export interface Restaurant {
     isFavourite?: boolean;
     isBookmarked?: boolean;
     isVisited?: boolean;
-    preferenceScore?: number;
+    currentOpeningHours?: any;
 }

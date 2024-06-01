@@ -7,6 +7,7 @@ import {
   ImageSourcePropType,
   ActivityIndicator,
 } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 // Message props interface
 export interface MessageProps {
@@ -30,7 +31,7 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
           source={require("../assets/images/buddy-icon.png")}
           style={styles.image}
         />
-        <View testID="loading-view" style={styles.receivedTextBox}>
+        <View testID="loading-view" style={styles.buddyMessage}>
           <ActivityIndicator style={{ margin: 5 }} size="small" color="white" />
         </View>
       </View>
@@ -51,26 +52,22 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
       >
         {type === "received" ? (
           <>
-            <Image
-              testID="message-image"
-              source={imageUrl}
-              style={styles.image}
-            />
-            <View style={styles.receivedTextBox}>
-              <Text style={styles.text}>{text}</Text>
+            <View style={styles.buddyContainer}>
+              <Text style={styles.buddyName}>Buddy</Text>
+              <Image
+                testID="message-image"
+                source={imageUrl}
+                style={styles.image}
+              />
+            </View>
+            <View style={styles.buddyMessage}>
+              <Text style={styles.buddyText}>{text}</Text>
             </View>
           </>
         ) : (
-          <>
-            <View style={styles.sentTextBox} testID="sentTextBox">
-              <Text style={styles.text}>{text}</Text>
-            </View>
-            <Image
-              testID="message-image"
-              source={imageUrl}
-              style={styles.image}
-            />
-          </>
+          <View style={styles.currentUserMessage} testID="sentTextBox">
+            <Text style={styles.currentUserText}>{text}</Text>
+          </View>
         )}
       </View>
     );
@@ -80,44 +77,65 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
 const styles = StyleSheet.create({
   messageContainer: {
     flexDirection: "row",
-    padding: 0,
+    padding: wp('1.25%'),
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: hp('1.25%'),
+  },
+  buddyContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    marginRight: wp('2%'),
+    marginLeft: wp('1%'),
+  },
+  buddyName: {
+    fontSize: wp('3%'),
+    fontWeight: "bold",
+    color: "#555",
+    marginBottom: hp('0.5%'),
   },
   image: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    margin: 5,
-    marginVertical: 10,
+    width: wp('10%'),
+    height: wp('10%'),
+    borderRadius: wp('5%'),
+    paddingHorizontal: wp('0.5%'),
   },
-  sentTextBox: {
-    backgroundColor: "#3464ac",
-    borderRadius: 15,
-    borderBottomEndRadius: 3,
-    padding: 10,
+  currentUserMessage: {
+    backgroundColor: "#f76116",
+    borderRadius: wp('5%'),
+    padding: wp('2.5%'),
+    maxWidth: wp('80%'),
+    borderBottomRightRadius: 0,
+    marginRight: wp('2.5%'),
   },
-  receivedTextBox: {
-    backgroundColor: "#363232",
-    borderRadius: 15,
-    borderBottomStartRadius: 3,
-    padding: 10,
-    flexDirection: "row",
+  buddyMessage: {
+    backgroundColor: "#d3d3d3",
+    borderRadius: wp('5%'),
+    padding: wp('2.5%'),
+    maxWidth: wp('80%'),
+    borderBottomLeftRadius: 0,
+    marginLeft: wp('1.25%'),
   },
-  text: {
-    color: "white",
-    fontSize: 16,
+  buddyText: {
+    color: "#000",
+    fontSize: wp('4%'),
+    fontWeight: '500',
+  },
+  currentUserText: {
+    color: "#fff",
+    fontSize: wp('4%'),
+    fontWeight: '500',
   },
   suggestionText: {
     color: "black",
-    fontSize: 16,
+    fontSize: wp('4%'),
   },
   sentMessage: {
     justifyContent: "flex-end",
-    marginLeft: 100,
+    marginLeft: wp('25%'),
   },
   receivedMessage: {
-    marginRight: 100,
+    justifyContent: "flex-start",
+    marginRight: wp('25%'),
   },
   loading: {
     backgroundColor: "white",

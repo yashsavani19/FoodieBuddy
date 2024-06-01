@@ -1,27 +1,51 @@
+import { Friend } from "@/model/Friend";
+import { PreferenceList } from "@/model/PreferenceList";
 import { Restaurant } from "@/model/Restaurant";
+import { Saved } from "@/model/Saved";
+
+// Define the structure for the directions object
+type Directions = {
+  origin: { latitude: number; longitude: number };
+  destination: { latitude: number; longitude: number };
+};
 
 // Navigation types to prevent "No overload matches this call" error when using navigation 
 export type RootStackParamList = {
-  index: undefined;
-  Map: { geometry?: {
+  ListView: undefined;
+  Map: {
+    geometry?: {
+      location: {
+        lat: number;
+        lng: number;
+      };
+    };
+    directions?: Directions; 
+    restaurantId?: string; 
+  };
+  ChatScreen: { chatRoomId: string; chatRoomName?: string };
+  BuddyChat: { chatRoomId: string };
+  DetailsView: { Restaurant: Restaurant };
+  FavoriteSpotsView: { favouriteRestaurants: Saved[] };
+  BookmarkedSpotsView: { bookmarkedRestaurants: Saved[] };
+  VisitedSpotsView: { visitedRestaurants: Saved[] };
+  EditAccountView: undefined;
+  FriendsView: undefined;
+  FriendsList: undefined;
+  AddFriends: undefined;
+  UserProfileView: undefined;
+  FriendProfile: { friend: Friend };
+  FriendRequests: undefined;
+  FoodPreferencesView: { preferences: PreferenceList[] };
+};
+
+// Define the MapRouteParams type to include geometry, directions, and restaurantId
+export type MapRouteParams = {
+  geometry?: {
     location: {
       lat: number;
       lng: number;
     };
-  }; };
-  ChatView: undefined;
-  DetailsView: { Restaurant: Restaurant };
-  FavoriteSpotsView: undefined;
-  BookmarkedSpotsView: undefined;
-  VisitedSpotsView: undefined;
-  EditAccountView: undefined;
-};
-
-export type MapRouteParams = {
-    geometry?: {
-        location: {
-          lat: number;
-          lng: number;
-        };
-      };    
   };
+  directions?: Directions; 
+  restaurantId?: string;
+};

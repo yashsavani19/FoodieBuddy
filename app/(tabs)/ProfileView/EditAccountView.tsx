@@ -25,6 +25,7 @@ import TitleButton from "@/components/EditAccountComponents/TitleButton";
 import EditTextField from "@/components/EditAccountComponents/EditTextField";
 import BaseModal from "@/components/modals/BaseModal";
 import BaseButton from "@/components/modals/BaseButton";
+import Constants from "expo-constants";
 
 const EditAccountView: React.FC = () => {
   const { userObject } = useContext(AppContext);
@@ -60,7 +61,10 @@ const EditAccountView: React.FC = () => {
     if (newUsername === "") return;
     if (newUsername === user?.displayName) return;
     console.log(`New username: ${newUsername}`);
-    const result = await changeUsername(newUsername);
+    const result = await changeUsername(
+      newUsername,
+      userObject?.profileImageUrl || ""
+    );
     // alert("Username updated successfully");
     if (result) setUsernameViewModal(true);
   };
@@ -330,7 +334,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   input: {
     height: 40,

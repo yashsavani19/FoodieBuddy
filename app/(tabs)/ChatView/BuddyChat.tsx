@@ -9,31 +9,55 @@ import {
   Platform,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
-import Message, { MessageProps } from "./Message";
+import Message, { MessageProps } from "../../../components/Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import { initialBuddyMessage } from "@/model/DefaultBuddyMessage";
 import Colors from "@/constants/Colors";
 import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
-import RestaurantListItem from "./RestaurantListItem";
+import RestaurantListItem from "../../../components/RestaurantListItem";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import SettingsModal from "@/components/SettingsModal";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+
+// Ensure the paths to the image assets are correct
+const userIcon = require("../../../assets/images/user-icon.png");
+const buddyIcon = require("../../../assets/images/buddy-icon.png");
 
 /**
- *  Chat component for user to interact with Buddy.
+ *  BuddyChat component for user to interact with Buddy.
  * User can send messages to Buddy and receive responses from AI.
- * @returns Chat component with messages, input text box, and send button
+ * @returns BuddyChat component with messages, input text box, and send button
  */
-const Chat: React.FC = () => {
+const BuddyChat: React.FC = () => {
   const { localRestaurants } = useContext(AppContext);
   const { sendMessage, resetMessages } = useOpenAIHandler();
   const [messages, setMessages] = useState<MessageProps[]>([
     initialBuddyMessage,
   ]);
   const [currentMessage, setCurrentMessage] = useState<string>("");
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const [recommendedRestaurant, setRecommendedRestaurant] =
     useState<Restaurant | null>(null);
+  const navigation = useNavigation();
+
+  // Display "AI-learning" alert message when user enters the chat view
+  useFocusEffect(
+    React.useCallback(() => {
+      Alert.alert(
+        "For your information",
+        "Buddy is still learning, please be patient and understand that they can still make mistakes from time to time. Please check with the restaurant for allergen information."
+      );
+      return () => {};
+    }, [])
+  );
 
   /**
    * AI Chat function to send user message to AI and get response
@@ -87,7 +111,7 @@ const Chat: React.FC = () => {
     return () => {
       keyboardDidShowListener.remove();
     };
-  }, []);    
+  }, []);
 
   /**
    * Send message to Buddy and get response from AI
@@ -98,7 +122,7 @@ const Chat: React.FC = () => {
       const newMessage: MessageProps = {
         id: Date.now().toString(),
         text: currentMessage,
-        imageUrl: require("../assets/images/user-icon.png"),
+        imageUrl: userIcon,
         type: "sent",
       };
 
@@ -118,7 +142,7 @@ const Chat: React.FC = () => {
           const newResponse: MessageProps = {
             id: Date.now().toString(),
             text: response,
-            imageUrl: require("../assets/images/buddy-icon.png"),
+            imageUrl: buddyIcon,
             type: "received",
           };
 
@@ -148,91 +172,118 @@ const Chat: React.FC = () => {
     setRecommendedRestaurant(null);
   };
 
+  const openSettings = () => {
+    setSettingsVisible(true);
+  };
+
+  const closeSettings = () => {
+    setSettingsVisible(false);
+  };
+
   /**
-   * Chat component with messages, input text box, and send button
+   * BuddyChat component with messages, input text box, and send button
    */
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0} // You might need to adjust this offset based on your header height or other UI elements
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            renderItem={({ item }) => (
-              <Message
-                id={item.id}
-                text={item.text}
-                imageUrl={item.imageUrl}
-                type={item.type}
-              />
-            )}
-            keyExtractor={(item) => item.id}
-            style={styles.messagesList}
-            contentContainerStyle={{ paddingBottom: 10 }}
-            ListHeaderComponent={<View style={{ height: 10 }} />}
-            ListFooterComponent={
-              recommendedRestaurant ? (
-                <RestaurantListItem restaurant={recommendedRestaurant} />
-              ) : null
-            }
-          />
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              value={currentMessage}
-              onChangeText={setCurrentMessage}
-              placeholder="Type a message..."
-            />
-            <TouchableOpacity onPress={sendMessageFromUser}>
-              <FontAwesome
-                name="send"
-                size={24}
-                color={Colors.light.iconColor}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
-      <TouchableOpacity
-        onPress={resetChatMessages}
-        style={{ position: "absolute", top: 10, right: 15 }}
+    <View style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
-        <FontAwesome name="repeat" size={24} color="grey" />
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              renderItem={({ item }) => (
+                <Message
+                  id={item.id}
+                  text={item.text}
+                  imageUrl={item.imageUrl}
+                  type={item.type}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+              style={styles.messagesList}
+              contentContainerStyle={{ paddingBottom: hp("1.5%") }}
+              ListHeaderComponent={<View style={{ height: hp("1.5%") }} />}
+              ListFooterComponent={
+                recommendedRestaurant ? (
+                  <RestaurantListItem restaurant={recommendedRestaurant} />
+                ) : null
+              }
+            />
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                value={currentMessage}
+                onChangeText={setCurrentMessage}
+                placeholder="Type a message..."
+              />
+              <TouchableOpacity onPress={sendMessageFromUser}>
+                <FontAwesome
+                  name="send"
+                  size={wp("6%")}
+                  color={Colors.light.iconColor}
+                  style={styles.sendButton}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+        <TouchableOpacity
+          onPress={resetChatMessages}
+          style={{ position: "absolute", top: hp("1.5%"), right: wp("5%") }}
+        >
+          <FontAwesome name="repeat" size={wp("6%")} color="grey" />
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+      <SettingsModal visible={settingsVisible} onClose={closeSettings} />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingLeft: 5,
-    paddingRight: 5,
+  },
+  headerContainer: {
+    paddingTop: hp("15%"),
+    backgroundColor: "#fff",
   },
   innerContainer: {
     flex: 1,
     justifyContent: "space-between",
+    backgroundColor: "#f2f2f2",
   },
   messagesList: {
     flex: 1,
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 10,
+    padding: wp("2.5%"),
+    alignItems: "center",
+    backgroundColor: "#f2f2f2",
+    borderColor: "#e2e2e2",
+    width: "95%",
+    alignSelf: "center",
+    borderRadius: wp("5%"),
+    height: hp("8%"),
+    justifyContent: "space-between",
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: wp("4%"),
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 15,
-    marginRight: 10,
-    paddingLeft: 10,
+    borderRadius: wp("5%"),
+    paddingHorizontal: wp("4%"),
+    backgroundColor: "#fff",
+    height: hp("5.5%"),
+  },
+  sendButton: {
+    marginLeft: wp("2.5%"),
   },
 });
 
-export default Chat;
+export default BuddyChat;

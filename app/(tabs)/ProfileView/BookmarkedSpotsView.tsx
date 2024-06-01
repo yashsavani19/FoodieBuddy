@@ -1,26 +1,21 @@
-import React, { useContext } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-} from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { AppContext } from "@/context/AppContext";
-import SavedListItem from "@/components/SavedListItem";
-import { Saved } from "@/model/Saved";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
+import SavedList from "@/components/SavedLists/SavedList";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
+import Constants from "expo-constants";
+
+type BookmarkedSpotsRouteProp = RouteProp<
+  RootStackParamList,
+  "BookmarkedSpotsView"
+>;
 
 // BookmarkedSpotsView component
 const BookmarkedSpotsView: React.FC = () => {
-  const { bookmarkedRestaurants } = useContext(AppContext);
-  const navigation = useNavigation();
-  const renderItem = ({ item }: { item: Saved }) => (
-    <SavedListItem item={item} listType="bookmarked" />
-  );
+  const route = useRoute<BookmarkedSpotsRouteProp>();
+  const { bookmarkedRestaurants } = route.params;
 
   return (
     <View style={styles.container}>
@@ -28,18 +23,13 @@ const BookmarkedSpotsView: React.FC = () => {
       <TitleHeader title="Bookmarks" />
       <View style={styles.content}>
         <BackButton />
-        {bookmarkedRestaurants.length === 0 && (
-          <View style={styles.noRestaurants}>
-            <Text style={styles.titleText}>No Bookmarked spots</Text>
-          </View>
-        )}
-        <View style={styles.listContainer}>
-          <FlatList
-            data={bookmarkedRestaurants}
-            keyExtractor={(item) => item.restaurant.id.toString()}
-            renderItem={renderItem}
-          />
-        </View>
+        {!bookmarkedRestaurants ||
+          (bookmarkedRestaurants.length === 0 && (
+            <View style={styles.noRestaurants}>
+              <Text style={styles.titleText}>No Bookmarked spots</Text>
+            </View>
+          ))}
+        <SavedList restaurants={bookmarkedRestaurants} type="bookmarked" />
       </View>
     </View>
   );
@@ -52,7 +42,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    marginTop: 120,
+    marginTop: Constants.statusBarHeight + 100,
   },
   header: {
     height: 40,
