@@ -8,32 +8,32 @@ const slides = [
   {
     key: '1',
     text: 'Welcome to Foodie Buddy!',
-    image: require('./path_to_your_image_1.png'),
+    image: require('@images/BuddyBod.png'),
   },
   {
     key: '2',
     text: 'Filter eating spots to your heart’s content',
-    image: require('./path_to_your_image_2.png'),
+    image: require('@images/page 1.png'),
   },
   {
     key: '3',
     text: 'Find eating spots on the map',
-    image: require('./path_to_your_image_3.png'),
+    image: require('@images/page 2.png'),
   },
   {
     key: '4',
     text: 'Ask Buddy to provide eating spot recommendations',
-    image: require('./path_to_your_image_4.png'),
+    image: require('@images/page 3.png'),
   },
   {
     key: '5',
     text: 'Add friends, make group chats, and invite Buddy',
-    image: require('./path_to_your_image_5.png'),
+    image: require('@images/page 4.png'),
   },
   {
     key: '6',
     text: 'Choose personal preferences to get restaurant recommendations',
-    image: require('./path_to_your_image_6.png'),
+    image: require('@images/page 5.png'),
   },
 ];
 
