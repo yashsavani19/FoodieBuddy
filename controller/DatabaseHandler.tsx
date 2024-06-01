@@ -22,6 +22,8 @@ import { Restaurant } from "@/model/Restaurant";
 import { Friend } from "@/model/Friend";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
+
+
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 
 import { getStorage, ref, uploadBytes } from "firebase/storage";
@@ -1180,6 +1182,7 @@ export const addPreferences = async (uid: string) => {
           name: preference.name,
           selected: preference.selected,
           category: category.title,
+          apiName: preference.apiName,
         });
       }
     }
@@ -1222,6 +1225,7 @@ export const fetchPreferences = async (): Promise<{ preferences: PreferenceCateg
         
       }
     });
+
 
     for (const category in categoryMap) {
       preferences.push({
@@ -1276,9 +1280,12 @@ export const updatePreferences = async (
             ", Selected: ",
             preference.selected,
             ", Category: ",
-            category.title
+            category.title,
+            ", API Name: ",
+            preference.apiName,
+            
           );
-          await setDoc(docRef, {
+          setDoc(docRef, {
             category: category.title,
             name: preference.name,
             selected: preference.selected,
