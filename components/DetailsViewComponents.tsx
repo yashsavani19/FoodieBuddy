@@ -368,13 +368,13 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 style={styles.mapButton}
                 onPress={handleCenterMapPress}
               >
-                <Ionicons name="locate" size={24} color="black" />
+                <MaterialIcons name="my-location" size={24} color="#5A5A5A" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.mapButton}
                 onPress={handleMapViewPress}
               >
-                <MaterialIcons name="map" size={24} color="black" />
+                <MaterialIcons name="map" size={24} color="#5A5A5A" />
               </TouchableOpacity>
             </View>
           </View>
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   mapButton: {
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     padding: wp("2%"),
-    borderRadius: wp("2%"),
+    borderRadius: wp("1%"),
     alignItems: "center",
     justifyContent: "center",
     marginBottom: hp("1%"),
