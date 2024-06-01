@@ -9,4 +9,5 @@ export interface User {
     bookmarkedRestaurants?: Saved[];
     visitedRestaurants?: Saved[];
     favouriteRestaurants?: Saved[];
+    userPreferences?: String[];
 }
