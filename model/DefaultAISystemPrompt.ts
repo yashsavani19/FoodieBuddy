@@ -13,7 +13,7 @@ const POST_PREFERENCES =
 
 export function DefaultAISystemPrompt(
   restaurantList: Restaurant[]
-  // preferenceList: Preference[],
+  // PreferenceCategoryList: Preference[],
 ): string {
   const stringRestaurants = restaurantList
     .map(

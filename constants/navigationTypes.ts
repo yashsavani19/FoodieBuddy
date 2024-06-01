@@ -1,5 +1,5 @@
 import { Friend } from "@/model/Friend";
-import { PreferenceList } from "@/model/PreferenceList";
+import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 import { Restaurant } from "@/model/Restaurant";
 import { Saved } from "@/model/Saved";
 
@@ -35,7 +35,7 @@ export type RootStackParamList = {
   UserProfileView: undefined;
   FriendProfile: { friend: Friend };
   FriendRequests: undefined;
-  FoodPreferencesView: { preferences: PreferenceList[] };
+  FoodPreferencesView: { preferences: PreferenceCategoryList[] };
 };
 
 // Define the MapRouteParams type to include geometry, directions, and restaurantId

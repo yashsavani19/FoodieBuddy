@@ -4,7 +4,7 @@ import PreferenceCategoryContainer from "@/components/PreferencesComponents/Pref
 import SavePreferenceButton from "@/components/PreferencesComponents/SavePreferenceButton";
 import { AppContext } from "@/context/AppContext";
 import { updatePreferences } from "@/controller/DatabaseHandler";
-import { PreferenceList } from "@/model/PreferenceList";
+import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
 import Constants from "expo-constants";
@@ -12,14 +12,14 @@ import { DefaultPreferences } from "@/model/DefaultPreferences";
 
 const FoodPreferencesView: React.FC = () => {
   const { preferences, setPreferences } = useContext(AppContext);
-  const [localPreferences, setLocalPreferences] = useState<PreferenceList[]>(
+  const [localPreferences, setLocalPreferences] = useState<PreferenceCategoryList[]>(
     preferences
   );
 
   // If no preferences are passed, load default preferences
   useEffect(() => {
     if (preferences.length === 0) {
-      const defaultPreferences: PreferenceList[] = DefaultPreferences;
+      const defaultPreferences: PreferenceCategoryList[] = DefaultPreferences;
       setPreferences(defaultPreferences);
       setLocalPreferences(defaultPreferences);
     }

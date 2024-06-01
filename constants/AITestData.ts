@@ -51,7 +51,7 @@ export const restaurants: Restaurant[] = [
     { preferenceId: "American" },
     { preferenceId: "Burgers" },
   ];
-  export const preferenceList = { preferences };
+  export const PreferenceCategoryList = { preferences };
   
   export const restaurantList: RestaurantList = {
     localRestaurants: restaurants,

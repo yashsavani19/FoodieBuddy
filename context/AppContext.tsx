@@ -28,7 +28,7 @@ import { Category } from "@/model/Category";
 import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
-import { PreferenceList } from "@/model/PreferenceList";
+import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 
 export type AppContextType = {
   dataLoading: boolean;
@@ -66,8 +66,8 @@ export type AppContextType = {
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
   filterRestaurants: () => void;
 
-  preferences: PreferenceList[];
-  setPreferences: (prefs: PreferenceList[]) => void;
+  preferences: PreferenceCategoryList[];
+  setPreferences: (prefs: PreferenceCategoryList[]) => void;
   updateUserPreferences: (
     category: string,
     preferenceName: string,
@@ -148,7 +148,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     useState(localRestaurants);
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
 
-  const [preferences, setPreferences] = useState<PreferenceList[]>([]);
+  const [preferences, setPreferences] = useState<PreferenceCategoryList[]>([]);
 
   const setRestaurants = async () => {
     setDataLoading(true);

@@ -21,7 +21,7 @@ import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
 import { Friend } from "@/model/Friend";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
-import { PreferenceList } from "@/model/PreferenceList";
+import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 
 import { getStorage, ref, uploadBytes } from "firebase/storage";
@@ -1163,12 +1163,12 @@ export const addPreferences = async (uid: string) => {
 // /**
 //  * Fetches user preferences
 //  */
-export const fetchPreferences = async (): Promise<PreferenceList[]> => {
+export const fetchPreferences = async (): Promise<PreferenceCategoryList[]> => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
-    const preferences: PreferenceList[] = [];
+    const preferences: PreferenceCategoryList[] = [];
 
     // Group preferences by category
     const categoryMap: { [key: string]: Preference[] } = {};
@@ -1202,7 +1202,7 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
   }
 };
 
-export const updatePreferences = async (updatedPreferences: PreferenceList[]) => {
+export const updatePreferences = async (updatedPreferences: PreferenceCategoryList[]) => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
