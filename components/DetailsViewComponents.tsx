@@ -62,6 +62,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   } = restaurant;
 
   const {
+    location, // Extract location from context
     favouriteRestaurants,
     bookmarkedRestaurants,
     visitedRestaurants,
@@ -204,8 +205,38 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   };
 
   const handleMapViewPress = () => {
-    navigation.navigate("Map", { geometry: restaurant.geometry });
+    if (location) {
+      console.log("Navigating to Map with params:", {
+        geometry: restaurant.geometry,
+        directions: {
+          origin: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          destination: {
+            latitude: restaurant.geometry.location.lat,
+            longitude: restaurant.geometry.location.lng,
+          },
+        },
+        restaurantId: restaurant.id 
+      });
+      navigation.navigate("Map", {
+        geometry: restaurant.geometry,
+        directions: {
+          origin: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          destination: {
+            latitude: restaurant.geometry.location.lat,
+            longitude: restaurant.geometry.location.lng,
+          },
+        },
+        restaurantId: restaurant.id 
+      });
+    }
   };
+  
 
   const handleWebsitePress = (websiteUrl: string) => {
     if (websiteUrl) {

@@ -1,22 +1,19 @@
-import { useEffect , useContext} from "react";
+import { useEffect, useContext } from "react";
 import { StyleSheet, View } from "react-native";
 import AppMappView from "@/components/AppMappView";
 import TitleHeader from "@/components/TitleHeader";
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { AppContext } from "@/context/AppContext";
 import {
-  MapRouteParams,
   RootStackParamList,
 } from "@/constants/navigationTypes";
-import MapView from "react-native-maps";
-import { Category } from "@/model/Category";
 import DrawerWrapper from "@/components/FilterDrawerComponents/FilterDrawerWrapper";
 import Constants from "expo-constants";
 
 export default function Map() {
   const route = useRoute<RouteProp<RootStackParamList, "Map">>();
-  const { geometry } = route.params || {};
-  const { searchTerm, setSearchTerm } = useContext(AppContext);
+  const { geometry, directions, restaurantId } = route.params || {};
+  const { searchTerm, setSearchTerm} = useContext(AppContext);
 
   return (
     <DrawerWrapper>
@@ -28,7 +25,9 @@ export default function Map() {
         />
         <View style={styles.mapContainer}>
           <AppMappView 
-            geometry={geometry} 
+            geometry={geometry}
+            initialDirections={directions}
+            selectedRestaurantId={restaurantId}
           />
         </View>
         <View style={styles.placeListContainer}></View>
