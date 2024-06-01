@@ -8,7 +8,7 @@ import {
   Keyboard,
   TouchableOpacity,
   TextInput,
-  Modal as RNModal
+  Modal as RNModal,
 } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
 import { AppContext } from "@/context/AppContext";
@@ -26,8 +26,10 @@ import BaseModal from "@/components/modals/BaseModal";
 import BaseButton from "@/components/modals/BaseButton";
 import Constants from "expo-constants";
 import { deleteUserAccount } from "@/controller/FirebaseHandler"; // Make sure this import path is correct
+import { useNavigation } from "@react-navigation/native"; // Add this import
 
 const EditAccountView: React.FC = () => {
+  const navigation = useNavigation(); // Initialize useNavigation
   const { userObject } = useContext(AppContext);
   const { user } = useAuth();
   const [newUsername, setNewUsername] = useState(user?.displayName || "");
@@ -150,7 +152,7 @@ const EditAccountView: React.FC = () => {
         await deleteUserAccount(deletePassword);
         alert("Account deleted successfully");
         // Redirect to login or home screen
-        (navigator as any).navigate("Login"); // Make sure this route exists in your navigation
+        navigation.navigate("LoginView"); // Navigate to LoginView after account deletion
       } else {
         setDeleteError("Incorrect password. Please try again.");
       }
