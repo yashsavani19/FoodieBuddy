@@ -273,9 +273,10 @@ const ChatScreen: React.FC = () => {
     // compile recent messages and send to AI
     let recentMessages: string = messages
       .map((msg) => {
-        return msg.username + ": " + msg.text;
+        return msg.userId !== "Buddy" ? msg.username + ": " + msg.text : null;
       })
       .join("\n");
+      
     console.log("Recent Messages:", recentMessages);
     const aiResponse = await sendAIMessage(recentMessages);
     const buddyMessageId = Date.now().toString() + "ai";
