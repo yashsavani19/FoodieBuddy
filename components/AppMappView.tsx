@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
-import { StyleSheet, View, TouchableOpacity, Modal } from "react-native";
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import MapView, { Marker, Callout, Circle, PROVIDER_GOOGLE, MapMarker } from "react-native-maps";
 import MapViewStyle from "../app/Utils/MapViewStyle.json";
 import RestaurantMarker from "./RestaurantMarker";
@@ -20,23 +20,24 @@ interface AppMappViewProps {
       lng: number;
     };
   };
+  initialDirections?: {
+    origin: { latitude: number; longitude: number };
+    destination: { latitude: number; longitude: number };
+  };
+  selectedRestaurantId?: string; 
 }
 
-export default function AppMappView({ geometry }: AppMappViewProps) {
+export default function AppMappView({ geometry, initialDirections, selectedRestaurantId }: AppMappViewProps) {
   const { location, filteredRestaurants } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
-  const handleMapPress = () => {
-    setSelectedMarkerId(null);
-    setDirections(null);
-  };
   const markerRefs = useRef<(MapMarker | null)[]>([]);
   const [mapReady, setMapReady] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [directions, setDirections] = useState<{
     origin: { latitude: number; longitude: number };
     destination: { latitude: number; longitude: number };
-  } | null>(null);
+  } | null>(initialDirections || null);
   const [directionsSummary, setDirectionsSummary] = useState<{
     distance: string;
     duration: string;
@@ -46,6 +47,33 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   const [mode, setMode] = useState<"WALKING" | "DRIVING">("WALKING");
 
   if (!location) return null;
+
+  const handleMapPress = () => {
+    setSelectedMarkerId(null);
+    setDirections(null);
+  };
+
+  const handleMarkerPress = (index: number, restaurant: any) => {
+    console.log(`Marker for ${restaurant.name} pressed`);
+    if (selectedMarkerId === index) {
+      setSelectedMarkerId(null);
+    } else {
+      setDirections({
+        origin: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+        },
+        destination: {
+          latitude: restaurant.geometry.location.lat,
+          longitude: restaurant.geometry.location.lng,
+        },
+      });
+      setSelectedMarkerId(index);
+      setTimeout(() => {
+        markerRefs.current[index]?.showCallout();
+      }, 500);
+    }
+  };
 
   useEffect(() => {
     if (geometry && mapRef.current) {
@@ -62,21 +90,18 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
   }, [geometry, mapReady]);
 
   useEffect(() => {
-    if (geometry) {
+    if (selectedRestaurantId && mapReady) {
       const markerIndex = filteredRestaurants.findIndex(
-        (restaurant) =>
-          restaurant.geometry.location.lat === geometry.location.lat &&
-          restaurant.geometry.location.lng === geometry.location.lng
+        (restaurant) => restaurant.id === selectedRestaurantId
       );
       if (markerIndex !== -1 && markerRefs.current[markerIndex]) {
-        markerRefs.current[markerIndex]?.showCallout();
-        setSelectedMarkerId(markerIndex);
+        handleMarkerPress(markerIndex, filteredRestaurants[markerIndex]);
       }
     }
-  }, [geometry, mapReady, filteredRestaurants]);
+  }, [selectedRestaurantId, mapReady, filteredRestaurants]);
 
   useEffect(() => {
-    setDirections(null);
+    setDirections(initialDirections || null);
     setDirectionsSummary(null);
     setSelectedMarkerId(null);
   }, [filteredRestaurants]);
@@ -124,26 +149,10 @@ export default function AppMappView({ geometry }: AppMappViewProps) {
                 latitude: restaurant.geometry.location.lat,
                 longitude: restaurant.geometry.location.lng,
               }}
-              onPress={() => {
-                if (selectedMarkerId === index) {
-                  setSelectedMarkerId(null);
-                } else {
-                  setDirections({
-                    origin: {
-                      latitude: location.latitude,
-                      longitude: location.longitude,
-                    },
-                    destination: {
-                      latitude: restaurant.geometry.location.lat,
-                      longitude: restaurant.geometry.location.lng,
-                    },
-                  });
-                  setSelectedMarkerId(index);
-                }
-              }}
+              onPress={() => handleMarkerPress(index, restaurant)}
             >
               <RestaurantMarker
-                rating={restaurant.rating === 0 || restaurant.rating === undefined ? "N/A" : restaurant.rating }
+                rating={restaurant.rating === 0 || restaurant.rating === undefined ? "N/A" : restaurant.rating}
                 price={restaurant.price ?? "N/A"}
                 selected={selectedMarkerId === index}
               />
