@@ -255,7 +255,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       }
       
       if (apiNames) {
-        console.log("API Names:", apiNames);
+        console.log("API Names:", apiNames.toLocaleString());
         setPreferencesAPINames(apiNames);
       }
 
