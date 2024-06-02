@@ -272,7 +272,7 @@ export const addUser = async (uid: string, email: string, username: string) => {
     const userCollection = `users/${uid}`;
     await setDoc(doc(db, userCollection), {
       email: email,
-      username: username,
+      username: username
     });
     await addPreferences(uid);
   } catch (e) {
@@ -1176,7 +1176,9 @@ export const addPreferences = async (uid: string) => {
           ", Selected: ",
           preference.selected,
           ", Category: ",
-          category.title
+          category.title,
+          ", API Name: ",
+          preference.apiName
         );
         await setDoc(docRef, {
           name: preference.name,
