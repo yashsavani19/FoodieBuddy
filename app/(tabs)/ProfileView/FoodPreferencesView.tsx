@@ -75,7 +75,7 @@ const FoodPreferencesView: React.FC = () => {
         }
       });
     });
-    console.log("API Names: ", apiNames.toLocaleString()); 
+    // console.log("API Names: ", apiNames.toLocaleString()); 
     return apiNames;
   }
 
