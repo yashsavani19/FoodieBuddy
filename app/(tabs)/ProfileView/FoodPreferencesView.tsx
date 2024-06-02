@@ -71,10 +71,12 @@ const FoodPreferencesView: React.FC = () => {
     localPreferences.forEach((category) => {
       category.preferences.forEach((preference) => {
         if (preference.selected) {
+          
           apiNames.push(preference.apiName);
         }
       });
     });
+    console.log("API Names: ", apiNames.toLocaleString()); 
     return apiNames;
   }
 

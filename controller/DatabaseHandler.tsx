@@ -1244,6 +1244,27 @@ export const fetchPreferences = async (): Promise<{ preferences: PreferenceCateg
   }
 };
 
+const fetchSelectedPreferences = async (): Promise<string[]> => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const selectedPreferences: string[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.selected) {
+        selectedPreferences.push(data.apiName);
+      }
+    });
+
+    return selectedPreferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+    return [];
+  }
+}
 
 
 export const updatePreferences = async (
