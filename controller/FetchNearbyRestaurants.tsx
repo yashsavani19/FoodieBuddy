@@ -100,6 +100,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
         currentOpeningHours: result.currentOpeningHours,
         businessStatus: result.businessStatus,
         website: detailResults.data.websiteUri,
+        preferenceScore: 0,
       };
     }));
 

@@ -32,6 +32,7 @@ import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 import { set } from "firebase/database";
 import { Sort } from "@/model/Sort";
 import { SortOptions } from "@/model/SortOptions";
+import { restaurants } from "@/constants/AITestData";
 export type AppContextType = {
   dataLoading: boolean;
   setDataLoading: (loading: boolean) => void;
@@ -189,6 +190,17 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         const distanceSortedRestaurants = nearbyRestaurants.sort(
           (a, b) => a.distance - b.distance
         );
+
+        updatePreferenceScore(distanceSortedRestaurants);
+
+        // if (restaurant.preferenceScore > 0) {
+        //   console.log(
+        //     `MATCHES FOUND: Restaurant category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${preferenceScore}`
+        //   );
+        // } else {
+        //   console.log("No matches found");
+        // }
+
         setRestaurantsArray(distanceSortedRestaurants);
         setFilteredRestaurants(distanceSortedRestaurants);
       });
@@ -198,6 +210,25 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       setDataLoading(false);
     }
   };
+
+  const updatePreferenceScore = async (restaurants: Restaurant[]) => {
+    await updatePreferencesAPIName();
+    restaurants.forEach((restaurant: Restaurant) => {
+      if (restaurant.categories === undefined) return;
+      restaurant.categories.forEach((category) => {
+        if (preferencesAPINames.includes(category)) {
+          if (restaurant.preferenceScore !== undefined) {
+            restaurant.preferenceScore++;
+          }
+        }
+      });
+      console.log(
+        `MATCHES: Restaurant category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
+      );
+    });
+  };
+
+  
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -229,6 +260,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    updatePreferenceScore(localRestaurants);
+  }, [ preferencesAPINames]);
+
 
   useEffect(() => {
     console.log("Favourites updated");
@@ -304,12 +340,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     if (user) {
       const prefs = await fetchPreferences();
       setPreferencesAPINames(prefs.apiNames);
-      
     }
   };
 
   useEffect(() => {
-    console.log("Preferences (updatePreferencesAPIName): ", preferencesAPINames);
+    console.log(
+      "Preferences (updatePreferencesAPIName): ",
+      preferencesAPINames
+    );
   }, [preferencesAPINames]);
 
   //------------------ NEW CHANGES ------------------//

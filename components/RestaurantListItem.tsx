@@ -177,6 +177,7 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
               </Text>
               <Text style={styles.distance} testID="Restaurant Distance">
                 {formatDistance(restaurant.distance)}
+                {restaurant.preferenceScore}
               </Text>
               <Text style={styles.distance}>
                 {restaurant.price !== undefined
