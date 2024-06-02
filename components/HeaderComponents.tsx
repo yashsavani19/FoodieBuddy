@@ -49,7 +49,6 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   const handleSortSelect = (toSort: Sort) => {
     if (onSortSelect) {
       onSortSelect(toSort);
-      console.log("Sorter Selected", toSort);
     }
   };
 

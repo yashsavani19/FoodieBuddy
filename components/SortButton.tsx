@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Text,
   View,
@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { Sort } from "@/model/Sort";
-import { SortOptions } from "@/model/SortOptions";
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { SortOptions } from "@/model/SortOptions";;
+import { AppContext } from "@/context/AppContext";
 
 // Define the props for the Filters component
 interface SortProps {
@@ -23,6 +23,7 @@ interface SortProps {
  * @returns - Sort component
  */
 const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
+  
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSort, setSelectedSort] = useState<Sort>(SortOptions[0]);
 
@@ -30,6 +31,8 @@ const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
     if (toSort) {
       onSortSelect(toSort);
       setSelectedSort(toSort);
+    }else{
+      setSelectedSort(SortOptions[0]);
     }
   };
 
@@ -45,6 +48,7 @@ const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
           style={pickerSelectStyles}
           value={selectedSort}
           useNativeAndroidPickerStyle={false}
+          placeholder={{ label: "Sort By", value: null }}
         />
       ) : (
         <>
@@ -70,6 +74,8 @@ const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
                     key={option.sortOption}
                     style={styles.modalOption}
                     onPress={() => {
+
+                      
                       handleSortChange(option);
                       setModalVisible(false);
                     }}

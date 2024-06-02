@@ -29,7 +29,8 @@ import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceList } from "@/model/PreferenceList";
-
+import { Sort } from "@/model/Sort";
+import { SortOptions } from "@/model/SortOptions";
 export type AppContextType = {
   dataLoading: boolean;
   setDataLoading: (loading: boolean) => void;
@@ -73,6 +74,9 @@ export type AppContextType = {
     preferenceName: string,
     selected: boolean
   ) => void;
+
+  selectedSortOption: Sort;
+  setSortOption: (sortOption: Sort) => void;
 };
 
 interface ContextProviderProps {
@@ -118,6 +122,9 @@ export const AppContext = createContext<AppContextType>({
   preferences: [],
   setPreferences: () => {},
   updateUserPreferences: () => {},
+
+  selectedSortOption: SortOptions[0],
+  setSortOption: () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -149,6 +156,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
 
   const [preferences, setPreferences] = useState<PreferenceList[]>([]);
+  const [selectedSortOption, setSelectedSortOption] = useState<Sort>(
+    SortOptions[0]
+  );
+
+  const setSortOption = (option: Sort) => {
+    setSelectedSortOption(option);
+    // add any additional logic needed when a sort option is selected
+  };
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -317,7 +332,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         selectedFilters
           .filter(
             (filter) =>
-              !["Rating", "Price", "Open Status","Dietary Preference","Takeaway Option"].includes(filter.type)
+              ![
+                "Rating",
+                "Price",
+                "Open Status",
+                "Dietary Preference",
+                "Takeaway Option",
+              ].includes(filter.type)
           )
           .map((filter) => filter.apiName)
       );
@@ -336,9 +357,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         .filter((filter) => ["Open Status"].includes(filter.type))
         .map((filter) => filter.apiName);
 
-      const dietsToFilter = new Set(selectedFilters
-        .filter(filter => ["Dietary Preference"].includes(filter.type))
-        .map(filter => filter.apiName));
+      const dietsToFilter = new Set(
+        selectedFilters
+          .filter((filter) => ["Dietary Preference"].includes(filter.type))
+          .map((filter) => filter.apiName)
+      );
 
       // filter restaurants by the selected categories (not intersection, but union of categories)
       if (categoriesToFilter.size > 0) {
@@ -386,20 +409,28 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
       // If there is a dietary preference, filter restaurants by the dietary preference
       if (dietsToFilter.size > 0) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => dietsToFilter.has(category))
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some((category) => dietsToFilter.has(category))
         );
       }
 
       // Filter out Delivery and then Takeaway restaurants
-      if (selectedFilters.some(filter => filter.apiName === "meal_delivery")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_delivery")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_delivery")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_delivery"
+          )
         );
       }
-      if (selectedFilters.some(filter => filter.apiName === "meal_takeaway")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_takeaway")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_takeaway")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_takeaway"
+          )
         );
       }
 
@@ -580,6 +611,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     preferences,
     setPreferences,
     updateUserPreferences,
+
+    selectedSortOption,
+    setSortOption,
   };
 
   return (
