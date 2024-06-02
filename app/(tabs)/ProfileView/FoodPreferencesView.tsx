@@ -54,7 +54,6 @@ const FoodPreferencesView: React.FC = () => {
       setPreferences(localPreferences);
       const apiNames = preferencesAPINamesString();
       setPreferencesAPINames(apiNames);
-      console.log("Preferences API Names: ", preferencesAPINames.toLocaleString());
       console.log("Preferences saved successfully");
       
       setSaving(false);

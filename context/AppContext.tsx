@@ -70,11 +70,11 @@ export type AppContextType = {
 
   preferences: PreferenceCategoryList[];
   setPreferences: (prefs: PreferenceCategoryList[]) => void;
-  updateUserPreferences: (
-    category: string,
-    preferenceName: string,
-    selected: boolean
-  ) => void;
+  // updateUserPreferences: (
+  //   category: string,
+  //   preferenceName: string,
+  //   selected: boolean
+  // ) => void;
 
   preferencesAPINames: string[];
   setPreferencesAPINames: (names: string[]) => void;
@@ -126,7 +126,7 @@ export const AppContext = createContext<AppContextType>({
 
   preferences: [],
   setPreferences: () => {},
-  updateUserPreferences: async () => {},
+  // updateUserPreferences: async () => {},
 
   preferencesAPINames: [],
   setPreferencesAPINames: async () => {},
@@ -254,18 +254,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   }, [friends]);
 
   useEffect(() => {
-    async function updatePreferencesAPIName() {
-      if (user) {
-        const prefs = await fetchPreferences();
-        setPreferencesAPINames(prefs.apiNames);
-        console.log(
-          "Preferences (useEffect): ",
-          preferencesAPINames.toLocaleString()
-        );
-      }
-    }
     updatePreferencesAPIName();
-  }, [preferencesAPINames]);
+  }, [preferences]);
 
   const setUser = async () => {
     try {
@@ -308,6 +298,17 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       console.log(error);
     }
   };
+
+  //------------------ NEW CHANGES ------------------//
+  const updatePreferencesAPIName = async () => {
+    if (user) {
+      const prefs = await fetchPreferences();
+      setPreferencesAPINames(prefs.apiNames);
+      console.log("Preferences (updatePreferencesAPIName): ", preferencesAPINames);
+    }
+  };
+
+  //------------------ NEW CHANGES ------------------//
 
   const updateLocation = async () => {
     return new Promise(async (resolve, reject) => {
@@ -491,10 +492,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         break;
       case "Price: Low to High":
         result = result.sort((a, b) => {
-          if (parseInt(a.price ?? "0") === parseInt(b.price ?? "0")) {
+          if (parseInt(a.price ?? "10") === parseInt(b.price ?? "10")) {
             return a.distance.localeCompare(b.distance);
           }
-          return (parseInt(a.price ?? "0") - parseInt(b.price ?? "0"));
+          return parseInt(a.price ?? "0") - parseInt(b.price ?? "0");
         });
         break;
       case "Price: High to Low":
@@ -502,7 +503,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           if (parseInt(b.price ?? "0") === parseInt(a.price ?? "0")) {
             return a.distance.localeCompare(b.distance);
           }
-          return (parseInt(b.price ?? "0") - parseInt(a.price ?? "0"));
+          return parseInt(b.price ?? "0") - parseInt(a.price ?? "0");
         });
         break;
       case "Rating: High to Low":
