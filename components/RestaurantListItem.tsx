@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   mapIcon: {
-    width: 32,
+    width: wp('9%'),
     aspectRatio: 1,
     resizeMode: "contain",
   },
