@@ -12,6 +12,7 @@ import { AppContext } from "@/context/AppContext";
 import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
 type RestaurantListItemProps = {
   restaurant: Restaurant;
+  style?: any;
 };
 
 /**
@@ -19,7 +20,7 @@ type RestaurantListItemProps = {
  * @param param0 - restaurant object
  * @returns - Restaurant list item component
  */
-export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
+export const RestaurantListItem = ({ restaurant, style }: RestaurantListItemProps) => {
   // Retrieve context for user-related data
   const { visitedRestaurants } = useContext(AppContext);
   // State variable for determining if restaurant is visited
@@ -142,7 +143,7 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
 
   return (
     <Pressable
-      style={styles.container}
+      style={[styles.container, style]}
       onPress={() => {
         // Navigate to DetailsView screen
         navigation.navigate("DetailsView", { Restaurant: restaurant });

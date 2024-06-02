@@ -186,10 +186,6 @@ const Chat: React.FC = () => {
    */
   return (
     <View style={styles.container}>
-      {/* <View style={styles.headerContainer}>
-        <TitleHeader title="Buddy ChatBot" />
-        <NavBar openSettings={openSettings} />
-      </View> */}
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
