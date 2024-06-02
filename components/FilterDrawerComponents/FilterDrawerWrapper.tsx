@@ -11,12 +11,12 @@ import { AppContext } from '@/context/AppContext';
 const DrawerWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [scrollViewRef, setScrollViewRef] = useState<React.RefObject<ScrollView>>(() => React.createRef<ScrollView>());
-  const { setSelectedFilters, filterRestaurants } = useContext(AppContext);
+  const { setSelectedFilters, filterRestaurants, setDistance } = useContext(AppContext);
 
-  const handleApplyFilters = (filters: Category[], distance: number) => {
+  const handleApplyFilters = (filters: Category[], selectedDistance: number) => {
     handleClose();
-    console.log(filters, distance);
     setSelectedFilters(filters);
+    setDistance(selectedDistance * 1000);
     filterRestaurants();
   };
 
@@ -31,7 +31,9 @@ const DrawerWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     <DrawerContext.Provider value={{ open, setOpen }}>
       <Drawer
         open={open}
-        onOpen={() => setOpen(true)}
+        onOpen={() => {
+          setOpen(true)
+        }}
         onClose={() => {
             handleClose();
         }}
