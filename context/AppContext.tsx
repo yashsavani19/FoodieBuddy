@@ -216,15 +216,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   useEffect(() => {
     filterRestaurants();
-  }, [searchTerm]);
+  }, [searchTerm, localRestaurants]);
 
   // Update the restaurants when the max distance changes
   useEffect(() => {
-    async function updateAndFilterRestaurants() {
-      await setRestaurants();
-      filterRestaurants();
-    }
-    updateAndFilterRestaurants();
+    setRestaurants();
   }, [distance]);
 
   useEffect(() => {

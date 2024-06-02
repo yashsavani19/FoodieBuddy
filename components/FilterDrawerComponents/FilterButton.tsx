@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import DrawerContext from "@/context/DrawerContext"; 
 
 // See: https://oblador.github.io/react-native-vector-icons/
 
-const FilterButton = ({ onPress }: { onPress: any }) => (
+const FilterButton = ({ onPress }: { onPress: any }) => {
+  const { open } = useContext(DrawerContext);
+  return (
     <View style={styles.container}>
-        <TouchableOpacity onPress={onPress} style={styles.button} testID='Filter Button'>
-            <Text style={styles.text}>Filter By</Text>
-            <Icon name="caret-down" size={15} color="#363232" />
-        </TouchableOpacity>
+      <TouchableOpacity onPress={onPress} style={styles.button} testID='Filter Button' disabled={open}>
+        <Text style={styles.text}>Filter By</Text>
+        <Icon name="caret-down" size={15} color="#363232" />
+      </TouchableOpacity>
     </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   button: {
