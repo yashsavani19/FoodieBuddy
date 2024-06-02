@@ -263,7 +263,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   useEffect(() => {
     updatePreferenceScore(localRestaurants);
-  }, [ preferencesAPINames]);
+  }, [ preferences]);
 
 
   useEffect(() => {
@@ -288,10 +288,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Friends updated");
   }, [friends]);
-
-  useEffect(() => {
-    updatePreferencesAPIName();
-  }, [preferences]);
 
   const setUser = async () => {
     try {
