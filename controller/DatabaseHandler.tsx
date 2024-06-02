@@ -1245,6 +1245,7 @@ export const fetchPreferences = async (): Promise<{ preferences: PreferenceCateg
 };
 
 
+
 export const updatePreferences = async (
   updatedPreferences: PreferenceCategoryList[]
 ) => {

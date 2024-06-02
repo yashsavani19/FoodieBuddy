@@ -1,5 +1,6 @@
 import { Saved } from "./Saved";
 import { Friend } from "./Friend";
+import { PreferenceCategoryList } from "./PreferenceCategoryList";
 
 export interface User {
     username?: string;

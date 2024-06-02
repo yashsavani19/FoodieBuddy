@@ -13,7 +13,7 @@ import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences } = useContext(AppContext);
+  const { preferences, setPreferences, preferencesAPINames, setPreferencesAPINames } = useContext(AppContext);
   const [localPreferences, setLocalPreferences] =
     useState<PreferenceCategoryList[]>(preferences);
   const [saving, setSaving] = useState<boolean>(false);
@@ -52,6 +52,9 @@ const FoodPreferencesView: React.FC = () => {
       console.log("Saving after clicked: ", saving);
       await updatePreferences(localPreferences);
       setPreferences(localPreferences);
+      const apiNames = preferencesAPINamesString();
+      setPreferencesAPINames(apiNames);
+      console.log("Preferences API Names: ", preferencesAPINames.toLocaleString());
       console.log("Preferences saved successfully");
       
       setSaving(false);
@@ -62,6 +65,18 @@ const FoodPreferencesView: React.FC = () => {
       console.error("Error saving preferences: ", error);
     }
   };
+
+  function preferencesAPINamesString(): string[]{
+    const apiNames: string[] = [];
+    localPreferences.forEach((category) => {
+      category.preferences.forEach((preference) => {
+        if (preference.selected) {
+          apiNames.push(preference.apiName);
+        }
+      });
+    });
+    return apiNames;
+  }
 
   return (
     <View style={styles.container}>

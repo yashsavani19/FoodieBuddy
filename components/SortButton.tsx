@@ -45,8 +45,8 @@ const Filters: React.FC<SortProps> = ({ onSortSelect }) => {
         >
           {sortOptions.map((option) => (
             <Picker.Item
-              key={option.filter}
-              label={option.filter}
+              key={option.sort}
+              label={option.sort}
               value={option}
               style={styles.pickerItem}
             />
@@ -56,7 +56,7 @@ const Filters: React.FC<SortProps> = ({ onSortSelect }) => {
         <>
           <View style={styles.loginButton}>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text>{selectedSort?.filter || "Sort By"}</Text>
+              <Text>{selectedSort?.sort || "Sort By"}</Text>
             </TouchableOpacity>
           </View>
 
@@ -72,8 +72,8 @@ const Filters: React.FC<SortProps> = ({ onSortSelect }) => {
             <View>
               {sortOptions.map((option) => (
                 <Button
-                  key={option.filter}
-                  title={option.filter || "Filter"}
+                  key={option.sort}
+                  title={option.sort || "Filter"}
                   onPress={() => {
                     handleFilterChange(option);
                     setModalVisible(false);

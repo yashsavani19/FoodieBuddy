@@ -29,6 +29,7 @@ import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
+import { set } from "firebase/database";
 
 export type AppContextType = {
   dataLoading: boolean;
@@ -73,6 +74,9 @@ export type AppContextType = {
     preferenceName: string,
     selected: boolean
   ) => void;
+
+  preferencesAPINames: string[];
+  setPreferencesAPINames: (names: string[]) => void;
 };
 
 interface ContextProviderProps {
@@ -117,7 +121,10 @@ export const AppContext = createContext<AppContextType>({
 
   preferences: [],
   setPreferences: () => {},
-  updateUserPreferences: () => {},
+  updateUserPreferences: async () => {},
+
+  preferencesAPINames: [],
+  setPreferencesAPINames: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -149,6 +156,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
 
   const [preferences, setPreferences] = useState<PreferenceCategoryList[]>([]);
+
+  const [preferencesAPINames, setPreferencesAPINames] = useState<string[]>([]);
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -189,12 +198,18 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setPreferences(prefs.preferences);
       }
     };
-
     loadUserPreferences();
   }, [user]);
+
   useEffect(() => {
     if (!user) {
-      setUserObject({});
+      setUserObject({
+        ...userObject,
+        favouriteRestaurants: favouriteRestaurants,
+        bookmarkedRestaurants: bookmarkedRestaurants,
+        visitedRestaurants: visitedRestaurants,
+        userPreferencesAPIName: preferencesAPINames,
+      });
     }
   }, [user]);
 
@@ -215,6 +230,20 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Friends updated");
   }, [friends]);
+
+  useEffect(() => {
+    async function updatePreferencesAPIName() {
+      if (user) {
+        const prefs = await fetchPreferences();
+        setPreferencesAPINames(prefs.apiNames);
+        console.log(
+          "Preferences (useEffect): ",
+          preferencesAPINames.toLocaleString()
+        );
+      }
+    }
+    updatePreferencesAPIName();
+  }, [preferencesAPINames]);
 
   const setUser = async () => {
     try {
@@ -238,12 +267,18 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       const prefs = await fetchPreferences();
       if (preferences) {
         setPreferences(prefs.preferences);
+        setPreferencesAPINames(prefs.apiNames);
+        console.log(
+          "Preferences (setUser): ",
+          preferencesAPINames.toLocaleString()
+        );
       }
       setUserObject({
         ...userObject,
         favouriteRestaurants: favourites,
         bookmarkedRestaurants: bookmarks,
         visitedRestaurants: visited,
+        userPreferencesAPIName: prefs.apiNames,
       });
 
       getFriends();
@@ -317,7 +352,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         selectedFilters
           .filter(
             (filter) =>
-              !["Rating", "Price", "Open Status","Dietary Preference","Takeaway Option"].includes(filter.type)
+              ![
+                "Rating",
+                "Price",
+                "Open Status",
+                "Dietary Preference",
+                "Takeaway Option",
+              ].includes(filter.type)
           )
           .map((filter) => filter.apiName)
       );
@@ -336,9 +377,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         .filter((filter) => ["Open Status"].includes(filter.type))
         .map((filter) => filter.apiName);
 
-      const dietsToFilter = new Set(selectedFilters
-        .filter(filter => ["Dietary Preference"].includes(filter.type))
-        .map(filter => filter.apiName));
+      const dietsToFilter = new Set(
+        selectedFilters
+          .filter((filter) => ["Dietary Preference"].includes(filter.type))
+          .map((filter) => filter.apiName)
+      );
 
       // filter restaurants by the selected categories (not intersection, but union of categories)
       if (categoriesToFilter.size > 0) {
@@ -386,20 +429,28 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
       // If there is a dietary preference, filter restaurants by the dietary preference
       if (dietsToFilter.size > 0) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => dietsToFilter.has(category))
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some((category) => dietsToFilter.has(category))
         );
       }
 
       // Filter out Delivery and then Takeaway restaurants
-      if (selectedFilters.some(filter => filter.apiName === "meal_delivery")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_delivery")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_delivery")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_delivery"
+          )
         );
       }
-      if (selectedFilters.some(filter => filter.apiName === "meal_takeaway")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_takeaway")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_takeaway")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_takeaway"
+          )
         );
       }
 
@@ -580,6 +631,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     preferences,
     setPreferences,
     updateUserPreferences,
+
+    preferencesAPINames,
+    setPreferencesAPINames,
   };
 
   return (
