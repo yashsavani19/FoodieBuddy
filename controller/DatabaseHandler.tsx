@@ -15,12 +15,12 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "./FirebaseHandler";
+import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
-import { auth } from "./FirebaseHandler";
+import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
 import { Friend } from "@/model/Friend";
-import { DefaultPreferences } from "../model/DefaultPreferences";
+import { DefaultPreferences } from "@/model/DefaultPreferences";
 import { PreferenceList } from "@/model/PreferenceList";
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
@@ -1140,90 +1140,6 @@ export const listenToTypingStatus = (
   });
 };
 
-/**
- * Stores recommended restaurants in the chat room
- * @returns {Promise<boolean>}
- */
-export const storeRecommendedRestaurants = async (
-  chatRoomId: string,
-  recommendedRestaurants: Restaurant[]
-) => {
-  try {
-    const recommendedRestaurantsCollection = collection(
-      db,
-      "chatRooms",
-      chatRoomId,
-      "recommendedRestaurants"
-    );
-
-    for (const restaurant of recommendedRestaurants) {
-      const cleanedRestaurant = cleanRestaurantData(restaurant);
-      await addDoc(recommendedRestaurantsCollection, cleanedRestaurant);
-    }
-
-    console.log("Recommended restaurants stored successfully.");
-    return true;
-  } catch (e) {
-    console.error("Error storing recommended restaurants: ", e);
-    alert(
-      "Internal error storing recommended restaurants. Please try again later."
-    );
-    return false;
-  }
-};
-
-/**
- * Clears recommended restaurants in the chat room
- */
-export const clearRecommendedRestaurants = async (chatRoomId: string) => {
-  try {
-    const recommendedRestaurantsCollection = collection(
-      db,
-      "chatRooms",
-      chatRoomId,
-      "recommendedRestaurants"
-    );
-
-    const querySnapshot = await getDocs(recommendedRestaurantsCollection);
-    querySnapshot.forEach(async (doc) => {
-      await deleteDoc(doc.ref);
-    });
-
-    console.log("Recommended restaurants cleared successfully.");
-    return true;
-  } catch (e) {
-    console.error("Error clearing recommended restaurants: ", e);
-    alert(
-      "Internal error clearing recommended restaurants. Please try again later."
-    );
-    return false;
-  }
-};
-
-/**
- * Adds a listener for the recommended restaurants in the chat room
- * @returns {function} - Unsubscribe function to stop listening to recommended restaurants
- */
-export const listenToRecommendedRestaurants = (
-  chatRoomId: string,
-  callback: (recommendedRestaurants: Restaurant[]) => void
-) => {
-  const recommendedRestaurantsCollection = collection(
-    db,
-    "chatRooms",
-    chatRoomId,
-    "recommendedRestaurants"
-  );
-
-  return onSnapshot(recommendedRestaurantsCollection, (snapshot) => {
-    const recommendedRestaurants = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Restaurant[];
-    callback(recommendedRestaurants);
-  });
-};
-
 export const addPreferences = async (uid: string) => {
   try {
     const preferenceCollection = `users/${uid}/preferences`;
@@ -1255,6 +1171,86 @@ export const addPreferences = async (uid: string) => {
     console.error("Error adding preferences: ", e);
     alert("Internal error adding preferences. Please try again later.");
   }
+};
+
+/**
+ * Stores recommended restaurants in the chat room
+ * @returns {Promise<void>}
+ */
+export const storeRecommendedRestaurants = async (
+  chatRoomId: string,
+  recommendedRestaurants: Restaurant[]
+) => {
+  try {
+    const recommendedRestaurantsCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "recommendedRestaurants"
+    );
+
+    for (const restaurant of recommendedRestaurants) {
+      const cleanedRestaurant = cleanRestaurantData(restaurant);
+      await addDoc(recommendedRestaurantsCollection, cleanedRestaurant);
+    }
+
+    console.log("Recommended restaurants stored successfully.");
+  } catch (e) {
+    console.error("Error storing recommended restaurants: ", e);
+    alert(
+      "Internal error storing recommended restaurants. Please try again later."
+    );
+  }
+};
+
+/**
+ * Clears recommended restaurants in the chat room
+ */
+export const clearRecommendedRestaurants = async (chatRoomId: string) => {
+  try {
+    const recommendedRestaurantsCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "recommendedRestaurants"
+    );
+
+    const querySnapshot = await getDocs(recommendedRestaurantsCollection);
+    querySnapshot.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+    });
+
+    console.log("Recommended restaurants cleared successfully.");
+  } catch (e) {
+    console.error("Error clearing recommended restaurants: ", e);
+    alert(
+      "Internal error clearing recommended restaurants. Please try again later."
+    );
+  }
+};
+
+/**
+ * Adds a listener for the recommended restaurants in the chat room
+ * @returns {function} - Unsubscribe function to stop listening to recommended restaurants
+ */
+export const listenToRecommendedRestaurants = (
+  chatRoomId: string,
+  callback: (recommendedRestaurants: Restaurant[]) => void
+) => {
+  const recommendedRestaurantsCollection = collection(
+    db,
+    "chatRooms",
+    chatRoomId,
+    "recommendedRestaurants"
+  );
+
+  return onSnapshot(recommendedRestaurantsCollection, (snapshot) => {
+    const recommendedRestaurants = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Restaurant[];
+    callback(recommendedRestaurants);
+  });
 };
 
 // /**
