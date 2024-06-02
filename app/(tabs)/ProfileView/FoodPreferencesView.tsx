@@ -3,7 +3,10 @@ import { View, ScrollView, StyleSheet } from "react-native";
 import PreferenceCategoryContainer from "@/components/PreferencesComponents/PreferenceCategoryContainer";
 import SavePreferenceButton from "@/components/PreferencesComponents/SavePreferenceButton";
 import { AppContext } from "@/context/AppContext";
-import { updatePreferences } from "@/controller/DatabaseHandler";
+import {
+  fetchPreferences,
+  updatePreferences,
+} from "@/controller/DatabaseHandler";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
@@ -11,9 +14,13 @@ import Constants from "expo-constants";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences } = useContext(AppContext);
-  const [localPreferences, setLocalPreferences] = useState<PreferenceCategoryList[]>(
-    preferences
+  const { preferences, setPreferences, userObject } =
+    useContext(AppContext);
+  const [localPreferences, setLocalPreferences] =
+    useState<PreferenceCategoryList[]>(preferences);
+
+  const [preferencesAPINames, setPreferencesAPINames] = useState<String[]>(
+    userObject.userPreferencesAPIName || []
   );
 
   // If no preferences are passed, load default preferences
@@ -25,7 +32,7 @@ const FoodPreferencesView: React.FC = () => {
     }
   }, []);
 
-  //NEED TO ADD THE EMPTY USER EFFECT ARRAY OF STRING FOR USER PREFERENCES FOR DATABASE UPDATING. 
+  //NEED TO ADD THE EMPTY USER EFFECT ARRAY OF STRING FOR USER PREFERENCES FOR DATABASE UPDATING.
 
   const togglePreference = (category: string, preferenceName: string) => {
     const updatedPreferences = localPreferences.map((categoryItem) =>
@@ -46,8 +53,15 @@ const FoodPreferencesView: React.FC = () => {
   const savePreferences = async () => {
     try {
       try {
-        await updatePreferences(localPreferences);
+        updatePreferences(localPreferences);
         setPreferences(localPreferences);
+
+        const { apiNames } = await fetchPreferences();
+        setPreferencesAPINames(apiNames);
+
+        userObject.userPreferencesAPIName = apiNames;
+        console.log("User preferences API names: ", userObject.userPreferencesAPIName );
+        
         console.log("Preferences saved successfully");
       } catch (error) {
         console.error("User ID is missing");

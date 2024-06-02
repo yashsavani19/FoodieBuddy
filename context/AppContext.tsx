@@ -71,7 +71,8 @@ export type AppContextType = {
   updateUserPreferences: (
     category: string,
     preferenceName: string,
-    selected: boolean
+    selected: boolean, 
+    apiName: string,
   ) => void;
 
   preferencesAPINames: string[];
@@ -255,8 +256,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       }
       
       if (apiNames) {
-        console.log("API Names:", apiNames.toLocaleString());
+        
         setPreferencesAPINames(apiNames);
+        console.log("API Names through Context:", apiNames.toLocaleString());
       }
 
       setUserObject({

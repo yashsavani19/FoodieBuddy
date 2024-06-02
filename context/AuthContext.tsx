@@ -239,7 +239,7 @@ export function AuthProvider(props: ProviderProps) {
   
     // Add user to Firestore and add default preferences
     await addUser(currentAuth.currentUser.uid, email, username);
-    await addPreferences(currentAuth.currentUser.uid); // Ensure this is done
+    // await addPreferences(currentAuth.currentUser.uid); // Ensure this is done
   
     return true;
   };
