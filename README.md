@@ -8,6 +8,6 @@
 
 ## Installation
 
-Expo:
+### Expo:
 
 Required: https://nodejs.org/en/download/package-manager
