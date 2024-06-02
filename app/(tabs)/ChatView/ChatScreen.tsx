@@ -20,12 +20,12 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  Pressable,
 } from "react-native";
 import {
   useRoute,
   useNavigation,
   NavigationProp,
-  TabRouter,
 } from "@react-navigation/native";
 import {
   sendMessage,
@@ -33,6 +33,9 @@ import {
   fetchAllUsernames,
   updateTypingStatus,
   listenToTypingStatus,
+  listenToRecommendedRestaurants,
+  storeRecommendedRestaurants,
+  clearRecommendedRestaurants,
 } from "@/controller/DatabaseHandler";
 import { auth, db } from "@/controller/FirebaseHandler";
 import TitleHeader from "@/components/TitleHeader";
@@ -50,18 +53,13 @@ import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import Constants from "expo-constants";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-  Easing,
-  runOnJS,
-} from "react-native-reanimated";
-import { DefaultStyle } from "react-native-reanimated/lib/typescript/reanimated2/hook/commonTypes";
 import { ImageSourcePropType } from "react-native";
 import { Message } from "@/model/Message";
 import { GroupChatDefaultSystemPrompt } from "@/model/DefaultGroupChatAISystemPrompt";
 import { AppContext } from "@/context/AppContext";
+import { Restaurant } from "@/model/Restaurant";
+import RestaurantListItem from "@/components/RestaurantListItem";
+import { AntDesign } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
@@ -93,6 +91,16 @@ const ChatScreen: React.FC = () => {
   const buddyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
   const [buddyActive, setBuddyActive] = useState(false);
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const screenWidth = Dimensions.get("window").width;
+
+  // Set system prompt for the chat room
+  useEffect(() => {
+    const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
+    setSystemPrompt(systemPrompt);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -168,29 +176,23 @@ const ChatScreen: React.FC = () => {
       }
     );
 
+    // Listens to recommended restaurants from buddy
+    const unsubscribeRecommnededRestaurants = listenToRecommendedRestaurants(
+      chatRoomId,
+      (restaurants) => {
+        setRecommendedRestaurants(restaurants);
+      }
+    );
+
     return () => {
       isMounted = false;
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
       unsubscribeTypingStatus();
+      unsubscribeRecommnededRestaurants();
     };
   }, [chatRoomId]);
-
-  // Check if Buddy is typing
-  useEffect(() => {
-    const buddyTyping = Object.values(typingUsers).some(
-      (user) => user.username === "Buddy" && user.isTyping
-    );
-    console.log("Typing Buddy:", buddyTyping);
-    if (buddyTyping) {
-      setBuddyActive(true);
-      console.log("Buddy is typing...");
-    } else {
-      console.log("Buddy is not typing...");
-      setBuddyActive(false);
-    }
-  }, [typingUsers]);
 
   const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
@@ -321,6 +323,13 @@ const ChatScreen: React.FC = () => {
 
       await sendMessage(chatRoomId, buddyMessage.text, "buddy");
 
+      // Clear and store recommended restaurants from AI response
+      await clearRecommendedRestaurants(chatRoomId);
+      const recommended = findRestaurantsInMessage(aiResponse);
+      if (recommended) {
+        await storeRecommendedRestaurants(chatRoomId, recommended);
+      }
+
       flatListRef.current?.scrollToEnd({ animated: true });
     } catch (error) {
       console.error("Error sending message:", error);
@@ -335,7 +344,7 @@ const ChatScreen: React.FC = () => {
         userProfileImage: buddyProfileImage,
         username: "Buddy",
       };
-      setMessages((prevMessages) => [...prevMessages, buddyMessage]);
+      await sendMessage(chatRoomId, errorMessage, "buddy");
     } finally {
       updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
     }
@@ -350,7 +359,12 @@ const ChatScreen: React.FC = () => {
       "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg";
 
     return (
-      <TouchableOpacity onPress={() => confirmDeleteMessage(item.id)}>
+      <Pressable
+        onPress={() => confirmDeleteMessage(item.id)}
+        disabled={
+          item.userId !== auth.currentUser?.uid && item.userId !== "buddy"
+        }
+      >
         <View style={styles.messageContainer}>
           <Text style={styles.timestampText}>{formattedDate}</Text>
           <View
@@ -402,9 +416,75 @@ const ChatScreen: React.FC = () => {
             )}
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
+
+  const recommendedRestaurantsView = () => {
+    return (
+      <>
+        {recommendedRestaurants.length !== 0 && (
+          <View>
+            <TouchableOpacity
+              onPress={() => {
+                clearRecommendedRestaurants(chatRoomId);
+              }}
+              style={{
+                position: "absolute",
+                left: 10,
+                top: 10,
+                backgroundColor: "#fff",
+                borderRadius: 20,
+                padding: 5,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+                zIndex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <AntDesign name="close" size={20} color="#f76116" />
+            </TouchableOpacity>
+            <FlatList
+              data={recommendedRestaurants}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <RestaurantListItem
+                  restaurant={item}
+                  style={{ marginHorizontal: 1, width: screenWidth / 1.15 }}
+                />
+              )}
+              horizontal={true}
+              contentContainerStyle={{ paddingHorizontal: 10 }}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+        )}
+      </>
+    );
+  };
+
+  function findRestaurantsInMessage(latestMessage: string) {
+    const restaurantNames = localRestaurants.map(
+      (restaurant) => restaurant.name
+    );
+    const foundNames = restaurantNames.filter((name) =>
+      latestMessage.includes(name)
+    );
+
+    if (foundNames.length > 0) {
+      const recommendations = localRestaurants
+        .filter((r) => foundNames.includes(r.name))
+        .reverse();
+      console.log("Recommendations:", recommendations);
+      return recommendations;
+    }
+
+    return [];
+  }
 
   const openSettings = () => {
     setSettingsVisible(true);
@@ -431,6 +511,7 @@ const ChatScreen: React.FC = () => {
             flatListRef.current?.scrollToEnd({ animated: true })
           }
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          ListFooterComponent={recommendedRestaurantsView()}
         />
         <TypingIndicator typingUsers={typingUsers} />
       </View>

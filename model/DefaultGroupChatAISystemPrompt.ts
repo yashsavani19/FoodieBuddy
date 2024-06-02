@@ -11,7 +11,7 @@ const PRE_LIST =
   "Here is a list of users in a group chat, their preferences, their recent chat history and some local restaurants that you can choose from based on the below information, taking in to account their message history: ";
 const POST_RESTAURANT = ". Here are each users preferences: ";
 const POST_PREFERENCES =
-  ". The users would prefer one of the local options mentioned to be recommended based on all of their preferences. If the restaurant list is empty please don't recommend anything. If the users chat about a topic not relevant to food, eating or restaurants, please ignore those specific messages. If the users request is ambiguos, assume they are talking about food or are asking for a restaurant recommendation. What will follow is the recent chat history of the users in the group chat for you to make a suggestion based on.";
+  ". The users would prefer one of the local options mentioned to be recommended based on all of their preferences. If the restaurant list is empty please don't recommend anything. If the users chat about a topic not relevant to food, eating or restaurants, please ignore those specific messages. If the users request is ambiguos, assume they are talking about food or are asking for a restaurant recommendation. What will follow is the recent chat history of the users in the group chat for you to make a suggestion based on. Please do not use markdown for your responses.";
 
 export function GroupChatDefaultSystemPrompt(
   restaurantList: Restaurant[] | undefined,
