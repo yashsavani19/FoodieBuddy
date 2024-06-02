@@ -11,6 +11,8 @@ import Constants from "expo-constants";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
 
 const FoodPreferencesView: React.FC = () => {
   const { preferences, setPreferences } = useContext(AppContext);

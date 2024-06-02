@@ -1,17 +1,10 @@
-import {
-  FIREBASE_API_KEY,
-  FIREBASE_AUTH_DOMAIN,
-  FIREBASE_DATABASE_URL,
-  FIREBASE_PROJECT_URL,
-  FIREBASE_STORAGE_BUCKET,
-  FIREBASE_MESSAGING_SENDER_ID,
-  FIREBASE_APP_ID,
-  FIREBASE_MEASUREMENT_ID,
-} from "@env";
-
+// FirebaseHandler.js
 import {
   getAuth,
   signInWithEmailAndPassword,
+  deleteUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signOut,
@@ -28,8 +21,19 @@ import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-import React, { useEffect, useState } from "react";
-import { getFirestore } from "firebase/firestore";
+import { deleteDoc, doc, getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
+
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_DATABASE_URL,
+  FIREBASE_PROJECT_URL,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID,
+} from "@env";
 
 /**
  * Firebase configuration
@@ -204,6 +208,51 @@ export const handleLogout = () => {
     alert(`Logout failed: ${error.message}`);
   }
 };
+
+// Delete user account
+export const deleteUserAccount = async (password: string) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No authenticated user");
+
+    // Reauthenticate the user
+    const credential = EmailAuthProvider.credential(user.email || '', password);
+    await reauthenticateWithCredential(user, credential);
+
+    // Delete user data from Firestore
+    const userDocRef = doc(db, "users", user.uid);
+    await deleteDoc(userDocRef);
+
+    // Delete user-related data from other collections
+    await deleteUserData(user.uid);
+
+    // Delete the user
+    await deleteUser(user);
+  } catch (error) {
+    console.error("Error deleting user account: ", error);
+    throw error;
+  }
+};
+
+// Delete database user data
+export const deleteUserData = async (uid: string) => {
+  if (auth.currentUser) {
+    try {
+      const userCollection = `users/${uid}`;
+      await deleteDoc(doc(db, userCollection));
+      const usernameCollection = `usernames`;
+      const username = auth.currentUser.displayName;
+      if (username) {
+        await deleteDoc(doc(db, usernameCollection, username));
+      }
+      console.log("User data deleted with ID: ", uid);
+    } catch (e) {
+      console.error("Error deleting user data: ", e);
+      alert("Internal error deleting user data. Please try again later.");
+    }
+  }
+};
+
 
 // Methods
 // Login
