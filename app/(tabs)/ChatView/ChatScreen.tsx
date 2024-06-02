@@ -194,6 +194,17 @@ const ChatScreen: React.FC = () => {
     };
   }, [chatRoomId]);
 
+  useEffect(() => {
+    const buddyTyping = Object.values(typingUsers).some(
+      (user) => user.username === "Buddy" && user.isTyping
+    );
+    if (buddyTyping) {
+      setBuddyActive(true);
+    } else {
+      setBuddyActive(false);
+    }
+  }, [typingUsers]);
+
   const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
       try {
