@@ -30,7 +30,8 @@ import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
 import Constants from "expo-constants";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { OpenTimesCard, OpenTimesLabel } from "./OpenIndicatorComponents/OpenTimesComponents";
+import { OpenTimesCard, OpenTimesLabel, openTimesContent } from "./OpenIndicatorComponents/OpenTimesComponents";
+import OpenTimesCardsContainer from "./OpenIndicatorComponents/OpenTimesCardsContainer";
 
 const default_pic = require("@/assets/images/default_pic.png");
 const visited_selected = require("@/assets/images/visited-Selected.png");
@@ -377,6 +378,13 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <OpenTimesLabel restaurant={restaurant} />
             </View>
           </View>
+
+          <OpenTimesCardsContainer>
+            {openTimesContent(restaurant)?.openTimes.map((openTime: any) => (
+                <OpenTimesCard restaurant={restaurant} openTime={openTime} key={openTime?.day}></OpenTimesCard>
+            ))}
+          </OpenTimesCardsContainer>
+
           <View style={{ paddingVertical: hp("1%") }} />
           <View style={styles.mapContainer}>
             <MapView
