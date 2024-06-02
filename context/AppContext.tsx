@@ -381,13 +381,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
                 "Dietary Preference",
                 "Takeaway Option",
               ].includes(filter.type)
-              ![
-                "Rating",
-                "Price",
-                "Open Status",
-                "Dietary Preference",
-                "Takeaway Option",
-              ].includes(filter.type)
           )
           .map((filter) => filter.apiName)
       );
