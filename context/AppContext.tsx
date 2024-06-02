@@ -229,12 +229,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     filterRestaurants();
   }, [searchTerm]);
 
-
-
   useEffect(() => {
     sortRestaurants();
   }, [selectedSortOption]);
-
 
   useEffect(() => {
     console.log("Friends updated");
@@ -454,31 +451,55 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     let result = localRestaurants;
     switch (selectedSortOption.sortOption) {
       case "Preference":
-        result = result.sort(
-          (a, b) => (a.price?.length ?? 0) - (b.price?.length ?? 0)
-        );
+        result = result.sort((a, b) => a.distance.localeCompare(b.distance));
         break;
       case "Price: Low to High":
-        result = result.sort(
-          (a, b) => (a.price?.length ?? 0) - (b.price?.length ?? 0)
-        );
+        result = result.sort((a, b) => {
+          if (parseInt(a.price ?? "0") === parseInt(b.price ?? "0")) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (parseInt(a.price ?? "0") - parseInt(b.price ?? "0"));
+        });
         break;
       case "Price: High to Low":
-        result = result.sort(
-          (a, b) => (b.price?.length ?? 0) - (a.price?.length ?? 0)
-        );
+        result = result.sort((a, b) => {
+          if (parseInt(b.price ?? "0") === parseInt(a.price ?? "0")) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (parseInt(b.price ?? "0") - parseInt(a.price ?? "0"));
+        });
         break;
       case "Rating: High to Low":
-        result = result.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        result = result.sort((a, b) => {
+          if ((b.rating ?? 0) === (a.rating ?? 0)) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (b.rating ?? 0) - (a.rating ?? 0);
+        });
         break;
       case "Rating: Low to High":
-        result = result.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+        result = result.sort((a, b) => {
+          if ((a.rating ?? 0) === (b.rating ?? 0)) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (a.rating ?? 0) - (b.rating ?? 0);
+        });
         break;
       case "A-Z":
-        result = result.sort((a, b) => a.name.localeCompare(b.name));
+        result = result.sort((a, b) => {
+          if (a.name.localeCompare(b.name) === 0) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return a.name.localeCompare(b.name);
+        });
         break;
       case "Z-A":
-        result = result.sort((a, b) => b.name.localeCompare(a.name));
+        result = result.sort((a, b) => {
+          if (b.name.localeCompare(a.name) === 0) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return b.name.localeCompare(a.name);
+        });
         break;
       case "Distance (Nearest)":
         result = result.sort((a, b) => a.distance.localeCompare(b.distance));
@@ -487,15 +508,19 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         result = result.sort((a, b) => b.distance.localeCompare(a.distance));
         break;
       default:
-        result = result.sort((a, b) => a.name.localeCompare(b.name));
+        result = result.sort((a, b) => {
+          if (a.name.localeCompare(b.name) === 0) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return a.name.localeCompare(b.name);
+        });
         break;
     }
 
     setFilteredRestaurants(result);
     setRestaurantListIsLoading(false);
     setDataLoading(false);
-
-  }
+  };
 
   const addFavouriteContext = async (restaurant: Restaurant) => {
     try {
@@ -672,7 +697,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
     selectedSortOption,
     setSortOption,
-    sortRestaurants
+    sortRestaurants,
   };
 
   return (
