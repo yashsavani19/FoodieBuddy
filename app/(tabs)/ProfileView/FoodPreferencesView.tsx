@@ -47,9 +47,7 @@ const FoodPreferencesView: React.FC = () => {
 
   const savePreferences = async () => {
     try {
-      console.log("Saving before clicked: ", saving);
       setSaving(true);
-      console.log("Saving after clicked: ", saving);
       await updatePreferences(localPreferences);
       setPreferences(localPreferences);
       const apiNames = preferencesAPINamesString();

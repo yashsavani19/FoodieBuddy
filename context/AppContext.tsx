@@ -304,9 +304,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     if (user) {
       const prefs = await fetchPreferences();
       setPreferencesAPINames(prefs.apiNames);
-      console.log("Preferences (updatePreferencesAPIName): ", preferencesAPINames);
+      
     }
   };
+
+  useEffect(() => {
+    console.log("Preferences (updatePreferencesAPIName): ", preferencesAPINames);
+  }, [preferencesAPINames]);
 
   //------------------ NEW CHANGES ------------------//
 
@@ -495,7 +499,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           if (parseInt(a.price ?? "10") === parseInt(b.price ?? "10")) {
             return a.distance.localeCompare(b.distance);
           }
-          return parseInt(a.price ?? "0") - parseInt(b.price ?? "0");
+          return parseInt(a.price ?? "10") - parseInt(b.price ?? "10");
         });
         break;
       case "Price: High to Low":
@@ -516,10 +520,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         break;
       case "Rating: Low to High":
         result = result.sort((a, b) => {
-          if ((a.rating ?? 0) === (b.rating ?? 0)) {
+          if ((a.rating ?? 5) === (b.rating ?? 5)) {
             return a.distance.localeCompare(b.distance);
           }
-          return (a.rating ?? 0) - (b.rating ?? 0);
+          return (a.rating ?? 5) - (b.rating ?? 5);
         });
         break;
       case "A-Z":

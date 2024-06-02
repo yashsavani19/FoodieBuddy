@@ -1244,7 +1244,7 @@ export const fetchPreferences = async (): Promise<{ preferences: PreferenceCateg
   }
 };
 
-const fetchSelectedPreferences = async (): Promise<string[]> => {
+export const fetchSelectedPreferences = async (): Promise<string[]> => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
@@ -1309,7 +1309,7 @@ export const updatePreferences = async (
             preference.apiName,
             
           );
-          setDoc(docRef, {
+          await setDoc(docRef, {
             category: category.title,
             name: preference.name,
             selected: preference.selected,
