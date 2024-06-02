@@ -51,9 +51,9 @@ export default function TitleHeader({
 
   // Function to handle filter select
   const handleSortSelect = (toSort: Sort) => {
-    console.log(`Sort selected: ${toSort.sortOption}`);
-    setSortOption(toSort);
-    console.log("Sort Context Selected", selectedSortOption);
+    if (onSortSelect) {
+      onSortSelect(toSort);
+    }
   };
 
   return (

@@ -77,6 +77,7 @@ export type AppContextType = {
 
   selectedSortOption: Sort;
   setSortOption: (sortOption: Sort) => void;
+  sortRestaurants: () => void;
 };
 
 interface ContextProviderProps {
@@ -125,6 +126,7 @@ export const AppContext = createContext<AppContextType>({
 
   selectedSortOption: SortOptions[0],
   setSortOption: () => {},
+  sortRestaurants: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -226,6 +228,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     filterRestaurants();
   }, [searchTerm]);
+
+
+
+  useEffect(() => {
+    sortRestaurants();
+  }, [selectedSortOption]);
+
 
   useEffect(() => {
     console.log("Friends updated");
@@ -439,6 +448,55 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
+  const sortRestaurants = () => {
+    setRestaurantListIsLoading(true);
+    setDataLoading(true);
+    let result = localRestaurants;
+    switch (selectedSortOption.sortOption) {
+      case "Preference":
+        result = result.sort(
+          (a, b) => (a.price?.length ?? 0) - (b.price?.length ?? 0)
+        );
+        break;
+      case "Price: Low to High":
+        result = result.sort(
+          (a, b) => (a.price?.length ?? 0) - (b.price?.length ?? 0)
+        );
+        break;
+      case "Price: High to Low":
+        result = result.sort(
+          (a, b) => (b.price?.length ?? 0) - (a.price?.length ?? 0)
+        );
+        break;
+      case "Rating: High to Low":
+        result = result.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        break;
+      case "Rating: Low to High":
+        result = result.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+        break;
+      case "A-Z":
+        result = result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "Z-A":
+        result = result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "Distance (Nearest)":
+        result = result.sort((a, b) => a.distance.localeCompare(b.distance));
+        break;
+      case "Distance (Farthest)":
+        result = result.sort((a, b) => b.distance.localeCompare(a.distance));
+        break;
+      default:
+        result = result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+    }
+
+    setFilteredRestaurants(result);
+    setRestaurantListIsLoading(false);
+    setDataLoading(false);
+
+  }
+
   const addFavouriteContext = async (restaurant: Restaurant) => {
     try {
       if (!user || !userObject) return;
@@ -614,6 +672,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
     selectedSortOption,
     setSortOption,
+    sortRestaurants
   };
 
   return (
