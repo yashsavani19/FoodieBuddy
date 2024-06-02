@@ -9,6 +9,7 @@ import {
   Linking,
   ScrollView,
   Animated,
+  Modal as RNModal
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -25,10 +26,11 @@ import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import BackButton from "./BackButton";
 import ShareButton from "./ShareButton";
-import { OpenStatusLabelDetails } from "./OpenIndicatorComponents/OpenStatusLabel";
+import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
 import Constants from "expo-constants";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { OpenTimesCard, OpenTimesLabel } from "./OpenIndicatorComponents/OpenTimesComponents";
 
 const default_pic = require("@/assets/images/default_pic.png");
 const visited_selected = require("@/assets/images/visited-Selected.png");
@@ -76,6 +78,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   const [isVisitedPressed, setVisitedPressed] = useState(false);
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
+  const [isImageViewerVisible, setImageViewerVisible] = useState(false);
 
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
@@ -259,12 +262,13 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
           <View>
             <View style={{ alignItems: "center" }}>
               <Text style={styles.restaurantTitle}>{name}</Text>
-              <View style={styles.imageContainer}>
+              <TouchableOpacity style={styles.imageContainer} onPress={() => setImageViewerVisible(true)}>
                 <Image
                   source={image ? { uri: image } : default_pic}
                   style={styles.restaurantImage}
                 />
-              </View>
+                <OpenStatusLabelList restaurant={restaurant} />
+              </TouchableOpacity>
             </View>
             <View style={styles.interactionContainer}>
               <View style={styles.iconContainer}>
@@ -370,7 +374,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 />
                 <Text style={styles.infoText}>{formatDistance(distance)}</Text>
               </View>
-              <OpenStatusLabelDetails restaurant={restaurant} />
+              <OpenTimesLabel restaurant={restaurant} />
             </View>
           </View>
           <View style={{ paddingVertical: hp("1%") }} />
@@ -409,6 +413,24 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               </TouchableOpacity>
             </View>
           </View>
+          <RNModal
+            visible={isImageViewerVisible}
+            transparent={true}
+            onRequestClose={() => setImageViewerVisible(false)}
+          >
+            <View style={styles.imageViewerContainer}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setImageViewerVisible(false)}
+              >
+                <AntDesign name="close" size={30} color="white" />
+              </TouchableOpacity>
+              <Image
+                  source={image ? { uri: image } : default_pic}
+                  style={styles.restaurantImage}
+                />
+            </View>
+          </RNModal>
         </ScrollView>
       </View>
     </View>
@@ -422,6 +444,17 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "auto",
     paddingBottom: hp("5%"),
+  },
+  closeButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+  },
+  imageViewerContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   backButtonContainer: {
     width: "100%",

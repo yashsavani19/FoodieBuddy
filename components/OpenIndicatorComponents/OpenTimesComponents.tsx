@@ -4,12 +4,11 @@ import { Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 
-type OpenStatusLabelProps = {
+type OpenTimesCardProps = {
     restaurant: Restaurant;
   };
 
-export const OpenStatusLabelList: React.FC<OpenStatusLabelProps> = ({restaurant}) => {
-        
+export const OpenTimesCard: React.FC<OpenTimesCardProps> = ({restaurant}) => {
     if (restaurant.currentOpeningHours)
     {
         const labelContent = {
@@ -32,7 +31,26 @@ export const OpenStatusLabelList: React.FC<OpenStatusLabelProps> = ({restaurant}
     }
 }
 
-  const styles = StyleSheet.create({
+export const OpenTimesLabel: React.FC<OpenTimesCardProps> = ({restaurant}) => {
+
+    if (restaurant.currentOpeningHours)
+    {
+        return (
+            <View style={styles.labelNoBackground}>
+                <MaterialCommunityIcons name="clock" size={21} color='#363232' />
+                <Text style={{ 
+                    color: '#363232', 
+                    marginLeft: 6,
+                    fontSize: 12.5,
+                }}>
+                {labelContent.text}
+                </Text>
+            </View>
+        )
+    }
+  }
+
+const styles = StyleSheet.create({
     labelBackground: {
         position: 'absolute', 
         right: "5%", 
@@ -46,12 +64,10 @@ export const OpenStatusLabelList: React.FC<OpenStatusLabelProps> = ({restaurant}
         alignItems: 'center',
         justifyContent: 'space-between',
         elevation: 6,
-      },
-    
+    },
+
     labelNoBackground: {
         flexDirection: 'row',
         alignItems: 'center',
-      }
-  });
-
-
+    }
+});
