@@ -107,7 +107,7 @@ interface DrawerContentProps {
 
                     <CategoryContainer title="Maximum Distance">
                         <View style = {styles.container}>
-                            <Text style={styles.text}>{formatDistance(distance.toString())}</Text>
+                            <Text testID="Distance text" style={styles.text}>{formatDistance(distance.toString())}</Text>
                             <Slider
                                 style={styles.slider}
                                 minimumValue={0.1}
@@ -117,6 +117,7 @@ interface DrawerContentProps {
                                 thumbTintColor='#F26722'
                                 value={distance}
                                 onValueChange={value => setDistance(parseFloat(value.toFixed(1)))}
+                                testID='Distance Slider'
                             />
                         </View>
                     </CategoryContainer>

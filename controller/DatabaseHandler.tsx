@@ -270,7 +270,7 @@ export const addUser = async (uid: string, email: string, username: string) => {
     const userCollection = `users/${uid}`;
     await setDoc(doc(db, userCollection), {
       email: email,
-      username: username,
+      username: username
     });
     await addPreferences(uid);
   } catch (e) {
@@ -1144,12 +1144,15 @@ export const addPreferences = async (uid: string) => {
           ", Selected: ",
           preference.selected,
           ", Category: ",
-          category.title
+          category.title,
+          ", API Name: ",
+          preference.apiName
         );
         await setDoc(docRef, {
           name: preference.name,
           selected: preference.selected,
           category: category.title,
+          apiName: preference.apiName,
         });
       }
     }
@@ -1202,31 +1205,55 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
   }
 };
 
-export const updatePreferences = async (updatedPreferences: PreferenceList[]) => {
+export const updatePreferences = async (
+  updatedPreferences: PreferenceList[],
+) => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
 
+    // Fetch current preferences using fetchPreferences
+    const currentPreferences = await fetchPreferences();
+
+    // Create a map for quick lookup of current preferences
+    const currentPreferencesMap: { [key: string]: Preference } = {};
+    currentPreferences.forEach((category) => {
+      category.preferences.forEach((preference) => {
+        const key = `${category.title}-${preference.name}`;
+        currentPreferencesMap[key] = preference;
+      });
+    });
+
+    // Iterate over updated preferences and compare with current preferences
     for (const category of updatedPreferences) {
       for (const preference of category.preferences) {
-        const docRef = doc(
-          db,
-          preferenceCollection,
-          `${category.title}-${preference.name}`
-        );
-        console.log(
-          "Updating Preference: ",
-          preference.name,
-          ", Selected: ",
-          preference.selected,
-          ", Category: ",
-          category.title
-        );
-        await setDoc(docRef, {
-          category: category.title,
-          name: preference.name,
-          selected: preference.selected,
-        });
+        const key = `${category.title}-${preference.name}`;
+        const currentPreference = currentPreferencesMap[key];
+
+        if (
+          !currentPreference ||
+          currentPreference.selected !== preference.selected
+        ) {
+          // Update the preference if it does not exist or if the selected value has changed
+          const docRef = doc(db, preferenceCollection, key);
+          console.log(
+            "Updating Preference: ",
+            preference.name,
+            ", Selected: ",
+            preference.selected,
+            ", Category: ",
+            category.title,
+            ", API Name: ",
+            preference.apiName,
+            
+          );
+          setDoc(docRef, {
+            category: category.title,
+            name: preference.name,
+            selected: preference.selected,
+            apiName: preference.apiName,
+          });
+        }
       }
     }
     console.log("Preferences updated successfully");
