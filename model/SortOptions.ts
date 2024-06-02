@@ -11,10 +11,10 @@ export const SortOptions: Sort[] = [
     sortOption: "Price: High to Low", selected: false
     },
     {
-    sortOption: "Rating: High to Low", selected: false
+    sortOption: "Rating: Low to High", selected: false
     },
     {
-    sortOption: "Rating: Low to High", selected: false
+    sortOption: "Rating: High to Low", selected: false
     },
     {
     sortOption: "A-Z", selected: false
