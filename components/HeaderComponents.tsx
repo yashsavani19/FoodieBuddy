@@ -5,7 +5,9 @@ import FilterButton from "./FilterDrawerComponents/FilterButton";
 import { Category } from "@/model/Category";
 import { Sort } from "@/model/Sort";
 import React, { useContext, useEffect } from "react";
+import { AppContext } from "@/context/AppContext";
 import DrawerContext from "@/context/DrawerContext";
+
 
 // Define the props for the HeaderComponents component
 interface HeaderComponentsProps {
@@ -31,6 +33,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   onSearchSubmit,
   onSortSelect,
 }) => {
+  const { setSortOption, selectedSortOption, sortRestaurants} = useContext(AppContext);
   const handleSearchSubmit = React.useCallback((searchTerm: string) => {
     if (onSearchSubmit) {
       onSearchSubmit(searchTerm);
@@ -47,10 +50,11 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
 
   // Define the function to handle the filter select
   const handleSortSelect = (toSort: Sort) => {
-    if (onSortSelect) {
-      onSortSelect(toSort);
-      console.log("Sorter Selected", toSort);
-    }
+    console.log(`Sort selected: ${toSort.sortOption}`);
+    setSortOption(toSort);
+    console.log("Sort Context Selected", selectedSortOption);
+    sortRestaurants();
+    
   };
 
   if (title) {
@@ -66,9 +70,6 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
           onSearchSubmit={handleSearchSubmit} 
         />
         <View style={styles.filters}>
-          {/* <Categories 
-            onCategorySelect={handleCategorySelect} 
-          /> */}
           <FilterButton
             onPress={() => setOpen(!open)}
           />

@@ -8,6 +8,7 @@ import { Sort } from "@/model/Sort";
 import Constants from "expo-constants";
 import { AppContext } from "@/context/AppContext";
 import ImFeelingLucky from "./ImFeelingLucky";
+import { set } from "firebase/database";
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
@@ -30,6 +31,7 @@ export default function TitleHeader({
   onFiltersSelect,
   onSortSelect,
 }: TitleHeaderProps) {
+  const { selectedSortOption, setSortOption } = useContext(AppContext);
   const { searchTerm, selectedFilters } = useContext(AppContext);
 
   // Function to handle search submit
@@ -49,7 +51,6 @@ export default function TitleHeader({
 
   // Function to handle filter select
   const handleSortSelect = (toSort: Sort) => {
-    console.log(`Sort selected: ${toSort}`);
     if (onSortSelect) {
       onSortSelect(toSort);
     }

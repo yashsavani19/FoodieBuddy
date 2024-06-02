@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   Text,
   View,
   StyleSheet,
   Platform,
-  Button,
   Modal,
   TouchableOpacity,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import RNPickerSelect from "react-native-picker-select";
 import { Sort } from "@/model/Sort";
-import { sortOptions } from "@/model/sort-options";
+import { SortOptions } from "@/model/SortOptions";;
+import { AppContext } from "@/context/AppContext";
 
 // Define the props for the Filters component
 interface SortProps {
@@ -22,64 +22,76 @@ interface SortProps {
  * @param param0 - onSortSelect function to handle the selected sorter
  * @returns - Sort component
  */
-const Filters: React.FC<SortProps> = ({ onSortSelect }) => {
+const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
+  
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedSort, setSelectedSort] = useState<Sort>(sortOptions[0]);
+  const [selectedSort, setSelectedSort] = useState<Sort>(SortOptions[0]);
 
-  const handleFilterChange = (toSort: Sort) => {
+  const handleSortChange = (toSort: Sort) => {
     if (toSort) {
-      onSortSelect(selectedSort);
-      setSelectedSort(selectedSort);
+      onSortSelect(toSort);
+      setSelectedSort(toSort);
+    }else{
+      setSelectedSort(SortOptions[0]);
     }
   };
 
   return (
     <View style={styles.container}>
       {Platform.OS === "android" ? (
-        <Picker
-          selectedValue={selectedSort}
-          mode="dialog"
-          style={styles.picker}
-          dropdownIconColor="#000"
-          onValueChange={(itemValue) => handleFilterChange(itemValue)}
-        >
-          {sortOptions.map((option) => (
-            <Picker.Item
-              key={option.sort}
-              label={option.sort}
-              value={option}
-              style={styles.pickerItem}
-            />
-          ))}
-        </Picker>
+        <RNPickerSelect
+          items={SortOptions.map((option) => ({
+            label: option.sortOption || "",
+            value: option,
+          }))}
+          onValueChange={(value) => handleSortChange(value)}
+          style={pickerSelectStyles}
+          value={selectedSort}
+          useNativeAndroidPickerStyle={false}
+          placeholder={{ label: "Sort By", value: null }}
+        />
       ) : (
         <>
-          <View style={styles.loginButton}>
+          <View style={styles.sortButton}>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text>{selectedSort?.sort || "Sort By"}</Text>
+              <Text>{selectedSort?.sortOption || "Sort By"}</Text>
+              
             </TouchableOpacity>
           </View>
 
           <Modal
             animationType="slide"
-            style={styles.modal}
-            transparent={false}
+            transparent={true}
             visible={modalVisible}
             onRequestClose={() => {
-              setSelectedSort(sortOptions[0]);
+              setModalVisible(false);
             }}
           >
-            <View>
-              {sortOptions.map((option) => (
-                <Button
-                  key={option.sort}
-                  title={option.sort || "Filter"}
-                  onPress={() => {
-                    handleFilterChange(option);
-                    setModalVisible(false);
-                  }}
-                />
-              ))}
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                {SortOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.sortOption}
+                    style={styles.modalOption}
+                    onPress={() => {
+
+                      
+                      handleSortChange(option);
+                      setModalVisible(false);
+                    }}
+                  >
+                    <Text style={styles.modalOptionText}>
+                      {option.sortOption}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  style={styles.modalClose}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.modalCloseText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </Modal>
         </>
@@ -88,32 +100,78 @@ const Filters: React.FC<SortProps> = ({ onSortSelect }) => {
   );
 };
 
-export default Filters;
+export default SortTab;
 
 const styles = StyleSheet.create({
   container: {
-    width: "45%",
-    borderRadius: 20,
-    overflow: "hidden",
-    marginTop: 10,
-    height: "50%",
+    width:"auto",
     justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
+    marginBottom:2,
+    
   },
-  picker: {
-    width: "100%",
-    backgroundColor: "#fff",
-  },
-  pickerItem: {
-    fontSize: 12,
-  },
-  loginButton: {
-    height: "100%",
+  sortButton: {
+    width: 170,
     backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
+    textAlign: "center",
+    height:"50%",
+    
   },
-  modal: {
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
     backgroundColor: "white",
-    margin: 40,
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalOption: {
+    padding: 15,
+    width: "100%",
+    alignItems: "center",
+  },
+  modalOptionText: {
+    fontSize: 18,
+  },
+  modalClose: {
+    marginTop: 20,
+  },
+  modalCloseText: {
+    fontSize: 18,
+    color: "red",
+  },
+});
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    color: "black",
+    paddingRight: 30, // to ensure the text is never behind the icon
+    backgroundColor: "white",
+  },
+  inputAndroid: {
+    fontSize: 12,
+    paddingLeft: 10,
+    borderColor: "gray",
+    borderRadius: 100,
+    color: "black",
+    paddingHorizontal: 10, // to ensure the text is never behind the icon
+    backgroundColor: "white",
+    width:130,
+    textAlign: "center",
+    height:30,
   },
 });

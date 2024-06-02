@@ -1,4 +1,4 @@
 export interface Sort {
-    sort?: string;
+    sortOption?: string;
     selected?: boolean;
 }

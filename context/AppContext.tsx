@@ -30,7 +30,8 @@ import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 import { set } from "firebase/database";
-
+import { Sort } from "@/model/Sort";
+import { SortOptions } from "@/model/SortOptions";
 export type AppContextType = {
   dataLoading: boolean;
   setDataLoading: (loading: boolean) => void;
@@ -77,6 +78,10 @@ export type AppContextType = {
 
   preferencesAPINames: string[];
   setPreferencesAPINames: (names: string[]) => void;
+
+  selectedSortOption: Sort;
+  setSortOption: (sortOption: Sort) => void;
+  sortRestaurants: () => void;
 };
 
 interface ContextProviderProps {
@@ -125,6 +130,10 @@ export const AppContext = createContext<AppContextType>({
 
   preferencesAPINames: [],
   setPreferencesAPINames: async () => {},
+
+  selectedSortOption: SortOptions[0],
+  setSortOption: () => {},
+  sortRestaurants: async () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -158,6 +167,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [preferences, setPreferences] = useState<PreferenceCategoryList[]>([]);
 
   const [preferencesAPINames, setPreferencesAPINames] = useState<string[]>([]);
+  const [selectedSortOption, setSelectedSortOption] = useState<Sort>(
+    SortOptions[0]
+  );
+
+  const setSortOption = (option: Sort) => {
+    setSelectedSortOption(option);
+    // add any additional logic needed when a sort option is selected
+  };
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -226,6 +243,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     filterRestaurants();
   }, [searchTerm]);
+
+  useEffect(() => {
+    filterRestaurants();
+    sortRestaurants();
+  }, [selectedSortOption, filteredRestaurants]);
 
   useEffect(() => {
     console.log("Friends updated");
@@ -359,6 +381,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
                 "Dietary Preference",
                 "Takeaway Option",
               ].includes(filter.type)
+              ![
+                "Rating",
+                "Price",
+                "Open Status",
+                "Dietary Preference",
+                "Takeaway Option",
+              ].includes(filter.type)
           )
           .map((filter) => filter.apiName)
       );
@@ -457,6 +486,83 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       setFilteredRestaurants(result);
       setRestaurantListIsLoading(false);
     }
+  };
+
+  const sortRestaurants = () => {
+    setRestaurantListIsLoading(true);
+    setDataLoading(true);
+    let result = filteredRestaurants;
+    switch (selectedSortOption.sortOption) {
+      case "Preference":
+        result = result.sort((a, b) => a.distance.localeCompare(b.distance));
+        break;
+      case "Price: Low to High":
+        result = result.sort((a, b) => {
+          if (parseInt(a.price ?? "0") === parseInt(b.price ?? "0")) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (parseInt(a.price ?? "0") - parseInt(b.price ?? "0"));
+        });
+        break;
+      case "Price: High to Low":
+        result = result.sort((a, b) => {
+          if (parseInt(b.price ?? "0") === parseInt(a.price ?? "0")) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (parseInt(b.price ?? "0") - parseInt(a.price ?? "0"));
+        });
+        break;
+      case "Rating: High to Low":
+        result = result.sort((a, b) => {
+          if ((b.rating ?? 0) === (a.rating ?? 0)) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (b.rating ?? 0) - (a.rating ?? 0);
+        });
+        break;
+      case "Rating: Low to High":
+        result = result.sort((a, b) => {
+          if ((a.rating ?? 0) === (b.rating ?? 0)) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (a.rating ?? 0) - (b.rating ?? 0);
+        });
+        break;
+      case "A-Z":
+        result = result.sort((a, b) => {
+          if (a.name.localeCompare(b.name) === 0) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return a.name.localeCompare(b.name);
+        });
+        break;
+      case "Z-A":
+        result = result.sort((a, b) => {
+          if (b.name.localeCompare(a.name) === 0) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return b.name.localeCompare(a.name);
+        });
+        break;
+      case "Distance (Nearest)":
+        result = result.sort((a, b) => a.distance.localeCompare(b.distance));
+        break;
+      case "Distance (Farthest)":
+        result = result.sort((a, b) => b.distance.localeCompare(a.distance));
+        break;
+      default:
+        result = result.sort((a, b) => {
+          if (a.name.localeCompare(b.name) === 0) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return a.name.localeCompare(b.name);
+        });
+        break;
+    }
+
+    setFilteredRestaurants(result);
+    setRestaurantListIsLoading(false);
+    setDataLoading(false);
   };
 
   const addFavouriteContext = async (restaurant: Restaurant) => {
@@ -634,6 +740,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
     preferencesAPINames,
     setPreferencesAPINames,
+
+    selectedSortOption,
+    setSortOption,
+    sortRestaurants,
   };
 
   return (

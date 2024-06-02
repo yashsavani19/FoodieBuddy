@@ -22,15 +22,14 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 20,
     borderRadius: 20,
-    height: "100%",
+    height: 30,
   },
   text: {
     color: '#363232',
     fontSize: 12.5,
   },
   container: {
-    width: "50%",
-    overflow: "hidden",
+    width: "40%",
     marginTop: 10,
     height: "50%",
     justifyContent: "center",
