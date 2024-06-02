@@ -9,10 +9,12 @@ type OpenTimesCardProps = {
   };
 
 const getLabelContent = (restaurant: Restaurant) => {
-  return {
-    open: restaurant.currentOpeningHours.periods.open,
-    closed: restaurant.currentOpeningHours.periods.closed,
-  };
+  if (restaurant.currentOpeningHours) {
+    return {
+        openTimes: restaurant.currentOpeningHours.weekdayDescriptions,
+        todayOpenTimes: restaurant.currentOpeningHours.weekdayDescriptions[new Date().getDay() - 1],
+    };
+  }
 };
 
 export const OpenTimesCard: React.FC<OpenTimesCardProps> = ({restaurant}) => {
@@ -27,7 +29,7 @@ export const OpenTimesCard: React.FC<OpenTimesCardProps> = ({restaurant}) => {
                     fontWeight: 'bold',
                     marginRight: 5
                 }}>
-                {labelContent.open + "\n" + labelContent.closed}
+                { labelContent?.todayOpenTimes }
                 </Text>
                 <MaterialCommunityIcons name="clock" size={24} color={"#363232"} />
             </View>
@@ -49,7 +51,7 @@ export const OpenTimesLabel: React.FC<OpenTimesCardProps> = ({restaurant}) => {
                     marginLeft: 6,
                     fontSize: 12.5,
                 }}>
-                {labelContent.open + "\n" + labelContent.closed}
+                { labelContent?.todayOpenTimes }
                 </Text>
             </View>
         )
