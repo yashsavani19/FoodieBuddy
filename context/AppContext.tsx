@@ -71,12 +71,8 @@ export type AppContextType = {
   updateUserPreferences: (
     category: string,
     preferenceName: string,
-    selected: boolean, 
-    apiName: string,
+    selected: boolean
   ) => void;
-
-  preferencesAPINames: string[];
-  setPreferencesAPINames: (names: string[]) => void;
 };
 
 interface ContextProviderProps {
@@ -122,9 +118,6 @@ export const AppContext = createContext<AppContextType>({
   preferences: [],
   setPreferences: () => {},
   updateUserPreferences: () => {},
-
-  preferencesAPINames: [],
-  setPreferencesAPINames: () => {},
 });
 
 export const ContextProvider: React.FC<ContextProviderProps> = ({
@@ -157,8 +150,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const [preferences, setPreferences] = useState<PreferenceCategoryList[]>([]);
 
-  const [preferencesAPINames, setPreferencesAPINames] = useState<string[]>([]);
-
   const setRestaurants = async () => {
     setDataLoading(true);
     try {
@@ -182,8 +173,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-  
-
   useEffect(() => {
     const interval = setInterval(() => {
       // console.log("Checking distance...");
@@ -196,8 +185,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (user) {
-        const {preferences}  = await fetchPreferences();
-        setPreferences(preferences);
+        const prefs = await fetchPreferences();
+        setPreferences(prefs.preferences);
       }
     };
 
@@ -227,10 +216,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     console.log("Friends updated");
   }, [friends]);
 
-  useEffect(() => {
-    console.log("Preferences API Names Updated");
-  }, [preferencesAPINames]);
-
   const setUser = async () => {
     try {
       setAuthUser(user as AuthUser);
@@ -250,23 +235,15 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setVisitedRestaurants(visited);
       }
 
-      const {preferences, apiNames} = await fetchPreferences();
+      const prefs = await fetchPreferences();
       if (preferences) {
-        setPreferences(preferences);
+        setPreferences(prefs.preferences);
       }
-      
-      if (apiNames) {
-        
-        setPreferencesAPINames(apiNames);
-        console.log("API Names through Context:", apiNames.toLocaleString());
-      }
-
       setUserObject({
         ...userObject,
         favouriteRestaurants: favourites,
         bookmarkedRestaurants: bookmarks,
         visitedRestaurants: visited,
-        userPreferencesAPIName: preferencesAPINames,
       });
 
       getFriends();
@@ -603,9 +580,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     preferences,
     setPreferences,
     updateUserPreferences,
-
-    preferencesAPINames,
-    setPreferencesAPINames,
   };
 
   return (

@@ -3,25 +3,22 @@ import { View, ScrollView, StyleSheet } from "react-native";
 import PreferenceCategoryContainer from "@/components/PreferencesComponents/PreferenceCategoryContainer";
 import SavePreferenceButton from "@/components/PreferencesComponents/SavePreferenceButton";
 import { AppContext } from "@/context/AppContext";
-import {
-  fetchPreferences,
-  updatePreferences,
-} from "@/controller/DatabaseHandler";
+import { updatePreferences } from "@/controller/DatabaseHandler";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
 import Constants from "expo-constants";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences, userObject } =
-    useContext(AppContext);
+  const { preferences, setPreferences } = useContext(AppContext);
   const [localPreferences, setLocalPreferences] =
     useState<PreferenceCategoryList[]>(preferences);
+  const [saving, setSaving] = useState<boolean>(false);
 
-  const [preferencesAPINames, setPreferencesAPINames] = useState<String[]>(
-    userObject.userPreferencesAPIName || []
-  );
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // If no preferences are passed, load default preferences
   useEffect(() => {
@@ -31,8 +28,6 @@ const FoodPreferencesView: React.FC = () => {
       setLocalPreferences(defaultPreferences);
     }
   }, []);
-
-  //NEED TO ADD THE EMPTY USER EFFECT ARRAY OF STRING FOR USER PREFERENCES FOR DATABASE UPDATING.
 
   const togglePreference = (category: string, preferenceName: string) => {
     const updatedPreferences = localPreferences.map((categoryItem) =>
@@ -52,20 +47,17 @@ const FoodPreferencesView: React.FC = () => {
 
   const savePreferences = async () => {
     try {
-      try {
-        updatePreferences(localPreferences);
-        setPreferences(localPreferences);
+      console.log("Saving before clicked: ", saving);
+      setSaving(true);
+      console.log("Saving after clicked: ", saving);
+      await updatePreferences(localPreferences);
+      setPreferences(localPreferences);
+      console.log("Preferences saved successfully");
+      
+      setSaving(false);
+      console.log("Saving after update: ", saving);
 
-        const { apiNames } = await fetchPreferences();
-        setPreferencesAPINames(apiNames);
-
-        userObject.userPreferencesAPIName = apiNames;
-        console.log("User preferences API names: ", userObject.userPreferencesAPIName );
-        
-        console.log("Preferences saved successfully");
-      } catch (error) {
-        console.error("User ID is missing");
-      }
+      navigation.goBack();
     } catch (error) {
       console.error("Error saving preferences: ", error);
     }
@@ -91,7 +83,8 @@ const FoodPreferencesView: React.FC = () => {
           <View style={{ marginBottom: 40 }} />
         </ScrollView>
         <View style={{ marginBottom: 5 }}>
-          <SavePreferenceButton onSave={savePreferences} />
+          
+          <SavePreferenceButton onSave={savePreferences} saving={saving} />
         </View>
       </View>
     </View>
