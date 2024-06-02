@@ -8,24 +8,28 @@ type OpenTimesCardProps = {
     restaurant: Restaurant;
   };
 
+const getLabelContent = (restaurant: Restaurant) => {
+  return {
+    open: restaurant.currentOpeningHours.periods.open,
+    closed: restaurant.currentOpeningHours.periods.closed,
+  };
+};
+
 export const OpenTimesCard: React.FC<OpenTimesCardProps> = ({restaurant}) => {
     if (restaurant.currentOpeningHours)
     {
-        const labelContent = {
-            text: restaurant.currentOpeningHours.openNow === true ? 'Open' : 'Closed',
-            color: restaurant.currentOpeningHours.openNow === true ? '#319F43' : '#E33629',
-        }
+        const labelContent = getLabelContent(restaurant);
 
         return (
-            <View style={styles.labelBackground} testID={labelContent.text}>
+            <View style={styles.labelBackground}>
                 <Text style={{ 
                     color: '#363232', 
                     fontWeight: 'bold',
                     marginRight: 5
                 }}>
-                {labelContent.text}
+                {labelContent.open + "\n" + labelContent.closed}
                 </Text>
-                <MaterialCommunityIcons name="clock" size={24} color={labelContent.color} />
+                <MaterialCommunityIcons name="clock" size={24} color={"#363232"} />
             </View>
         )
     }
@@ -35,6 +39,8 @@ export const OpenTimesLabel: React.FC<OpenTimesCardProps> = ({restaurant}) => {
 
     if (restaurant.currentOpeningHours)
     {
+        const labelContent = getLabelContent(restaurant);
+
         return (
             <View style={styles.labelNoBackground}>
                 <MaterialCommunityIcons name="clock" size={21} color='#363232' />
@@ -43,7 +49,7 @@ export const OpenTimesLabel: React.FC<OpenTimesCardProps> = ({restaurant}) => {
                     marginLeft: 6,
                     fontSize: 12.5,
                 }}>
-                {labelContent.text}
+                {labelContent.open + "\n" + labelContent.closed}
                 </Text>
             </View>
         )
