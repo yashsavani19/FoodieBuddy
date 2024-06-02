@@ -1,8 +1,7 @@
 import { Restaurant } from "@/model/Restaurant";
 import { StyleSheet, Image, Pressable, Animated } from "react-native";
 import { Text, View } from "./Themed";
-import images from "@/assets/data/images";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
@@ -10,10 +9,19 @@ import StarRating from "./StarRating";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import { AppContext } from "@/context/AppContext";
 import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+
 type RestaurantListItemProps = {
   restaurant: Restaurant;
   isLastItem: boolean;
 };
+
+// Local images
+const fave_icon = require("@/assets/images/fave-icon.png");
+const fave_Selected_icon = require("@/assets/images/fave-Selected.png");
+const bookmark_icon = require("@/assets/images/bookmark-icon.png");
+const bookmark_Selected_icon = require("@/assets/images/bookmark-Selected.png");
+const default_restaurant_picture = require("@/assets/images/default_pic.png");
 
 /**
  * Restaurant list item component that displays restaurant information in Home list
@@ -23,21 +31,9 @@ type RestaurantListItemProps = {
 export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListItemProps) => {
   // Retrieve context for user-related data
   const { visitedRestaurants } = useContext(AppContext);
+
   // State variable for determining if restaurant is visited
   const [isVisited, setIsVisited] = useState(false);
-  // Check if the restaurant is in visited list when component mounts
-  useEffect(() => {
-    if (visitedRestaurants) {
-      for (let i = 0; i < visitedRestaurants.length; i++) {
-        const item = visitedRestaurants[i];
-        if (item.restaurant.id === restaurant.id) {
-          setIsVisited(true);
-          return;
-        }
-      }
-      setIsVisited(false);
-    }
-  }, [visitedRestaurants]);
 
   // Retrieve context for user-related data
   const {
@@ -48,15 +44,19 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
     addFavouriteContext,
     removeFavouriteContext,
   } = useContext(AppContext);
+
   // State variables for button presses
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
+
   // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   // Animation variables for button presses
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
+
   // Function to animate button press
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
@@ -72,36 +72,22 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
       }),
     ]).start();
   };
-  // Check if the restaurant is bookmarked when component mounts
+
+  // Check if the restaurant is in visited list 
   useEffect(() => {
-    if (bookmarkedRestaurants) {
-      for (let i = 0; i < bookmarkedRestaurants.length; i++) {
-        const item = bookmarkedRestaurants[i];
-        if (item.restaurant.id === restaurant.id) {
-          setBookmarkPressed(true);
-          console.log(
-            "Bookmark: " + item.restaurant.name + " " + isBookmarkPressed
-          );
-          return;
-        }
-      }
-      setBookmarkPressed(false);
-    }
+    setIsVisited(visitedRestaurants?.some(item => item.restaurant.id === restaurant.id) || false);
+  }, [visitedRestaurants]);
+
+  // Check if the restaurant is bookmarked 
+  useEffect(() => {
+    setBookmarkPressed(bookmarkedRestaurants?.some(item => item.restaurant.id === restaurant.id) || false);
   }, [bookmarkedRestaurants]);
-  // Check if the restaurant is marked as favorite when component mounts
+
+  // Check if the restaurant is marked as favorite 
   useEffect(() => {
-    if (favouriteRestaurants) {
-      for (let i = 0; i < favouriteRestaurants.length; i++) {
-        const item = favouriteRestaurants[i];
-        if (item.restaurant.id === restaurant.id) {
-          setFavePressed(true);
-          console.log("Fave: " + item.restaurant.name + " " + isFavePressed);
-          return;
-        }
-      }
-      setFavePressed(false);
-    }
+    setFavePressed(favouriteRestaurants?.some(item => item.restaurant.id === restaurant.id) || false);
   }, [favouriteRestaurants]);
+
   // Function to display price level as a string of '$' symbols
   function displayPriceLevel(priceLevel: number): string {
     let price = "";
@@ -110,8 +96,9 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
     }
     return price;
   }
-  // Function to handle the favorite button press
+  
   const handleFavouritePressed = () => {
+    console.log("Favourite pressed");
     if (isBookmarkPressed) {
       setBookmarkPressed(false);
       removeBookmarkContext(restaurant.id);
@@ -125,8 +112,9 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
     }
     animateIcon(faveScale);
   };
-  // Function to handle the bookmark button press
+
   const handleBookmarkPressed = () => {
+    console.log("Bookmark pressed");
     if (isFavePressed) {
       setFavePressed(false);
       removeFavouriteContext(restaurant.id);
@@ -153,7 +141,7 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
       {/* Restaurant image */}
       <Image 
         testID="restaurant-image"
-        source={{ uri: restaurant.image || images.defaultRestaurantImage }}
+        source={restaurant.image ? {uri : restaurant.image} : default_restaurant_picture}
         style={styles.image}
         resizeMode="cover"
       />
@@ -201,11 +189,7 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
           <View style={styles.iconContainer}>
             <Pressable onPress={handleBookmarkPressed}>
               <Animated.Image
-                source={{
-                  uri: isBookmarkPressed
-                    ? images.bookmarkSelectedIcon
-                    : images.bookmarkIcon,
-                }}
+                source={ isBookmarkPressed ? bookmark_Selected_icon : bookmark_icon }
                 style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
               />
             </Pressable>
@@ -214,9 +198,7 @@ export const RestaurantListItem = ({ restaurant, isLastItem }: RestaurantListIte
           <View style={styles.iconContainer}>
             <Pressable onPress={handleFavouritePressed}>
               <Animated.Image
-                source={{
-                  uri: isFavePressed ? images.faveSelectedIcon : images.faveIcon,
-                }}
+                source={ isFavePressed ? fave_Selected_icon : fave_icon }
                 style={[styles.icon, { transform: [{ scale: faveScale }] }]}
               />
             </Pressable>
@@ -264,13 +246,14 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   image: {
-    width: "100%",
+    width: wp('100%'),
+    height: wp('38%'),
     aspectRatio: 2.5 / 1,
     borderRadius: 10,
   },
   icon: {
-    width: 27,
-    aspectRatio: 1,
+    width: wp('8%'),
+    height: wp('8%'),
     resizeMode: "contain",
     marginLeft: 2,
   },
