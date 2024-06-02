@@ -230,8 +230,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   }, [searchTerm]);
 
   useEffect(() => {
+    filterRestaurants();
     sortRestaurants();
-  }, [selectedSortOption]);
+  }, [selectedSortOption, filteredRestaurants]);
 
   useEffect(() => {
     console.log("Friends updated");
@@ -448,7 +449,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const sortRestaurants = () => {
     setRestaurantListIsLoading(true);
     setDataLoading(true);
-    let result = localRestaurants;
+    let result = filteredRestaurants;
     switch (selectedSortOption.sortOption) {
       case "Preference":
         result = result.sort((a, b) => a.distance.localeCompare(b.distance));
