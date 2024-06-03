@@ -186,48 +186,19 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           locationCoords as LocationObjectCoords
         );
 
-        // Sort restaurants by distance (May need improving in future)
-        const distanceSortedRestaurants = nearbyRestaurants.sort(
-          (a, b) => a.distance - b.distance
-        );
+        
 
-        updatePreferenceScore(distanceSortedRestaurants);
+        await updatePreferenceScore(nearbyRestaurants);
+        sortRestaurants();
 
-        // if (restaurant.preferenceScore > 0) {
-        //   console.log(
-        //     `MATCHES FOUND: Restaurant category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${preferenceScore}`
-        //   );
-        // } else {
-        //   console.log("No matches found");
-        // }
-
-        setRestaurantsArray(distanceSortedRestaurants);
-        setFilteredRestaurants(distanceSortedRestaurants);
+        setRestaurantsArray(localRestaurants);
+        setFilteredRestaurants(localRestaurants);
       });
     } catch (error) {
       console.log(error);
     } finally {
       setDataLoading(false);
     }
-  };
-
-  const updatePreferenceScore = async (restaurants: Restaurant[]) => {
-    await updatePreferencesAPIName();
-    restaurants.forEach((restaurant: Restaurant) => {
-      if (restaurant.categories === undefined) return;
-      // Reset preferenceScore
-      restaurant.preferenceScore = 0;
-      restaurant.categories.forEach((category) => {
-        if (preferencesAPINames.includes(category)) {
-          if (restaurant.preferenceScore !== undefined) {
-            restaurant.preferenceScore++;
-          }
-        }
-      });
-      console.log(
-        `MATCHES: Restaurant: ${restaurant.name} category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
-      );
-    });
   };
 
   useEffect(() => {
@@ -262,7 +233,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   }, [user]);
 
   useEffect(() => {
+    filterRestaurants();
     updatePreferenceScore(localRestaurants);
+    sortRestaurants();
   }, [preferences]);
 
   useEffect(() => {
@@ -287,6 +260,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Friends updated");
   }, [friends]);
+
+  useEffect(() => {
+    console.log(
+      "Preferences (updatePreferencesAPIName): ",
+      preferencesAPINames
+    );
+  }, [preferencesAPINames]);
 
   const setUser = async () => {
     try {
@@ -330,22 +310,31 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-  //------------------ NEW CHANGES ------------------//
+  const updatePreferenceScore = async (restaurants: Restaurant[]) => {
+
+    await updatePreferencesAPIName();
+    restaurants.forEach((restaurant: Restaurant) => {
+      if (restaurant.categories === undefined) return;
+      // Reset preferenceScore
+      restaurant.preferenceScore = 0;
+      restaurant.categories.forEach((category) => {
+        if (preferencesAPINames.includes(category)) {
+          if (restaurant.preferenceScore !== undefined) {
+            restaurant.preferenceScore++;
+          }
+        }
+      });
+      console.log(
+        `MATCHES: Restaurant: ${restaurant.name} category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
+      );
+    });
+  };
   const updatePreferencesAPIName = async () => {
     if (user) {
       const prefs = await fetchPreferences();
       setPreferencesAPINames(prefs.apiNames);
     }
   };
-
-  useEffect(() => {
-    console.log(
-      "Preferences (updatePreferencesAPIName): ",
-      preferencesAPINames
-    );
-  }, [preferencesAPINames]);
-
-  //------------------ NEW CHANGES ------------------//
 
   const updateLocation = async () => {
     return new Promise(async (resolve, reject) => {
@@ -525,7 +514,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     let result = filteredRestaurants;
     switch (selectedSortOption.sortOption) {
       case "Preference":
-        result = result.sort((a, b) => a.distance.localeCompare(b.distance));
+        result = result.sort((a, b) => {
+          if ((b.preferenceScore ?? 0) === (a.preferenceScore ?? 0)) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
+        });
+
         break;
       case "Price: Low to High":
         result = result.sort((a, b) => {
@@ -705,29 +700,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       console.log(error);
     }
   };
-
-  // const updateUserPreferences = (
-  //   category: string,
-  //   preferenceName: string,
-  //   selected: boolean
-  // ) => {
-  //   const updatedPreferences = preferences.map((cat) => {
-  //     if (cat.title === category) {
-  //       const updatedCategory = cat.preferences.map((pref) => {
-  //         if (pref.name === preferenceName) {
-  //           return { ...pref, selected };
-  //         }
-  //         return pref;
-  //       });
-  //       return { ...cat, preferences: updatedCategory };
-  //     }
-  //     return cat;
-  //   });
-  //   setPreferences(updatedPreferences);
-  //   if (user) {
-  //     updatePreferences(updatedPreferences);
-  //   }
-  // };
 
   const contextValue = {
     dataLoading,
