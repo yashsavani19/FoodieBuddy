@@ -61,13 +61,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
+    <TouchableWithoutFeedback onPress={onClose}>
     <Modal
       animationType="slide"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.titleContainer}>
@@ -110,6 +110,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   </View>
                 )}
                 contentContainerStyle={styles.flatListContentContainer}
+                scrollEnabled={true}
               />
             )}
             <View style={styles.separator} />
@@ -118,8 +119,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </TouchableOpacity>
           </View>
         </View>
-      </TouchableWithoutFeedback>
     </Modal>
+      </TouchableWithoutFeedback>
   );
 };
 
@@ -136,15 +137,14 @@ const styles = StyleSheet.create({
     borderRadius: wp("2.5%"),
     padding: wp("5%"),
     alignItems: "center",
-    maxHeight: hp("70%"),
+    maxHeight: hp("60%"),
   },
   titleContainer: {
     width: "100%",
     paddingVertical: hp("1.5%"),
     backgroundColor: "#000",
     alignItems: "center",
-    borderTopLeftRadius: wp("2.5%"),
-    borderTopRightRadius: wp("2.5%"),
+    borderRadius: wp("2.5%"),
   },
   modalTitle: {
     fontSize: wp("5%"),
