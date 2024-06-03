@@ -50,9 +50,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
 
   // Define the function to handle the filter select
   const handleSortSelect = (toSort: Sort) => {
-    console.log(`Sort selected: ${toSort.sortOption}`);
     setSortOption(toSort);
-    console.log("Sort Context Selected", selectedSortOption);
     sortRestaurants();
     
   };

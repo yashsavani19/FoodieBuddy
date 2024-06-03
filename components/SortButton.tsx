@@ -48,7 +48,7 @@ const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
           style={pickerSelectStyles}
           value={selectedSort}
           useNativeAndroidPickerStyle={false}
-          placeholder={{ label: "Sort By", value: null }}
+          placeholder={{}}
         />
       ) : (
         <>
