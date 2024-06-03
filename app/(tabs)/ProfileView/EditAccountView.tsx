@@ -9,6 +9,7 @@ import {
   Keyboard,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import TitleHeader from "@/components/TitleHeader";
 import { AppContext } from "@/context/AppContext";
@@ -47,6 +48,7 @@ const EditAccountView: React.FC = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const keyboardShowListener = Keyboard.addListener("keyboardDidShow", () => {
@@ -147,6 +149,11 @@ const EditAccountView: React.FC = () => {
 
   const handleDeleteAccount = async () => {
     try {
+      if (deletePassword === "") {
+        alert("Please enter your password to delete your account");
+        return;
+      }
+      setIsDeleting(true);
       const authenticated = await reSignIn(deletePassword);
       if (authenticated) {
         await deleteUserAccount(deletePassword);
@@ -154,10 +161,12 @@ const EditAccountView: React.FC = () => {
         await signOut(); // Log out the user after deleting the account
       } else {
         setDeleteError("Incorrect password. Please try again.");
+        setIsDeleting(false);
       }
     } catch (error) {
       setDeleteError("Error deleting account. Please try again later.");
       console.error("Error deleting account: ", error);
+      setIsDeleting(false);
     }
   };
 
@@ -196,6 +205,45 @@ const EditAccountView: React.FC = () => {
       buttonColour={"#cc4343"}
     />
   );
+
+  const deleteModal = !isDeleting ? (
+    <>
+      <Text>Are you sure you want to delete your account?</Text>
+      <EditTextField
+        title={deletePassword}
+        isVisible={true}
+        onSubmit={setDeletePassword}
+        placeholder="Verify password"
+        imageSrc="password"
+        isSecure={true}
+      />
+      {deleteError && (
+        <Text style={{ color: "red", textAlign: "center" }}>{deleteError}</Text>
+      )}
+    </>
+  ) : (
+    <View>
+      <Text>Deleting account...</Text>
+      <ActivityIndicator size="large" color="#F26722" />
+    </View>
+  );
+
+  const deleteAccountButtons = !isDeleting
+    ? [
+        <BaseButton
+          key="cancel"
+          title={"No"}
+          onPress={() => setIsDeleteModalVisible(false)}
+          buttonColour={"#3464ac"}
+        />,
+        <BaseButton
+          key="delete"
+          title={"Delete Account"}
+          onPress={handleDeleteAccount}
+          buttonColour={"#cc4343"}
+        />,
+      ]
+    : [];
 
   return (
     <View style={styles.container}>
@@ -343,38 +391,8 @@ const EditAccountView: React.FC = () => {
         onClose={() => {
           setIsDeleteModalVisible(false);
         }}
-        bodyText={
-          <>
-            <Text>Are you sure you want to delete your account?</Text>
-            <EditTextField
-              title={deletePassword}
-              isVisible={true}
-              onSubmit={setDeletePassword}
-              placeholder="Verify password"
-              imageSrc="password"
-              isSecure={true}
-            />
-            {deleteError && (
-              <Text style={{ color: "red", textAlign: "center" }}>
-                {deleteError}
-              </Text>
-            )}
-          </>
-        }
-        buttons={[
-          <BaseButton
-            key="cancel"
-            title={"No"}
-            onPress={() => setIsDeleteModalVisible(false)}
-            buttonColour={"#3464ac"}
-          />,
-          <BaseButton
-            key="delete"
-            title={"Delete Account"}
-            onPress={handleDeleteAccount}
-            buttonColour={"#cc4343"}
-          />,
-        ]}
+        bodyText={deleteModal}
+        buttons={deleteAccountButtons}
       />
     </View>
   );
