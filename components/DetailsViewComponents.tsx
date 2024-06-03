@@ -18,7 +18,6 @@ import {
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
@@ -42,6 +41,10 @@ const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location.png");
 const price_icon = require("@/assets/images/price-tag.png");
+const fave_icon = require("@/assets/images/fave-icon.png");
+const fave_Selected_icon = require("@/assets/images/fave-Selected.png");
+const bookmark_icon = require("@/assets/images/bookmark-icon.png");
+const bookmark_Selected_icon = require("@/assets/images/bookmark-Selected.png");
 
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
@@ -288,11 +291,11 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <View style={styles.iconContainer}>
                 <Pressable onPress={handleFavouritePress}>
                   <Animated.Image
-                    source={{
-                      uri: isFavePressed
-                        ? images.faveSelectedIcon
-                        : images.faveIcon,
-                    }}
+                    source={
+                      isFavePressed
+                      ? fave_Selected_icon
+                      : fave_icon
+                    }
                     style={[
                       styles.smallIcon,
                       { transform: [{ scale: faveScale }] },
@@ -303,11 +306,11 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <View style={styles.iconContainer}>
                 <Pressable onPress={handleBookmarkPress}>
                   <Animated.Image
-                    source={{
-                      uri: isBookmarkPressed
-                        ? images.bookmarkSelectedIcon
-                        : images.bookmarkIcon,
-                    }}
+                    source={
+                      isBookmarkPressed
+                      ? bookmark_Selected_icon
+                      : bookmark_icon
+                    }
                     style={[
                       styles.smallIcon,
                       { transform: [{ scale: bookmarkScale }] },
@@ -492,8 +495,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   smallIcon: {
-    width: wp("5%"),
-    height: wp("5%"),
+    width: wp("6%"),
+    height: wp("6%"),
     resizeMode: "contain",
   },
   imageContainer: {

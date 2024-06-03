@@ -2,11 +2,11 @@ import { GOOGLE_API_KEY } from '@env';
 import axios from 'axios';
 import { getDistanceFromLatLonInKm } from '../app/Utils/distanceCalculator';
 import { LocationObjectCoords } from 'expo-location';
+import { useContext } from 'react';
 
 // Configurable parameters for the API request
 const photoWidth = 700;
 const photoHeight = 700;
-const searchRadius = 1050; // Search radius in meters
 // Type of place to search
 const placeTypes = [
   "american_restaurant",
@@ -55,14 +55,14 @@ const placeTypes = [
  * @param location - The geographic coordinates where to look for restaurants.
  * @returns A promise that resolves to an array of restaurant objects.
  */
-const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Promise<any[]> => {
+const fetchNearbyRestaurants = async (location: LocationObjectCoords | null, inputDistance: number): Promise<any[]> => {
   if (!location) {
     console.error("Location data is null.");
     return [];
   }
 
   try {
-    const results = await getRestaurantResults(location);
+    const results = await getRestaurantResults(location, inputDistance);
 
     const restaurants = await Promise.all(results.map(async (result: any) =>
     {
@@ -118,7 +118,7 @@ const fetchNearbyRestaurants = async (location: LocationObjectCoords | null): Pr
  * @param location 
  * @returns Array of Places objects
  */
-async function getRestaurantResults(location: LocationObjectCoords)
+async function getRestaurantResults(location: LocationObjectCoords, inputDistance: number)
 {
   const latitude = location.latitude;
   const longitude = location.longitude;
@@ -133,7 +133,7 @@ async function getRestaurantResults(location: LocationObjectCoords)
           latitude,
           longitude,
         },
-        radius: searchRadius,
+        radius: inputDistance,
       },
     },
   };

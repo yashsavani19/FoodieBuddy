@@ -13,12 +13,12 @@ const ModeToggle = ({ mode, toggleMode }: ModeToggleProps) => (
     <View style={styles.modeToggleContainer}>
       <MaterialCommunityIcons
         name="walk"
-        size={wp('6%')}
+        size={wp('5%')}
         color={mode === "WALKING" ? "#e46860" : "#fff"}
       />
       <MaterialCommunityIcons
         name="car"
-        size={wp('8%')}
+        size={wp('6%')}
         color={mode === "DRIVING" ? "#e46860" : "#fff"}
       />
       <Text style={styles.modeToggleText}>

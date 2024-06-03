@@ -301,7 +301,7 @@ export const fetchUser = async (uid: string) => {
             );
           });
         });
-      }else{
+      } else {
         console.log("Preferences is undefined");
       }
 
@@ -483,6 +483,7 @@ export const fetchFriends = async (): Promise<Friend[]> => {
   try {
     const uid = auth.currentUser?.uid;
     const friendCollection = `users/${uid}/friends`;
+    const preferencesCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, friendCollection));
     const friends: Friend[] = [];
     querySnapshot.forEach(async (doc) => {
@@ -493,6 +494,7 @@ export const fetchFriends = async (): Promise<Friend[]> => {
         uid: doc.id,
         username: username,
         profileImageUrl: profileImageUrl,
+        preferences: await fetchFriendsPreferences(doc.id),
       });
     });
     return friends;
@@ -914,13 +916,13 @@ export const createChatRoom = async (
   allowedUsers: string[] = []
 ) => {
   try {
-    console.log("Allowed Users:", allowedUsers); 
+    console.log("Allowed Users:", allowedUsers);
     const docRef = await addDoc(collection(db, "chatRooms"), {
       name: roomName,
       type: type,
       lastMessage: "",
       avatar: profileImageUrl,
-      allowedUsers: allowedUsers.length ? allowedUsers : [], 
+      allowedUsers: allowedUsers.length ? allowedUsers : [],
     });
 
     console.log("Chat room created with ID: ", docRef.id);
@@ -931,7 +933,7 @@ export const createChatRoom = async (
 };
 /**
  * Fetches chat rooms of a specified type that the current user is allowed to access.
- * 
+ *
  * @param {string} type - Type of the chat room.
  * @returns {Promise<any[]>} - A promise that resolves to an array of chat rooms.
  */
@@ -943,7 +945,11 @@ export const fetchChatRooms = async (type: string) => {
     throw new Error("User not authenticated");
   }
 
-  const q = query(chatRoomsRef, where("type", "==", type), where("allowedUsers", "array-contains", currentUserUid));
+  const q = query(
+    chatRoomsRef,
+    where("type", "==", type),
+    where("allowedUsers", "array-contains", currentUserUid)
+  );
   const querySnapshot = await getDocs(q);
   const chatRooms = [];
 
@@ -975,7 +981,6 @@ export const fetchChatRooms = async (type: string) => {
   return chatRooms;
 };
 
-
 /**
  * Deletes a chat room by its ID
  * @param {string} id - The ID of the chat room to delete
@@ -993,13 +998,17 @@ export const deleteChatRoom = async (id: string): Promise<void> => {
 
 /**
  * Sends a message in a chat room.
- * 
+ *
  * @param {string} chatRoomId - ID of the chat room.
  * @param {string} text - Message text.
  * @param {string} [userId] - Optional user ID (default is the current user's ID).
  * @returns {Promise<void>} - A promise that resolves when the message is sent.
  */
-export const sendMessage = async (chatRoomId: string, text: string, userId?: string) => {
+export const sendMessage = async (
+  chatRoomId: string,
+  text: string,
+  userId?: string
+) => {
   try {
     const messagesCollection = collection(
       db,
@@ -1020,7 +1029,7 @@ export const sendMessage = async (chatRoomId: string, text: string, userId?: str
 
 /**
  * Fetches messages in a chat room.
- * 
+ *
  * @param {string} chatRoomId - ID of the chat room.
  * @returns {Promise<any[]>} - A promise that resolves to an array of messages.
  */
@@ -1085,21 +1094,32 @@ export const deleteMessage = async (
 
 /**
  * Updates the typing status of a user in a specified chat room.
- * 
+ *
  * @param {string} chatRoomId - The ID of the chat room.
  * @param {string} userId - The ID of the user.
  * @param {string} username - The username of the user.
  * @param {boolean} isTyping - The current typing status of the user.
  * @returns {Promise<void>} - A promise that resolves when the typing status is updated
  */
-export const updateTypingStatus = async (chatRoomId: string, userId: string, username: string, isTyping: boolean) => {
+export const updateTypingStatus = async (
+  chatRoomId: string,
+  userId: string,
+  username: string,
+  isTyping: boolean
+) => {
   if (!userId) {
     console.error("User not authenticated");
     return;
   }
 
   try {
-    const typingStatusDoc = doc(db, "chatRooms", chatRoomId, "typingStatus", userId);
+    const typingStatusDoc = doc(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "typingStatus",
+      userId
+    );
     await setDoc(typingStatusDoc, { isTyping, username }, { merge: true });
   } catch (error) {
     console.error("Error updating typing status:", error);
@@ -1108,24 +1128,34 @@ export const updateTypingStatus = async (chatRoomId: string, userId: string, use
 
 /**
  * Listens to typing status changes in a specified chat room and executes a callback with the updated typing users.
- * 
+ *
  * @param {string} chatRoomId - The ID of the chat room.
  * @param {function} callback - The callback function to execute with the updated typing users.
  * @returns {function} - Unsubscribe function to stop listening to typing status changes.
  */
-export const listenToTypingStatus = (chatRoomId: string, callback: (typingUsers: { [key: string]: { isTyping: boolean, username: string } }) => void) => {
-  const typingStatusCollection = collection(db, "chatRooms", chatRoomId, "typingStatus");
+export const listenToTypingStatus = (
+  chatRoomId: string,
+  callback: (typingUsers: {
+    [key: string]: { isTyping: boolean; username: string };
+  }) => void
+) => {
+  const typingStatusCollection = collection(
+    db,
+    "chatRooms",
+    chatRoomId,
+    "typingStatus"
+  );
   return onSnapshot(typingStatusCollection, (snapshot) => {
-    const typingUsers: { [key: string]: { isTyping: boolean, username: string } } = {};
+    const typingUsers: {
+      [key: string]: { isTyping: boolean; username: string };
+    } = {};
     snapshot.forEach((doc) => {
-      const data = doc.data() as { isTyping: boolean, username: string };
+      const data = doc.data() as { isTyping: boolean; username: string };
       typingUsers[doc.id] = data;
     });
     callback(typingUsers);
   });
 };
-
-
 
 export const addPreferences = async (uid: string) => {
   try {
@@ -1163,12 +1193,134 @@ export const addPreferences = async (uid: string) => {
   }
 };
 
+/**
+ * Stores recommended restaurants in the chat room
+ * @returns {Promise<void>}
+ */
+export const storeRecommendedRestaurants = async (
+  chatRoomId: string,
+  recommendedRestaurants: Restaurant[]
+) => {
+  try {
+    const recommendedRestaurantsCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "recommendedRestaurants"
+    );
+
+    for (const restaurant of recommendedRestaurants) {
+      const cleanedRestaurant = cleanRestaurantData(restaurant);
+      await addDoc(recommendedRestaurantsCollection, cleanedRestaurant);
+    }
+
+    console.log("Recommended restaurants stored successfully.");
+  } catch (e) {
+    console.error("Error storing recommended restaurants: ", e);
+    alert(
+      "Internal error storing recommended restaurants. Please try again later."
+    );
+  }
+};
+
+/**
+ * Clears recommended restaurants in the chat room
+ */
+export const clearRecommendedRestaurants = async (chatRoomId: string) => {
+  try {
+    const recommendedRestaurantsCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "recommendedRestaurants"
+    );
+
+    const querySnapshot = await getDocs(recommendedRestaurantsCollection);
+    querySnapshot.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+    });
+
+    console.log("Recommended restaurants cleared successfully.");
+  } catch (e) {
+    console.error("Error clearing recommended restaurants: ", e);
+    alert(
+      "Internal error clearing recommended restaurants. Please try again later."
+    );
+  }
+};
+
+/**
+ * Adds a listener for the recommended restaurants in the chat room
+ * @returns {function} - Unsubscribe function to stop listening to recommended restaurants
+ */
+export const listenToRecommendedRestaurants = (
+  chatRoomId: string,
+  callback: (recommendedRestaurants: Restaurant[]) => void
+) => {
+  const recommendedRestaurantsCollection = collection(
+    db,
+    "chatRooms",
+    chatRoomId,
+    "recommendedRestaurants"
+  );
+
+  return onSnapshot(recommendedRestaurantsCollection, (snapshot) => {
+    const recommendedRestaurants = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Restaurant[];
+    callback(recommendedRestaurants);
+  });
+};
+
 // /**
 //  * Fetches user preferences
 //  */
 export const fetchPreferences = async (): Promise<PreferenceList[]> => {
   try {
     const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const preferences: PreferenceList[] = [];
+
+    // Group preferences by category
+    const categoryMap: { [key: string]: Preference[] } = {};
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const category = data.category;
+      const preference: Preference = {
+        name: data.name,
+        selected: data.selected,
+        apiName: data.apiName,
+      };
+      if (!categoryMap[category]) {
+        categoryMap[category] = [];
+      }
+      categoryMap[category].push(preference);
+    });
+
+    for (const category in categoryMap) {
+      preferences.push({
+        title: category,
+        preferences: categoryMap[category],
+      });
+    }
+
+    return preferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+    return [];
+  }
+};
+
+/**
+ * Gets friends preferences
+ * @param uid user id
+ */
+export const fetchFriendsPreferences = async (uid: string) => {
+  try {
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
     const preferences: PreferenceList[] = [];

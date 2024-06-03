@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
 import {
   View,
   Text,
@@ -12,6 +18,9 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
+  Dimensions,
+  ActivityIndicator,
+  Pressable,
 } from "react-native";
 import {
   useRoute,
@@ -24,6 +33,9 @@ import {
   fetchAllUsernames,
   updateTypingStatus,
   listenToTypingStatus,
+  listenToRecommendedRestaurants,
+  storeRecommendedRestaurants,
+  clearRecommendedRestaurants,
 } from "@/controller/DatabaseHandler";
 import { auth, db } from "@/controller/FirebaseHandler";
 import TitleHeader from "@/components/TitleHeader";
@@ -41,16 +53,14 @@ import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import Constants from "expo-constants";
+import { ImageSourcePropType } from "react-native";
+import { Message } from "@/model/Message";
+import { GroupChatDefaultSystemPrompt } from "@/model/DefaultGroupChatAISystemPrompt";
+import { AppContext } from "@/context/AppContext";
+import { Restaurant } from "@/model/Restaurant";
+import RestaurantListItem from "@/components/RestaurantListItem";
+import { AntDesign } from "@expo/vector-icons";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
-
-interface Message {
-  id: string;
-  text: string;
-  userId: string;
-  timestamp: Date;
-  userProfileImage: string | number;
-  username: string;
-}
 
 interface RouteParams {
   chatRoomId: string;
@@ -59,9 +69,10 @@ interface RouteParams {
 
 const ChatScreen: React.FC = () => {
   const route = useRoute();
+  const { localRestaurants } = useContext(AppContext);
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler();
+  const { sendMessage: sendAIMessage, setSystemPrompt } = useOpenAIHandler();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -72,7 +83,19 @@ const ChatScreen: React.FC = () => {
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const buddyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
+  const [buddyActive, setBuddyActive] = useState(false);
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const screenWidth = Dimensions.get("window").width;
+
+  // Set system prompt for the chat room
+  useEffect(() => {
+    const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
+    setSystemPrompt(systemPrompt);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -148,14 +171,34 @@ const ChatScreen: React.FC = () => {
       }
     );
 
+    // Listens to recommended restaurants from buddy
+    const unsubscribeRecommnededRestaurants = listenToRecommendedRestaurants(
+      chatRoomId,
+      (restaurants) => {
+        setRecommendedRestaurants(restaurants);
+      }
+    );
+
     return () => {
       isMounted = false;
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
       unsubscribeTypingStatus();
+      unsubscribeRecommnededRestaurants();
     };
   }, [chatRoomId]);
+
+  useEffect(() => {
+    const buddyTyping = Object.values(typingUsers).some(
+      (user) => user.username === "Buddy" && user.isTyping
+    );
+    if (buddyTyping) {
+      setBuddyActive(true);
+    } else {
+      setBuddyActive(false);
+    }
+  }, [typingUsers]);
 
   const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
@@ -180,30 +223,6 @@ const ChatScreen: React.FC = () => {
           auth.currentUser?.displayName || "Unknown User",
           false
         );
-
-        if (isBuddyOn) {
-          const aiResponse = await sendAIMessage(newMessage);
-          const buddyMessageId = Date.now().toString() + "ai";
-          const buddyMessage: Message = {
-            id: buddyMessageId,
-            text: aiResponse,
-            userId: "buddy",
-            timestamp: new Date(),
-            userProfileImage: buddyProfileImage,
-            username: "Buddy",
-          };
-
-          setMessages((prevMessages) => {
-            if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
-              return [...prevMessages, buddyMessage];
-            }
-            return prevMessages;
-          });
-
-          await sendMessage(chatRoomId, buddyMessage.text, "buddy");
-
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }
       } catch (error) {
         console.error("Error sending message:", error);
       }
@@ -254,6 +273,9 @@ const ChatScreen: React.FC = () => {
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
+    if (buddyTimeoutRef.current) {
+      clearTimeout(buddyTimeoutRef.current);
+    }
     updateTypingStatus(
       chatRoomId,
       auth.currentUser?.uid || "",
@@ -268,14 +290,30 @@ const ChatScreen: React.FC = () => {
         false
       );
     }, 2000);
+    buddyTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
+    }, 6000);
   };
 
-  const handleBuddyToggle = async () => {
-    setIsBuddyOn(!isBuddyOn);
-    if (!isBuddyOn) {
-      const buddyIntroMessage: Message = {
-        id: Date.now().toString(),
-        text: "Hi there! I'm Buddy, your AI assistant. How can I help you today?",
+  const handleBuddyPress = async () => {
+    await updateTypingStatus(chatRoomId, "Buddy", "Buddy", true);
+
+    const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
+    setSystemPrompt(systemPrompt);
+
+    // compile recent messages and send to AI
+    let recentMessages: string = messages
+      .filter((msg) => msg.username !== "Buddy")
+      .map((msg) => `${msg.username}: ${msg.text}`)
+      .join("\n");
+
+    console.log("Recent Messages:", recentMessages);
+    try {
+      const aiResponse = await sendAIMessage(recentMessages);
+      const buddyMessageId = Date.now().toString() + "ai";
+      const buddyMessage: Message = {
+        id: buddyMessageId,
+        text: aiResponse,
         userId: "buddy",
         timestamp: new Date(),
         userProfileImage: buddyProfileImage,
@@ -283,13 +321,38 @@ const ChatScreen: React.FC = () => {
       };
 
       setMessages((prevMessages) => {
-        if (!prevMessages.find((msg) => msg.id === buddyIntroMessage.id)) {
-          return [...prevMessages, buddyIntroMessage];
+        if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
+          return [...prevMessages, buddyMessage];
         }
         return prevMessages;
       });
 
-      await sendMessage(chatRoomId, buddyIntroMessage.text, "buddy");
+      await sendMessage(chatRoomId, buddyMessage.text, "buddy");
+
+      // Clear and store recommended restaurants from AI response
+      await clearRecommendedRestaurants(chatRoomId);
+      const recommended = findRestaurantsInMessage(aiResponse);
+      if (recommended) {
+        await storeRecommendedRestaurants(chatRoomId, recommended);
+      }
+
+      flatListRef.current?.scrollToEnd({ animated: true });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage =
+        "Sorry, I'm having trouble right now. Please try again later.";
+      const buddyMessageId = Date.now().toString() + "ai";
+      const buddyMessage: Message = {
+        id: buddyMessageId,
+        text: errorMessage,
+        userId: "buddy",
+        timestamp: new Date(),
+        userProfileImage: buddyProfileImage,
+        username: "Buddy",
+      };
+      await sendMessage(chatRoomId, errorMessage, "buddy");
+    } finally {
+      updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
     }
   };
 
@@ -302,7 +365,12 @@ const ChatScreen: React.FC = () => {
       "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg";
 
     return (
-      <TouchableOpacity onPress={() => confirmDeleteMessage(item.id)}>
+      <Pressable
+        onPress={() => confirmDeleteMessage(item.id)}
+        disabled={
+          item.userId !== auth.currentUser?.uid && item.userId !== "buddy"
+        }
+      >
         <View style={styles.messageContainer}>
           <Text style={styles.timestampText}>{formattedDate}</Text>
           <View
@@ -354,9 +422,75 @@ const ChatScreen: React.FC = () => {
             )}
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
+
+  const recommendedRestaurantsView = () => {
+    return (
+      <>
+        {recommendedRestaurants.length !== 0 && (
+          <View>
+            <TouchableOpacity
+              onPress={() => {
+                clearRecommendedRestaurants(chatRoomId);
+              }}
+              style={{
+                position: "absolute",
+                left: 10,
+                top: 10,
+                backgroundColor: "#fff",
+                borderRadius: 20,
+                padding: 5,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+                zIndex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <AntDesign name="close" size={20} color="#f76116" />
+            </TouchableOpacity>
+            <FlatList
+              data={recommendedRestaurants}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <RestaurantListItem
+                  restaurant={item}
+                  style={{ marginRight: 6, width: wp('90%'), borderRadius: 10 }}
+                />
+              )}
+              horizontal={true}
+              contentContainerStyle={{ paddingHorizontal: 10 }}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+        )}
+      </>
+    );
+  };
+
+  function findRestaurantsInMessage(latestMessage: string) {
+    const restaurantNames = localRestaurants.map(
+      (restaurant) => restaurant.name
+    );
+    const foundNames = restaurantNames.filter((name) =>
+      latestMessage.includes(name)
+    );
+
+    if (foundNames.length > 0) {
+      const recommendations = localRestaurants
+        .filter((r) => foundNames.includes(r.name))
+        .reverse();
+      console.log("Recommendations:", recommendations);
+      return recommendations;
+    }
+
+    return [];
+  }
 
   const openSettings = () => {
     setSettingsVisible(true);
@@ -383,6 +517,7 @@ const ChatScreen: React.FC = () => {
             flatListRef.current?.scrollToEnd({ animated: true })
           }
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          ListFooterComponent={recommendedRestaurantsView()}
         />
         <TypingIndicator typingUsers={typingUsers} />
       </View>
@@ -392,16 +527,18 @@ const ChatScreen: React.FC = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={handleBuddyToggle}>
-              <Image
-                source={
-                  isBuddyOn
-                    ? require("../../../assets/images/buddy-toggle-on.png")
-                    : require("../../../assets/images/buddy-toggle-off.png")
-                }
-                style={styles.image}
-              />
-            </TouchableOpacity>
+            {buddyActive ? (
+              <View style={{ marginRight: 14 }}>
+                <ActivityIndicator size="large" color="#f76116" />
+              </View>
+            ) : (
+              <TouchableOpacity onPress={handleBuddyPress}>
+                <Image
+                  source={require("../../../assets/images/buddy-toggle-on.png")}
+                  style={styles.image}
+                />
+              </TouchableOpacity>
+            )}
             <TextInput
               style={styles.input}
               placeholder="Type a message..."
@@ -451,6 +588,7 @@ const styles = StyleSheet.create({
   otherUserContainer: {
     justifyContent: "flex-start",
   },
+  animatedView: {},
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -458,13 +596,13 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     alignItems: "center",
-    marginRight: wp('3%'),
+    marginHorizontal: wp('2.5%'),
     width: wp('10%'),
   },
   profileImage: {
-    width: wp('10%'),
-    height: wp('10%'),
-    borderRadius: wp('5%'),
+    width: wp('11%'),
+    height: wp('11%'),
+    borderRadius: wp('11%') / 2,
   },
   messageBubble: {
     borderRadius: wp('5%'),
@@ -533,8 +671,8 @@ const styles = StyleSheet.create({
     marginLeft: wp('2%'),
   },
   image: {
-    width: wp('10%'),
-    height: wp('10%'),
+    width: wp('10.5%'),
+    height: wp('10.5%'),
     marginRight: wp('2%'),
   },
 });
