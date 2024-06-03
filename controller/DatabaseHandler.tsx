@@ -1488,3 +1488,25 @@ export const fetchFriendsInChatRoom = async (
     return [];
   }
 };
+
+/**
+ * Leaves a chat room by removing the user from the allowed users list
+ * @param {string} chatRoomId - ID of the chat room
+ * @param {string} userId - ID of the user leaving the chat room
+ * @returns {Promise<void>}
+ */
+export const leaveChatRoom = async (
+  chatRoomId: string,
+  userId: string
+): Promise<void> => {
+  try {
+    const chatRoomDocRef = doc(db, "chatRooms", chatRoomId);
+    await updateDoc(chatRoomDocRef, {
+      allowedUsers: arrayRemove(userId),
+    });
+    console.log(`User with ID ${userId} left chat room ${chatRoomId}`);
+  } catch (error) {
+    console.error("Error leaving chat room:", error);
+    alert("Internal error leaving chat room. Please try again later.");
+  }
+};

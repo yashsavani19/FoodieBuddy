@@ -19,6 +19,8 @@ import {
   fetchFriends,
   addFriendToChatRoom,
   removeFriendFromChatRoom,
+  leaveChatRoom,
+  deleteChatRoom,
 } from "@/controller/DatabaseHandler";
 
 interface SettingsModalProps {
@@ -26,6 +28,8 @@ interface SettingsModalProps {
   onClose: () => void;
   chatRoomId: string;
   currentFriends: string[];
+  userId: string;
+  onLeaveChatRoom: () => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -33,6 +37,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   chatRoomId,
   currentFriends,
+  userId,
+  onLeaveChatRoom,
 }) => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,14 +66,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     setUpdatedFriends(updatedFriends.filter((id) => id !== friendId));
   };
 
+  const handleLeaveChatRoom = async () => {
+    await leaveChatRoom(chatRoomId, userId);
+    onLeaveChatRoom();
+    onClose();
+  };
+
+  const handleDeleteChatRoom = async () => {
+    await deleteChatRoom(chatRoomId);
+    onLeaveChatRoom();
+    onClose();
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={onClose}>
     <Modal
       animationType="slide"
       transparent={true}
       visible={visible}
       onRequestClose={onClose}
     >
+      <TouchableWithoutFeedback>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.titleContainer}>
@@ -114,13 +132,28 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               />
             )}
             <View style={styles.separator} />
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                onPress={handleLeaveChatRoom}
+                style={styles.leaveButton}
+              >
+                <Text style={styles.leaveButtonText}>Leave Chat Room</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleDeleteChatRoom}
+                style={styles.deleteButton}
+              >
+                <Text style={styles.deleteButtonText}>Delete Chat Room</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.separator} />
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
-    </Modal>
       </TouchableWithoutFeedback>
+    </Modal>
   );
 };
 
@@ -144,7 +177,8 @@ const styles = StyleSheet.create({
     paddingVertical: hp("1.5%"),
     backgroundColor: "#000",
     alignItems: "center",
-    borderRadius: wp("2.5%"),
+    borderTopLeftRadius: wp("2.5%"),
+    borderTopRightRadius: wp("2.5%"),
   },
   modalTitle: {
     fontSize: wp("5%"),
@@ -219,16 +253,49 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     marginVertical: hp("1%"),
   },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  leaveButton: {
+    flex: 1,
+    paddingVertical: hp("1.5%"),
+    backgroundColor: "#FFA500",
+    alignItems: "center",
+    borderRadius: wp("2.5%"),
+    marginHorizontal: wp("1%"),
+  },
+  leaveButtonText: {
+    color: "#fff",
+    fontSize: wp("3.5%"),
+    fontWeight: "600",
+  },
+  deleteButton: {
+    flex: 1,
+    paddingVertical: hp("1.5%"),
+    backgroundColor: "#FF0000",
+    alignItems: "center",
+    borderRadius: wp("2.5%"),
+    marginHorizontal: wp("1%"),
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontSize: wp("3.5%"),
+    fontWeight: "600",
+  },
   closeButton: {
     width: "100%",
     paddingVertical: hp("1.5%"),
     backgroundColor: "#000",
     alignItems: "center",
     borderRadius: wp("2.5%"),
+    marginTop: hp("1%"),
   },
   closeButtonText: {
     color: "#fff",
     fontSize: wp("4%"),
+    fontWeight: "600",
   },
 });
 
