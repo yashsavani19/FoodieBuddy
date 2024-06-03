@@ -21,6 +21,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Pressable,
+  Modal,
 } from "react-native";
 import {
   useRoute,
@@ -60,7 +61,10 @@ import { AppContext } from "@/context/AppContext";
 import { Restaurant } from "@/model/Restaurant";
 import RestaurantListItem from "@/components/RestaurantListItem";
 import { AntDesign } from "@expo/vector-icons";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 interface RouteParams {
   chatRoomId: string;
@@ -90,6 +94,9 @@ const ChatScreen: React.FC = () => {
     Restaurant[]
   >([]);
   const screenWidth = Dimensions.get("window").width;
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
   // Set system prompt for the chat room
   useEffect(() => {
@@ -240,22 +247,9 @@ const ChatScreen: React.FC = () => {
     [chatRoomId]
   );
 
-  const confirmDeleteMessage = (messageId: string) => {
-    Alert.alert(
-      "Delete Message",
-      "Are you sure you want to delete this message?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => handleDeleteMessage(messageId),
-          style: "destructive",
-        },
-      ]
-    );
+  const confirmDeleteMessage = (message: Message) => {
+    setSelectedMessage(message);
+    setDeleteModalVisible(true);
   };
 
   const handleProfilePress = (friend: {
@@ -366,7 +360,7 @@ const ChatScreen: React.FC = () => {
 
     return (
       <Pressable
-        onPress={() => confirmDeleteMessage(item.id)}
+        onPress={() => confirmDeleteMessage(item)}
         disabled={
           item.userId !== auth.currentUser?.uid && item.userId !== "buddy"
         }
@@ -460,7 +454,7 @@ const ChatScreen: React.FC = () => {
               renderItem={({ item }) => (
                 <RestaurantListItem
                   restaurant={item}
-                  style={{ marginRight: 6, width: wp('90%'), borderRadius: 10 }}
+                  style={{ marginRight: 6, width: wp("90%"), borderRadius: 10 }}
                 />
               )}
               horizontal={true}
@@ -498,6 +492,18 @@ const ChatScreen: React.FC = () => {
 
   const closeSettings = () => {
     setSettingsVisible(false);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalVisible(false);
+    setSelectedMessage(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedMessage) {
+      handleDeleteMessage(selectedMessage.id);
+      closeDeleteModal();
+    }
   };
 
   return (
@@ -549,12 +555,45 @@ const ChatScreen: React.FC = () => {
               onPress={handleSendMessage}
               style={styles.sendButton}
             >
-              <FontAwesome name="send" size={wp('6%')} color="#f76116" />
+              <FontAwesome name="send" size={wp("6%")} color="#f76116" />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
       <SettingsModal visible={settingsVisible} onClose={closeSettings} />
+      {selectedMessage && (
+        <Modal
+          transparent={true}
+          visible={deleteModalVisible}
+          onRequestClose={closeDeleteModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Delete Message</Text>
+              <Text style={styles.modalMessage}>
+                Are you sure you want to delete this message?
+              </Text>
+              <Text style={styles.modalTimestamp}>
+                {new Date(selectedMessage.timestamp).toLocaleString()}
+              </Text>
+              <View style={styles.modalButtonContainer}>
+                <TouchableOpacity
+                  onPress={closeDeleteModal}
+                  style={[styles.modalButton, styles.cancelButton]}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleConfirmDelete}
+                  style={[styles.modalButton, styles.deleteButton]}
+                >
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -572,11 +611,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
   },
   flatListContentContainer: {
-    paddingBottom: hp('5%'),
+    paddingBottom: hp("5%"),
   },
   messageContainer: {
-    marginVertical: hp('1%'),
-    paddingHorizontal: wp('2%'),
+    marginVertical: hp("1%"),
+    paddingHorizontal: wp("2%"),
   },
   messageBubbleContainer: {
     flexDirection: "row",
@@ -592,88 +631,148 @@ const styles = StyleSheet.create({
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: wp('80%'),
+    maxWidth: wp("80%"),
   },
   profileImageContainer: {
     alignItems: "center",
-    marginHorizontal: wp('2.5%'),
-    width: wp('10%'),
+    marginHorizontal: wp("2.5%"),
+    width: wp("10%"),
   },
   profileImage: {
-    width: wp('11%'),
-    height: wp('11%'),
-    borderRadius: wp('11%') / 2,
+    width: wp("11%"),
+    height: wp("11%"),
+    borderRadius: wp("11%") / 2,
   },
   messageBubble: {
-    borderRadius: wp('5%'),
-    padding: wp('3%'),
-    maxWidth: wp('70%'),
+    borderRadius: wp("5%"),
+    padding: wp("3%"),
+    maxWidth: wp("70%"),
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
-    marginRight: wp('2%'),
-    marginLeft: wp('5%'),
+    marginRight: wp("2%"),
+    marginLeft: wp("5%"),
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
-    marginRight: wp('7.5%'),
+    marginRight: wp("7.5%"),
   },
   messageText: {
-    fontSize: wp('4%'),
+    fontSize: wp("4%"),
     color: "#fff",
     fontWeight: "500",
   },
   otherUserMessageText: {
-    fontSize: wp('4%'),
+    fontSize: wp("4%"),
     color: "#000",
     fontWeight: "500",
   },
   timestampText: {
-    fontSize: wp('3%'),
+    fontSize: wp("3%"),
     color: "#888",
     alignSelf: "center",
-    marginBottom: hp('0.5%'),
+    marginBottom: hp("0.5%"),
   },
   usernameText: {
-    fontSize: wp('3%'),
+    fontSize: wp("3%"),
     fontWeight: "bold",
     color: "#555",
-    marginBottom: hp('0.5%'),
+    marginBottom: hp("0.5%"),
     textAlign: "center",
-    width: wp('15%'),
-    maxWidth: wp('10%'),
+    width: wp("15%"),
+    maxWidth: wp("10%"),
   },
   inputContainer: {
     flexDirection: "row",
-    padding: wp('2%'),
+    padding: wp("2%"),
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderColor: "#e2e2e2",
-    paddingHorizontal: wp('5%'),
+    paddingHorizontal: wp("5%"),
     alignSelf: "center",
-    height: hp('7.5%'),
+    height: hp("7.5%"),
   },
   input: {
     flex: 1,
-    fontSize: wp('4%'),
+    fontSize: wp("4%"),
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: wp('5%'),
-    paddingHorizontal: wp('3%'),
+    borderRadius: wp("5%"),
+    paddingHorizontal: wp("3%"),
     backgroundColor: "#fff",
-    height: hp('5%'),
+    height: hp("5%"),
   },
   sendButton: {
-    marginLeft: wp('2%'),
+    marginLeft: wp("2%"),
   },
   image: {
-    width: wp('10.5%'),
-    height: wp('10.5%'),
-    marginRight: wp('2%'),
+    width: wp("10.5%"),
+    height: wp("10.5%"),
+    marginRight: wp("2%"),
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: wp("80%"),
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: wp("5%"),
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: wp("4.5%"),
+    fontWeight: "bold",
+    marginBottom: hp("2%"),
+  },
+  modalMessage: {
+    fontSize: wp("4%"),
+    textAlign: "center",
+    marginBottom: hp("2%"),
+  },
+  modalTimestamp: {
+    fontSize: wp("3.5%"),
+    color: "#888",
+    marginBottom: hp("2%"),
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    padding: hp("1.2%"),
+    borderRadius: 10,
+    alignItems: "center",
+    marginHorizontal: wp("1%"),
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+  },
+  deleteButton: {
+    backgroundColor: "#FF3B30",
+  },
+  cancelButtonText: {
+    color: "#000",
+  },
+  deleteButtonText: {
+    color: "#fff",
   },
 });
 
