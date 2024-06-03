@@ -1,45 +1,41 @@
 import axios from "axios";
+import { GroupChatDefaultSystemPrompt } from "@/model/DefaultGroupChatAISystemPrompt";
 import { OPENAI_API_KEY, OPENAI_ORG_ID } from "@env";
 import { IMessage } from "@/model/AITypes";
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
+import { AppContext } from "@/context/AppContext";
+import { Message } from "@/model/Message";
+import { User } from "@/model/User";
 
-export function useOpenAIHandler() {
-  const [systemPrompt, setSystemPromptState] = useState<string>("");
+export function useGroupOpenAIHandler(users?: User[]) {
+  const { localRestaurants } = useContext(AppContext);
   const [messages, setMessages] = useState<IMessage[]>([
     {
       role: "system",
-      content: systemPrompt,
+      content: GroupChatDefaultSystemPrompt(localRestaurants, users),
     },
   ]);
-
-  const setSystemPrompt = useCallback((inputSystemPrompt: string) => {
-    setSystemPromptState(inputSystemPrompt);
-    setMessages([
-      {
-        role: "system",
-        content: inputSystemPrompt,
-      },
-    ]);
-    // console.log("System Prompt:", inputSystemPrompt);
-  }, []);
 
   const resetMessages = useCallback(() => {
     setMessages([
       {
         role: "system",
-        content: systemPrompt,
+        content: GroupChatDefaultSystemPrompt(localRestaurants, users),
       },
     ]);
-  }, [systemPrompt]);
+  }, [localRestaurants]);
 
   const sendMessage = useCallback(
-    async (message: string): Promise<string> => {
-      if (!systemPrompt) {
-        throw new Error("System prompt is not set.");
-      }
-
+    async (groupChat: Message[]): Promise<string> => {
+      const chatHistory = "";
+      groupChat.map((message) => {
+        chatHistory.concat(
+          `User: ${message.username}. Message: ${message.text}. `
+        );
+      });
+      console.log("Chat History:", chatHistory);
       try {
-        const userMessage: IMessage = { role: "user", content: message };
+        const userMessage: IMessage = { role: "user", content: chatHistory };
 
         // Update to use functional update to always get the latest messages
         setMessages((prevMessages) => {
@@ -49,21 +45,13 @@ export function useOpenAIHandler() {
           }
           return newMessages;
         });
-
-        // console.log("Sent Messages:", messages);
+        console.log("Sent Messages:", messages);
 
         const response = await axios.post(
           `https://api.openai.com/v1/chat/completions`,
           {
-            model: "gpt-4o",
-            messages: [
-              {
-                role: "system",
-                content: systemPrompt,
-              },
-              ...messages,
-              userMessage,
-            ],
+            model: "gpt-3.5-turbo",
+            messages: [...messages, userMessage],
           },
           {
             headers: {
@@ -90,8 +78,8 @@ export function useOpenAIHandler() {
         );
       }
     },
-    [systemPrompt, messages]
+    [] // Removed messages from dependencies
   );
 
-  return { messages, sendMessage, resetMessages, setSystemPrompt };
+  return { messages, sendMessage, resetMessages };
 }

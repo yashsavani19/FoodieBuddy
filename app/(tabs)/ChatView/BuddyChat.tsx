@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Alert,
+  Dimensions,
 } from "react-native";
 import Message, { MessageProps } from "../../../components/Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -25,10 +26,12 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
 
 // Ensure the paths to the image assets are correct
 const userIcon = require("../../../assets/images/user-icon.png");
 const buddyIcon = require("../../../assets/images/buddy-icon.png");
+const screenWidth = Dimensions.get("window").width;
 
 /**
  *  BuddyChat component for user to interact with Buddy.
@@ -37,7 +40,7 @@ const buddyIcon = require("../../../assets/images/buddy-icon.png");
  */
 const BuddyChat: React.FC = () => {
   const { localRestaurants } = useContext(AppContext);
-  const { sendMessage, resetMessages } = useOpenAIHandler();
+  const { sendMessage, resetMessages, setSystemPrompt } = useOpenAIHandler();
   const [messages, setMessages] = useState<MessageProps[]>([
     initialBuddyMessage,
   ]);
@@ -58,6 +61,10 @@ const BuddyChat: React.FC = () => {
       return () => {};
     }, [])
   );
+
+  useEffect(() => {
+    setSystemPrompt(DefaultAISystemPrompt(localRestaurants));
+  }, []);
 
   /**
    * AI Chat function to send user message to AI and get response
@@ -209,7 +216,7 @@ const BuddyChat: React.FC = () => {
               ListHeaderComponent={<View style={{ height: hp("1.5%") }} />}
               ListFooterComponent={
                 recommendedRestaurant ? (
-                  <RestaurantListItem restaurant={recommendedRestaurant} />
+                  <RestaurantListItem restaurant={recommendedRestaurant} isLastItem={false}/>
                 ) : null
               }
             />
