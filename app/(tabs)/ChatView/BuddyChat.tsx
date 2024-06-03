@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Alert,
+  Dimensions,
 } from "react-native";
 import Message, { MessageProps } from "../../../components/Message";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -30,6 +31,7 @@ import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
 // Ensure the paths to the image assets are correct
 const userIcon = require("../../../assets/images/user-icon.png");
 const buddyIcon = require("../../../assets/images/buddy-icon.png");
+const screenWidth = Dimensions.get("window").width;
 
 /**
  *  BuddyChat component for user to interact with Buddy.
@@ -214,7 +216,7 @@ const BuddyChat: React.FC = () => {
               ListHeaderComponent={<View style={{ height: hp("1.5%") }} />}
               ListFooterComponent={
                 recommendedRestaurant ? (
-                  <RestaurantListItem restaurant={recommendedRestaurant} />
+                  <RestaurantListItem restaurant={recommendedRestaurant} isLastItem={false}/>
                 ) : null
               }
             />

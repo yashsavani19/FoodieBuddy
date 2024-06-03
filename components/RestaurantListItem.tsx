@@ -13,7 +13,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-nat
 
 type RestaurantListItemProps = {
   restaurant: Restaurant;
-  isLastItem: boolean;
+  isLastItem?: boolean;
   style?: any;
 };
 
