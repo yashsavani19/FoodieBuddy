@@ -28,7 +28,7 @@ interface AppMappViewProps {
 }
 
 export default function AppMappView({ geometry, initialDirections, selectedRestaurantId }: AppMappViewProps) {
-  const { location, filteredRestaurants } = useContext(AppContext);
+  const { location, filteredRestaurants, distance } = useContext(AppContext);
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
   const mapRef = useRef<MapView>(null);
   const markerRefs = useRef<(MapMarker | null)[]>([]);
@@ -136,7 +136,7 @@ export default function AppMappView({ geometry, initialDirections, selectedResta
               latitude: location.latitude,
               longitude: location.longitude,
             }}
-            radius={1050}
+            radius={distance}
             fillColor="rgba(173, 216, 230, 0.2)"
             strokeColor="rgba(173, 216, 230, 0.2)"
             strokeWidth={2}

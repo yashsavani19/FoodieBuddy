@@ -25,7 +25,6 @@ import { User } from "@/model/User";
 import { User as AuthUser } from "firebase/auth";
 import { useAuth } from "./AuthContext";
 import { Category } from "@/model/Category";
-import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
@@ -68,6 +67,8 @@ export type AppContextType = {
   filteredRestaurants: Restaurant[];
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
   filterRestaurants: () => void;
+  distance: number;
+  setDistance: (distance: number) => void;
 
   preferences: PreferenceCategoryList[];
   setPreferences: (prefs: PreferenceCategoryList[]) => void;
@@ -124,7 +125,8 @@ export const AppContext = createContext<AppContextType>({
   filteredRestaurants: [],
   setFilteredRestaurants: async () => {},
   filterRestaurants: async () => {},
-
+  distance: 1000.0,
+  setDistance: () => {},
   preferences: [],
   setPreferences: () => {},
   // updateUserPreferences: async () => {},
@@ -164,7 +166,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
-
   const [preferences, setPreferences] = useState<PreferenceCategoryList[]>([]);
 
   const [preferencesAPINames, setPreferencesAPINames] = useState<string[]>([]);
@@ -175,6 +176,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const setSortOption = (option: Sort) => {
     setSelectedSortOption(option);
   };
+  const [distance, setDistance] = useState<number>(1000.0);
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -182,7 +184,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       await updateLocation().then(async (locationCoords) => {
         console.log("Location before fetching:", locationCoords);
         const nearbyRestaurants = await fetchNearbyRestaurants(
-          locationCoords as LocationObjectCoords
+          locationCoords as LocationObjectCoords,
+          distance
         );
 
         // Sort restaurants by distance (May need improving in future)
@@ -219,7 +222,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     const loadUserPreferences = async () => {
       if (user) {
         const prefs = await fetchPreferences();
-        setPreferences(prefs.preferences);
+        setUserObject({ ...userObject, preferences: prefs.preferences });
         
       }
     };
@@ -277,16 +280,23 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Favourites updated");
   }, [favouriteRestaurants]);
+
   useEffect(() => {
     console.log("Bookmarks updated");
   }, [bookmarkedRestaurants]);
+
   useEffect(() => {
     console.log("Visited updated");
   }, [visitedRestaurants]);
 
   useEffect(() => {
     filterRestaurants();
-  }, [searchTerm]);
+  }, [searchTerm, localRestaurants]);
+
+  // Update the restaurants when the max distance changes
+  useEffect(() => {
+    setRestaurants();
+  }, [distance]);
 
   useEffect(() => {
     filterRestaurants();
@@ -420,6 +430,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       if (distance > DISTANCE_THRESHOLD) {
         console.log("Distance threshold exceeded. Updating restaurants...");
         setRestaurants();
+        filterRestaurants();
         setPreviousLocation(tempLocation);
       }
     } else {
@@ -448,7 +459,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
-    if (selectedFilters) {
+    if (selectedFilters.length > 0) {
       const categoriesToFilter = new Set(
         selectedFilters
           .filter(
@@ -819,7 +830,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     filteredRestaurants,
     setFilteredRestaurants,
     filterRestaurants,
-
+    distance,
+    setDistance,
     preferences,
     setPreferences,
 

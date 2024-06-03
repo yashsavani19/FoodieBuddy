@@ -72,7 +72,7 @@ export default function TitleHeader({
         searchBar={searchBar}
         onSearchSubmit={handleSearchSubmit}
         onSortSelect={handleSortSelect}
-        searchTerm={searchTerm} // Pass the current search term
+        searchTerm={searchTerm} 
       />
     </View>
   );

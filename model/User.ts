@@ -11,4 +11,5 @@ export interface User {
     visitedRestaurants?: Saved[];
     favouriteRestaurants?: Saved[];
     userPreferencesAPIName?: String[];
+    preferences?: PreferenceList[];
 }

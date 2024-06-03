@@ -14,6 +14,8 @@ import {
   limit,
   serverTimestamp,
   updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
@@ -272,7 +274,7 @@ export const addUser = async (uid: string, email: string, username: string) => {
     const userCollection = `users/${uid}`;
     await setDoc(doc(db, userCollection), {
       email: email,
-      username: username
+      username: username,
     });
     await addPreferences(uid);
   } catch (e) {
@@ -485,11 +487,13 @@ export const fetchFriends = async (): Promise<Friend[]> => {
   try {
     const uid = auth.currentUser?.uid;
     const friendCollection = `users/${uid}/friends`;
+    const preferencesCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, friendCollection));
     const friends: Friend[] = [];
     querySnapshot.forEach(async (doc) => {
       const username = await getUsername(doc.id);
       const profileImageUrl = await getProfileImageUrl(doc.id);
+      // const preferences = await fetchFriendsPreferences(doc.id);
       // console.log("Friends fetched: ", username, profileImageUrl, doc.id);
       friends.push({
         uid: doc.id,
@@ -1157,8 +1161,90 @@ export const listenToTypingStatus = (
   });
 };
 
+/**
+ * Stores recommended restaurants in the chat room
+ * @returns {Promise<void>}
+ */
+export const storeRecommendedRestaurants = async (
+  chatRoomId: string,
+  recommendedRestaurants: Restaurant[]
+) => {
+  try {
+    const recommendedRestaurantsCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "recommendedRestaurants"
+    );
 
+    for (const restaurant of recommendedRestaurants) {
+      const cleanedRestaurant = cleanRestaurantData(restaurant);
+      await addDoc(recommendedRestaurantsCollection, cleanedRestaurant);
+    }
 
+    console.log("Recommended restaurants stored successfully.");
+  } catch (e) {
+    console.error("Error storing recommended restaurants: ", e);
+    alert(
+      "Internal error storing recommended restaurants. Please try again later."
+    );
+  }
+};
+
+/**
+ * Clears recommended restaurants in the chat room
+ */
+export const clearRecommendedRestaurants = async (chatRoomId: string) => {
+  try {
+    const recommendedRestaurantsCollection = collection(
+      db,
+      "chatRooms",
+      chatRoomId,
+      "recommendedRestaurants"
+    );
+
+    const querySnapshot = await getDocs(recommendedRestaurantsCollection);
+    querySnapshot.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+    });
+
+    console.log("Recommended restaurants cleared successfully.");
+  } catch (e) {
+    console.error("Error clearing recommended restaurants: ", e);
+    alert(
+      "Internal error clearing recommended restaurants. Please try again later."
+    );
+  }
+};
+
+/**
+ * Adds a listener for the recommended restaurants in the chat room
+ * @returns {function} - Unsubscribe function to stop listening to recommended restaurants
+ */
+export const listenToRecommendedRestaurants = (
+  chatRoomId: string,
+  callback: (recommendedRestaurants: Restaurant[]) => void
+) => {
+  const recommendedRestaurantsCollection = collection(
+    db,
+    "chatRooms",
+    chatRoomId,
+    "recommendedRestaurants"
+  );
+
+  return onSnapshot(recommendedRestaurantsCollection, (snapshot) => {
+    const recommendedRestaurants = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Restaurant[];
+    callback(recommendedRestaurants);
+  });
+};
+
+/**
+ * Adds a preference to the user's preferences collection
+ * @param uid user id
+ */
 export const addPreferences = async (uid: string) => {
   try {
     const preferenceCollection = `users/${uid}/preferences`;
@@ -1244,6 +1330,50 @@ export const fetchPreferences = async (): Promise<{ preferences: PreferenceCateg
   }
 };
 
+/**
+ * Gets friends preferences
+ * @param uid user id
+ */
+export const fetchFriendsPreferences = async (
+  uid: string
+): Promise<PreferenceList[]> => {
+  try {
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const preferences: PreferenceList[] = [];
+
+    // Group preferences by category
+    const categoryMap: { [key: string]: Preference[] } = {};
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const category = data.category;
+      const preference: Preference = {
+        name: data.name,
+        selected: data.selected,
+        apiName: data.apiName,
+      };
+      if (!categoryMap[category]) {
+        categoryMap[category] = [];
+      }
+      categoryMap[category].push(preference);
+    });
+
+    for (const category in categoryMap) {
+      preferences.push({
+        title: category,
+        preferences: categoryMap[category],
+      });
+    }
+
+    return preferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+    return [];
+  }
+};
+
 export const fetchSelectedPreferences = async (): Promise<string[]> => {
   try {
     const uid = auth.currentUser?.uid;
@@ -1306,8 +1436,7 @@ export const updatePreferences = async (
             ", Category: ",
             category.title,
             ", API Name: ",
-            preference.apiName,
-            
+            preference.apiName
           );
           await setDoc(docRef, {
             category: category.title,
@@ -1325,5 +1454,75 @@ export const updatePreferences = async (
   }
 };
 
+/**
+ * Adds a friend to a chat room's allowed users list
+ * @param {string} chatRoomId - ID of the chat room
+ * @param {string} friendId - ID of the friend to add
+ * @returns {Promise<void>}
+ */
+export const addFriendToChatRoom = async (
+  chatRoomId: string,
+  friendId: string
+): Promise<void> => {
+  try {
+    const chatRoomDocRef = doc(db, "chatRooms", chatRoomId);
+    await updateDoc(chatRoomDocRef, {
+      allowedUsers: arrayUnion(friendId),
+    });
+    console.log(`Friend with ID ${friendId} added to chat room ${chatRoomId}`);
+  } catch (error) {
+    console.error("Error adding friend to chat room:", error);
+    alert("Internal error adding friend to chat room. Please try again later.");
+  }
+};
 
+/**
+ * Removes a friend from a chat room's allowed users list
+ * @param {string} chatRoomId - ID of the chat room
+ * @param {string} friendId - ID of the friend to remove
+ * @returns {Promise<void>}
+ */
+export const removeFriendFromChatRoom = async (
+  chatRoomId: string,
+  friendId: string
+): Promise<void> => {
+  try {
+    const chatRoomDocRef = doc(db, "chatRooms", chatRoomId);
+    await updateDoc(chatRoomDocRef, {
+      allowedUsers: arrayRemove(friendId),
+    });
+    console.log(
+      `Friend with ID ${friendId} removed from chat room ${chatRoomId}`
+    );
+  } catch (error) {
+    console.error("Error removing friend from chat room:", error);
+    alert(
+      "Internal error removing friend from chat room. Please try again later."
+    );
+  }
+};
 
+/**
+ * Fetches friends in a chat room by its ID
+ * @param {string} chatRoomId - ID of the chat room
+ * @returns {Promise<string[]>} - A promise that resolves to an array of friend IDs
+ */
+export const fetchFriendsInChatRoom = async (
+  chatRoomId: string
+): Promise<string[]> => {
+  try {
+    const chatRoomDocRef = doc(db, "chatRooms", chatRoomId);
+    const chatRoomDoc = await getDoc(chatRoomDocRef);
+
+    if (chatRoomDoc.exists()) {
+      const chatRoomData = chatRoomDoc.data();
+      return chatRoomData.allowedUsers || [];
+    } else {
+      console.error("Chat room not found");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching friends in chat room:", error);
+    return [];
+  }
+};

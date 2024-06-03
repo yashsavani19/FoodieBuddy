@@ -8,6 +8,8 @@ import { RootStackParamList } from "@/constants/navigationTypes";
 import { RouteProp } from "@react-navigation/native";
 import DetailsViewComponents from "@/components/DetailsViewComponents";
 import { useNavigation } from "expo-router";
+import ReactNativeModal from "react-native-modal";
+import { useState } from "react";
 
 
 // Define the type for the route prop
@@ -17,7 +19,8 @@ export default function DetailsView() {
 
   // Access navigation object for navigating back
   const navigation = useNavigation();
-
+  const [isModalVisible, setModalVisible] = useState(false);
+  
   // Function to navigate back
   function backFunction() {
     navigation.goBack();
@@ -36,6 +39,10 @@ export default function DetailsView() {
       </View>
     );
   }
+
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
   // Render the DetailsViewComponents with the restaurant object
   return (
