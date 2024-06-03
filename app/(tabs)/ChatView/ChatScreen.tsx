@@ -602,6 +602,7 @@ const styles = StyleSheet.create({
   profileImage: {
     width: wp('11%'),
     height: wp('11%'),
+    borderRadius: 20,
   },
   messageBubble: {
     borderRadius: wp('5%'),
