@@ -215,6 +215,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     await updatePreferencesAPIName();
     restaurants.forEach((restaurant: Restaurant) => {
       if (restaurant.categories === undefined) return;
+      // Reset preferenceScore
+      restaurant.preferenceScore = 0;
       restaurant.categories.forEach((category) => {
         if (preferencesAPINames.includes(category)) {
           if (restaurant.preferenceScore !== undefined) {
@@ -223,12 +225,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         }
       });
       console.log(
-        `MATCHES: Restaurant category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
+        `MATCHES: Restaurant: ${restaurant.name} category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
       );
     });
   };
-
-  
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -263,8 +263,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   useEffect(() => {
     updatePreferenceScore(localRestaurants);
-  }, [ preferences]);
-
+  }, [preferences]);
 
   useEffect(() => {
     console.log("Favourites updated");
@@ -707,28 +706,28 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-  const updateUserPreferences = (
-    category: string,
-    preferenceName: string,
-    selected: boolean
-  ) => {
-    const updatedPreferences = preferences.map((cat) => {
-      if (cat.title === category) {
-        const updatedCategory = cat.preferences.map((pref) => {
-          if (pref.name === preferenceName) {
-            return { ...pref, selected };
-          }
-          return pref;
-        });
-        return { ...cat, preferences: updatedCategory };
-      }
-      return cat;
-    });
-    setPreferences(updatedPreferences);
-    if (user) {
-      updatePreferences(updatedPreferences);
-    }
-  };
+  // const updateUserPreferences = (
+  //   category: string,
+  //   preferenceName: string,
+  //   selected: boolean
+  // ) => {
+  //   const updatedPreferences = preferences.map((cat) => {
+  //     if (cat.title === category) {
+  //       const updatedCategory = cat.preferences.map((pref) => {
+  //         if (pref.name === preferenceName) {
+  //           return { ...pref, selected };
+  //         }
+  //         return pref;
+  //       });
+  //       return { ...cat, preferences: updatedCategory };
+  //     }
+  //     return cat;
+  //   });
+  //   setPreferences(updatedPreferences);
+  //   if (user) {
+  //     updatePreferences(updatedPreferences);
+  //   }
+  // };
 
   const contextValue = {
     dataLoading,
@@ -768,7 +767,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
     preferences,
     setPreferences,
-    updateUserPreferences,
 
     preferencesAPINames,
     setPreferencesAPINames,
