@@ -596,7 +596,7 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     alignItems: "center",
-    marginHorizontal: wp('3%'),
+    marginHorizontal: wp('2.5%'),
     width: wp('10%'),
   },
   profileImage: {
