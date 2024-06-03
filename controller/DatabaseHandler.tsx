@@ -491,12 +491,12 @@ export const fetchFriends = async (): Promise<Friend[]> => {
     querySnapshot.forEach(async (doc) => {
       const username = await getUsername(doc.id);
       const profileImageUrl = await getProfileImageUrl(doc.id);
+      // const preferences = await fetchFriendsPreferences(doc.id);
       // console.log("Friends fetched: ", username, profileImageUrl, doc.id);
       friends.push({
         uid: doc.id,
         username: username,
         profileImageUrl: profileImageUrl,
-        preferences: await fetchFriendsPreferences(doc.id),
       });
     });
     return friends;
@@ -1159,42 +1159,6 @@ export const listenToTypingStatus = (
   });
 };
 
-export const addPreferences = async (uid: string) => {
-  try {
-    const preferenceCollection = `users/${uid}/preferences`;
-
-    for (const category of DefaultPreferences) {
-      for (const preference of category.preferences) {
-        const docRef = doc(
-          db,
-          preferenceCollection,
-          `${category.title}-${preference.name}`
-        );
-        console.log(
-          "Preference: ",
-          preference.name,
-          ", Selected: ",
-          preference.selected,
-          ", Category: ",
-          category.title,
-          ", API Name: ",
-          preference.apiName
-        );
-        await setDoc(docRef, {
-          name: preference.name,
-          selected: preference.selected,
-          category: category.title,
-          apiName: preference.apiName,
-        });
-      }
-    }
-    console.log("Default preferences added to collection");
-  } catch (e) {
-    console.error("Error adding preferences: ", e);
-    alert("Internal error adding preferences. Please try again later.");
-  }
-};
-
 /**
  * Stores recommended restaurants in the chat room
  * @returns {Promise<void>}
@@ -1275,6 +1239,46 @@ export const listenToRecommendedRestaurants = (
   });
 };
 
+/**
+ * Adds a preference to the user's preferences collection
+ * @param uid user id
+ */
+export const addPreferences = async (uid: string) => {
+  try {
+    const preferenceCollection = `users/${uid}/preferences`;
+
+    for (const category of DefaultPreferences) {
+      for (const preference of category.preferences) {
+        const docRef = doc(
+          db,
+          preferenceCollection,
+          `${category.title}-${preference.name}`
+        );
+        console.log(
+          "Preference: ",
+          preference.name,
+          ", Selected: ",
+          preference.selected,
+          ", Category: ",
+          category.title,
+          ", API Name: ",
+          preference.apiName
+        );
+        await setDoc(docRef, {
+          name: preference.name,
+          selected: preference.selected,
+          category: category.title,
+          apiName: preference.apiName,
+        });
+      }
+    }
+    console.log("Default preferences added to collection");
+  } catch (e) {
+    console.error("Error adding preferences: ", e);
+    alert("Internal error adding preferences. Please try again later.");
+  }
+};
+
 // /**
 //  * Fetches user preferences
 //  */
@@ -1321,7 +1325,9 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
  * Gets friends preferences
  * @param uid user id
  */
-export const fetchFriendsPreferences = async (uid: string) => {
+export const fetchFriendsPreferences = async (
+  uid: string
+): Promise<PreferenceList[]> => {
   try {
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
