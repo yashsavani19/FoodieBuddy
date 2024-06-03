@@ -78,9 +78,7 @@ export default function UserProfileView() {
   }, []);
 
   function navigateToFoodPreferences(): void {
-    navigation.navigate("FoodPreferencesView", {
-      preferences,
-    });
+    navigation.navigate("FoodPreferencesView");
   }
 
   function navigateToFavouriteSpots(): void {

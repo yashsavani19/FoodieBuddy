@@ -35,7 +35,7 @@ export type RootStackParamList = {
   UserProfileView: undefined;
   FriendProfile: { friend: Friend };
   FriendRequests: undefined;
-  FoodPreferencesView: { preferences: PreferenceList[] };
+  FoodPreferencesView: { preferences: PreferenceList[] } | undefined;
 };
 
 // Define the MapRouteParams type to include geometry, directions, and restaurantId
