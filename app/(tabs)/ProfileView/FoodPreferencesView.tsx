@@ -49,7 +49,7 @@ const FoodPreferencesView: React.FC = () => {
     try {
       setSaving(true);
       await updatePreferences(localPreferences);
-      setPreferences(localPreferences);
+      await setPreferences(localPreferences);
       const apiNames = preferencesAPINamesString();
       setPreferencesAPINames(apiNames);
       console.log("Preferences saved successfully");

@@ -29,7 +29,7 @@ import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
-import { set } from "firebase/database";
+import { set, update } from "firebase/database";
 import { Sort } from "@/model/Sort";
 import { SortOptions } from "@/model/SortOptions";
 import { restaurants } from "@/constants/AITestData";
@@ -290,17 +290,16 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   useEffect(() => {
     filterRestaurants();
-    // updatePreferenceScore();
     sortRestaurants();
 
   }, [selectedSortOption, filteredRestaurants]);
 
-  useEffect(() => {
+  // useEffect(() => {
 
     
-    filterRestaurants();
-    sortRestaurants();
-  },[preferences]);
+  //   filterRestaurants();
+  //   sortRestaurants();
+  // },[preferences]);
 
   useEffect(() => {
     console.log("Friends updated");
@@ -367,7 +366,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     );
   }, [preferencesAPINames]);
 
-  
+  useEffect(() => {
+    updatePreferenceScore(localRestaurants);
+    filterRestaurants();
+    sortRestaurants();
+  }, [preferencesAPINames, preferences]);
 
   useEffect(() => {
     console.log(
@@ -437,6 +440,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       chatMessages.splice(1, chatMessages.length - 11);
     }
   };
+
 
 
   // Handle filtering of restaurants based on search term and selected category
