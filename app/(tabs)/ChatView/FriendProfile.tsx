@@ -90,7 +90,7 @@ const FriendProfile: React.FC = () => {
         <View>
           <View style={styles.imageNameContainer}>
             <Image
-              resizeMode="contain"
+              // resizeMode="contain"
               style={styles.profileImage}
               source={
                 typeof friend.profileImageUrl === 'string'

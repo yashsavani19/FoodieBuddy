@@ -1,6 +1,6 @@
 
 import * as React from 'react';
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject, useContext, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../Themed';
@@ -13,16 +13,16 @@ import StarRating from '../StarRating';
 import Slider from '@react-native-community/slider';
 import { formatDistance } from '@/app/Utils/FormatDistance';
 import { MaterialIcons } from '@expo/vector-icons';
-
+import { AppContext } from '@/context/AppContext';
 interface DrawerContentProps {
     onApplyFilters: (filters: Category[], distance: number) => void;
     setScrollViewRef: (ref: RefObject<ScrollView>) => void;
   }  
 
   const DrawerContent: React.FC<DrawerContentProps> = ({ onApplyFilters, setScrollViewRef }) => {
-    const [filters, setFilters] = useState<Category[]>([]);
-    const [distance, setDistance] = useState<number>(1.0);
+    const [selectedDistance, setSelectedDistance] = useState<number>(1.0);
     const scrollViewRef = React.useRef<ScrollView>(null);
+    const { selectedFilters, setSelectedFilters } = useContext(AppContext); 
 
     useEffect(() => {
         setScrollViewRef(scrollViewRef);
@@ -32,7 +32,7 @@ interface DrawerContentProps {
         <SafeAreaView style = {{marginHorizontal: 10}}>
             <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
                 <View>
-                    <TouchableOpacity onPress={() => {setFilters([]); setDistance(1.0)}} style={styles.clearAllButton}>
+                    <TouchableOpacity onPress={() => {setSelectedFilters([]); setSelectedDistance(1.0)}} style={styles.clearAllButton}>
                         <MaterialIcons name="cancel" size={20} color="#CC4843" />
                         <Text style={{color: '#CC4343', fontWeight: 'bold'}}> Clear All</Text>
                     </TouchableOpacity>
@@ -42,8 +42,8 @@ interface DrawerContentProps {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category}
-                                selected={filters} 
-                                setSelected={setFilters} />
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -52,8 +52,8 @@ interface DrawerContentProps {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                selected={filters} 
-                                setSelected={setFilters} />
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -62,8 +62,8 @@ interface DrawerContentProps {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                selected={filters} 
-                                setSelected={setFilters} />
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} />
                         ))}
                     </CategoryContainer>
                     
@@ -72,8 +72,8 @@ interface DrawerContentProps {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category}
-                                selected={filters} 
-                                setSelected={setFilters} />
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -82,8 +82,8 @@ interface DrawerContentProps {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                selected={filters} 
-                                setSelected={setFilters} />
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} />
                         ))}
                     </CategoryContainer>
 
@@ -92,8 +92,8 @@ interface DrawerContentProps {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                selected={filters} 
-                                setSelected={setFilters}
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} 
                                 toPrint={
                                     <View style={styles.container}>
                                         <StarRating rating={category.rating || 1}/>
@@ -106,7 +106,7 @@ interface DrawerContentProps {
 
                     <CategoryContainer title="Maximum Distance">
                         <View style = {styles.container}>
-                            <Text style={styles.text}>{formatDistance(distance.toString())}</Text>
+                            <Text testID="Distance text" style={styles.text}>{formatDistance(selectedDistance.toString())}</Text>
                             <Slider
                                 style={styles.slider}
                                 minimumValue={0.1}
@@ -114,8 +114,9 @@ interface DrawerContentProps {
                                 step={0.1}
                                 minimumTrackTintColor="#F26722"
                                 thumbTintColor='#F26722'
-                                value={distance}
-                                onValueChange={value => setDistance(parseFloat(value.toFixed(1)))}
+                                value={selectedDistance}
+                                onValueChange={value => setSelectedDistance(parseFloat(value.toFixed(1)))}
+                                testID='Distance Slider'
                             />
                         </View>
                     </CategoryContainer>
@@ -125,21 +126,23 @@ interface DrawerContentProps {
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                selected={filters} 
-                                setSelected={setFilters} />
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} />
                         ))}
 
                         {categories.filter(categories => categories.type === "Takeaway Option").map((category) => (
                             <CategoryButton 
                                 key={category.id} 
                                 category={category} 
-                                selected={filters} 
-                                setSelected={setFilters} />
+                                selected={selectedFilters} 
+                                setSelected={setSelectedFilters} />
                         ))}
                     </View>
 
                     <View style={{paddingTop: 40, paddingBottom: 25}} >
-                        <ApplyFiltersButton onPress={() => {onApplyFilters(filters, distance)} } />
+                        <ApplyFiltersButton onPress={() => {
+                            onApplyFilters(selectedFilters, selectedDistance)
+                            } } />
                     </View>
                 </View>
             </ScrollView>

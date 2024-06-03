@@ -23,6 +23,23 @@ import { Friend } from "@/model/Friend";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
 import { PreferenceList } from "@/model/PreferenceList";
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
+
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+
+// ...
+
+export const uploadImage = async (image: File, uid: string) => {
+  try {
+    const storage = getStorage();
+    const storageRef = ref(storage, `users/${uid}/profilePicture.jpg`);
+    await uploadBytes(storageRef, image);
+    console.log("Image uploaded successfully");
+  } catch (e) {
+    console.error("Error uploading image: ", e);
+    alert("Internal error uploading image. Please try again later.");
+  }
+};
+
 const cleanRestaurantData = (restaurant: Restaurant): Partial<Restaurant> => {
   const cleanedData: Partial<Restaurant> = restaurant;
   if (restaurant.phone === undefined) restaurant.phone = "";
@@ -253,7 +270,7 @@ export const addUser = async (uid: string, email: string, username: string) => {
     const userCollection = `users/${uid}`;
     await setDoc(doc(db, userCollection), {
       email: email,
-      username: username,
+      username: username
     });
     await addPreferences(uid);
   } catch (e) {
@@ -472,7 +489,7 @@ export const fetchFriends = async (): Promise<Friend[]> => {
     querySnapshot.forEach(async (doc) => {
       const username = await getUsername(doc.id);
       const profileImageUrl = await getProfileImageUrl(doc.id);
-      console.log("Friends fetched: ", username, profileImageUrl, doc.id);
+      // console.log("Friends fetched: ", username, profileImageUrl, doc.id);
       friends.push({
         uid: doc.id,
         username: username,
@@ -948,7 +965,7 @@ export const fetchChatRooms = async (type: string) => {
 
     let lastMessage = lastMessageData ? lastMessageData.text : "";
     if (lastMessage.length > 50) {
-      lastMessage = `${lastMessage.substring(0, 30)}...`;
+      lastMessage = `${lastMessage.substring(0, 35)}... `;
     }
 
     chatRooms.push({
@@ -1157,12 +1174,15 @@ export const addPreferences = async (uid: string) => {
           ", Selected: ",
           preference.selected,
           ", Category: ",
-          category.title
+          category.title,
+          ", API Name: ",
+          preference.apiName
         );
         await setDoc(docRef, {
           name: preference.name,
           selected: preference.selected,
           category: category.title,
+          apiName: preference.apiName,
         });
       }
     }
@@ -1338,32 +1358,54 @@ export const fetchFriendsPreferences = async (uid: string) => {
 };
 
 export const updatePreferences = async (
-  updatedPreferences: PreferenceList[]
+  updatedPreferences: PreferenceList[],
 ) => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
 
+    // Fetch current preferences using fetchPreferences
+    const currentPreferences = await fetchPreferences();
+
+    // Create a map for quick lookup of current preferences
+    const currentPreferencesMap: { [key: string]: Preference } = {};
+    currentPreferences.forEach((category) => {
+      category.preferences.forEach((preference) => {
+        const key = `${category.title}-${preference.name}`;
+        currentPreferencesMap[key] = preference;
+      });
+    });
+
+    // Iterate over updated preferences and compare with current preferences
     for (const category of updatedPreferences) {
       for (const preference of category.preferences) {
-        const docRef = doc(
-          db,
-          preferenceCollection,
-          `${category.title}-${preference.name}`
-        );
-        console.log(
-          "Updating Preference: ",
-          preference.name,
-          ", Selected: ",
-          preference.selected,
-          ", Category: ",
-          category.title
-        );
-        await setDoc(docRef, {
-          category: category.title,
-          name: preference.name,
-          selected: preference.selected,
-        });
+        const key = `${category.title}-${preference.name}`;
+        const currentPreference = currentPreferencesMap[key];
+
+        if (
+          !currentPreference ||
+          currentPreference.selected !== preference.selected
+        ) {
+          // Update the preference if it does not exist or if the selected value has changed
+          const docRef = doc(db, preferenceCollection, key);
+          console.log(
+            "Updating Preference: ",
+            preference.name,
+            ", Selected: ",
+            preference.selected,
+            ", Category: ",
+            category.title,
+            ", API Name: ",
+            preference.apiName,
+            
+          );
+          setDoc(docRef, {
+            category: category.title,
+            name: preference.name,
+            selected: preference.selected,
+            apiName: preference.apiName,
+          });
+        }
       }
     }
     console.log("Preferences updated successfully");

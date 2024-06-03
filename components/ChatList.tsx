@@ -19,6 +19,7 @@ import ChatRoomItem from "./ChatRoomItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 import { Friend as FriendModel } from "@/model/Friend";
 import { Friend } from "@/model/ChatFriend";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 type ChatRoom = {
   id: string;
@@ -156,7 +157,7 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
             onPress={() => setModalVisible(true)}
             style={styles.addButton}
           >
-            <Text style={styles.addButtonText}>New Chat</Text>
+            <Text style={styles.addButtonText}>New Chat </Text>
           </TouchableOpacity>
           <CreateChatRoomModal
             visible={modalVisible}
@@ -179,19 +180,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#2E2E2E",
+    paddingTop: hp('0.1%'),
   },
   addButton: {
     position: "absolute",
-    bottom: 20,
-    right: 20,
+    bottom: hp('2.5%'),
+    right: wp('5%'),
     backgroundColor: "#007BFF",
-    borderRadius: 15,
-    padding: 10,
-    width: 120,
+    borderRadius: wp('3.5%'),
+    padding: wp('2.5%'),
+    width: wp('30%'),
   },
   addButtonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: wp('4%'),
     fontWeight: "bold",
     textAlign: "center",
   },

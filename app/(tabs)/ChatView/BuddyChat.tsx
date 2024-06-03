@@ -21,6 +21,10 @@ import { Restaurant } from "@/model/Restaurant";
 import RestaurantListItem from "../../../components/RestaurantListItem";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import SettingsModal from "@/components/SettingsModal";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 import { DefaultAISystemPrompt } from "@/model/DefaultAISystemPrompt";
 
 // Ensure the paths to the image assets are correct
@@ -28,11 +32,11 @@ const userIcon = require("../../../assets/images/user-icon.png");
 const buddyIcon = require("../../../assets/images/buddy-icon.png");
 
 /**
- *  Chat component for user to interact with Buddy.
+ *  BuddyChat component for user to interact with Buddy.
  * User can send messages to Buddy and receive responses from AI.
- * @returns Chat component with messages, input text box, and send button
+ * @returns BuddyChat component with messages, input text box, and send button
  */
-const Chat: React.FC = () => {
+const BuddyChat: React.FC = () => {
   const { localRestaurants } = useContext(AppContext);
   const { sendMessage, resetMessages, setSystemPrompt } = useOpenAIHandler();
   const [messages, setMessages] = useState<MessageProps[]>([
@@ -182,7 +186,7 @@ const Chat: React.FC = () => {
   };
 
   /**
-   * Chat component with messages, input text box, and send button
+   * BuddyChat component with messages, input text box, and send button
    */
   return (
     <View style={styles.container}>
@@ -206,8 +210,8 @@ const Chat: React.FC = () => {
               )}
               keyExtractor={(item) => item.id}
               style={styles.messagesList}
-              contentContainerStyle={{ paddingBottom: 10 }}
-              ListHeaderComponent={<View style={{ height: 10 }} />}
+              contentContainerStyle={{ paddingBottom: hp("1.5%") }}
+              ListHeaderComponent={<View style={{ height: hp("1.5%") }} />}
               ListFooterComponent={
                 recommendedRestaurant ? (
                   <RestaurantListItem restaurant={recommendedRestaurant} />
@@ -224,7 +228,7 @@ const Chat: React.FC = () => {
               <TouchableOpacity onPress={sendMessageFromUser}>
                 <FontAwesome
                   name="send"
-                  size={24}
+                  size={wp("6%")}
                   color={Colors.light.iconColor}
                   style={styles.sendButton}
                 />
@@ -234,9 +238,9 @@ const Chat: React.FC = () => {
         </TouchableWithoutFeedback>
         <TouchableOpacity
           onPress={resetChatMessages}
-          style={{ position: "absolute", top: 10, right: 15 }}
+          style={{ position: "absolute", top: hp("1.5%"), right: wp("5%") }}
         >
-          <FontAwesome name="repeat" size={24} color="grey" />
+          <FontAwesome name="repeat" size={wp("6%")} color="grey" />
         </TouchableOpacity>
       </KeyboardAvoidingView>
       <SettingsModal visible={settingsVisible} onClose={closeSettings} />
@@ -249,20 +253,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingTop: 120,
+    paddingTop: hp("15%"),
     backgroundColor: "#fff",
-  },
-  navigationBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "#000",
-    width: "100%",
-  },
-  navButton: {
-    padding: 5,
   },
   innerContainer: {
     flex: 1,
@@ -274,56 +266,29 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 10,
+    padding: wp("2.5%"),
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderColor: "#e2e2e2",
     width: "95%",
     alignSelf: "center",
-    borderRadius: 20,
-    height: 60,
+    borderRadius: wp("5%"),
+    height: hp("8%"),
     justifyContent: "space-between",
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: wp("4%"),
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 15,
+    borderRadius: wp("5%"),
+    paddingHorizontal: wp("4%"),
     backgroundColor: "#fff",
-    height: 40,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContainer: {
-    width: 300,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  modalItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    width: "100%",
-    alignItems: "center",
-  },
-  modalItemText: {
-    fontSize: 16,
+    height: hp("5.5%"),
   },
   sendButton: {
-    marginLeft: 10,
+    marginLeft: wp("2.5%"),
   },
 });
 
-export default Chat;
+export default BuddyChat;

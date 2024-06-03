@@ -65,7 +65,6 @@ export const OpenStatusLabelList: React.FC<OpenStatusLabelProps> = ({restaurant}
         paddingRight: 6, 
         paddingLeft: 8,
         flexDirection: 'row',
-        width: "25%",
         alignItems: 'center',
         justifyContent: 'space-between',
         elevation: 6,

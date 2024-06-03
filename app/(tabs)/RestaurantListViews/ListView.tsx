@@ -50,7 +50,12 @@ const HomeView: FC = () => {
                 )}
                 <FlatList
                   data={filteredRestaurants}
-                  renderItem={({ item }) => <RestaurantListItem restaurant={item} />}
+                  renderItem={({ item, index }) => (
+                    <RestaurantListItem 
+                      restaurant={item} 
+                      isLastItem={index === filteredRestaurants.length - 1} 
+                    />
+                  )}
                   contentContainerStyle={{ gap: 3 }}
                 />
               </>

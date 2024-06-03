@@ -13,25 +13,28 @@
  */
 
 import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 interface NavBarProps {
   openSettings: () => void;
+  title?: string;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ openSettings }) => {
+const NavBar: React.FC<NavBarProps> = ({ openSettings, title }) => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.navigationBar}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.navButton}>
-        <AntDesign name="arrowleft" size={24} color="#000" />
+        <AntDesign name="arrowleft" size={wp('6%')} color="#000" />
       </TouchableOpacity>
+      <Text style={styles.titleText} numberOfLines={1} ellipsizeMode="tail">{title}</Text>
       <TouchableOpacity onPress={openSettings} style={styles.navButton}>
-        <MaterialIcons name="settings" size={22} color="#000" />
+        <MaterialIcons name="settings" size={wp('6%')} color="#000" />
       </TouchableOpacity>
     </View>
   );
@@ -42,14 +45,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingHorizontal: wp('5%'),
+    paddingVertical: hp('1%'),
     backgroundColor: "#f2f2f2",
-    width: "100%",
-    height: 40,
+    width: wp('100%'),
+    height: hp('6%'),
+  },
+  titleText: {
+    fontSize: wp('5%'),
+    fontWeight: "bold",
+    color: "#000",
+    maxWidth: wp('60%'),
   },
   navButton: {
-    padding: 5,
+    padding: wp('1%'),
   },
 });
 

@@ -61,7 +61,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
 
   if (searchBar) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} testID="Search Bar">
         <SearchBar 
           onSearchSubmit={handleSearchSubmit} 
         />

@@ -31,7 +31,7 @@ const ListContainer: React.FC<ListContainerProps> = ({ friend }) => {
     <View style={{ borderBottomWidth: 3, borderBottomColor: "#363232" }}>
       <TouchableOpacity style={styles.listItem} onPress={handlePress}>
         <Image
-          resizeMode="contain"
+          // resizeMode="contain"
           style={styles.listImage}
           source={
             typeof friend.profileImageUrl === "string"
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     marginRight: 10,
-    borderRadius: 50,
+    borderRadius: 25,
   },
   rightArrow: {
     fontSize: 35,

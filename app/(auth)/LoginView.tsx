@@ -1,20 +1,25 @@
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   TextInput,
-  Button,
   SafeAreaView,
   Image,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
   BackHandler,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
 } from "react-native";
-import { Platform } from "react-native";
-
-import React, { useEffect, useState } from "react";
 import { Text, View } from "@/components/Themed";
 import { Link } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 // Import the image for the logo
 const buddyLogo = require("@/assets/images/title-logo.png");
@@ -31,9 +36,12 @@ export default function LoginView() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true)
-    return () => backHandler.remove()
-  }, [])
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => true
+    );
+    return () => backHandler.remove();
+  }, []);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -44,80 +52,82 @@ export default function LoginView() {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Scrollable container */}
-      <ScrollView>
-        {/* Application logo */}
-        <Image source={buddyLogo} style={styles.logo} />
-        <SafeAreaView style={styles.innerContainer}>
-          {/* Email input */}
-          <View style={styles.inputContainer}>
-            <Image
-              source={require("@/assets/images/mail-logo.png")}
-              style={styles.inputLogo}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              onChangeText={setEmail}
-            />
-            {/* Password input */}
-          </View>
-          <View style={styles.inputContainer}>
-            <Image
-              source={require("@/assets/images/lock-logo.png")}
-              style={styles.inputLogo}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              secureTextEntry
-              autoCapitalize="none"
-              value={password}
-              onChangeText={setPassword}
-            />
-          </View>
-          {/* Login Button */}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-              {!loading ? (
-                <Text
-                  style={{
-                    color: "white",
-                    textAlign: "center",
-                    fontWeight: "600",
-                    fontSize: 20,
-                  }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {/* Application logo */}
+            <Image source={buddyLogo} style={styles.logo} />
+            <SafeAreaView style={styles.innerContainer}>
+              {/* Email input */}
+              <View style={styles.inputContainer}>
+                <Image
+                  source={require("@/assets/images/mail-logo.png")}
+                  style={styles.inputLogo}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  value={email}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  onChangeText={setEmail}
+                />
+                {/* Password input */}
+              </View>
+              <View style={styles.inputContainer}>
+                <Image
+                  source={require("@/assets/images/lock-logo.png")}
+                  style={styles.inputLogo}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  secureTextEntry
+                  autoCapitalize="none"
+                  value={password}
+                  onChangeText={setPassword}
+                />
+              </View>
+              {/* Login Button */}
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.loginButton}
+                  onPress={handleLogin}
                 >
-                  Login
+                  {!loading ? (
+                    <Text style={styles.loginButtonText}> Login </Text>
+                  ) : (
+                    <ActivityIndicator
+                      size="large"
+                      color="#fff"
+                      animating={loading}
+                      style={{ marginTop: 10 }}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+              {/* Forgot Password Link */}
+              <Link href={"/ResetPasswordView"}>
+                <Text style={styles.clickableText}> Forgot Password? </Text>
+              </Link>
+              {/* Create Account Button*/}
+              <View style={styles.createAccountContainer}>
+                <Text style={styles.textStyle}>
+                  Don't Have an Account yet?{" "}
                 </Text>
-              ) : (
-                <ActivityIndicator
-                  size="large"
-                  color="#fff"
-                  animating={loading}
-                  style={{ marginTop: 10 }}
-                ></ActivityIndicator>
-              )}
-            </TouchableOpacity>
-          </View>
-          {/* Forgot Password Link */}
-          <Link href={"/ResetPasswordView"}>
-            <Text style={styles.clickableText}> Forgot Password?</Text>
-          </Link>
-          {/* Create Account Button*/}
-          <View style={styles.createAccountContainer}>
-            <Text style={styles.textStyle}>Don't Have an Account yet?</Text>
-            <Link href={"/RegisterView"}>
-              <Text style={styles.clickableText}> Register Now!</Text>
-            </Link>
-          </View>
-        </SafeAreaView>
-      </ScrollView>
-    </View>
+                <Link href={"/RegisterView"}>
+                  <Text style={styles.clickableText}> Register Now! </Text>
+                </Link>
+              </View>
+            </SafeAreaView>
+          </ScrollView>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -125,101 +135,79 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f26722",
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
   },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  googleLoginContainer: {
-    width: 300,
-    height: 50,
-    borderRadius: 15,
-    margin: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#373737",
-    marginBottom: 50,
-  },
-  googleText: {
-    color: "white",
-    width: 190,
-    fontSize: 20,
-    display: "flex",
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    textAlign: "right",
   },
-
   innerContainer: {
-    marginTop: 50,
+    marginTop: hp("7%"),
     flex: 1,
     alignItems: "center",
     backgroundColor: "#f26722",
   },
   inputContainer: {
-    width: 300,
-    height: 50,
+    width: wp("80%"),
+    height: hp("7%"),
     borderRadius: 15,
-    margin: 10,
+    margin: wp("2.5%"),
     flexDirection: "row",
     alignItems: "center",
   },
   input: {
     flex: 1,
-    height: 50,
+    height: hp("7%"),
     borderColor: "transparent",
     borderWidth: 1,
   },
-
   inputLogo: {
-    width: 30,
-    height: 30,
+    width: wp("7.5%"),
+    height: hp("4.5%"),
     resizeMode: "contain",
-    margin: 15,
+    margin: wp("3.5%"),
   },
-
   logo: {
-    width: "100%",
-    height: 200,
-    marginTop: 75,
+    width: wp("80%"),
+    height: hp("25%"),
+    marginTop: hp("10%"),
     resizeMode: "contain",
   },
-
   buttonContainer: {
     backgroundColor: "#f26722",
   },
-
   loginButton: {
-    width: 126,
+    width: wp("35%"),
     borderRadius: 15,
     backgroundColor: "#3464AC",
-    marginTop: 20,
-    marginBottom: 15,
-    height: 45,
+    marginTop: hp("3%"),
+    marginBottom: hp("2%"),
+    height: hp("6%"),
     justifyContent: "center",
   },
-
+  loginButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: wp("5%"),
+  },
   clickableText: {
     color: "blue",
     textDecorationLine: "underline",
-    fontSize: 15,
+    fontSize: wp("4%"),
   },
-
   textStyle: {
-    fontSize: 15,
+    fontSize: wp("4%"),
     color: "white",
     fontWeight: "bold",
   },
-
   createAccountContainer: {
     backgroundColor: "#f26722",
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
-    margin: 10,
+    padding: wp("2.5%"),
+    margin: wp("2.5%"),
   },
 });

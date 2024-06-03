@@ -14,6 +14,10 @@ import { Link } from "expo-router";
 import { Text, View } from "@/components/Themed";
 import { useAuth } from "@/context/AuthContext";
 import { checkUsername } from "@/controller/DatabaseHandler";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 // Import the image for the logo
 const buddyLogo = require("@/assets/images/title-logo.png");
@@ -129,7 +133,7 @@ export default function RegisterView() {
                     color: "white",
                     textAlign: "center",
                     fontWeight: "600",
-                    fontSize: 20,
+                    fontSize: wp("5%"),
                   }}
                 >
                   Register
@@ -146,9 +150,9 @@ export default function RegisterView() {
           </View>
           {/* Login Button*/}
           <View style={styles.createAccountContainer}>
-            <Text style={styles.textStyle}>Already Have an Account?</Text>
+            <Text style={styles.textStyle}>Already Have an Account? </Text>
             <Link href={"/LoginView"}>
-              <Text style={styles.clickableText}> Login Now!</Text>
+              <Text style={styles.clickableText}>Login Now! </Text>
             </Link>
           </View>
         </SafeAreaView>
@@ -165,102 +169,95 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   title: {
-    fontSize: 20,
+    fontSize: wp("5%"),
     fontWeight: "bold",
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: hp("3%"),
     height: 1,
     width: "80%",
   },
-
   googleRegisterContainer: {
-    width: 300,
-    height: 50,
+    width: wp("80%"),
+    height: hp("6%"),
     borderRadius: 15,
     margin: 0,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#373737",
-    marginBottom: 30,
+    marginBottom: hp("3%"),
   },
   googleText: {
     color: "white",
-    width: 190,
-    fontSize: 20,
+    width: wp("50%"),
+    fontSize: wp("5%"),
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     textAlign: "right",
   },
-
   innerContainer: {
-    marginTop: 30,
+    marginTop: hp("3%"),
     flex: 1,
     alignItems: "center",
     backgroundColor: "#f26722",
   },
   inputContainer: {
-    width: 300,
-    height: 50,
+    width: wp("80%"),
+    height: hp("6%"),
     borderRadius: 15,
-    margin: 10,
+    margin: hp("1%"),
     flexDirection: "row",
     alignItems: "center",
   },
   input: {
     flex: 1,
-    height: 50,
+    height: hp("6%"),
     borderColor: "transparent",
     borderWidth: 1,
   },
-
   inputLogo: {
-    width: 30,
-    height: 30,
+    width: wp("8%"),
+    height: hp("6%"),
     resizeMode: "contain",
-    margin: 15,
+    margin: wp("2%"),
   },
-
   logo: {
     width: "100%",
-    height: 200,
-    marginTop: 75,
+    height: hp("25%"),
+    marginTop: hp("10%"),
     resizeMode: "contain",
   },
-
   buttonContainer: {
     backgroundColor: "#f26722",
   },
-
   registerButton: {
-    width: 200,
+    width: wp("50%"),
     borderRadius: 15,
     backgroundColor: "#3464AC",
-    marginTop: 20,
-    marginBottom: 15,
-    height: 45,
+    marginTop: hp("2%"),
+    marginBottom: hp("1.5%"),
+    height: hp("6%"),
     justifyContent: "center",
   },
-
   clickableText: {
     color: "blue",
     textDecorationLine: "underline",
-    fontSize: 15,
+    fontSize: wp("4%"),
   },
-
   textStyle: {
-    fontSize: 15,
+    fontSize: wp("4%"),
     color: "white",
     fontWeight: "bold",
-  },
 
+  },
   createAccountContainer: {
     backgroundColor: "#f26722",
     width: "100%",
     flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    margin: 10,
+    // alignItems: "center",
+    padding: wp("2%"),
+    margin: wp("2%"),
+    justifyContent: 'center'
   },
 });

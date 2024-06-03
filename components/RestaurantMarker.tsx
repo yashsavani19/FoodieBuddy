@@ -29,7 +29,7 @@ const RestaurantMarker: React.FC<RestaurantMarkerProps> = ({ rating, selected })
             color={selected ? "#e46860" : "black"} 
           />
         </View>
-        <Text style={styles.rating}>{rating}</Text>
+        <Text style={styles.rating}>{rating} </Text>
       </View>
       <View style={pointerStyle} />
     </View>

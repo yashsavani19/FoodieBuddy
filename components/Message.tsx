@@ -7,6 +7,7 @@ import {
   ImageSourcePropType,
   ActivityIndicator,
 } from "react-native";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 // Message props interface
 export interface MessageProps {
@@ -76,64 +77,65 @@ const Message: React.FC<MessageProps> = ({ imageUrl, text, type }) => {
 const styles = StyleSheet.create({
   messageContainer: {
     flexDirection: "row",
-    padding: 5,
+    padding: wp('1.25%'),
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: hp('1.25%'),
   },
   buddyContainer: {
     flexDirection: "column",
     alignItems: "center",
-    marginRight: 10,
+    marginRight: wp('2%'),
+    marginLeft: wp('1%'),
   },
   buddyName: {
-    fontSize: 12,
+    fontSize: wp('3%'),
     fontWeight: "bold",
     color: "#555",
-    marginBottom: 2,
+    marginBottom: hp('0.5%'),
   },
   image: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    margin: 5,
+    width: wp('10%'),
+    height: wp('10%'),
+    borderRadius: wp('5%'),
+    paddingHorizontal: wp('0.5%'),
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
-    borderRadius: 20,
-    padding: 10,
-    maxWidth: "95%",
+    borderRadius: wp('5%'),
+    padding: wp('2.5%'),
+    maxWidth: wp('80%'),
     borderBottomRightRadius: 0,
-    marginRight: 10,
+    marginRight: wp('2.5%'),
   },
   buddyMessage: {
     backgroundColor: "#d3d3d3",
-    borderRadius: 20,
-    padding: 10,
-    maxWidth: "95%",
+    borderRadius: wp('5%'),
+    padding: wp('2.5%'),
+    maxWidth: wp('80%'),
     borderBottomLeftRadius: 0,
-    marginLeft: 5,
+    marginLeft: wp('1.25%'),
   },
   buddyText: {
     color: "#000",
-    fontSize: 16,
+    fontSize: wp('4%'),
     fontWeight: '500',
   },
   currentUserText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: wp('4%'),
     fontWeight: '500',
   },
   suggestionText: {
     color: "black",
-    fontSize: 16,
+    fontSize: wp('4%'),
   },
   sentMessage: {
     justifyContent: "flex-end",
-    marginLeft: "25%",
+    marginLeft: wp('25%'),
   },
   receivedMessage: {
     justifyContent: "flex-start",
-    marginRight: "25%",
+    marginRight: wp('25%'),
   },
   loading: {
     backgroundColor: "white",

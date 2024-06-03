@@ -1,24 +1,10 @@
-/**
- * ChatRoomItem.tsx
- * 
- * This file defines the ChatRoomItem component, which is responsible for rendering individual chat rooms in the chat list.
- * The component includes an avatar, chat room name, last message, and a delete icon for removing the chat room.
- * The chat room can be of type "buddy" or "friends", and the navigation destination differs based on the type.
- * 
- * Props:
- * - chatRoom: An object containing the chat room's id, name, lastMessage, avatar, and timestamp.
- * - onDelete: A function to handle the deletion of a chat room.
- * - type: A string indicating the type of chat room ("buddy" or "friends").
- * 
- * The component uses React Navigation for navigating to the appropriate chat screen when a chat room is pressed.
- */
-
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { MaterialIcons } from "@expo/vector-icons";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
 type ChatRoom = {
   id: string;
@@ -41,7 +27,10 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type })
     if (type === "buddy") {
       navigation.navigate("BuddyChat", { chatRoomId: chatRoom.id });
     } else {
-      navigation.navigate("ChatScreen", { chatRoomId: chatRoom.id });
+      navigation.navigate('ChatScreen', {
+        chatRoomId: chatRoom.id,
+        chatRoomName: chatRoom.name,
+      });
     }
   };
 
@@ -52,7 +41,8 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type })
       [
         {
           text: "Cancel",
-          style: "cancel",
+          style:
+          "cancel",
         },
         {
           text: "Delete",
@@ -82,7 +72,7 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type })
           </View>
         </View>
         <TouchableOpacity onPress={confirmDelete} style={styles.deleteButton}>
-          <MaterialIcons name="remove" size={24} color="red" />
+          <MaterialIcons name="remove" size={wp('6%')} color="red" />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -92,7 +82,7 @@ const ChatRoomItem: React.FC<ChatRoomItemProps> = ({ chatRoom, onDelete, type })
 const styles = StyleSheet.create({
   chatRoomContainer: {
     flexDirection: "row",
-    padding: 10,
+    padding: wp('3%'),
     borderBottomWidth: 1,
     borderBottomColor: "#333",
     backgroundColor: "#ffffff",
@@ -100,12 +90,12 @@ const styles = StyleSheet.create({
   avatarContainer: {
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 10,
+    marginRight: wp('2%'),
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: wp('10%'),
+    height: wp('10%'),
+    borderRadius: wp('5%'),
     backgroundColor: "#ccc",
   },
   chatRoomInfo: {
@@ -113,16 +103,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   chatRoomName: {
-    fontSize: 18,
+    fontSize: wp('4.5%'),
     fontWeight: "500",
     color: "#000000",
   },
   chatRoomLastMessage: {
     color: "#888",
+    fontSize: wp('3.5%'),
   },
   deleteButton: {
-    padding: 10,
-    borderRadius: 10,
+    padding: wp('2.5%'),
+    borderRadius: wp('2.5%'),
     justifyContent: "center",
     alignItems: "center",
   },
