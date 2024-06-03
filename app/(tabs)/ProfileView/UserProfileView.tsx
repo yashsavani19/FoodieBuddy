@@ -176,7 +176,7 @@ export default function UserProfileView() {
   return (
     <View style={styles.container}>
       {/* Title Header */}
-      <TitleHeader title="Profile" />
+      <TitleHeader title="Profile" startupGuide={ true} />
       {/* ScrollView for scrollable content */}
       <ScrollView style={styles.scrollView}>
         <ProfileFriendsNavBar mode="profile" />
