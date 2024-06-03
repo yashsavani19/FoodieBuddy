@@ -9,8 +9,7 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { Sort } from "@/model/Sort";
-import { SortOptions } from "@/model/SortOptions";;
-import { AppContext } from "@/context/AppContext";
+import { SortOptions } from "@/model/SortOptions";
 
 // Define the props for the Filters component
 interface SortProps {
@@ -80,7 +79,7 @@ const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
                       setModalVisible(false);
                     }}
                   >
-                    <Text style={styles.modalOptionText}>
+                    <Text style={selectedSort ? styles.modalOptionTextSelected : styles.modalOptionTextNotSelected}>
                       {option.sortOption}
                     </Text>
                   </TouchableOpacity>
@@ -137,9 +136,15 @@ const styles = StyleSheet.create({
     padding: 15,
     width: "100%",
     alignItems: "center",
+    color: "gray",
   },
-  modalOptionText: {
+  modalOptionTextSelected: {
     fontSize: 18,
+    color: "gray",
+  },
+  modalOptionTextNotSelected: {
+    fontSize: 18,
+    
   },
   modalClose: {
     marginTop: 20,
