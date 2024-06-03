@@ -174,7 +174,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   const setSortOption = (option: Sort) => {
     setSelectedSortOption(option);
-    // add any additional logic needed when a sort option is selected
   };
 
   const setRestaurants = async () => {
@@ -191,18 +190,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           (a, b) => a.distance - b.distance
         );
 
-        updatePreferenceScore(distanceSortedRestaurants);
+        updatePreferenceScore(nearbyRestaurants);
 
-        // if (restaurant.preferenceScore > 0) {
-        //   console.log(
-        //     `MATCHES FOUND: Restaurant category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${preferenceScore}`
-        //   );
-        // } else {
-        //   console.log("No matches found");
-        // }
-
-        setRestaurantsArray(distanceSortedRestaurants);
-        setFilteredRestaurants(distanceSortedRestaurants);
+        setRestaurantsArray(nearbyRestaurants);
+        setFilteredRestaurants(nearbyRestaurants);
       });
     } catch (error) {
       console.log(error);
@@ -211,24 +202,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-  const updatePreferenceScore = async (restaurants: Restaurant[]) => {
-    await updatePreferencesAPIName();
-    restaurants.forEach((restaurant: Restaurant) => {
-      if (restaurant.categories === undefined) return;
-      // Reset preferenceScore
-      restaurant.preferenceScore = 0;
-      restaurant.categories.forEach((category) => {
-        if (preferencesAPINames.includes(category)) {
-          if (restaurant.preferenceScore !== undefined) {
-            restaurant.preferenceScore++;
-          }
-        }
-      });
-      console.log(
-        `MATCHES: Restaurant: ${restaurant.name} category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
-      );
-    });
-  };
+ 
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -239,11 +213,14 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     return () => clearInterval(interval);
   }, [previousLocation]);
 
+  
+
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (user) {
         const prefs = await fetchPreferences();
         setPreferences(prefs.preferences);
+        
       }
     };
     loadUserPreferences();
@@ -261,9 +238,41 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   }, [user]);
 
-  useEffect(() => {
-    updatePreferenceScore(localRestaurants);
-  }, [preferences]);
+  
+  
+  
+
+  //------------------ NEW CHANGES ------------------//
+
+  // useEffect(() => {
+  //   updatePreferenceScore(localRestaurants);
+  // }, [preferences]);
+  // useEffect(() => {
+  //   // setRestaurants();
+  //   updatePreferenceScore(localRestaurants);
+  //   filterRestaurants();
+  // }, [filteredRestaurants, preferences]);
+
+  const updatePreferenceScore = async (restaurants: Restaurant[]) => {
+    // await updatePreferencesAPIName();
+    console.log("PreferencesAPINames IN updatePreferenceScore",preferencesAPINames);
+    restaurants.forEach((restaurant: Restaurant) => {
+      if (restaurant.categories === undefined) return;
+      // Reset preferenceScore
+      restaurant.preferenceScore = 0;
+      restaurant.categories.forEach((category) => {
+        if (preferencesAPINames.includes(category)) {
+          if (restaurant.preferenceScore !== undefined) {
+            restaurant.preferenceScore++;
+          }
+        }
+      });
+      console.log(
+        `MATCHES: Restaurant: ${restaurant.name} category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
+      );
+    });
+  };
+  //------------------ NEW CHANGES ------------------//
 
   useEffect(() => {
     console.log("Favourites updated");
@@ -281,8 +290,17 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   useEffect(() => {
     filterRestaurants();
+    // updatePreferenceScore();
     sortRestaurants();
+
   }, [selectedSortOption, filteredRestaurants]);
+
+  useEffect(() => {
+
+    
+    filterRestaurants();
+    sortRestaurants();
+  },[preferences]);
 
   useEffect(() => {
     console.log("Friends updated");
@@ -331,19 +349,37 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
 
   //------------------ NEW CHANGES ------------------//
-  const updatePreferencesAPIName = async () => {
-    if (user) {
-      const prefs = await fetchPreferences();
-      setPreferencesAPINames(prefs.apiNames);
-    }
-  };
+  
+
+  // const updatePreferencesAPIName = async () => {
+  //   if (user) {
+  //     const prefs = await fetchPreferences();
+  //     setPreferencesAPINames(prefs.apiNames);
+  //   }
+  // };
+
+  // const updatedPreferences = async () => {
 
   useEffect(() => {
     console.log(
-      "Preferences (updatePreferencesAPIName): ",
+      "Preferences API Names (updated NOW): ",
       preferencesAPINames
     );
   }, [preferencesAPINames]);
+
+  
+
+  useEffect(() => {
+    console.log(
+      "Preferences (updated NOW): ",
+      preferences
+        .flatMap((category) =>
+          category.preferences.filter((preference) => preference.selected)
+        )
+        .map((preference) => preference.name)
+        .join(", ")
+    );
+  }, [preferences]);
 
   //------------------ NEW CHANGES ------------------//
 
@@ -401,6 +437,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       chatMessages.splice(1, chatMessages.length - 11);
     }
   };
+
 
   // Handle filtering of restaurants based on search term and selected category
   const filterRestaurants = () => {
@@ -513,6 +550,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           )
         );
       }
+      updatePreferenceScore(result);
 
       setFilteredRestaurants(result);
       setRestaurantListIsLoading(false);
@@ -525,7 +563,13 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     let result = filteredRestaurants;
     switch (selectedSortOption.sortOption) {
       case "Preference":
-        result = result.sort((a, b) => a.distance.localeCompare(b.distance));
+        result = result.sort((a, b) => {
+          if ((b.preferenceScore ?? 0) === (a.preferenceScore ?? 0)) {
+            return a.distance.localeCompare(b.distance);
+          }
+          return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
+        });
+
         break;
       case "Price: Low to High":
         result = result.sort((a, b) => {
