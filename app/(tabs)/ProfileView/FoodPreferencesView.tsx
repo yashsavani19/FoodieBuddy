@@ -57,7 +57,7 @@ const FoodPreferencesView: React.FC = () => {
       setSaving(false);
       console.log("Saving after update: ", saving);
 
-      navigation.goBack();
+      navigation.navigate("ListView");
     } catch (error) {
       console.error("Error saving preferences: ", error);
     }

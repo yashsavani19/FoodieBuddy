@@ -11,7 +11,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { ContextProvider } from "@/context/AppContext";
-import Loading from "./Loading";
+import Loading from "../components/Loading";
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 
