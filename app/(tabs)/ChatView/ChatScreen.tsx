@@ -460,8 +460,7 @@ const ChatScreen: React.FC = () => {
               renderItem={({ item }) => (
                 <RestaurantListItem
                   restaurant={item}
-                  style={{ marginRight: 6 }}
-                  isLastItem={false}
+                  style={{ marginRight: 6, width: wp('90%'), borderRadius: 10 }}
                 />
               )}
               horizontal={true}

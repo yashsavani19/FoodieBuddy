@@ -10,6 +10,7 @@ import { formatDistance } from "@/app/Utils/FormatDistance";
 import { AppContext } from "@/context/AppContext";
 import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import images from "@/assets/data/images";
 
 type RestaurantListItemProps = {
   restaurant: Restaurant;
@@ -142,67 +143,70 @@ export const RestaurantListItem = ({ restaurant, isLastItem, style }: Restaurant
       {/* Restaurant image */}
       <Image 
         testID="restaurant-image"
-        source={restaurant.image ? {uri : restaurant.image} : default_restaurant_picture}
+        source={restaurant.image ? {uri : restaurant.image} : {uri : images.defaultRestaurantImage} }
         style={styles.image}
         resizeMode="cover"
       />
       {/* Open status label */}
       <OpenStatusLabelList restaurant={restaurant} />
       <View style={styles.textContainer}>
-        {/* Find on map button */}
-        <Pressable
-          onPress={() => {
-            setFindOnMapPressed(!isFindOnMapPressed);
-            navigation.navigate("Map", { geometry: restaurant.geometry });
-            console.log("Find on map pressed");
-          }}
-        >
-          <View style={styles.iconContainer}>
-            <Image
-              source={
-                isVisited
-                  ? require("../assets/images/location-check.png")
-                  : require("../assets/images/location.png")
-              }
-              style={styles.mapIcon}
-            />
-            <Text style={styles.findOnMap}>Find on map</Text>
-          </View>
-          {/* Restaurant information */}
-        </Pressable>
-          <View style={styles.textInfo}>
-            <Text style={styles.title}>{restaurant.name}</Text>
-            <View style={{ flexDirection: "row", alignItems: "center", flex: 1, flexWrap: "wrap" }}>
-              <Text style={{ fontWeight: "bold" }}>
-                {<StarRating rating={restaurant.rating} />}
-              </Text>
-              <Text style={styles.distance} testID="Restaurant Distance">
-                {formatDistance(restaurant.distance)}
-              </Text>
-              <Text style={styles.distance}>
-                {restaurant.price !== undefined
-                  ? displayPriceLevel(parseInt(restaurant.price))
-                  : ""}
-              </Text>
+
+        <View style={{justifyContent: 'center', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
+          {/* Find on map button */}
+          <Pressable
+            onPress={() => {
+              setFindOnMapPressed(!isFindOnMapPressed);
+              navigation.navigate("Map", { geometry: restaurant.geometry });
+              console.log("Find on map pressed");
+            }}
+          >
+            <View style={styles.iconContainer}>
+              <Image
+                source={
+                  isVisited
+                    ? require("../assets/images/location-check.png")
+                    : require("../assets/images/location.png")
+                }
+                style={styles.mapIcon}
+              />
+              <Text style={styles.findOnMap}>Find on map</Text>
             </View>
-          </View>
-          {/* Bookmark button */}
-          <View style={styles.iconContainer}>
-            <Pressable onPress={handleBookmarkPressed}>
-              <Animated.Image
-                source={ isBookmarkPressed ? bookmark_Selected_icon : bookmark_icon }
-                style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
-              />
-            </Pressable>
-          </View>
-          {/* Favourite button */}
-          <View style={styles.iconContainer}>
-            <Pressable onPress={handleFavouritePressed}>
-              <Animated.Image
-                source={ isFavePressed ? fave_Selected_icon : fave_icon }
-                style={[styles.icon, { transform: [{ scale: faveScale }] }]}
-              />
-            </Pressable>
+            {/* Restaurant information */}
+          </Pressable>
+            <View style={styles.textInfo}>
+              <Text style={styles.title}>{restaurant.name}</Text>
+              <View style={styles.infoContainer}>
+                <View style={{alignSelf: "center"}}>
+                  {<StarRating rating={restaurant.rating} />}
+                </View>
+                <Text style={styles.distance} testID="Restaurant Distance">
+                  {formatDistance(restaurant.distance)}
+                </Text>
+                <Text style={styles.distance}>
+                  {restaurant.price !== undefined
+                    ? displayPriceLevel(parseInt(restaurant.price))
+                    : ""}
+                </Text>
+              </View>
+            </View>
+            {/* Bookmark button */}
+            <View style={styles.iconContainer}>
+              <Pressable onPress={handleBookmarkPressed}>
+                <Animated.Image
+                  source={ isBookmarkPressed ? bookmark_Selected_icon : bookmark_icon }
+                  style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
+                />
+              </Pressable>
+            </View>
+            {/* Favourite button */}
+            <View style={styles.iconContainer}>
+              <Pressable onPress={handleFavouritePressed}>
+                <Animated.Image
+                  source={ isFavePressed ? fave_Selected_icon : fave_icon }
+                  style={[styles.icon, { transform: [{ scale: faveScale }] }]}
+                />
+              </Pressable>
+            </View>
           </View>
         </View>
     </Pressable>
@@ -217,27 +221,43 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
-    paddingRight: 4,
+    justifyContent: 'center', 
+    flex: 1, 
+    marginTop: 10,
+    marginRight: 5,
   },
   iconContainer: {
     flexDirection: "row",
     alignItems: "center",
+    height: '100%',
   },
   textInfo: {
     flex: 1,
+    justifyContent: 'center', 
+    textAlignVertical: "center",
+    alignItems: "flex-start", 
+  },
+  infoContainer: {
+    flexDirection: "row", 
+    justifyContent: 'center', 
+    textAlignVertical: "center",
+    alignItems: "flex-start",
   },
   title: {
     fontSize: 16,
     fontWeight: "600",
     textAlign: "left",
+    textAlignVertical: "center",
     flexWrap: "wrap",
+    width: "100%",
   },
   distance: {
     fontWeight: "bold",
     textAlign: "left",
     paddingLeft: 10,
     flexWrap: "wrap",
+    height: '100%', 
+    textAlignVertical: "center",
   },
   findOnMap: {
     fontWeight: "bold",
@@ -247,14 +267,12 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   image: {
-    width: wp('100%'),
-    height: wp('38%'),
-    aspectRatio: 2.5 / 1,
+    height: wp('40%'),
     borderRadius: 10,
   },
   icon: {
-    width: wp('8%'),
-    height: wp('8%'),
+    width: 26,
+    height: 26,
     resizeMode: "contain",
     marginLeft: 2,
   },
