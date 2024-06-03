@@ -16,7 +16,6 @@ import {
   addFriend,
   removeFriend,
   fetchPreferences,
-  updatePreferences,
 } from "@/controller/DatabaseHandler";
 import * as Location from "expo-location";
 import { IMessage } from "../model/AITypes";
@@ -28,10 +27,8 @@ import { Category } from "@/model/Category";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
-import { set, update } from "firebase/database";
 import { Sort } from "@/model/Sort";
 import { SortOptions } from "@/model/SortOptions";
-import { restaurants } from "@/constants/AITestData";
 export type AppContextType = {
   dataLoading: boolean;
   setDataLoading: (loading: boolean) => void;
@@ -72,12 +69,6 @@ export type AppContextType = {
 
   preferences: PreferenceCategoryList[];
   setPreferences: (prefs: PreferenceCategoryList[]) => void;
-  // updateUserPreferences: (
-  //   category: string,
-  //   preferenceName: string,
-  //   selected: boolean
-  // ) => void;
-
   preferencesAPINames: string[];
   setPreferencesAPINames: (names: string[]) => void;
 
@@ -129,7 +120,6 @@ export const AppContext = createContext<AppContextType>({
   setDistance: () => {},
   preferences: [],
   setPreferences: () => {},
-  // updateUserPreferences: async () => {},
 
   preferencesAPINames: [],
   setPreferencesAPINames: async () => {},
@@ -149,7 +139,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   );
   const [previousLocation, setPreviousLocation] =
     useState<LocationObjectCoords | null>(null);
-  const DISTANCE_THRESHOLD = 0.1; // 100 metres
+  const DISTANCE_THRESHOLD = 0.1;
   const [localRestaurants, setRestaurantsArray] = useState<Restaurant[]>([]);
   const [favouriteRestaurants, setFavouriteRestaurants] = useState<Saved[]>([]);
   const [bookmarkedRestaurants, setBookmarkedRestaurants] = useState<Saved[]>(
@@ -178,6 +168,90 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   };
   const [distance, setDistance] = useState<number>(1000.0);
 
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // console.log("Checking distance...");
+      checkDistanceAndUpdate();
+    }, 10000); //check every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [previousLocation]);
+
+  useEffect(() => {
+    const loadUserPreferences = async () => {
+      if (user) {
+        const prefs = await fetchPreferences();
+        setUserObject({ ...userObject, preferences: prefs.preferences });
+      }
+    };
+    loadUserPreferences();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setUserObject({
+        ...userObject,
+        favouriteRestaurants: favouriteRestaurants,
+        bookmarkedRestaurants: bookmarkedRestaurants,
+        visitedRestaurants: visitedRestaurants,
+        userPreferencesAPIName: preferencesAPINames,
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    console.log("Favourites updated");
+  }, [favouriteRestaurants]);
+
+  useEffect(() => {
+    console.log("Bookmarks updated");
+  }, [bookmarkedRestaurants]);
+
+  useEffect(() => {
+    console.log("Visited updated");
+  }, [visitedRestaurants]);
+
+  useEffect(() => {
+    filterRestaurants();
+  }, [searchTerm, localRestaurants]);
+
+  useEffect(() => {
+    setRestaurants();
+  }, [distance]);
+
+  useEffect(() => {
+    filterRestaurants();
+    sortRestaurants();
+  }, [selectedSortOption, filteredRestaurants]);
+
+  useEffect(() => {
+    console.log("Friends updated");
+  }, [friends]);
+
+  useEffect(() => {
+    console.log("Preferences API Names (updated NOW): ", preferencesAPINames);
+  }, [preferencesAPINames]);
+
+  useEffect(() => {
+    updatePreferenceScore(localRestaurants);
+    filterRestaurants();
+    sortRestaurants();
+  }, [preferencesAPINames, preferences]);
+
+  useEffect(() => {
+    console.log(
+      "Preferences (updated NOW): ",
+      preferences
+        .flatMap((category) =>
+          category.preferences.filter((preference) => preference.selected)
+        )
+        .map((preference) => preference.name)
+        .join(", ")
+    );
+  }, [preferences]);
+
   const setRestaurants = async () => {
     setDataLoading(true);
     try {
@@ -205,121 +279,10 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
- 
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // console.log("Checking distance...");
-      checkDistanceAndUpdate();
-    }, 10000); //check every 10 seconds
-
-    return () => clearInterval(interval);
-  }, [previousLocation]);
-
-  
-
-  useEffect(() => {
-    const loadUserPreferences = async () => {
-      if (user) {
-        const prefs = await fetchPreferences();
-        setUserObject({ ...userObject, preferences: prefs.preferences });
-        
-      }
-    };
-    loadUserPreferences();
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) {
-      setUserObject({
-        ...userObject,
-        favouriteRestaurants: favouriteRestaurants,
-        bookmarkedRestaurants: bookmarkedRestaurants,
-        visitedRestaurants: visitedRestaurants,
-        userPreferencesAPIName: preferencesAPINames,
-      });
-    }
-  }, [user]);
-
-  
-  
-  
-
-  //------------------ NEW CHANGES ------------------//
-
-  // useEffect(() => {
-  //   updatePreferenceScore(localRestaurants);
-  // }, [preferences]);
-  // useEffect(() => {
-  //   // setRestaurants();
-  //   updatePreferenceScore(localRestaurants);
-  //   filterRestaurants();
-  // }, [filteredRestaurants, preferences]);
-
-  const updatePreferenceScore = async (restaurants: Restaurant[]) => {
-    // await updatePreferencesAPIName();
-    console.log("PreferencesAPINames IN updatePreferenceScore",preferencesAPINames);
-    restaurants.forEach((restaurant: Restaurant) => {
-      if (restaurant.categories === undefined) return;
-      // Reset preferenceScore
-      restaurant.preferenceScore = 0;
-      restaurant.categories.forEach((category) => {
-        if (preferencesAPINames.includes(category)) {
-          if (restaurant.preferenceScore !== undefined) {
-            restaurant.preferenceScore++;
-          }
-        }
-      });
-      console.log(
-        `MATCHES: Restaurant: ${restaurant.name} category: ${restaurant.categories}, User Preferences APIs: ${preferencesAPINames} , Score: ${restaurant.preferenceScore}`
-      );
-    });
-  };
-  //------------------ NEW CHANGES ------------------//
-
-  useEffect(() => {
-    console.log("Favourites updated");
-  }, [favouriteRestaurants]);
-
-  useEffect(() => {
-    console.log("Bookmarks updated");
-  }, [bookmarkedRestaurants]);
-
-  useEffect(() => {
-    console.log("Visited updated");
-  }, [visitedRestaurants]);
-
-  useEffect(() => {
-    filterRestaurants();
-  }, [searchTerm, localRestaurants]);
-
-  // Update the restaurants when the max distance changes
-  useEffect(() => {
-    setRestaurants();
-  }, [distance]);
-
-  useEffect(() => {
-    filterRestaurants();
-    sortRestaurants();
-
-  }, [selectedSortOption, filteredRestaurants]);
-
-  // useEffect(() => {
-
-    
-  //   filterRestaurants();
-  //   sortRestaurants();
-  // },[preferences]);
-
-  useEffect(() => {
-    console.log("Friends updated");
-  }, [friends]);
-
   const setUser = async () => {
     try {
       setAuthUser(user as AuthUser);
       const uid = user?.uid;
-      // console.log("User UID:", uid);
       if (!uid) return;
       const favourites = await fetchFavourites();
       if (favourites) {
@@ -357,45 +320,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-  //------------------ NEW CHANGES ------------------//
-  
-
-  // const updatePreferencesAPIName = async () => {
-  //   if (user) {
-  //     const prefs = await fetchPreferences();
-  //     setPreferencesAPINames(prefs.apiNames);
-  //   }
-  // };
-
-  // const updatedPreferences = async () => {
-
-  useEffect(() => {
-    console.log(
-      "Preferences API Names (updated NOW): ",
-      preferencesAPINames
-    );
-  }, [preferencesAPINames]);
-
-  useEffect(() => {
-    updatePreferenceScore(localRestaurants);
-    filterRestaurants();
-    sortRestaurants();
-  }, [preferencesAPINames, preferences]);
-
-  useEffect(() => {
-    console.log(
-      "Preferences (updated NOW): ",
-      preferences
-        .flatMap((category) =>
-          category.preferences.filter((preference) => preference.selected)
-        )
-        .map((preference) => preference.name)
-        .join(", ")
-    );
-  }, [preferences]);
-
-  //------------------ NEW CHANGES ------------------//
-
   const updateLocation = async () => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -407,7 +331,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         }
         let newLocation = await Location.getCurrentPositionAsync({});
         setLocationArray(newLocation.coords);
-        // console.log("Location updated:", location);
         resolve(newLocation.coords);
       } catch (error) {
         console.error("Error updating location:", error);
@@ -452,7 +375,21 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     }
   };
 
-
+  const updatePreferenceScore = async (restaurants: Restaurant[]) => {
+    console.log("Updating preference score...");
+    restaurants.forEach((restaurant: Restaurant) => {
+      if (restaurant.categories === undefined) return;
+      // Reset preferenceScore
+      restaurant.preferenceScore = 0;
+      restaurant.categories.forEach((category) => {
+        if (preferencesAPINames.includes(category)) {
+          if (restaurant.preferenceScore !== undefined) {
+            restaurant.preferenceScore++;
+          }
+        }
+      });
+    });
+  };
 
   // Handle filtering of restaurants based on search term and selected category
   const filterRestaurants = () => {
@@ -771,29 +708,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       console.log(error);
     }
   };
-
-  // const updateUserPreferences = (
-  //   category: string,
-  //   preferenceName: string,
-  //   selected: boolean
-  // ) => {
-  //   const updatedPreferences = preferences.map((cat) => {
-  //     if (cat.title === category) {
-  //       const updatedCategory = cat.preferences.map((pref) => {
-  //         if (pref.name === preferenceName) {
-  //           return { ...pref, selected };
-  //         }
-  //         return pref;
-  //       });
-  //       return { ...cat, preferences: updatedCategory };
-  //     }
-  //     return cat;
-  //   });
-  //   setPreferences(updatedPreferences);
-  //   if (user) {
-  //     updatePreferences(updatedPreferences);
-  //   }
-  // };
 
   const contextValue = {
     dataLoading,
