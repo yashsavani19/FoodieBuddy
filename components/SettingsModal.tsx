@@ -48,7 +48,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     };
 
     fetchFriendsData();
-  }, []);
+  }, [currentFriends]);
 
   const handleAddFriend = async (friendId: string) => {
     await addFriendToChatRoom(chatRoomId, friendId);
@@ -143,7 +143,8 @@ const styles = StyleSheet.create({
     paddingVertical: hp("1.5%"),
     backgroundColor: "#000",
     alignItems: "center",
-    borderRadius: wp("2.5%"),
+    borderTopLeftRadius: wp("2.5%"),
+    borderTopRightRadius: wp("2.5%"),
   },
   modalTitle: {
     fontSize: wp("5%"),
