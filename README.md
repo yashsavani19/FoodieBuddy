@@ -20,7 +20,7 @@ git clone https://github.com/yashsavani19/FoodieBuddy.git
 # Navigate to the project directory
 cd FoodieBuddy
 
-# Install Dependencies
+# Install Dependencies - see package.json for details
 npm install
 
 # Start server
@@ -88,6 +88,7 @@ You may also edit your account information from this page including profile imag
 - Short restaurant details
 - "Bookmark" add/remove button
 - "Favourite" add/remove button
+- "Share" button for external sharing
 - Keyword search
 - Result filters
 - Sort by
@@ -134,5 +135,9 @@ You may also edit your account information from this page including profile imag
 - View friends
 - View friend requests
 - Search for and send friend requests
+- View friends profiles
+- View friends saved lists
+- View friends preferences
+- Remove friends
 
   
