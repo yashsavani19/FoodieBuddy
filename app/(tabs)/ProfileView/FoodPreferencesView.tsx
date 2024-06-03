@@ -9,12 +9,26 @@ import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
 import Constants from "expo-constants";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
+import {
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import { RootStackParamList } from "@/constants/navigationTypes";
 
 const FoodPreferencesView: React.FC = () => {
   const { preferences, setPreferences } = useContext(AppContext);
-  const [localPreferences, setLocalPreferences] = useState<PreferenceList[]>(
-    preferences
-  );
+  const [localPreferences, setLocalPreferences] =
+    useState<PreferenceList[]>(preferences);
+  const [saving, setSaving] = useState<boolean>(false);
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute();
+  let friendPreferences: PreferenceList[] | null = null;
+
+  if (route.params && "preferences" in route.params) {
+    friendPreferences = (route.params as any).preferences as PreferenceList[];
+  }
 
   // If no preferences are passed, load default preferences
   useEffect(() => {
@@ -22,6 +36,9 @@ const FoodPreferencesView: React.FC = () => {
       const defaultPreferences: PreferenceList[] = DefaultPreferences;
       setPreferences(defaultPreferences);
       setLocalPreferences(defaultPreferences);
+    }
+    if (friendPreferences) {
+      setLocalPreferences(friendPreferences);
     }
   }, []);
 
@@ -43,13 +60,17 @@ const FoodPreferencesView: React.FC = () => {
 
   const savePreferences = async () => {
     try {
-      try {
-        await updatePreferences(localPreferences);
-        setPreferences(localPreferences);
-        console.log("Preferences saved successfully");
-      } catch (error) {
-        console.error("User ID is missing");
-      }
+      console.log("Saving before clicked: ", saving);
+      setSaving(true);
+      console.log("Saving after clicked: ", saving);
+      await updatePreferences(localPreferences);
+      setPreferences(localPreferences);
+      console.log("Preferences saved successfully");
+
+      setSaving(false);
+      console.log("Saving after update: ", saving);
+
+      navigation.goBack();
     } catch (error) {
       console.error("Error saving preferences: ", error);
     }
@@ -64,6 +85,7 @@ const FoodPreferencesView: React.FC = () => {
         <ScrollView style={styles.mainContainer}>
           {localPreferences.map((categoryItem) => (
             <PreferenceCategoryContainer
+              disabled={friendPreferences ? true : false}
               key={categoryItem.title}
               title={categoryItem.title}
               preferences={categoryItem.preferences}
@@ -75,7 +97,9 @@ const FoodPreferencesView: React.FC = () => {
           <View style={{ marginBottom: 40 }} />
         </ScrollView>
         <View style={{ marginBottom: 5 }}>
-          <SavePreferenceButton onSave={savePreferences} />
+          {!friendPreferences && (
+            <SavePreferenceButton onSave={savePreferences} saving={saving} />
+          )}
         </View>
       </View>
     </View>

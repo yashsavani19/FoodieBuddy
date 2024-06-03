@@ -6,12 +6,13 @@ import { Preference } from "@/model/Preference";
 interface PreferenceCategoryContainerProps {
   title: string;
   preferences: Preference[];
+  disabled?: boolean;
   onToggle: (preferenceName: string) => void;
 }
 
 const PreferenceCategoryContainer: React.FC<
   PreferenceCategoryContainerProps
-> = ({ title, preferences, onToggle }) => {
+> = ({ title, preferences, disabled, onToggle }) => {
   const divider = require("@/assets/images/Divider.png");
   return (
     <View style={styles.container}>
@@ -22,6 +23,7 @@ const PreferenceCategoryContainer: React.FC<
       <View style={styles.preferences}>
         {preferences.map((preference) => (
           <PreferenceButton
+            disabled={disabled}
             key={preference.name}
             name={preference.name}
             selected={preference.selected}

@@ -78,9 +78,7 @@ export default function UserProfileView() {
   }, []);
 
   function navigateToFoodPreferences(): void {
-    navigation.navigate("FoodPreferencesView", {
-      preferences,
-    });
+    navigation.navigate("FoodPreferencesView");
   }
 
   function navigateToFavouriteSpots(): void {
@@ -277,7 +275,15 @@ export default function UserProfileView() {
       >
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Confirm Photo</Text>
-          <Image source={{ uri: imageToConfirm }} style={styles.confirmImage} />
+          <Image
+            source={
+              imageToConfirm
+                ? { uri: imageToConfirm }
+                : require("@/assets/images/Change_PFP_icon.png")
+            }
+            style={styles.confirmImage}
+          />
+
           <View style={styles.modalButtonContainer}>
             <TouchableOpacity style={styles.modalButton} onPress={confirmImage}>
               <AntDesign name="check" size={24} color="black" />

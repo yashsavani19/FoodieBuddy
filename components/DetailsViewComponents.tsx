@@ -9,6 +9,7 @@ import {
   Linking,
   ScrollView,
   Animated,
+  Modal as RNModal
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -17,7 +18,6 @@ import {
 import { Restaurant } from "@/model/Restaurant";
 import TitleHeader from "@/components/TitleHeader";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-import images from "@/assets/data/images";
 import { AppContext } from "@/context/AppContext";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import displayPriceLevel from "@/app/Utils/DisplayPriceLevel";
@@ -25,10 +25,12 @@ import MapView, { Marker } from "react-native-maps";
 import MapViewStyle from "./../app/Utils/MapViewStyle.json";
 import BackButton from "./BackButton";
 import ShareButton from "./ShareButton";
-import { OpenStatusLabelDetails } from "./OpenIndicatorComponents/OpenStatusLabel";
+import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
 import Constants from "expo-constants";
 import { RootStackParamList } from "@/constants/navigationTypes";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { OpenTimesCard, OpenTimesLabel, openTimesContent } from "./OpenIndicatorComponents/OpenTimesComponents";
+import OpenTimesCardsContainer from "./OpenIndicatorComponents/OpenTimesCardsContainer";
 
 const default_pic = require("@/assets/images/default_pic.png");
 const visited_selected = require("@/assets/images/visited-Selected.png");
@@ -39,6 +41,10 @@ const website_icon = require("@/assets/images/web-icon.png");
 const distance_icon = require("@/assets/images/walking_distance-icon.png");
 const location_icon = require("@/assets/images/location.png");
 const price_icon = require("@/assets/images/price-tag.png");
+const fave_icon = require("@/assets/images/fave-icon.png");
+const fave_Selected_icon = require("@/assets/images/fave-Selected.png");
+const bookmark_icon = require("@/assets/images/bookmark-icon.png");
+const bookmark_Selected_icon = require("@/assets/images/bookmark-Selected.png");
 
 interface DetailsViewComponentsProps {
   restaurant: Restaurant;
@@ -62,6 +68,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   } = restaurant;
 
   const {
+    location, // Extract location from context
     favouriteRestaurants,
     bookmarkedRestaurants,
     visitedRestaurants,
@@ -75,6 +82,7 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   const [isVisitedPressed, setVisitedPressed] = useState(false);
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
+  const [isImageViewerVisible, setImageViewerVisible] = useState(false);
 
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
@@ -204,8 +212,38 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
   };
 
   const handleMapViewPress = () => {
-    navigation.navigate("Map", { geometry: restaurant.geometry });
+    if (location) {
+      console.log("Navigating to Map with params:", {
+        geometry: restaurant.geometry,
+        directions: {
+          origin: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          destination: {
+            latitude: restaurant.geometry.location.lat,
+            longitude: restaurant.geometry.location.lng,
+          },
+        },
+        restaurantId: restaurant.id 
+      });
+      navigation.navigate("Map", {
+        geometry: restaurant.geometry,
+        directions: {
+          origin: {
+            latitude: location.latitude,
+            longitude: location.longitude,
+          },
+          destination: {
+            latitude: restaurant.geometry.location.lat,
+            longitude: restaurant.geometry.location.lng,
+          },
+        },
+        restaurantId: restaurant.id 
+      });
+    }
   };
+  
 
   const handleWebsitePress = (websiteUrl: string) => {
     if (websiteUrl) {
@@ -228,12 +266,13 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
           <View>
             <View style={{ alignItems: "center" }}>
               <Text style={styles.restaurantTitle}>{name}</Text>
-              <View style={styles.imageContainer}>
+              <TouchableOpacity style={styles.imageContainer} onPress={() => setImageViewerVisible(true)}>
                 <Image
                   source={image ? { uri: image } : default_pic}
                   style={styles.restaurantImage}
                 />
-              </View>
+                <OpenStatusLabelList restaurant={restaurant} />
+              </TouchableOpacity>
             </View>
             <View style={styles.interactionContainer}>
               <View style={styles.iconContainer}>
@@ -252,11 +291,11 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <View style={styles.iconContainer}>
                 <Pressable onPress={handleFavouritePress}>
                   <Animated.Image
-                    source={{
-                      uri: isFavePressed
-                        ? images.faveSelectedIcon
-                        : images.faveIcon,
-                    }}
+                    source={
+                      isFavePressed
+                      ? fave_Selected_icon
+                      : fave_icon
+                    }
                     style={[
                       styles.smallIcon,
                       { transform: [{ scale: faveScale }] },
@@ -267,11 +306,11 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
               <View style={styles.iconContainer}>
                 <Pressable onPress={handleBookmarkPress}>
                   <Animated.Image
-                    source={{
-                      uri: isBookmarkPressed
-                        ? images.bookmarkSelectedIcon
-                        : images.bookmarkIcon,
-                    }}
+                    source={
+                      isBookmarkPressed
+                      ? bookmark_Selected_icon
+                      : bookmark_icon
+                    }
                     style={[
                       styles.smallIcon,
                       { transform: [{ scale: bookmarkScale }] },
@@ -339,9 +378,16 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 />
                 <Text style={styles.infoText}>{formatDistance(distance)}</Text>
               </View>
-              <OpenStatusLabelDetails restaurant={restaurant} />
+              <OpenTimesLabel restaurant={restaurant} />
             </View>
           </View>
+
+          <OpenTimesCardsContainer>
+            {openTimesContent(restaurant)?.openTimes.map((openTime: any) => (
+                <OpenTimesCard restaurant={restaurant} openTime={openTime} key={openTime?.day}></OpenTimesCard>
+            ))}
+          </OpenTimesCardsContainer>
+
           <View style={{ paddingVertical: hp("1%") }} />
           <View style={styles.mapContainer}>
             <MapView
@@ -368,16 +414,34 @@ const DetailsViewComponents: React.FC<DetailsViewComponentsProps> = ({
                 style={styles.mapButton}
                 onPress={handleCenterMapPress}
               >
-                <Ionicons name="locate" size={24} color="black" />
+                <MaterialIcons name="my-location" size={24} color="#5A5A5A" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.mapButton}
                 onPress={handleMapViewPress}
               >
-                <MaterialIcons name="map" size={24} color="black" />
+                <MaterialIcons name="map" size={24} color="#5A5A5A" />
               </TouchableOpacity>
             </View>
           </View>
+          <RNModal
+            visible={isImageViewerVisible}
+            transparent={true}
+            onRequestClose={() => setImageViewerVisible(false)}
+          >
+            <View style={styles.imageViewerContainer}>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setImageViewerVisible(false)}
+              >
+                <AntDesign name="close" size={30} color="white" />
+              </TouchableOpacity>
+              <Image
+                  source={image ? { uri: image } : default_pic}
+                  style={styles.restaurantImage}
+                />
+            </View>
+          </RNModal>
         </ScrollView>
       </View>
     </View>
@@ -391,6 +455,17 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "auto",
     paddingBottom: hp("5%"),
+  },
+  closeButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+  },
+  imageViewerContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   backButtonContainer: {
     width: "100%",
@@ -420,8 +495,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   smallIcon: {
-    width: wp("5%"),
-    height: wp("5%"),
+    width: wp("6%"),
+    height: wp("6%"),
     resizeMode: "contain",
   },
   imageContainer: {
@@ -510,7 +585,7 @@ const styles = StyleSheet.create({
   mapButton: {
     backgroundColor: "rgba(255, 255, 255, 0.7)",
     padding: wp("2%"),
-    borderRadius: wp("2%"),
+    borderRadius: wp("1%"),
     alignItems: "center",
     justifyContent: "center",
     marginBottom: hp("1%"),

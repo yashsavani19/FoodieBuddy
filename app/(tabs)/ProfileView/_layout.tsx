@@ -2,7 +2,10 @@ import React from "react";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Stack } from "expo-router";
 import { useColorScheme } from "@/components/useColorScheme";
-
+import LoginView from "@/app/(auth)/LoginView"; 
+import UserProfileView from './UserProfileView';
+import FriendsView from './FriendsView';
+// import other screens...
 export const unstable_settings = {
   // Configuration settings for navigation
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -27,7 +30,6 @@ export default function TabLayout() {
       {/* Define navigation screens */}
       {/* Each screen has header hidden */}
       <Stack.Screen name="UserProfileView" options={{ headerShown: false }} />
-      {/* UserProfileView screen */}
       <Stack.Screen name="FriendsView" options={{ headerShown: false }} />
       <Stack.Screen name="FriendsList" options={{ headerShown: false }} />
       <Stack.Screen name="AddFriends" options={{ headerShown: false }} />
@@ -35,14 +37,8 @@ export default function TabLayout() {
       <Stack.Screen name="FriendProfile" options={{ headerShown: false }} />
       <Stack.Screen name="FavoriteSpotsView" options={{ headerShown: false }} />
       <Stack.Screen name="FoodPreferencesView" options={{ headerShown: false }} />
-      {/* FavoriteSpotsView screen */}
-      <Stack.Screen
-        name="BookmarkedSpotsView"
-        options={{ headerShown: false }}
-      />
-      {/* BookmarkedSpotsView screen */}
+      <Stack.Screen name="BookmarkedSpotsView" options={{ headerShown: false }} />
       <Stack.Screen name="VisitedSpotsView" options={{ headerShown: false }} />
-      {/* VisitedSpotsView screen */}
       <Stack.Screen name="EditAccountView" options={{ headerShown: false }} />
     </Stack>
   );

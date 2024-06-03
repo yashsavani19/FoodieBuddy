@@ -25,7 +25,6 @@ import { User } from "@/model/User";
 import { User as AuthUser } from "firebase/auth";
 import { useAuth } from "./AuthContext";
 import { Category } from "@/model/Category";
-import { Alert } from "react-native";
 import { Friend } from "@/model/Friend";
 import { getDistanceFromLatLonInKm } from "@/app/Utils/distanceCalculator";
 import { PreferenceList } from "@/model/PreferenceList";
@@ -65,6 +64,8 @@ export type AppContextType = {
   filteredRestaurants: Restaurant[];
   setFilteredRestaurants: (restaurants: Restaurant[]) => void;
   filterRestaurants: () => void;
+  distance: number;
+  setDistance: (distance: number) => void;
 
   preferences: PreferenceList[];
   setPreferences: (prefs: PreferenceList[]) => void;
@@ -114,7 +115,8 @@ export const AppContext = createContext<AppContextType>({
   filteredRestaurants: [],
   setFilteredRestaurants: async () => {},
   filterRestaurants: async () => {},
-
+  distance: 1000.0,
+  setDistance: () => {},
   preferences: [],
   setPreferences: () => {},
   updateUserPreferences: () => {},
@@ -147,8 +149,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
   const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
-
   const [preferences, setPreferences] = useState<PreferenceList[]>([]);
+  const [distance, setDistance] = useState<number>(1000.0);
 
   const setRestaurants = async () => {
     setDataLoading(true);
@@ -156,7 +158,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       await updateLocation().then(async (locationCoords) => {
         console.log("Location before fetching:", locationCoords);
         const nearbyRestaurants = await fetchNearbyRestaurants(
-          locationCoords as LocationObjectCoords
+          locationCoords as LocationObjectCoords,
+          distance
         );
 
         // Sort restaurants by distance (May need improving in future)
@@ -186,7 +189,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     const loadUserPreferences = async () => {
       if (user) {
         const prefs = await fetchPreferences();
-        setPreferences(prefs);
+        setUserObject({ ...userObject, preferences: prefs });
       }
     };
 
@@ -201,16 +204,23 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   useEffect(() => {
     console.log("Favourites updated");
   }, [favouriteRestaurants]);
+
   useEffect(() => {
     console.log("Bookmarks updated");
   }, [bookmarkedRestaurants]);
+
   useEffect(() => {
     console.log("Visited updated");
   }, [visitedRestaurants]);
 
   useEffect(() => {
     filterRestaurants();
-  }, [searchTerm]);
+  }, [searchTerm, localRestaurants]);
+
+  // Update the restaurants when the max distance changes
+  useEffect(() => {
+    setRestaurants();
+  }, [distance]);
 
   useEffect(() => {
     console.log("Friends updated");
@@ -235,9 +245,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         setVisitedRestaurants(visited);
       }
 
-      const preferences = await fetchPreferences();
-      if (preferences) {
-        setPreferences(preferences);
+      const userPreferences = await fetchPreferences();
+      if (userPreferences) {
+        setUserObject({ ...userObject, preferences: userPreferences });
       }
       setUserObject({
         ...userObject,
@@ -286,6 +296,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       if (distance > DISTANCE_THRESHOLD) {
         console.log("Distance threshold exceeded. Updating restaurants...");
         setRestaurants();
+        filterRestaurants();
         setPreviousLocation(tempLocation);
       }
     } else {
@@ -312,12 +323,18 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     setRestaurantListIsLoading(true);
     let result = localRestaurants;
 
-    if (selectedFilters) {
+    if (selectedFilters.length > 0) {
       const categoriesToFilter = new Set(
         selectedFilters
           .filter(
             (filter) =>
-              !["Rating", "Price", "Open Status","Dietary Preference","Takeaway Option"].includes(filter.type)
+              ![
+                "Rating",
+                "Price",
+                "Open Status",
+                "Dietary Preference",
+                "Takeaway Option",
+              ].includes(filter.type)
           )
           .map((filter) => filter.apiName)
       );
@@ -336,9 +353,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         .filter((filter) => ["Open Status"].includes(filter.type))
         .map((filter) => filter.apiName);
 
-      const dietsToFilter = new Set(selectedFilters
-        .filter(filter => ["Dietary Preference"].includes(filter.type))
-        .map(filter => filter.apiName));
+      const dietsToFilter = new Set(
+        selectedFilters
+          .filter((filter) => ["Dietary Preference"].includes(filter.type))
+          .map((filter) => filter.apiName)
+      );
 
       // filter restaurants by the selected categories (not intersection, but union of categories)
       if (categoriesToFilter.size > 0) {
@@ -386,26 +405,33 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
       // If there is a dietary preference, filter restaurants by the dietary preference
       if (dietsToFilter.size > 0) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => dietsToFilter.has(category))
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some((category) => dietsToFilter.has(category))
         );
       }
 
       // Filter out Delivery and then Takeaway restaurants
-      if (selectedFilters.some(filter => filter.apiName === "meal_delivery")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_delivery")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_delivery")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_delivery"
+          )
         );
       }
-      if (selectedFilters.some(filter => filter.apiName === "meal_takeaway")) {
-        result = result.filter(restaurant =>
-          restaurant.categories?.some(category => category === "meal_takeaway")
+      if (
+        selectedFilters.some((filter) => filter.apiName === "meal_takeaway")
+      ) {
+        result = result.filter((restaurant) =>
+          restaurant.categories?.some(
+            (category) => category === "meal_takeaway"
+          )
         );
       }
-
-      setFilteredRestaurants(result);
-      setRestaurantListIsLoading(false);
     }
+    setFilteredRestaurants(result);
+    setRestaurantListIsLoading(false);
   };
 
   const addFavouriteContext = async (restaurant: Restaurant) => {
@@ -523,7 +549,7 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     preferenceName: string,
     selected: boolean
   ) => {
-    const updatedPreferences = preferences.map((cat) => {
+    const updatedPreferences = userObject.preferences?.map((cat) => {
       if (cat.title === category) {
         const updatedCategory = cat.preferences.map((pref) => {
           if (pref.name === preferenceName) {
@@ -535,8 +561,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       }
       return cat;
     });
-    setPreferences(updatedPreferences);
-    if (user) {
+    // setPreferences(updatedPreferences);
+    setUserObject({ ...userObject, preferences: updatedPreferences });
+    if (user && updatedPreferences) {
       updatePreferences(updatedPreferences);
     }
   };
@@ -576,7 +603,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     filteredRestaurants,
     setFilteredRestaurants,
     filterRestaurants,
-
+    distance,
+    setDistance,
     preferences,
     setPreferences,
     updateUserPreferences,

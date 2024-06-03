@@ -1,6 +1,7 @@
 import {
   Button,
   Modal,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,7 +11,7 @@ import React from "react";
 
 interface BaseModalProps {
   title?: string;
-  bodyText?: string;
+  bodyText?: React.ReactNode;
   visible?: boolean;
   buttons?: React.ReactNode[];
   onClose?: () => void;
@@ -30,7 +31,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <TouchableOpacity style={styles.modalBackground} onPress={onClose}>
+      <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.bodyText}>{bodyText}</Text>
@@ -40,7 +41,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
             ))}
           </View>
         </View>
-      </TouchableOpacity>
+      </View>
     </Modal>
   );
 };

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useContext,
+} from "react";
 import {
   View,
   Text,
@@ -12,6 +18,10 @@ import {
   TouchableWithoutFeedback,
   Alert,
   Image,
+  Dimensions,
+  ActivityIndicator,
+  Pressable,
+  Modal,
 } from "react-native";
 import {
   useRoute,
@@ -24,6 +34,10 @@ import {
   fetchAllUsernames,
   updateTypingStatus,
   listenToTypingStatus,
+  listenToRecommendedRestaurants,
+  storeRecommendedRestaurants,
+  clearRecommendedRestaurants,
+  fetchFriendsInChatRoom,
 } from "@/controller/DatabaseHandler";
 import { auth, db } from "@/controller/FirebaseHandler";
 import TitleHeader from "@/components/TitleHeader";
@@ -41,16 +55,17 @@ import TypingIndicator from "@/components/TypingIndicator";
 import { RootStackParamList } from "@/constants/navigationTypes";
 import { useOpenAIHandler } from "@/controller/OpenAIHandler";
 import Constants from "expo-constants";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
-
-interface Message {
-  id: string;
-  text: string;
-  userId: string;
-  timestamp: Date;
-  userProfileImage: string | number;
-  username: string;
-}
+import { ImageSourcePropType } from "react-native";
+import { Message } from "@/model/Message";
+import { GroupChatDefaultSystemPrompt } from "@/model/DefaultGroupChatAISystemPrompt";
+import { AppContext } from "@/context/AppContext";
+import { Restaurant } from "@/model/Restaurant";
+import RestaurantListItem from "@/components/RestaurantListItem";
+import { AntDesign } from "@expo/vector-icons";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 interface RouteParams {
   chatRoomId: string;
@@ -59,9 +74,10 @@ interface RouteParams {
 
 const ChatScreen: React.FC = () => {
   const route = useRoute();
+  const { localRestaurants } = useContext(AppContext);
   const { chatRoomId, chatRoomName } = route.params as RouteParams;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { sendMessage: sendAIMessage, resetMessages } = useOpenAIHandler();
+  const { sendMessage: sendAIMessage, setSystemPrompt } = useOpenAIHandler();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -72,7 +88,31 @@ const ChatScreen: React.FC = () => {
   const flatListRef = useRef<FlatList<Message>>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const buddyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const buddyProfileImage = require("../../../assets/images/buddy-toggle-on.png");
+  const [buddyActive, setBuddyActive] = useState(false);
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState<
+    Restaurant[]
+  >([]);
+  const screenWidth = Dimensions.get("window").width;
+
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [chatRoomFriends, setChatRoomFriends] = useState<string[]>([]);
+
+  useEffect(() => {
+    const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
+    setSystemPrompt(systemPrompt);
+  }, []);
+
+  useEffect(() => {
+    const fetchChatRoomFriends = async () => {
+      const friends = await fetchFriendsInChatRoom(chatRoomId);
+      setChatRoomFriends(friends);
+    };
+
+    fetchChatRoomFriends();
+  }, [chatRoomId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -148,14 +188,34 @@ const ChatScreen: React.FC = () => {
       }
     );
 
+    // Listens to recommended restaurants from buddy
+    const unsubscribeRecommnededRestaurants = listenToRecommendedRestaurants(
+      chatRoomId,
+      (restaurants) => {
+        setRecommendedRestaurants(restaurants);
+      }
+    );
+
     return () => {
       isMounted = false;
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
       unsubscribeTypingStatus();
+      unsubscribeRecommnededRestaurants();
     };
   }, [chatRoomId]);
+
+  useEffect(() => {
+    const buddyTyping = Object.values(typingUsers).some(
+      (user) => user.username === "Buddy" && user.isTyping
+    );
+    if (buddyTyping) {
+      setBuddyActive(true);
+    } else {
+      setBuddyActive(false);
+    }
+  }, [typingUsers]);
 
   const handleSendMessage = useCallback(async () => {
     if (newMessage.trim()) {
@@ -180,30 +240,6 @@ const ChatScreen: React.FC = () => {
           auth.currentUser?.displayName || "Unknown User",
           false
         );
-
-        if (isBuddyOn) {
-          const aiResponse = await sendAIMessage(newMessage);
-          const buddyMessageId = Date.now().toString() + "ai";
-          const buddyMessage: Message = {
-            id: buddyMessageId,
-            text: aiResponse,
-            userId: "buddy",
-            timestamp: new Date(),
-            userProfileImage: buddyProfileImage,
-            username: "Buddy",
-          };
-
-          setMessages((prevMessages) => {
-            if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
-              return [...prevMessages, buddyMessage];
-            }
-            return prevMessages;
-          });
-
-          await sendMessage(chatRoomId, buddyMessage.text, "buddy");
-
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }
       } catch (error) {
         console.error("Error sending message:", error);
       }
@@ -221,22 +257,9 @@ const ChatScreen: React.FC = () => {
     [chatRoomId]
   );
 
-  const confirmDeleteMessage = (messageId: string) => {
-    Alert.alert(
-      "Delete Message",
-      "Are you sure you want to delete this message?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => handleDeleteMessage(messageId),
-          style: "destructive",
-        },
-      ]
-    );
+  const confirmDeleteMessage = (message: Message) => {
+    setSelectedMessage(message);
+    setDeleteModalVisible(true);
   };
 
   const handleProfilePress = (friend: {
@@ -254,6 +277,9 @@ const ChatScreen: React.FC = () => {
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
+    if (buddyTimeoutRef.current) {
+      clearTimeout(buddyTimeoutRef.current);
+    }
     updateTypingStatus(
       chatRoomId,
       auth.currentUser?.uid || "",
@@ -268,14 +294,29 @@ const ChatScreen: React.FC = () => {
         false
       );
     }, 2000);
+    buddyTimeoutRef.current = setTimeout(() => {
+      updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
+    }, 6000);
   };
 
-  const handleBuddyToggle = async () => {
-    setIsBuddyOn(!isBuddyOn);
-    if (!isBuddyOn) {
-      const buddyIntroMessage: Message = {
-        id: Date.now().toString(),
-        text: "Hi there! I'm Buddy, your AI assistant. How can I help you today?",
+  const handleBuddyPress = async () => {
+    await updateTypingStatus(chatRoomId, "Buddy", "Buddy", true);
+
+    const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
+    setSystemPrompt(systemPrompt);
+
+    let recentMessages: string = messages
+      .filter((msg) => msg.username !== "Buddy")
+      .map((msg) => `${msg.username}: ${msg.text}`)
+      .join("\n");
+
+    console.log("Recent Messages:", recentMessages);
+    try {
+      const aiResponse = await sendAIMessage(recentMessages);
+      const buddyMessageId = Date.now().toString() + "ai";
+      const buddyMessage: Message = {
+        id: buddyMessageId,
+        text: aiResponse,
         userId: "buddy",
         timestamp: new Date(),
         userProfileImage: buddyProfileImage,
@@ -283,13 +324,37 @@ const ChatScreen: React.FC = () => {
       };
 
       setMessages((prevMessages) => {
-        if (!prevMessages.find((msg) => msg.id === buddyIntroMessage.id)) {
-          return [...prevMessages, buddyIntroMessage];
+        if (!prevMessages.find((msg) => msg.id === buddyMessageId)) {
+          return [...prevMessages, buddyMessage];
         }
         return prevMessages;
       });
 
-      await sendMessage(chatRoomId, buddyIntroMessage.text, "buddy");
+      await sendMessage(chatRoomId, buddyMessage.text, "buddy");
+
+      await clearRecommendedRestaurants(chatRoomId);
+      const recommended = findRestaurantsInMessage(aiResponse);
+      if (recommended) {
+        await storeRecommendedRestaurants(chatRoomId, recommended);
+      }
+
+      flatListRef.current?.scrollToEnd({ animated: true });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage =
+        "Sorry, I'm having trouble right now. Please try again later.";
+      const buddyMessageId = Date.now().toString() + "ai";
+      const buddyMessage: Message = {
+        id: buddyMessageId,
+        text: errorMessage,
+        userId: "buddy",
+        timestamp: new Date(),
+        userProfileImage: buddyProfileImage,
+        username: "Buddy",
+      };
+      await sendMessage(chatRoomId, errorMessage, "buddy");
+    } finally {
+      updateTypingStatus(chatRoomId, "Buddy", "Buddy", false);
     }
   };
 
@@ -302,7 +367,12 @@ const ChatScreen: React.FC = () => {
       "https://static.vecteezy.com/system/resources/thumbnails/005/544/718/small_2x/profile-icon-design-free-vector.jpg";
 
     return (
-      <TouchableOpacity onPress={() => confirmDeleteMessage(item.id)}>
+      <Pressable
+        onPress={() => confirmDeleteMessage(item)}
+        disabled={
+          item.userId !== auth.currentUser?.uid && item.userId !== "buddy"
+        }
+      >
         <View style={styles.messageContainer}>
           <Text style={styles.timestampText}>{formattedDate}</Text>
           <View
@@ -354,9 +424,75 @@ const ChatScreen: React.FC = () => {
             )}
           </View>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
+
+  const recommendedRestaurantsView = () => {
+    return (
+      <>
+        {recommendedRestaurants.length !== 0 && (
+          <View>
+            <TouchableOpacity
+              onPress={() => {
+                clearRecommendedRestaurants(chatRoomId);
+              }}
+              style={{
+                position: "absolute",
+                left: 10,
+                top: 10,
+                backgroundColor: "#fff",
+                borderRadius: 20,
+                padding: 5,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
+                zIndex: 1,
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <AntDesign name="close" size={20} color="#f76116" />
+            </TouchableOpacity>
+            <FlatList
+              data={recommendedRestaurants}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <RestaurantListItem
+                  restaurant={item}
+                  style={{ marginRight: 6, width: wp("90%"), borderRadius: 10 }}
+                />
+              )}
+              horizontal={true}
+              contentContainerStyle={{ paddingHorizontal: 10 }}
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+        )}
+      </>
+    );
+  };
+
+  function findRestaurantsInMessage(latestMessage: string) {
+    const restaurantNames = localRestaurants.map(
+      (restaurant) => restaurant.name
+    );
+    const foundNames = restaurantNames.filter((name) =>
+      latestMessage.includes(name)
+    );
+
+    if (foundNames.length > 0) {
+      const recommendations = localRestaurants
+        .filter((r) => foundNames.includes(r.name))
+        .reverse();
+      console.log("Recommendations:", recommendations);
+      return recommendations;
+    }
+
+    return [];
+  }
 
   const openSettings = () => {
     setSettingsVisible(true);
@@ -364,6 +500,18 @@ const ChatScreen: React.FC = () => {
 
   const closeSettings = () => {
     setSettingsVisible(false);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalVisible(false);
+    setSelectedMessage(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedMessage) {
+      handleDeleteMessage(selectedMessage.id);
+      closeDeleteModal();
+    }
   };
 
   return (
@@ -383,6 +531,7 @@ const ChatScreen: React.FC = () => {
             flatListRef.current?.scrollToEnd({ animated: true })
           }
           onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          ListFooterComponent={recommendedRestaurantsView()}
         />
         <TypingIndicator typingUsers={typingUsers} />
       </View>
@@ -392,16 +541,18 @@ const ChatScreen: React.FC = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inputContainer}>
-            <TouchableOpacity onPress={handleBuddyToggle}>
-              <Image
-                source={
-                  isBuddyOn
-                    ? require("../../../assets/images/buddy-toggle-on.png")
-                    : require("../../../assets/images/buddy-toggle-off.png")
-                }
-                style={styles.image}
-              />
-            </TouchableOpacity>
+            {buddyActive ? (
+              <View style={{ marginRight: 14 }}>
+                <ActivityIndicator size="large" color="#f76116" />
+              </View>
+            ) : (
+              <TouchableOpacity onPress={handleBuddyPress}>
+                <Image
+                  source={require("../../../assets/images/buddy-toggle-on.png")}
+                  style={styles.image}
+                />
+              </TouchableOpacity>
+            )}
             <TextInput
               style={styles.input}
               placeholder="Type a message..."
@@ -412,12 +563,50 @@ const ChatScreen: React.FC = () => {
               onPress={handleSendMessage}
               style={styles.sendButton}
             >
-              <FontAwesome name="send" size={wp('6%')} color="#f76116" />
+              <FontAwesome name="send" size={wp("6%")} color="#f76116" />
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-      <SettingsModal visible={settingsVisible} onClose={closeSettings} />
+      <SettingsModal
+        visible={settingsVisible}
+        onClose={closeSettings}
+        chatRoomId={chatRoomId}
+        currentFriends={chatRoomFriends}
+      />
+      {selectedMessage && (
+        <Modal
+          transparent={true}
+          visible={deleteModalVisible}
+          onRequestClose={closeDeleteModal}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Delete Message</Text>
+              <Text style={styles.modalMessage}>
+                Are you sure you want to delete this message?
+              </Text>
+              <Text style={styles.modalTimestamp}>
+                {new Date(selectedMessage.timestamp).toLocaleString()}
+              </Text>
+              <View style={styles.modalButtonContainer}>
+                <TouchableOpacity
+                  onPress={closeDeleteModal}
+                  style={[styles.modalButton, styles.cancelButton]}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleConfirmDelete}
+                  style={[styles.modalButton, styles.deleteButton]}
+                >
+                  <Text style={styles.deleteButtonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -435,11 +624,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f2f2",
   },
   flatListContentContainer: {
-    paddingBottom: hp('5%'),
+    paddingBottom: hp("5%"),
   },
   messageContainer: {
-    marginVertical: hp('1%'),
-    paddingHorizontal: wp('2%'),
+    marginVertical: hp("1%"),
+    paddingHorizontal: wp("2%"),
   },
   messageBubbleContainer: {
     flexDirection: "row",
@@ -451,91 +640,152 @@ const styles = StyleSheet.create({
   otherUserContainer: {
     justifyContent: "flex-start",
   },
+  animatedView: {},
   otherUserHeader: {
     flexDirection: "row",
     alignItems: "center",
-    maxWidth: wp('80%'),
+    maxWidth: wp("80%"),
   },
   profileImageContainer: {
     alignItems: "center",
-    marginRight: wp('3%'),
-    width: wp('10%'),
+    marginHorizontal: wp("2.5%"),
+    width: wp("10%"),
   },
   profileImage: {
-    width: wp('10%'),
-    height: wp('10%'),
-    borderRadius: wp('5%'),
+    width: wp("11%"),
+    height: wp("11%"),
+    borderRadius: wp("11%") / 2,
   },
   messageBubble: {
-    borderRadius: wp('5%'),
-    padding: wp('3%'),
-    maxWidth: wp('70%'),
+    borderRadius: wp("5%"),
+    padding: wp("3%"),
+    maxWidth: wp("70%"),
   },
   currentUserMessage: {
     backgroundColor: "#f76116",
     alignSelf: "flex-end",
     borderBottomRightRadius: 0,
-    marginRight: wp('2%'),
-    marginLeft: wp('5%'),
+    marginRight: wp("2%"),
+    marginLeft: wp("5%"),
   },
   otherUserMessage: {
     backgroundColor: "#d3d3d3",
     alignSelf: "flex-start",
     borderBottomLeftRadius: 0,
-    marginRight: wp('7.5%'),
+    marginRight: wp("7.5%"),
   },
   messageText: {
-    fontSize: wp('4%'),
+    fontSize: wp("4%"),
     color: "#fff",
     fontWeight: "500",
   },
   otherUserMessageText: {
-    fontSize: wp('4%'),
+    fontSize: wp("4%"),
     color: "#000",
     fontWeight: "500",
   },
   timestampText: {
-    fontSize: wp('3%'),
+    fontSize: wp("3%"),
     color: "#888",
     alignSelf: "center",
-    marginBottom: hp('0.5%'),
+    marginBottom: hp("0.5%"),
   },
   usernameText: {
-    fontSize: wp('3%'),
+    fontSize: wp("3%"),
     fontWeight: "bold",
     color: "#555",
-    marginBottom: hp('0.5%'),
+    marginBottom: hp("0.5%"),
     textAlign: "center",
-    width: wp('15%'),
-    maxWidth: wp('10%'),
+    width: wp("15%"),
+    maxWidth: wp("10%"),
   },
   inputContainer: {
     flexDirection: "row",
-    padding: wp('2%'),
+    padding: wp("2%"),
     alignItems: "center",
     backgroundColor: "#f2f2f2",
     borderColor: "#e2e2e2",
-    paddingHorizontal: wp('5%'),
+    paddingHorizontal: wp("5%"),
     alignSelf: "center",
-    height: hp('7.5%'),
+    height: hp("7.5%"),
   },
   input: {
     flex: 1,
-    fontSize: wp('4%'),
+    fontSize: wp("4%"),
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: wp('5%'),
-    paddingHorizontal: wp('3%'),
+    borderRadius: wp("5%"),
+    paddingHorizontal: wp("3%"),
     backgroundColor: "#fff",
-    height: hp('5%'),
+    height: hp("5%"),
   },
   sendButton: {
-    marginLeft: wp('2%'),
+    marginLeft: wp("2%"),
   },
   image: {
-    width: wp('10%'),
-    height: wp('10%'),
-    marginRight: wp('2%'),
+    width: wp("10.5%"),
+    height: wp("10.5%"),
+    marginRight: wp("2%"),
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContainer: {
+    width: wp("80%"),
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: wp("5%"),
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: wp("4.5%"),
+    fontWeight: "bold",
+    marginBottom: hp("2%"),
+  },
+  modalMessage: {
+    fontSize: wp("4%"),
+    textAlign: "center",
+    marginBottom: hp("2%"),
+  },
+  modalTimestamp: {
+    fontSize: wp("3.5%"),
+    color: "#888",
+    marginBottom: hp("2%"),
+  },
+  modalButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  modalButton: {
+    flex: 1,
+    padding: hp("1.2%"),
+    borderRadius: 10,
+    alignItems: "center",
+    marginHorizontal: wp("1%"),
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+  },
+  deleteButton: {
+    backgroundColor: "#FF3B30",
+  },
+  cancelButtonText: {
+    color: "#000",
+  },
+  deleteButtonText: {
+    color: "#fff",
   },
 });
 

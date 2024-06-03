@@ -31,6 +31,7 @@ export default function TabLayout() {
     <Stack>
       <Stack.Screen name="ListView" options={{ headerShown: false }} />
       <Stack.Screen name="DetailsView" options={{ headerShown: false }} />
+      <Stack.Screen name="Map" options={{ headerShown: false }} />
     </Stack>
     
   );

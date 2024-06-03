@@ -1,8 +1,7 @@
 import { Restaurant } from "@/model/Restaurant";
 import { StyleSheet, Image, Pressable, Animated } from "react-native";
 import { Text, View } from "./Themed";
-import images from "@/assets/data/images";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "@/constants/navigationTypes";
@@ -10,33 +9,33 @@ import StarRating from "./StarRating";
 import { formatDistance } from "@/app/Utils/FormatDistance";
 import { AppContext } from "@/context/AppContext";
 import { OpenStatusLabelList } from "./OpenIndicatorComponents/OpenStatusLabel";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import images from "@/assets/data/images";
+
 type RestaurantListItemProps = {
   restaurant: Restaurant;
+  isLastItem?: boolean;
+  style?: any;
 };
+
+// Local images
+const fave_icon = require("@/assets/images/fave-icon.png");
+const fave_Selected_icon = require("@/assets/images/fave-Selected.png");
+const bookmark_icon = require("@/assets/images/bookmark-icon.png");
+const bookmark_Selected_icon = require("@/assets/images/bookmark-Selected.png");
+const default_restaurant_picture = require("@/assets/images/default_pic.png");
 
 /**
  * Restaurant list item component that displays restaurant information in Home list
  * @param param0 - restaurant object
  * @returns - Restaurant list item component
  */
-export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
+export const RestaurantListItem = ({ restaurant, isLastItem, style }: RestaurantListItemProps) => {
   // Retrieve context for user-related data
   const { visitedRestaurants } = useContext(AppContext);
+
   // State variable for determining if restaurant is visited
   const [isVisited, setIsVisited] = useState(false);
-  // Check if the restaurant is in visited list when component mounts
-  useEffect(() => {
-    if (visitedRestaurants) {
-      for (let i = 0; i < visitedRestaurants.length; i++) {
-        const item = visitedRestaurants[i];
-        if (item.restaurant.id === restaurant.id) {
-          setIsVisited(true);
-          return;
-        }
-      }
-      setIsVisited(false);
-    }
-  }, [visitedRestaurants]);
 
   // Retrieve context for user-related data
   const {
@@ -47,15 +46,19 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     addFavouriteContext,
     removeFavouriteContext,
   } = useContext(AppContext);
+
   // State variables for button presses
   const [isBookmarkPressed, setBookmarkPressed] = useState(false);
   const [isFavePressed, setFavePressed] = useState(false);
   const [isFindOnMapPressed, setFindOnMapPressed] = useState(false);
+
   // Navigation hook for navigating to other screens
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   // Animation variables for button presses
   const bookmarkScale = useState(new Animated.Value(1))[0];
   const faveScale = useState(new Animated.Value(1))[0];
+
   // Function to animate button press
   const animateIcon = (scale: Animated.Value) => {
     Animated.sequence([
@@ -71,36 +74,22 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
       }),
     ]).start();
   };
-  // Check if the restaurant is bookmarked when component mounts
+
+  // Check if the restaurant is in visited list 
   useEffect(() => {
-    if (bookmarkedRestaurants) {
-      for (let i = 0; i < bookmarkedRestaurants.length; i++) {
-        const item = bookmarkedRestaurants[i];
-        if (item.restaurant.id === restaurant.id) {
-          setBookmarkPressed(true);
-          console.log(
-            "Bookmark: " + item.restaurant.name + " " + isBookmarkPressed
-          );
-          return;
-        }
-      }
-      setBookmarkPressed(false);
-    }
+    setIsVisited(visitedRestaurants?.some(item => item.restaurant.id === restaurant.id) || false);
+  }, [visitedRestaurants]);
+
+  // Check if the restaurant is bookmarked 
+  useEffect(() => {
+    setBookmarkPressed(bookmarkedRestaurants?.some(item => item.restaurant.id === restaurant.id) || false);
   }, [bookmarkedRestaurants]);
-  // Check if the restaurant is marked as favorite when component mounts
+
+  // Check if the restaurant is marked as favorite 
   useEffect(() => {
-    if (favouriteRestaurants) {
-      for (let i = 0; i < favouriteRestaurants.length; i++) {
-        const item = favouriteRestaurants[i];
-        if (item.restaurant.id === restaurant.id) {
-          setFavePressed(true);
-          console.log("Fave: " + item.restaurant.name + " " + isFavePressed);
-          return;
-        }
-      }
-      setFavePressed(false);
-    }
+    setFavePressed(favouriteRestaurants?.some(item => item.restaurant.id === restaurant.id) || false);
   }, [favouriteRestaurants]);
+
   // Function to display price level as a string of '$' symbols
   function displayPriceLevel(priceLevel: number): string {
     let price = "";
@@ -109,8 +98,9 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     }
     return price;
   }
-  // Function to handle the favorite button press
+  
   const handleFavouritePressed = () => {
+    console.log("Favourite pressed");
     if (isBookmarkPressed) {
       setBookmarkPressed(false);
       removeBookmarkContext(restaurant.id);
@@ -124,8 +114,9 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
     }
     animateIcon(faveScale);
   };
-  // Function to handle the bookmark button press
+
   const handleBookmarkPressed = () => {
+    console.log("Bookmark pressed");
     if (isFavePressed) {
       setFavePressed(false);
       removeFavouriteContext(restaurant.id);
@@ -142,7 +133,8 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
 
   return (
     <Pressable
-      style={styles.container}
+      testID={isLastItem ? "last-restaurant-list-item" : "restaurant-list-item"}
+      style={[styles.container, style]}
       onPress={() => {
         // Navigate to DetailsView screen
         navigation.navigate("DetailsView", { Restaurant: restaurant });
@@ -151,73 +143,70 @@ export const RestaurantListItem = ({ restaurant }: RestaurantListItemProps) => {
       {/* Restaurant image */}
       <Image 
         testID="restaurant-image"
-        source={{ uri: restaurant.image || images.defaultRestaurantImage }}
+        source={restaurant.image ? {uri : restaurant.image} : {uri : images.defaultRestaurantImage} }
         style={styles.image}
         resizeMode="cover"
       />
       {/* Open status label */}
       <OpenStatusLabelList restaurant={restaurant} />
       <View style={styles.textContainer}>
-        {/* Find on map button */}
-        <Pressable
-          onPress={() => {
-            setFindOnMapPressed(!isFindOnMapPressed);
-            navigation.navigate("Map", { geometry: restaurant.geometry });
-            console.log("Find on map pressed");
-          }}
-        >
-          <View style={styles.iconContainer}>
-            <Image
-              source={
-                isVisited
-                  ? require("../assets/images/location-check.png")
-                  : require("../assets/images/location.png")
-              }
-              style={styles.mapIcon}
-            />
-            <Text style={styles.findOnMap}>Find on map</Text>
-          </View>
-          {/* Restaurant information */}
-        </Pressable>
-          <View style={styles.textInfo}>
-            <Text style={styles.title}>{restaurant.name}</Text>
-            <View style={{ flexDirection: "row", alignItems: "center", flex: 1, flexWrap: "wrap" }}>
-              <Text style={{ fontWeight: "bold" }}>
-                {<StarRating rating={restaurant.rating} />}
-              </Text>
-              <Text style={styles.distance}>
-                {formatDistance(restaurant.distance)}
-              </Text>
-              <Text style={styles.distance}>
-                {restaurant.price !== undefined
-                  ? displayPriceLevel(parseInt(restaurant.price))
-                  : ""}
-              </Text>
+
+        <View style={{justifyContent: 'center', flexDirection: 'row', alignContent: 'center', alignItems: 'center'}}>
+          {/* Find on map button */}
+          <Pressable
+            onPress={() => {
+              setFindOnMapPressed(!isFindOnMapPressed);
+              navigation.navigate("Map", { geometry: restaurant.geometry });
+              console.log("Find on map pressed");
+            }}
+          >
+            <View style={styles.iconContainer}>
+              <Image
+                source={
+                  isVisited
+                    ? require("../assets/images/location-check.png")
+                    : require("../assets/images/location.png")
+                }
+                style={styles.mapIcon}
+              />
+              <Text style={styles.findOnMap}>Find on map</Text>
             </View>
-          </View>
-          {/* Bookmark button */}
-          <View style={styles.iconContainer}>
-            <Pressable onPress={handleBookmarkPressed}>
-              <Animated.Image
-                source={{
-                  uri: isBookmarkPressed
-                    ? images.bookmarkSelectedIcon
-                    : images.bookmarkIcon,
-                }}
-                style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
-              />
-            </Pressable>
-          </View>
-          {/* Favourite button */}
-          <View style={styles.iconContainer}>
-            <Pressable onPress={handleFavouritePressed}>
-              <Animated.Image
-                source={{
-                  uri: isFavePressed ? images.faveSelectedIcon : images.faveIcon,
-                }}
-                style={[styles.icon, { transform: [{ scale: faveScale }] }]}
-              />
-            </Pressable>
+            {/* Restaurant information */}
+          </Pressable>
+            <View style={styles.textInfo}>
+              <Text style={styles.title}>{restaurant.name}</Text>
+              <View style={styles.infoContainer}>
+                <View style={{alignSelf: "center"}}>
+                  {<StarRating rating={restaurant.rating} />}
+                </View>
+                <Text style={styles.distance} testID="Restaurant Distance">
+                  {formatDistance(restaurant.distance)}
+                </Text>
+                <Text style={styles.distance}>
+                  {restaurant.price !== undefined
+                    ? displayPriceLevel(parseInt(restaurant.price))
+                    : ""}
+                </Text>
+              </View>
+            </View>
+            {/* Bookmark button */}
+            <View style={styles.iconContainer}>
+              <Pressable onPress={handleBookmarkPressed}>
+                <Animated.Image
+                  source={ isBookmarkPressed ? bookmark_Selected_icon : bookmark_icon }
+                  style={[styles.icon, { transform: [{ scale: bookmarkScale }] }]}
+                />
+              </Pressable>
+            </View>
+            {/* Favourite button */}
+            <View style={styles.iconContainer}>
+              <Pressable onPress={handleFavouritePressed}>
+                <Animated.Image
+                  source={ isFavePressed ? fave_Selected_icon : fave_icon }
+                  style={[styles.icon, { transform: [{ scale: faveScale }] }]}
+                />
+              </Pressable>
+            </View>
           </View>
         </View>
     </Pressable>
@@ -232,27 +221,43 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
-    paddingRight: 4,
+    justifyContent: 'center', 
+    flex: 1, 
+    marginTop: 10,
+    marginRight: 5,
   },
   iconContainer: {
     flexDirection: "row",
     alignItems: "center",
+    height: '100%',
   },
   textInfo: {
     flex: 1,
+    justifyContent: 'center', 
+    textAlignVertical: "center",
+    alignItems: "flex-start", 
+  },
+  infoContainer: {
+    flexDirection: "row", 
+    justifyContent: 'center', 
+    textAlignVertical: "center",
+    alignItems: "flex-start",
   },
   title: {
     fontSize: 16,
     fontWeight: "600",
     textAlign: "left",
+    textAlignVertical: "center",
     flexWrap: "wrap",
+    width: "100%",
   },
   distance: {
     fontWeight: "bold",
     textAlign: "left",
     paddingLeft: 10,
     flexWrap: "wrap",
+    height: '100%', 
+    textAlignVertical: "center",
   },
   findOnMap: {
     fontWeight: "bold",
@@ -262,18 +267,17 @@ const styles = StyleSheet.create({
     textAlign: "left",
   },
   image: {
-    width: "100%",
-    aspectRatio: 2.5 / 1,
+    height: wp('40%'),
     borderRadius: 10,
   },
   icon: {
-    width: 27,
-    aspectRatio: 1,
+    width: 26,
+    height: 26,
     resizeMode: "contain",
     marginLeft: 2,
   },
   mapIcon: {
-    width: 32,
+    width: wp('9%'),
     aspectRatio: 1,
     resizeMode: "contain",
   },
