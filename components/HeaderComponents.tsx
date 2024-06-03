@@ -6,16 +6,18 @@ import { Category } from "@/model/Category";
 import { Sort } from "@/model/Sort";
 import React, { useContext, useEffect } from "react";
 import DrawerContext from "@/context/DrawerContext";
+import StartupGuideButton from "./StartupGuideButton";
 
 // Define the props for the HeaderComponents component
 interface HeaderComponentsProps {
   title?: string;
   searchBar?: boolean;
+  startupGuide?: boolean;
   onSearchSubmit?: (searchTerm: string) => void;
   onFiltersSelect?: (category: Category[]) => void;
   onSortSelect?: (sort: Sort) => void;
-  searchTerm?: string; 
-  selectedCategory?: Category; 
+  searchTerm?: string;
+  selectedCategory?: Category;
   toggleDrawer?: () => void;
   open?: boolean;
 }
@@ -28,14 +30,18 @@ interface HeaderComponentsProps {
 const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   title,
   searchBar,
+  startupGuide,
   onSearchSubmit,
   onSortSelect,
 }) => {
-  const handleSearchSubmit = React.useCallback((searchTerm: string) => {
-    if (onSearchSubmit) {
-      onSearchSubmit(searchTerm);
-    }
-  }, [onSearchSubmit]);
+  const handleSearchSubmit = React.useCallback(
+    (searchTerm: string) => {
+      if (onSearchSubmit) {
+        onSearchSubmit(searchTerm);
+      }
+    },
+    [onSearchSubmit]
+  );
 
   // // Define the function to handle the category select
   // const handleCategorySelect = (category: Category) => {
@@ -54,7 +60,12 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   };
 
   if (title) {
-    return <Text style={styles.title}>{title}</Text>;
+    return (
+      <>
+        <Text style={styles.title}>{title}</Text>
+        {startupGuide && <StartupGuideButton />}
+      </>
+    );
   }
 
   const { open, setOpen } = useContext(DrawerContext);
@@ -62,16 +73,12 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   if (searchBar) {
     return (
       <SafeAreaView style={styles.container} testID="Search Bar">
-        <SearchBar 
-          onSearchSubmit={handleSearchSubmit} 
-        />
+        <SearchBar onSearchSubmit={handleSearchSubmit} />
         <View style={styles.filters}>
           {/* <Categories 
             onCategorySelect={handleCategorySelect} 
           /> */}
-          <FilterButton
-            onPress={() => setOpen(!open)}
-          />
+          <FilterButton onPress={() => setOpen(!open)} />
           <Filters onSortSelect={handleSortSelect} />
         </View>
       </SafeAreaView>
@@ -84,7 +91,7 @@ export default HeaderComponents;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 14
+    marginTop: 14,
   },
   title: {
     width: "70%",

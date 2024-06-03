@@ -11,6 +11,7 @@ import ImFeelingLucky from "./ImFeelingLucky";
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
+  startupGuide?: boolean;
   onSearchSubmit?: (searchTerm: string) => void;
   onFiltersSelect?: (category: Category[]) => void;
   onSortSelect?: (sort: Sort) => void;
@@ -26,6 +27,7 @@ interface TitleHeaderProps {
 export default function TitleHeader({
   title,
   searchBar,
+  startupGuide,
   onSearchSubmit,
   onFiltersSelect,
   onSortSelect,
@@ -69,6 +71,7 @@ export default function TitleHeader({
       <HeaderComponents
         title={title}
         searchBar={searchBar}
+        startupGuide={startupGuide}
         onSearchSubmit={handleSearchSubmit}
         onSortSelect={handleSortSelect}
         searchTerm={searchTerm} 
