@@ -6,7 +6,7 @@ import StartupGuide from "./modals/StartupGuide";
 const StartupGuideButton = () => {
   const [modalVisible, setModalVisible] = React.useState(false);
   return (
-    <>
+    <View>
       <TouchableOpacity onPress={() => setModalVisible(true)}>
         <Image
           source={require("@/assets/images/startup-guide-icon.png")}
@@ -19,7 +19,7 @@ const StartupGuideButton = () => {
       >
         <StartupGuide />
       </Modal>
-    </>
+    </View>
   );
 };
 

@@ -1,12 +1,22 @@
 import Filters from "./SortButton";
 import SearchBar from "./SearchBar";
-import { Text, View, StyleSheet, SafeAreaView } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  SafeAreaView,
+  Image,
+  Modal,
+  Pressable,
+} from "react-native";
 import FilterButton from "./FilterDrawerComponents/FilterButton";
 import { Category } from "@/model/Category";
 import { Sort } from "@/model/Sort";
 import React, { useContext, useEffect } from "react";
 import DrawerContext from "@/context/DrawerContext";
 import StartupGuideButton from "./StartupGuideButton";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import StartupGuide from "./modals/StartupGuide";
 
 // Define the props for the HeaderComponents component
 interface HeaderComponentsProps {
@@ -42,6 +52,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
     },
     [onSearchSubmit]
   );
+  const [modalVisible, setModalVisible] = React.useState(false);
 
   // // Define the function to handle the category select
   // const handleCategorySelect = (category: Category) => {
@@ -61,10 +72,23 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
 
   if (title) {
     return (
-      <>
+      <View style={{ flexDirection: "row", flexShrink: 2 }}>
         <Text style={styles.title}>{title}</Text>
-        {startupGuide && <StartupGuideButton />}
-      </>
+        <Pressable onPress={() => setModalVisible(true)}>
+          <Image
+            source={require("@/assets/images/startup-guide-icon.png")}
+            style={styles.startupGuide}
+          />
+          <Modal
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View>
+              <StartupGuide onClose={() => {setModalVisible(false)}}/>
+            </View>
+          </Modal>
+        </Pressable>
+      </View>
     );
   }
 
@@ -117,5 +141,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingRight: 10,
+  },
+  startupGuide: {
+    width: 40,
+    height: 40,
+    marginRight: 35,
   },
 });
