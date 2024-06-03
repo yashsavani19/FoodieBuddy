@@ -600,9 +600,8 @@ const styles = StyleSheet.create({
     width: wp('10%'),
   },
   profileImage: {
-    width: wp('10%'),
-    height: wp('10%'),
-    borderRadius: wp('5%'),
+    width: wp('11%'),
+    height: wp('11%'),
   },
   messageBubble: {
     borderRadius: wp('5%'),
@@ -671,8 +670,8 @@ const styles = StyleSheet.create({
     marginLeft: wp('2%'),
   },
   image: {
-    width: wp('10%'),
-    height: wp('10%'),
+    width: wp('10.5%'),
+    height: wp('10.5%'),
     marginRight: wp('2%'),
   },
 });
