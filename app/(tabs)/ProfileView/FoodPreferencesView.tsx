@@ -24,10 +24,10 @@ const FoodPreferencesView: React.FC = () => {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
-  let friendPreferences: PreferenceList[] | null = null;
+  let friendPreferences: PreferenceCategoryList[] | null = null;
 
   if (route.params && "preferences" in route.params) {
-    friendPreferences = (route.params as any).preferences as PreferenceList[];
+    friendPreferences = (route.params as any).preferences as PreferenceCategoryList[];
   }
 
   // If no preferences are passed, load default preferences

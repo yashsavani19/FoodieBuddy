@@ -28,7 +28,7 @@ import { AppContext } from "@/context/AppContext";
 import Constants from "expo-constants";
 import PreferencesButton from "@/components/SavedLists/PreferencesButton";
 import { Preference } from "@/model/Preference";
-import { PreferenceList } from "@/model/PreferenceList";
+import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 
 const FriendProfile: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -45,7 +45,7 @@ const FriendProfile: React.FC = () => {
     const preferences = await fetchFriendsPreferences(friend.uid);
     if (preferences) {
       // print out preferences that are true
-      preferences.map((preference: PreferenceList) => {
+      preferences.map((preference: PreferenceCategoryList) => {
         preference.preferences.map((pref: Preference) => {
           if (pref.selected) {
             console.log(pref.name);

@@ -1336,11 +1336,11 @@ export const fetchPreferences = async (): Promise<{ preferences: PreferenceCateg
  */
 export const fetchFriendsPreferences = async (
   uid: string
-): Promise<PreferenceList[]> => {
+): Promise<PreferenceCategoryList[]> => {
   try {
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
-    const preferences: PreferenceList[] = [];
+    const preferences: PreferenceCategoryList[] = [];
 
     // Group preferences by category
     const categoryMap: { [key: string]: Preference[] } = {};
