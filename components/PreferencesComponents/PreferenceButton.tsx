@@ -4,12 +4,14 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native";
 interface PreferenceButtonProps {
   name: string;
   selected: boolean;
+  disabled?: boolean;
   onToggle: () => void;
 }
 
 const PreferenceButton: React.FC<PreferenceButtonProps> = ({
   name,
   selected,
+  disabled,
   onToggle,
 }) => {
   function setSelectedColor() {
@@ -19,6 +21,7 @@ const PreferenceButton: React.FC<PreferenceButtonProps> = ({
     <TouchableOpacity
       style={[styles.button, { borderColor: setSelectedColor() }]}
       onPress={onToggle}
+      disabled={disabled}
     >
       <Text style={[styles.buttonText, { color: setSelectedColor() }]}>{name}</Text>
     </TouchableOpacity>

@@ -20,11 +20,13 @@ import BookmarksButton from "@/components/SavedLists/BookmarkButton";
 import {
   fetchFriendsBookmarks,
   fetchFriendsFavourites,
+  fetchFriendsPreferences,
   fetchFriendsVisited,
   removeFriend,
 } from "@/controller/DatabaseHandler";
 import { AppContext } from "@/context/AppContext";
 import Constants from "expo-constants";
+import PreferencesButton from "@/components/SavedLists/PreferencesButton";
 
 const FriendProfile: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -35,6 +37,16 @@ const FriendProfile: React.FC = () => {
   useEffect(() => {
     console.log("FriendProfile: ", friend);
   }, []);
+
+  const handleFriendsPreferences = async () => {
+    console.log("Friends preferences");
+    const preferences = await fetchFriendsPreferences(friend.uid);
+    if (preferences) {
+      navigation.navigate("FoodPreferencesView", {
+        preferences,
+      });
+    }
+  };
 
   const handleFriendsFavourites = async () => {
     console.log("Friends Favourites");
@@ -93,7 +105,7 @@ const FriendProfile: React.FC = () => {
               // resizeMode="contain"
               style={styles.profileImage}
               source={
-                typeof friend.profileImageUrl === 'string'
+                typeof friend.profileImageUrl === "string"
                   ? { uri: friend.profileImageUrl }
                   : friend.profileImageUrl
               }
@@ -107,6 +119,7 @@ const FriendProfile: React.FC = () => {
           </View>
         </View>
         <View style={styles.savedContainer}>
+          <PreferencesButton onPress={handleFriendsPreferences} />
           <FavouriteSpotsButton onPress={handleFriendsFavourites} />
           <BookmarksButton onPress={handleFriendsBookmarks} />
           <VisitedButton onPress={handleFriendsVisited} />
