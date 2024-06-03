@@ -14,6 +14,8 @@ import {
   limit,
   serverTimestamp,
   updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 import { db } from "@/controller/FirebaseHandler";
 import { Saved } from "@/model/Saved";
@@ -270,7 +272,7 @@ export const addUser = async (uid: string, email: string, username: string) => {
     const userCollection = `users/${uid}`;
     await setDoc(doc(db, userCollection), {
       email: email,
-      username: username
+      username: username,
     });
     await addPreferences(uid);
   } catch (e) {
@@ -1358,7 +1360,7 @@ export const fetchFriendsPreferences = async (uid: string) => {
 };
 
 export const updatePreferences = async (
-  updatedPreferences: PreferenceList[],
+  updatedPreferences: PreferenceList[]
 ) => {
   try {
     const uid = auth.currentUser?.uid;
@@ -1396,8 +1398,7 @@ export const updatePreferences = async (
             ", Category: ",
             category.title,
             ", API Name: ",
-            preference.apiName,
-            
+            preference.apiName
           );
           setDoc(docRef, {
             category: category.title,
@@ -1412,5 +1413,78 @@ export const updatePreferences = async (
   } catch (e) {
     console.error("Error updating preferences: ", e);
     alert("Internal error updating preferences. Please try again later.");
+  }
+};
+
+/**
+ * Adds a friend to a chat room's allowed users list
+ * @param {string} chatRoomId - ID of the chat room
+ * @param {string} friendId - ID of the friend to add
+ * @returns {Promise<void>}
+ */
+export const addFriendToChatRoom = async (
+  chatRoomId: string,
+  friendId: string
+): Promise<void> => {
+  try {
+    const chatRoomDocRef = doc(db, "chatRooms", chatRoomId);
+    await updateDoc(chatRoomDocRef, {
+      allowedUsers: arrayUnion(friendId),
+    });
+    console.log(`Friend with ID ${friendId} added to chat room ${chatRoomId}`);
+  } catch (error) {
+    console.error("Error adding friend to chat room:", error);
+    alert("Internal error adding friend to chat room. Please try again later.");
+  }
+};
+
+/**
+ * Removes a friend from a chat room's allowed users list
+ * @param {string} chatRoomId - ID of the chat room
+ * @param {string} friendId - ID of the friend to remove
+ * @returns {Promise<void>}
+ */
+export const removeFriendFromChatRoom = async (
+  chatRoomId: string,
+  friendId: string
+): Promise<void> => {
+  try {
+    const chatRoomDocRef = doc(db, "chatRooms", chatRoomId);
+    await updateDoc(chatRoomDocRef, {
+      allowedUsers: arrayRemove(friendId),
+    });
+    console.log(
+      `Friend with ID ${friendId} removed from chat room ${chatRoomId}`
+    );
+  } catch (error) {
+    console.error("Error removing friend from chat room:", error);
+    alert(
+      "Internal error removing friend from chat room. Please try again later."
+    );
+  }
+};
+
+/**
+ * Fetches friends in a chat room by its ID
+ * @param {string} chatRoomId - ID of the chat room
+ * @returns {Promise<string[]>} - A promise that resolves to an array of friend IDs
+ */
+export const fetchFriendsInChatRoom = async (
+  chatRoomId: string
+): Promise<string[]> => {
+  try {
+    const chatRoomDocRef = doc(db, "chatRooms", chatRoomId);
+    const chatRoomDoc = await getDoc(chatRoomDocRef);
+
+    if (chatRoomDoc.exists()) {
+      const chatRoomData = chatRoomDoc.data();
+      return chatRoomData.allowedUsers || [];
+    } else {
+      console.error("Chat room not found");
+      return [];
+    }
+  } catch (error) {
+    console.error("Error fetching friends in chat room:", error);
+    return [];
   }
 };

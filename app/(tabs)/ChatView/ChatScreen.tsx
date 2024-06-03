@@ -37,6 +37,7 @@ import {
   listenToRecommendedRestaurants,
   storeRecommendedRestaurants,
   clearRecommendedRestaurants,
+  fetchFriendsInChatRoom,
 } from "@/controller/DatabaseHandler";
 import { auth, db } from "@/controller/FirebaseHandler";
 import TitleHeader from "@/components/TitleHeader";
@@ -97,12 +98,21 @@ const ChatScreen: React.FC = () => {
 
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [chatRoomFriends, setChatRoomFriends] = useState<string[]>([]);
 
-  // Set system prompt for the chat room
   useEffect(() => {
     const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
     setSystemPrompt(systemPrompt);
   }, []);
+
+  useEffect(() => {
+    const fetchChatRoomFriends = async () => {
+      const friends = await fetchFriendsInChatRoom(chatRoomId);
+      setChatRoomFriends(friends);
+    };
+
+    fetchChatRoomFriends();
+  }, [chatRoomId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -295,7 +305,6 @@ const ChatScreen: React.FC = () => {
     const systemPrompt = GroupChatDefaultSystemPrompt(localRestaurants, []);
     setSystemPrompt(systemPrompt);
 
-    // compile recent messages and send to AI
     let recentMessages: string = messages
       .filter((msg) => msg.username !== "Buddy")
       .map((msg) => `${msg.username}: ${msg.text}`)
@@ -323,7 +332,6 @@ const ChatScreen: React.FC = () => {
 
       await sendMessage(chatRoomId, buddyMessage.text, "buddy");
 
-      // Clear and store recommended restaurants from AI response
       await clearRecommendedRestaurants(chatRoomId);
       const recommended = findRestaurantsInMessage(aiResponse);
       if (recommended) {
@@ -560,7 +568,12 @@ const ChatScreen: React.FC = () => {
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-      <SettingsModal visible={settingsVisible} onClose={closeSettings} />
+      <SettingsModal
+        visible={settingsVisible}
+        onClose={closeSettings}
+        chatRoomId={chatRoomId}
+        currentFriends={chatRoomFriends}
+      />
       {selectedMessage && (
         <Modal
           transparent={true}
