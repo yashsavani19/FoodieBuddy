@@ -596,13 +596,13 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     alignItems: "center",
-    marginRight: wp('3%'),
+    marginHorizontal: wp('3%'),
     width: wp('10%'),
   },
   profileImage: {
     width: wp('11%'),
     height: wp('11%'),
-    borderRadius: 20,
+    borderRadius: wp('11%') / 2,
   },
   messageBubble: {
     borderRadius: wp('5%'),
