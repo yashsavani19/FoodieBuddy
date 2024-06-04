@@ -8,6 +8,8 @@ import { Sort } from "@/model/Sort";
 import Constants from "expo-constants";
 import { AppContext } from "@/context/AppContext";
 import ImFeelingLucky from "./ImFeelingLucky";
+
+// Define the props for the TitleHeader component
 interface TitleHeaderProps {
   title?: string;
   searchBar?: boolean;
@@ -42,7 +44,7 @@ export default function TitleHeader({
     }
   };
 
-  //  Function to handle category select
+  // Function to handle category select
   const handleFiltersSelect = (category: Category[]) => {
     if (onFiltersSelect) {
       onFiltersSelect(category);
@@ -71,7 +73,7 @@ export default function TitleHeader({
       <HeaderComponents
         title={title}
         searchBar={searchBar}
-        startupGuide={startupGuide}
+        startupGuide={startupGuide}  // Pass startupGuide prop to HeaderComponents
         onSearchSubmit={handleSearchSubmit}
         onSortSelect={handleSortSelect}
         searchTerm={searchTerm} 
