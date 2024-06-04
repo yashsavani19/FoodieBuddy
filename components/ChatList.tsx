@@ -141,6 +141,14 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
     });
   };
 
+  const resetModalState = () => {
+    setNewChatRoomName("");
+    setNewChatRoomImageUrl("");
+    setFriends((prevFriends) =>
+      prevFriends.map((friend) => ({ ...friend, isAdded: false }))
+    );
+  };
+
   const renderItem = ({ item }: { item: ChatRoom }) => (
     <ChatRoomItem chatRoom={item} onDelete={handleDeleteChatRoom} type={type} />
   );
@@ -162,7 +170,10 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
             }
           />
           <TouchableOpacity
-            onPress={() => setModalVisible(true)}
+            onPress={() => {
+              resetModalState();
+              setModalVisible(true);
+            }}
             style={styles.addButton}
           >
             <Text style={styles.addButtonText}>New Chat </Text>
