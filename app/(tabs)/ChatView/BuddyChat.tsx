@@ -47,8 +47,8 @@ const BuddyChat: React.FC = () => {
   const [currentMessage, setCurrentMessage] = useState<string>("");
   const [settingsVisible, setSettingsVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
-  const [recommendedRestaurant, setRecommendedRestaurant] =
-    useState<Restaurant | null>(null);
+  const [recommendedRestaurants, setRecommendedRestaurants] =
+    useState<Restaurant[] | null>([]);
   const navigation = useNavigation();
 
   // Display "AI-learning" alert message when user enters the chat view
@@ -73,25 +73,27 @@ const BuddyChat: React.FC = () => {
    */
   async function getAIResponse(message: string) {
     const response = await sendMessage(message);
-    // console.log(response);
+    // // console.log(response);
     return response;
   }
 
-  function findRestaurantInMessage(latestMessage: string) {
+  function findRestaurantsInMessage(latestMessage: string) {
     const restaurantNames = localRestaurants.map(
       (restaurant) => restaurant.name
     );
-    const restaurant = restaurantNames.find((name) =>
+    const foundNames = restaurantNames.filter((name) =>
       latestMessage.includes(name)
     );
-    if (restaurant) {
-      console.log("Restaurant found in message:", restaurant);
-      const recommendation = localRestaurants.find(
-        (r) => r.name === restaurant
-      );
-      return recommendation || null;
+
+    if (foundNames.length > 0) {
+      const recommendations = localRestaurants
+        .filter((r) => foundNames.includes(r.name))
+        .reverse();
+      console.log("Recommendations:", recommendations);
+      return recommendations;
     }
-    return null;
+
+    return [];
   }
 
   // Scroll to end of messages when new message is added
@@ -124,7 +126,7 @@ const BuddyChat: React.FC = () => {
    * Send message to Buddy and get response from AI
    */
   const sendMessageFromUser = () => {
-    setRecommendedRestaurant(null);
+    setRecommendedRestaurants(null);
     if (currentMessage.trim()) {
       const newMessage: MessageProps = {
         id: Date.now().toString(),
@@ -159,8 +161,8 @@ const BuddyChat: React.FC = () => {
             newResponse,
           ]);
 
-          const restaurant = findRestaurantInMessage(newResponse.text || "");
-          setRecommendedRestaurant(restaurant); // Set the restaurant found directly, null if none found
+          const recommended = findRestaurantsInMessage(response);
+          setRecommendedRestaurants(recommended);
         })
         .catch((error) => {
           console.error("Failed to send message:", error);
@@ -173,10 +175,10 @@ const BuddyChat: React.FC = () => {
   };
 
   const resetChatMessages = () => {
-    console.log("Resetting messages");
+    // console.log("Resetting messages");
     resetMessages();
     setMessages([initialBuddyMessage]);
-    setRecommendedRestaurant(null);
+    setRecommendedRestaurants(null);
   };
 
   const openSettings = () => {
@@ -215,9 +217,19 @@ const BuddyChat: React.FC = () => {
               contentContainerStyle={{ paddingBottom: hp("1.5%") }}
               ListHeaderComponent={<View style={{ height: hp("1.5%") }} />}
               ListFooterComponent={
-                recommendedRestaurant ? (
-                  <RestaurantListItem restaurant={recommendedRestaurant} isLastItem={false}/>
-                ) : null
+                <FlatList
+                  data={recommendedRestaurants}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <RestaurantListItem
+                      restaurant={item}
+                      style={{ marginRight: 6, width: wp("90%"), borderRadius: 10 }}
+                    />
+                  )}
+                  horizontal={true}
+                  contentContainerStyle={{ paddingHorizontal: 10 }}
+                  showsHorizontalScrollIndicator={false}
+                />
               }
             />
             <View style={styles.inputContainer}>
@@ -245,7 +257,6 @@ const BuddyChat: React.FC = () => {
           <FontAwesome name="repeat" size={wp("6%")} color="grey" />
         </TouchableOpacity>
       </KeyboardAvoidingView>
-      <SettingsModal visible={settingsVisible} onClose={closeSettings} />
     </View>
   );
 };

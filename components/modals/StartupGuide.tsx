@@ -16,32 +16,32 @@ const { width } = Dimensions.get("window");
 // Define the slides for the swiper component
 const slides = [
   {
-    key: "1",
+    key: "0",
     text: "Welcome to Foodie Buddy!",
     image: require("@/assets/images/BuddyBod.png"),
   },
   {
-    key: "2",
+    key: "1",
     text: "Filter eating spots to your heart’s content",
     image: require("@/assets/images/page-1.png"),
   },
   {
-    key: "3",
+    key: "2",
     text: "Find eating spots on the map",
     image: require("@/assets/images/page-2.png"),
   },
   {
-    key: "4",
+    key: "3",
     text: "Ask Buddy to provide eating spot recommendations",
     image: require("@/assets/images/page-3.png"),
   },
   {
-    key: "5",
+    key: "4",
     text: "Add friends, make group chats, and invite Buddy",
     image: require("@/assets/images/page-4.png"),
   },
   {
-    key: "6",
+    key: "5",
     text: "Choose personal preferences to get restaurant recommendations",
     image: require("@/assets/images/page-5.png"),
   },
@@ -67,6 +67,7 @@ const StartupGuide: React.FC<Props> = ({ onClose }) => (
         showsButtons={true}
         dot={<View style={styles.dot} />}
         activeDot={<View style={styles.activeDot} />}
+        loop={false}
       >
         {/* Map through the slides and render each slide */}
         {slides.map((slide) => (
@@ -88,6 +89,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
+    bottom: '3%',
+    width: '80%',
+    alignSelf: 'center',
   },
   image: {
     width: width - 100, // Adjust the width of the image
