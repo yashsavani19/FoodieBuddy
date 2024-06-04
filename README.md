@@ -1,8 +1,14 @@
-# FoodieBuddy
+
+
+![App Icon 2](https://github.com/yashsavani19/FoodieBuddy/assets/160118560/aa5f70cf-fa35-47e3-a650-aa3ae04afb68)
+
+<h1 align="center">
+  <span><strong>Welcome to FoodieBuddy </strong></span>
+</h1>
 
 ## Table of Contents
 
-- [Installation](#installation)
+- [Installation](#installation)                         
 - [Usage](#usage)
 - [Features](#features)
 
@@ -142,4 +148,36 @@ You may also edit your account information from this page including profile imag
 - View friends preferences
 - Remove friends
 
-  
+## Steps to setup the .env file
+
+1. Firebase configurations
+   - To use Firebase services in your FoodieBuddy app, you need to create a Firebase project and obtain the configuration details.
+   - Go to the [Firebase Console](https://console.firebase.google.com/)
+   - Create firebase project, Add app to firebase project, and obtain firebase configuration keys.
+2. OpenAI Configuration
+   - Go to the [OpenAI website](https://platform.openai.com/docs/overview)
+   - Generate an API key.
+   - Add OpenAI configuration to .env
+3. Google API Key
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/welcome?project=theta-cable-418602)
+   - Enable Places API (New) and Directions API
+   - Generate API key and add it to .env
+
+Create a .env file in the root directory of the app.
+- Copy and paste the below code into the .env file.
+
+### .env 
+```javascript
+FIREBASE_API_KEY="your_firebase_api_key"
+FIREBASE_AUTH_DOMAIN="your_firebase_auth_domain"
+FIREBASE_DATABASE_URL="your_firebase_database_url"
+FIREBASE_PROJECT_URL="your_firebase_project_url"
+FIREBASE_STORAGE_BUCKET="your_firebase_storage_bucket"
+FIREBASE_MESSAGING_SENDER_ID="your_firebase_messaging_sender_id"
+FIREBASE_APP_ID="your_firebase_app_id"
+FIREBASE_MEASUREMENT_ID="your_firebase_measurement_id"
+OPENAI_API_KEY="your_openai_api_key"
+OPENAI_ORG_ID="your_openai_org_id"
+GOOGLE_API_KEY="your_google_api_key"
+```
+
