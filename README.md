@@ -149,14 +149,14 @@ You may also edit your account information from this page including profile imag
 
 1. Firebase configurations
    - To use Firebase services in your FoodieBuddy app, you need to create a Firebase project and obtain the configuration details.
-   - Go to the [Firebase Console][https://console.firebase.google.com/]
+   - Go to the [Firebase Console](https://console.firebase.google.com/)
    - Create firebase project, Add app to firebase project, and obtain firebase configuration keys.
 2. OpenAI Configuration
-   - Go to the [OpenAI website][https://platform.openai.com/docs/overview]
+   - Go to the [OpenAI website](https://platform.openai.com/docs/overview)
    - Generate an API key.
    - Add OpenAI configuration to .env
 3. Google API Key
-   - Go to the [Google Cloud Console][https://console.cloud.google.com/welcome?project=theta-cable-418602]
+   - Go to the [Google Cloud Console](https://console.cloud.google.com/welcome?project=theta-cable-418602)
    - Enable Places API (New) and Directions API
    - Generate API key and add it to .env
 
