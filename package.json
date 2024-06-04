@@ -18,7 +18,7 @@
       "^.+\\.[t|j]sx?$": "babel-jest"
     },
     "transformIgnorePatterns": [
-      "node_modules/(?!(react-native|@react-native|@expo|expo|@unimodules|unimodules|sentry-expo|native-base|react-navigation|@react-navigation)/)"
+      "node_modules/(?!(react-native|@react-native|@expo|@unimodules|unimodules|sentry-expo|native-base|react-navigation|@react-navigation|@expo/vector-icons|?!@ngrx|(?!dech.gl)|ng-dynamic))/)"
     ]
   },
   "dependencies": {
