@@ -174,7 +174,7 @@ export const RestaurantListItem = ({ restaurant, isLastItem, style }: Restaurant
             {/* Restaurant information */}
           </Pressable>
             <View style={styles.textInfo}>
-              <Text style={styles.title}>{restaurant.name} PS:{restaurant.preferenceScore}</Text>
+              <Text style={styles.title}>{restaurant.name}</Text>
               <View style={styles.infoContainer}>
                 <View style={{alignSelf: "center"}}>
                   {<StarRating rating={restaurant.rating} />}
