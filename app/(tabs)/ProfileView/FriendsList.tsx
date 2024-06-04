@@ -62,11 +62,16 @@ const FriendsList = () => {
   // Update orderedFriends when friends changes
   useEffect(() => {
     if (friends.length > 0) {
+      const filteredFriends = friends.filter(friend => 
+        Object.values(friend).every(value => value !== null && value !== '')
+      );
       setOrderedFriends(
-        [...friends].sort((a, b) => a.username.localeCompare(b.username))
+        [...filteredFriends].sort((a, b) => a.username.localeCompare(b.username))
       );
     }
   }, [friends]);
+  
+  
 
   // Subscribe to friends listener to update list when database changes
   useEffect(() => {
