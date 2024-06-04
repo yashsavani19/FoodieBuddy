@@ -1,4 +1,4 @@
-import Filters from "./SortButton";
+import SortButton from "./SortButton";
 import SearchBar from "./SearchBar";
 import {
   Text,
@@ -111,11 +111,8 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
       <SafeAreaView style={styles.container} testID="Search Bar">
         <SearchBar onSearchSubmit={handleSearchSubmit} />
         <View style={styles.filters}>
-          {/* <Categories 
-            onCategorySelect={handleCategorySelect} 
-          /> */}
           <FilterButton onPress={() => setOpen(!open)} />
-          <Filters onSortSelect={handleSortSelect} />
+          <SortButton onSortSelect={handleSortSelect} />
         </View>
       </SafeAreaView>
     );
