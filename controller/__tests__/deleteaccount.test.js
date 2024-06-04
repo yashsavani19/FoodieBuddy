@@ -1,50 +1,47 @@
-import React from "react";
-import { render } from "@testing-library/react-native";
-import {db, deleteUserAccount} from "../FirebaseHandler";
-import { getDatabase } from "firebase/database";
+import { deleteUserAccount, deleteUserData } from './path/to/your/module';
+import { auth, db, EmailAuthProvider, reauthenticateWithCredential, deleteDoc, deleteUser } from 'firebase/firestore';
 
-jest.mock("../FirebaseHandler", () => ({
-    db: jest.fn(),
+jest.mock('firebase/firestore', () => ({
+  auth: {
+    currentUser: {
+      email: 'test@example.com',
+      uid: 'test-uid',
+      displayName: 'testuser'
+    }
+  },
+  db: {},
+  EmailAuthProvider: {
+    credential: jest.fn()
+  },
+  reauthenticateWithCredential: jest.fn(),
+  deleteDoc: jest.fn(),
+  deleteUser: jest.fn(),
 }));
 
-jest.mock("firebase/firestore", () => ({
-    collection: jest.fn(),
-    doc: jest.fn(),
-    delete: jest.fn(),
-    getFirestore: jest.fn(),
-    }));
+describe('deleteUserAccount', () => {
+  it('should delete user account and related data successfully', async () => {
+    const mockPassword = 'mockPassword';
+    const mockUser = { uid: 'test-uid' };
 
-jest.mock("firebase/auth", () => ({ 
-    getAuth: jest.fn(),
-    deleteUser: jest.fn(),
-    }));
-    
-jest.mock("firebase/database", () => ({
-    ref: jest.fn(),
-    getDatabase: jest.fn(),
-    remove: jest.fn(),
-    }));
+    EmailAuthProvider.credential.mockReturnValue('mockCredential');
+    (reauthenticateWithCredential as jest.Mock).mockResolvedValueOnce(null);
+    (deleteDoc as jest.Mock).mockResolvedValueOnce(null);
+    (deleteUser as jest.Mock).mockResolvedValueOnce(null);
 
-jest.mock("firebase/app", () => ({
-    initializeApp: jest.fn(),
-    }));
+    await deleteUserAccount(mockPassword, mockUser);
 
-jest.mock("@react-native-async-storage/async-storage", () => ({
-    setItem: jest.fn(),
-    getItem: jest.fn(),
-    removeItem: jest.fn(),
-    ReactNativeAsyncStorage: jest.fn(),
-    }));
+    expect(EmailAuthProvider.credential).toHaveBeenCalledWith('test@example.com', mockPassword);
+    expect(reauthenticateWithCredential).toHaveBeenCalledWith(auth.currentUser, 'mockCredential');
+    expect(deleteDoc).toHaveBeenCalledTimes(2);
+    expect(deleteDoc).toHaveBeenCalledWith(expect.anything(), 'users/test-uid');
+    expect(deleteDoc).toHaveBeenCalledWith(expect.anything(), 'usernames/testuser');
+    expect(deleteUser).toHaveBeenCalledWith(auth.currentUser);
+  });
 
-describe("deleteUserAccount", () => {
-    it("deletes user account", async () => {
-        const user = {uid: "123"};
-        const auth = require("firebase/auth");
-        auth.getAuth.mockReturnValue({currentUser: user});
-        await deleteUserAccount();
-        expect(auth.deleteUser).toHaveBeenCalled();
-    }
-    );
+it('should throw an error if no authenticated user', async () => {
+    const mockPassword = 'mockPassword';
+    const mockUser = { uid: 'test-uid' };
+    auth.currentUser = null;
 
+    await expect(deleteUserAccount(mockPassword, mockUser)).rejects.toThrow('No authenticated user');
 });
-
