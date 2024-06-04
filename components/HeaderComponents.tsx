@@ -74,25 +74,33 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
 
   if (title) {
     return (
-      <View style={{ flexDirection: "row", flexShrink: 2 }}>
-        <Text style={styles.title}>{title}</Text>
-        {/* Startup guide button */}
-        <Pressable onPress={() => setModalVisible(true)}>
-          <Image
-            source={require("@/assets/images/startup-guide-icon.png")}
-            style={styles.startupGuide}
-          />
-          {/* Modal for the startup guide */}
-          <Modal
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={{flex:1}}>
-              <StartupGuide onClose={() => {setModalVisible(false)}}/>
-            </View>
-          </Modal>
-        </Pressable>
-      </View>
+      <>
+        {startupGuide ? (
+          <View style={{ flexDirection: "row", flexShrink: 2 }}>
+            <Text style={styles.title}>{title}</Text>
+            <Pressable onPress={() => setModalVisible(true)}>
+              <Image
+                source={require("@/assets/images/startup-guide-icon.png")}
+                style={styles.startupGuide}
+              />
+              <Modal
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+              >
+                <View style={{ flex: 1 }}>
+                  <StartupGuide
+                    onClose={() => {
+                      setModalVisible(false);
+                    }}
+                  />
+                </View>
+              </Modal>
+            </Pressable>
+          </View>
+        ) : (
+          <Text style={styles.title}>{title}</Text>
+        )}
+      </>
     );
   }
 
