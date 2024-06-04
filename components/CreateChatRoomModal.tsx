@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -17,6 +17,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import { set } from "firebase/database";
 
 // interface Friend {
 //   id: string;
@@ -50,7 +51,19 @@ const CreateChatRoomModal: React.FC<CreateChatRoomModalProps> = ({
 }) => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const sortedFriends = friends.sort((a, b) => a.name.localeCompare(b.name));
+  const [sortedFriends, setSortedFriends] = useState<Friend[]>([]);
+  // const sortedFriends = friends.sort((a, b) => a.name.localeCompare(b.name));
+
+  useEffect(() => {
+    if (friends.length > 0) {
+      const filteredFriends = friends.filter(friend => 
+        Object.values(friend).every(value => value !== null && value !== '')
+      );
+      setSortedFriends(
+        [...filteredFriends].sort((a, b) => a.name.localeCompare(b.name))
+      );
+    }
+  }, [friends]);
 
   const handleCreate = async () => {
     if (!newChatRoomName.trim()) {
