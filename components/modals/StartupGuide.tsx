@@ -1,4 +1,3 @@
-// StartupGuide.js
 import { AntDesign } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -48,7 +47,11 @@ const slides = [
 
 const StartupGuide = ({ onClose }: { onClose: () => void }) => (
   <View style={{ flex: 1 }}>
-    <TouchableOpacity onPress={onClose} style={styles.closeButton} testID="close-button">
+    <TouchableOpacity
+      onPress={onClose}
+      style={styles.closeButton}
+      testID="close-button" // Added testID for testing
+    >
       <AntDesign name="closecircle" size={40} color="black" />
     </TouchableOpacity>
     <View style={{ flex: 1 }}>
