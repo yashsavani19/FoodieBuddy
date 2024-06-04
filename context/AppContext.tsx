@@ -32,8 +32,6 @@ import { SortOptions } from "@/model/SortOptions";
 export type AppContextType = {
   dataLoading: boolean;
   setDataLoading: (loading: boolean) => void;
-  restaurantListIsLoading: boolean;
-  setRestaurantListIsLoading: (loading: boolean) => void;
   localRestaurants: Restaurant[];
   setRestaurants: () => Promise<void>;
   favouriteRestaurants: Saved[];
@@ -84,8 +82,6 @@ interface ContextProviderProps {
 export const AppContext = createContext<AppContextType>({
   dataLoading: true,
   setDataLoading: () => {},
-  restaurantListIsLoading: true,
-  setRestaurantListIsLoading: () => {},
   localRestaurants: [],
   setRestaurants: async () => {},
   favouriteRestaurants: [],
@@ -155,7 +151,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredRestaurants, setFilteredRestaurants] =
     useState(localRestaurants);
-  const [restaurantListIsLoading, setRestaurantListIsLoading] = useState(true);
   const [preferences, setPreferences] = useState<PreferenceCategoryList[]>([]);
 
   const [preferencesAPINames, setPreferencesAPINames] = useState<string[]>([]);
@@ -215,14 +210,17 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   useEffect(() => {
     filterRestaurants();
-  }, [searchTerm, localRestaurants]);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    filterRestaurants();
+  }, [localRestaurants]);
 
   useEffect(() => {
     setRestaurants();
   }, [distance]);
 
   useEffect(() => {
-    filterRestaurants();
     sortRestaurants();
   }, [selectedSortOption, filteredRestaurants]);
 
@@ -239,11 +237,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
     filterRestaurants();
     sortRestaurants();
   }, [preferencesAPINames, preferences]);
-
-  useEffect(() => {
-    console.log("Data loading: "+dataLoading);
-  }, [dataLoading]);
-
   
   useEffect(() => {
     console.log(
@@ -265,11 +258,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
         const nearbyRestaurants = await fetchNearbyRestaurants(
           locationCoords as LocationObjectCoords,
           distance
-        );
-
-        // Sort restaurants by distance (May need improving in future)
-        const distanceSortedRestaurants = nearbyRestaurants.sort(
-          (a, b) => a.distance - b.distance
         );
 
         updatePreferenceScore(nearbyRestaurants);
@@ -398,11 +386,9 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
 
   // Handle filtering of restaurants based on search term and selected category
   const filterRestaurants = () => {
-    setRestaurantListIsLoading(true);
-    setDataLoading(true);
-    try {
-      let result = localRestaurants;
+    let result = localRestaurants;
 
+    async function filter() {
       if (selectedFilters.length > 0) {
         const categoriesToFilter = new Set(
           selectedFilters
@@ -474,15 +460,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           );
         }
 
-        // If there is a search term, filter restaurants by the search term
-        if (searchTerm) {
-          result = result.filter((restaurant) => {
-            return restaurant.name
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase());
-          });
-        }
-
         // If there is a dietary preference, filter restaurants by the dietary preference
         if (dietsToFilter.size > 0) {
           result = result.filter((restaurant) =>
@@ -509,18 +486,38 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
             )
           );
         }
-        updatePreferenceScore(result);
-        setFilteredRestaurants(result);
       }
     }
-    catch (error) {
-      console.log(error);
+
+    async function search() {
+      // If there is a search term, filter restaurants by the search term
+      if (searchTerm) {
+        result = result.filter((restaurant) => {
+          return restaurant.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+        });
+      }
+
+      // If there no search term, set results back to originally filtered list
+      if (!searchTerm) {
+        filter();
+      }
     }
-    finally {
-      setRestaurantListIsLoading(false);
+
+    async function loadingSearch() {
+      setDataLoading(true);
+      await search();
       setDataLoading(false);
     }
+
+    filter();
+    loadingSearch();
+
+    setFilteredRestaurants(result);
+    updatePreferenceScore(result);
   };
+  
 
   const sortRestaurants = async () => {
     async function sort() {
@@ -605,10 +602,8 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
       }
     }
 
-    setRestaurantListIsLoading(true);
     setDataLoading(true);
     await sort();
-    setRestaurantListIsLoading(false);
     setDataLoading(false);
   };
 
@@ -725,8 +720,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   const contextValue = {
     dataLoading,
     setDataLoading,
-    restaurantListIsLoading,
-    setRestaurantListIsLoading,
     localRestaurants,
     setRestaurants,
     location,
