@@ -23,7 +23,9 @@ import { auth } from "@/controller/FirebaseHandler";
 import { Restaurant } from "@/model/Restaurant";
 import { Friend } from "@/model/Friend";
 import { DefaultPreferences } from "@/model/DefaultPreferences";
-import { PreferenceList } from "@/model/PreferenceList";
+import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
+
+
 // const preferenceCollection = `users/${useAuth().user?.uid}/preferences`;
 
 import { getStorage, ref, uploadBytes } from "firebase/storage";
@@ -291,7 +293,7 @@ export const fetchUser = async (uid: string) => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const userData = docSnap.data();
-      const preferences = await fetchPreferences();
+      const {preferences} = await fetchPreferences();
 
       //------------LOGGING PURPOSES----------------
 
@@ -1282,12 +1284,13 @@ export const addPreferences = async (uid: string) => {
 // /**
 //  * Fetches user preferences
 //  */
-export const fetchPreferences = async (): Promise<PreferenceList[]> => {
+export const fetchPreferences = async (): Promise<{ preferences: PreferenceCategoryList[], apiNames: string[] }> => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
-    const preferences: PreferenceList[] = [];
+    const preferences: PreferenceCategoryList[] = [];
+    const apiNames: string[] = [];
 
     // Group preferences by category
     const categoryMap: { [key: string]: Preference[] } = {};
@@ -1304,7 +1307,13 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
         categoryMap[category] = [];
       }
       categoryMap[category].push(preference);
+      if (preference.selected) {
+        // console.log(`Selected Preference: ${preference.name}, API Name: ${preference.apiName}`);
+        apiNames.push(preference.apiName);
+        
+      }
     });
+
 
     for (const category in categoryMap) {
       preferences.push({
@@ -1313,11 +1322,11 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
       });
     }
 
-    return preferences;
+    return { preferences, apiNames };
   } catch (e) {
     console.error("Error getting documents: ", e);
     alert("Internal error fetching preferences. Please try again later.");
-    return [];
+    return { preferences: [], apiNames: [] };
   }
 };
 
@@ -1327,11 +1336,11 @@ export const fetchPreferences = async (): Promise<PreferenceList[]> => {
  */
 export const fetchFriendsPreferences = async (
   uid: string
-): Promise<PreferenceList[]> => {
+): Promise<PreferenceCategoryList[]> => {
   try {
     const preferenceCollection = `users/${uid}/preferences`;
     const querySnapshot = await getDocs(collection(db, preferenceCollection));
-    const preferences: PreferenceList[] = [];
+    const preferences: PreferenceCategoryList[] = [];
 
     // Group preferences by category
     const categoryMap: { [key: string]: Preference[] } = {};
@@ -1365,15 +1374,38 @@ export const fetchFriendsPreferences = async (
   }
 };
 
+export const fetchSelectedPreferences = async (): Promise<string[]> => {
+  try {
+    const uid = auth.currentUser?.uid;
+    const preferenceCollection = `users/${uid}/preferences`;
+    const querySnapshot = await getDocs(collection(db, preferenceCollection));
+    const selectedPreferences: string[] = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.selected) {
+        selectedPreferences.push(data.apiName);
+      }
+    });
+
+    return selectedPreferences;
+  } catch (e) {
+    console.error("Error getting documents: ", e);
+    alert("Internal error fetching preferences. Please try again later.");
+    return [];
+  }
+}
+
+
 export const updatePreferences = async (
-  updatedPreferences: PreferenceList[]
+  updatedPreferences: PreferenceCategoryList[]
 ) => {
   try {
     const uid = auth.currentUser?.uid;
     const preferenceCollection = `users/${uid}/preferences`;
 
     // Fetch current preferences using fetchPreferences
-    const currentPreferences = await fetchPreferences();
+    const { preferences: currentPreferences } = await fetchPreferences();
 
     // Create a map for quick lookup of current preferences
     const currentPreferencesMap: { [key: string]: Preference } = {};
@@ -1406,7 +1438,7 @@ export const updatePreferences = async (
             ", API Name: ",
             preference.apiName
           );
-          setDoc(docRef, {
+          await setDoc(docRef, {
             category: category.title,
             name: preference.name,
             selected: preference.selected,

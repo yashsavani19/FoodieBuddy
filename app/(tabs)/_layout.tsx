@@ -8,7 +8,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import images from "@/assets/data/images";
 import { useAuth } from "@/context/AuthContext";
-import Loading from "../Loading";
+import Loading from "../../components/Loading";
 import { AppContext } from "@/context/AppContext";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/

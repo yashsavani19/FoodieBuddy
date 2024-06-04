@@ -1,6 +1,6 @@
-import { PreferenceList } from "./PreferenceList";
+import { PreferenceCategoryList } from "./PreferenceCategoryList";
 
-export const DefaultPreferences: PreferenceList[] = [
+export const DefaultPreferences: PreferenceCategoryList[] = [
     {
         title: "Cuisine Types",
         preferences: [

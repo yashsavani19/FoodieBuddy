@@ -4,7 +4,7 @@ import PreferenceCategoryContainer from "@/components/PreferencesComponents/Pref
 import SavePreferenceButton from "@/components/PreferencesComponents/SavePreferenceButton";
 import { AppContext } from "@/context/AppContext";
 import { updatePreferences } from "@/controller/DatabaseHandler";
-import { PreferenceList } from "@/model/PreferenceList";
+import { PreferenceCategoryList } from "@/model/PreferenceCategoryList";
 import TitleHeader from "@/components/TitleHeader";
 import BackButton from "@/components/BackButton";
 import Constants from "expo-constants";
@@ -17,23 +17,23 @@ import {
 import { RootStackParamList } from "@/constants/navigationTypes";
 
 const FoodPreferencesView: React.FC = () => {
-  const { preferences, setPreferences } = useContext(AppContext);
+  const { preferences, setPreferences, preferencesAPINames, setPreferencesAPINames } = useContext(AppContext);
   const [localPreferences, setLocalPreferences] =
-    useState<PreferenceList[]>(preferences);
+    useState<PreferenceCategoryList[]>(preferences);
   const [saving, setSaving] = useState<boolean>(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
-  let friendPreferences: PreferenceList[] | null = null;
+  let friendPreferences: PreferenceCategoryList[] | null = null;
 
   if (route.params && "preferences" in route.params) {
-    friendPreferences = (route.params as any).preferences as PreferenceList[];
+    friendPreferences = (route.params as any).preferences as PreferenceCategoryList[];
   }
 
   // If no preferences are passed, load default preferences
   useEffect(() => {
     if (preferences.length === 0) {
-      const defaultPreferences: PreferenceList[] = DefaultPreferences;
+      const defaultPreferences: PreferenceCategoryList[] = DefaultPreferences;
       setPreferences(defaultPreferences);
       setLocalPreferences(defaultPreferences);
     }
@@ -60,21 +60,35 @@ const FoodPreferencesView: React.FC = () => {
 
   const savePreferences = async () => {
     try {
-      console.log("Saving before clicked: ", saving);
       setSaving(true);
-      console.log("Saving after clicked: ", saving);
       await updatePreferences(localPreferences);
-      setPreferences(localPreferences);
+      await setPreferences(localPreferences);
+      const apiNames = preferencesAPINamesString();
+      setPreferencesAPINames(apiNames);
       console.log("Preferences saved successfully");
 
       setSaving(false);
       console.log("Saving after update: ", saving);
 
-      navigation.goBack();
+      navigation.navigate("ListView");
     } catch (error) {
       console.error("Error saving preferences: ", error);
     }
   };
+
+  function preferencesAPINamesString(): string[]{
+    const apiNames: string[] = [];
+    localPreferences.forEach((category) => {
+      category.preferences.forEach((preference) => {
+        if (preference.selected) {
+          
+          apiNames.push(preference.apiName);
+        }
+      });
+    });
+    // console.log("API Names: ", apiNames.toLocaleString()); 
+    return apiNames;
+  }
 
   return (
     <View style={styles.container}>

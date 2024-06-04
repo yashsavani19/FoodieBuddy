@@ -34,6 +34,7 @@ export default function TitleHeader({
   onFiltersSelect,
   onSortSelect,
 }: TitleHeaderProps) {
+  const { selectedSortOption, setSortOption } = useContext(AppContext);
   const { searchTerm, selectedFilters } = useContext(AppContext);
 
   // Function to handle search submit
@@ -53,7 +54,6 @@ export default function TitleHeader({
 
   // Function to handle filter select
   const handleSortSelect = (toSort: Sort) => {
-    console.log(`Sort selected: ${toSort}`);
     if (onSortSelect) {
       onSortSelect(toSort);
     }
