@@ -1,11 +1,8 @@
-// FirebaseHandler.js
 import {
-  getAuth,
   signInWithEmailAndPassword,
   deleteUser,
   reauthenticateWithCredential,
   EmailAuthProvider,
-  GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
@@ -21,7 +18,7 @@ import { initializeApp } from "firebase/app";
 
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
-import { deleteDoc, doc, getFirestore, collection, getDocs, query, where } from "firebase/firestore";
+import { deleteDoc, doc, getFirestore } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 import {
@@ -49,16 +46,21 @@ const firebaseConfig = {
   measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
-const provider = new GoogleAuthProvider();
-
+// Initialize Firebase app
 export const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase authentication with persistent storage
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
-// export const auth = getAuth(app);
+
 export const db = getFirestore(app);
 export const rtDb = getDatabase(app);
 
+/**
+ * Custom hook to check if user is authenticated
+ * @returns boolean indicating if user is authenticated
+ */
 export const useIsAuthenticated = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -67,7 +69,6 @@ export const useIsAuthenticated = () => {
       setIsAuthenticated(!!user);
     });
 
-    // Cleanup the subscription
     return unsubscribe;
   }, []);
 
@@ -76,7 +77,11 @@ export const useIsAuthenticated = () => {
 
 // Handlers
 
-// Handle login
+/**
+ * Handle login with email and password
+ * @param email - User's email
+ * @param password - User's password
+ */
 export const handleLogin = async (
   email: string,
   password: string
@@ -126,7 +131,13 @@ export const handleLogin = async (
   }
 };
 
-// Handle register
+/**
+ * Handle user registration
+ * @param email - User's email
+ * @param username - User's chosen username
+ * @param password - User's password
+ * @param confirmPassword - User's confirmed password
+ */
 export const handleRegister = async (
   email: string,
   username: string,
@@ -173,7 +184,10 @@ export const handleRegister = async (
   }
 };
 
-// Handle reset password
+/**
+ * Handle password reset
+ * @param email - User's email
+ */
 export const handleResetPassword = async (email: string): Promise<void> => {
   // Check if the email is not empty
   if (email.replaceAll(" ", "").length === 0) {
@@ -199,7 +213,9 @@ export const handleResetPassword = async (email: string): Promise<void> => {
   }
 };
 
-// Handle logout
+/**
+ * Handle user logout
+ */
 export const handleLogout = () => {
   try {
     logout();
@@ -209,14 +225,17 @@ export const handleLogout = () => {
   }
 };
 
-// Delete user account
+/**
+ * Delete user account
+ * @param password - User's password for reauthentication
+ */
 export const deleteUserAccount = async (password: string) => {
   try {
     const user = auth.currentUser;
     if (!user) throw new Error("No authenticated user");
 
     // Reauthenticate the user
-    const credential = EmailAuthProvider.credential(user.email || '', password);
+    const credential = EmailAuthProvider.credential(user.email || "", password);
     await reauthenticateWithCredential(user, credential);
 
     // Delete user data from Firestore
@@ -234,7 +253,11 @@ export const deleteUserAccount = async (password: string) => {
   }
 };
 
-// Delete database user data
+
+/**
+ * Delete user data from database
+ * @param uid - User's UID
+ */
 export const deleteUserData = async (uid: string) => {
   if (auth.currentUser) {
     try {
@@ -254,23 +277,35 @@ export const deleteUserData = async (uid: string) => {
 };
 
 
-// Methods
-// Login
+/**
+ * Login user with email and password
+ * @param email - User's email
+ * @param password - User's password
+ */
 const login = async (email: string, password: string): Promise<void> => {
   await signInWithEmailAndPassword(auth, email, password);
 };
 
-// Register
+/**
+ * Register user with email and password
+ * @param email - User's email
+ * @param password - User's password
+ */
 const register = async (email: string, password: string): Promise<void> => {
   await createUserWithEmailAndPassword(auth, email, password);
 };
 
-// Logout
+/**
+ * Logout current user
+ */
 const logout = async (): Promise<void> => {
   await signOut(auth);
 };
 
-// Reset password
+/**
+ * Send password reset email
+ * @param email - User's email
+ */
 const resetPassword = async (email: string) => {
   await sendPasswordResetEmail(auth, email);
 };
