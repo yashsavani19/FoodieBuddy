@@ -13,10 +13,12 @@ import FilterButton from "./FilterDrawerComponents/FilterButton";
 import { Category } from "@/model/Category";
 import { Sort } from "@/model/Sort";
 import React, { useContext, useEffect } from "react";
+import { AppContext } from "@/context/AppContext";
 import DrawerContext from "@/context/DrawerContext";
 import StartupGuideButton from "./StartupGuideButton";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import StartupGuide from "./modals/StartupGuide";
+
 
 // Define the props for the HeaderComponents component
 interface HeaderComponentsProps {
@@ -44,6 +46,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   onSearchSubmit,
   onSortSelect,
 }) => {
+  const { setSortOption, selectedSortOption, sortRestaurants} = useContext(AppContext);
   const handleSearchSubmit = React.useCallback(
     (searchTerm: string) => {
       if (onSearchSubmit) {
@@ -64,10 +67,9 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
 
   // Define the function to handle the filter select
   const handleSortSelect = (toSort: Sort) => {
-    if (onSortSelect) {
-      onSortSelect(toSort);
-      console.log("Sorter Selected", toSort);
-    }
+    setSortOption(toSort);
+    sortRestaurants();
+    
   };
 
   if (title) {

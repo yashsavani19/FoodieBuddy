@@ -1,9 +1,9 @@
 import { Preference } from './Preference';
 
 /**
- * Interface for the PreferenceList
+ * Interface for the PreferenceCategoryList
  */
-export interface PreferenceList {
+export interface PreferenceCategoryList {
     title: string;
     preferences: Preference[];
 };

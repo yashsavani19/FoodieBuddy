@@ -1,6 +1,6 @@
 import { Saved } from "./Saved";
 import { Friend } from "./Friend";
-import { PreferenceList } from "./PreferenceList";
+import { PreferenceCategoryList } from "./PreferenceCategoryList";
 
 export interface User {
     username?: string;
@@ -10,5 +10,6 @@ export interface User {
     bookmarkedRestaurants?: Saved[];
     visitedRestaurants?: Saved[];
     favouriteRestaurants?: Saved[];
-    preferences?: PreferenceList[];
+    userPreferencesAPIName?: String[];
+    preferences?: PreferenceCategoryList[];
 }
