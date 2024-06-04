@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   FlatList,
@@ -8,6 +8,7 @@ import {
   Text,
   ActivityIndicator,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   fetchChatRooms,
   createChatRoom,
@@ -19,7 +20,10 @@ import ChatRoomItem from "./ChatRoomItem";
 import CreateChatRoomModal from "./CreateChatRoomModal";
 import { Friend as FriendModel } from "@/model/Friend";
 import { Friend } from "@/model/ChatFriend";
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 type ChatRoom = {
   id: string;
@@ -80,14 +84,18 @@ const ChatList: React.FC<ChatListProps> = ({ type }) => {
     };
   }, [type]);
 
+  useFocusEffect(
+    useCallback(() => {
+      getChatRooms();
+    }, [type])
+  );
+
   const handleCreateChatRoom = async () => {
     const userId = auth.currentUser?.uid;
     if (userId) {
-      // Get the IDs of the friends who are added to the chat room
       const allowedUsers = friends
         .filter((friend) => friend.isAdded)
         .map((friend) => friend.id);
-      // Include the current user's ID
       allowedUsers.push(userId);
       console.log("Allowed Users on Create:", allowedUsers);
 
@@ -180,20 +188,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#2E2E2E",
-    paddingTop: hp('0.1%'),
+    paddingTop: hp("0.1%"),
   },
   addButton: {
     position: "absolute",
-    bottom: hp('2.5%'),
-    right: wp('5%'),
+    bottom: hp("2.5%"),
+    right: wp("5%"),
     backgroundColor: "#007BFF",
-    borderRadius: wp('3.5%'),
-    padding: wp('2.5%'),
-    width: wp('30%'),
+    borderRadius: wp("3.5%"),
+    padding: wp("2.5%"),
+    width: wp("30%"),
   },
   addButtonText: {
     color: "#fff",
-    fontSize: wp('4%'),
+    fontSize: wp("4%"),
     fontWeight: "bold",
     textAlign: "center",
   },

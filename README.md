@@ -92,7 +92,9 @@ You may also edit your account information from this page including profile imag
 - Keyword search
 - Result filters
 - Sort by
-- Detailed view
+- "I'm feeling lucky" easter egg
+
+### Detailed view
 - Restaurant details
 - External website link
 - Mini map

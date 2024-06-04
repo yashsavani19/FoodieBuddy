@@ -69,6 +69,7 @@
     "react-native-share": "^10.1.0",
     "react-native-skeleton-placeholder": "^5.2.4",
     "react-native-svg": "9.13.6",
+    "react-native-swiper": "^1.6.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-web": "~0.19.6",
     "react-native-webview": "^13.8.6",
