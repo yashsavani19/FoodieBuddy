@@ -522,13 +522,6 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
           return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
         });
 
-        result = result.sort((a, b) => {
-          if ((b.preferenceScore ?? 0) === (a.preferenceScore ?? 0)) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
-        });
-
         break;
       case "Price: Low to High":
         result = result.sort((a, b) => {
