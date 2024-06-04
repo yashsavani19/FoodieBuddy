@@ -18,12 +18,12 @@ const StarRating: React.FC<StarRatingProps> = ({ rating }) => {
   let halfStar = 0;
   let additionalFullStar = 0;
 
-  if (fractionalPart <= 0.2) {
+  if (fractionalPart <= 0.25) {
     halfStar = 0; // No half star
-  } else if (fractionalPart >= 0.8) {
+  } else if (fractionalPart >= 0.75) {
     additionalFullStar = 1; // Round up to the next full star
-  } else if (fractionalPart >= 0.29 && fractionalPart <= 0.7) {
-    halfStar = 1; // Display a half star for 0.3 to 0.7
+  } else {
+    halfStar = 1; // Display a half star for 0.26 to 0.74
   }
 
   const noStars = 5 - fullStars - halfStar - additionalFullStar; // Adjust noStars calculation

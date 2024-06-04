@@ -10,6 +10,7 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import { Sort } from "@/model/Sort";
 import { SortOptions } from "@/model/SortOptions";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 // Define the props for the Filters component
 interface SortProps {
@@ -37,64 +38,51 @@ const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
 
   return (
     <View style={styles.container}>
-      {Platform.OS === "android" ? (
-        <RNPickerSelect
-          items={SortOptions.map((option) => ({
-            label: option.sortOption || "",
-            value: option,
-          }))}
-          onValueChange={(value) => handleSortChange(value)}
-          style={pickerSelectStyles}
-          value={selectedSort}
-          useNativeAndroidPickerStyle={false}
-          placeholder={{}}
-        />
-      ) : (
-        <>
-          <View style={styles.sortButton}>
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text>{selectedSort?.sortOption || "Sort By"}</Text>
-              
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+          <Text 
+            style={styles.text} 
+            ellipsizeMode='tail' 
+            numberOfLines={1}>
+            {selectedSort?.sortOption || "Sort By"}
+          </Text>
+          <Icon style={{paddingLeft: 25, textAlignVertical: 'center'}} name="sort" size={18} color="#363232" />
+        </TouchableOpacity>
+      </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {SortOptions.map((option) => (
+              <TouchableOpacity
+                key={option.sortOption}
+                style={styles.modalOption}
+                onPress={() => {
+                  handleSortChange(option);
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={selectedSort.sortOption === option.sortOption ? styles.modalOptionTextSelected : styles.modalOptionTextNotSelected}>
+                  {option.sortOption}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={styles.modalClose}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Cancel</Text>
             </TouchableOpacity>
           </View>
-
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              setModalVisible(false);
-            }}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                {SortOptions.map((option) => (
-                  <TouchableOpacity
-                    key={option.sortOption}
-                    style={styles.modalOption}
-                    onPress={() => {
-
-                      
-                      handleSortChange(option);
-                      setModalVisible(false);
-                    }}
-                  >
-                    <Text style={selectedSort ? styles.modalOptionTextSelected : styles.modalOptionTextNotSelected}>
-                      {option.sortOption}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-                <TouchableOpacity
-                  style={styles.modalClose}
-                  onPress={() => setModalVisible(false)}
-                >
-                  <Text style={styles.modalCloseText}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
-        </>
-      )}
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -102,31 +90,40 @@ const SortTab: React.FC<SortProps> = ({ onSortSelect }) => {
 export default SortTab;
 
 const styles = StyleSheet.create({
-  container: {
-    width:"auto",
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-    marginBottom:2,
-    
+  button: {
+    backgroundColor: '#ffffff',
+    justifyContent: 'flex-start', 
+    flexDirection: 'row',
+    paddingLeft: 20,
+    paddingRight: 20,
+    borderRadius: 20,
+    height: "100%",
+    width: 130,
+    alignItems: 'center',
+    overflow: 'hidden',
   },
-  sortButton: {
-    width: 170,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-    textAlign: "center",
-    height:"50%",
-    
+  text: {
+    color: '#363232',
+    fontSize: 12.5,
+    textAlignVertical: 'center',
+    flexShrink: 1,
+    overflow: 'hidden', 
+    width: '70%', 
+  },
+  container: {
+    width: "auto",
+    marginTop: 5,
+    height: "73%",
   },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    overflow: "hidden",
   },
   modalContent: {
-    width: "80%",
+    width: "85%",
     backgroundColor: "white",
     borderRadius: 10,
     padding: 20,
@@ -136,22 +133,29 @@ const styles = StyleSheet.create({
     padding: 15,
     width: "100%",
     alignItems: "center",
-    color: "gray",
   },
   modalOptionTextSelected: {
     fontSize: 18,
-    color: "gray",
+    color: '#F26722',
+    
+    fontWeight: "500",
   },
   modalOptionTextNotSelected: {
     fontSize: 18,
-    
+    color: '#363232',
   },
   modalClose: {
-    marginTop: 20,
+    backgroundColor: '#4B8DEF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    height: 40,
+    width: "100%",
+    marginTop: 35,
   },
   modalCloseText: {
     fontSize: 18,
-    color: "red",
+    color: "white",
   },
 });
 

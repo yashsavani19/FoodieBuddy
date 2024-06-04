@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { FontAwesome6 } from '@expo/vector-icons';
 import DrawerContext from "@/context/DrawerContext"; 
 
 // See: https://oblador.github.io/react-native-vector-icons/
@@ -11,7 +11,7 @@ const FilterButton = ({ onPress }: { onPress: any }) => {
     <View style={styles.container}>
       <TouchableOpacity onPress={onPress} style={styles.button} testID='Filter Button' disabled={open}>
         <Text style={styles.text}>Filter By</Text>
-        <Icon name="caret-down" size={15} color="#363232" />
+        <FontAwesome6 name="filter" size={11.5} color="#363232" />
       </TouchableOpacity>
     </View>
   );
@@ -26,17 +26,18 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 20,
     borderRadius: 20,
-    height: 30,
+    height: "100%",
   },
   text: {
     color: '#363232',
     fontSize: 12.5,
   },
   container: {
-    width: "40%",
+    width: "46%",
     marginTop: 10,
-    height: "50%",
+    height: "52%",
     justifyContent: "center",
+    marginBottom: 2,
   },
 });
 

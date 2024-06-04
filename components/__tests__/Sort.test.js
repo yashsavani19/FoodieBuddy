@@ -153,7 +153,6 @@ function sortRestaurants(restaurants, sortOption) {
               }
               return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
             });
-    
             break;
           case "Price: Low to High":
             result = result.sort((a, b) => {
@@ -186,22 +185,6 @@ function sortRestaurants(restaurants, sortOption) {
                 return a.distance.localeCompare(b.distance);
               }
               return (a.rating ?? 5) - (b.rating ?? 5);
-            });
-            break;
-          case "A-Z":
-            result = result.sort((a, b) => {
-              if (a.name.localeCompare(b.name) === 0) {
-                return a.distance.localeCompare(b.distance);
-              }
-              return a.name.localeCompare(b.name);
-            });
-            break;
-          case "Z-A":
-            result = result.sort((a, b) => {
-              if (b.name.localeCompare(a.name) === 0) {
-                return a.distance.localeCompare(b.distance);
-              }
-              return b.name.localeCompare(a.name);
             });
             break;
           case "Distance (Nearest)":
