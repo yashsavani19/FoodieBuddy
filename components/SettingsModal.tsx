@@ -177,8 +177,7 @@ const styles = StyleSheet.create({
     paddingVertical: hp("1.5%"),
     backgroundColor: "#000",
     alignItems: "center",
-    borderTopLeftRadius: wp("2.5%"),
-    borderTopRightRadius: wp("2.5%"),
+    borderRadius: wp("2.5%"),
   },
   modalTitle: {
     fontSize: wp("5%"),
