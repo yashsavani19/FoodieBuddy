@@ -6,19 +6,19 @@ import {
   Text,
   StyleSheet,
   Dimensions,
-  Touchable,
   TouchableOpacity,
 } from "react-native";
 import Swiper from "react-native-swiper";
 
+// Get the window dimensions to use for responsive design
 const { width } = Dimensions.get("window");
 
+// Define the slides for the swiper component
 const slides = [
   {
     key: "1",
     text: "Welcome to Foodie Buddy!",
     image: require("@/assets/images/BuddyBod.png"),
-    
   },
   {
     key: "2",
@@ -47,16 +47,20 @@ const slides = [
   },
 ];
 
+// Define the props for the StartupGuide component
 interface Props {
   onClose: () => void;
 }
 
+// Define the StartupGuide functional component
 const StartupGuide: React.FC<Props> = ({ onClose }) => (
   <View style={{ flex: 1 }}>
-    <TouchableOpacity onPress={onClose} style = {{ alignSelf : "flex-end", marginTop : 20, marginRight : 20 }}>
+    {/* Close button */}
+    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
       <AntDesign name="closecircle" size={40} color="black" />
     </TouchableOpacity>
 
+    {/* Swiper component to display the slides */}
     <View style={{ flex: 1 }}>
       <Swiper
         style={styles.wrapper}
@@ -64,6 +68,7 @@ const StartupGuide: React.FC<Props> = ({ onClose }) => (
         dot={<View style={styles.dot} />}
         activeDot={<View style={styles.activeDot} />}
       >
+        {/* Map through the slides and render each slide */}
         {slides.map((slide) => (
           <View style={styles.slide} key={slide.key}>
             <Image source={slide.image} style={styles.image} />
@@ -75,6 +80,7 @@ const StartupGuide: React.FC<Props> = ({ onClose }) => (
   </View>
 );
 
+// Define the styles for the component
 const styles = StyleSheet.create({
   wrapper: {},
   slide: {
@@ -84,9 +90,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   image: {
-    width: width - 100,
-    height: "70%",
-    resizeMode: "contain",
+    width: width - 100, // Adjust the width of the image
+    height: "70%", // Adjust the height of the image
+    resizeMode: "contain", // Ensure the image retains its aspect ratio
   },
   text: {
     color: "#000",
@@ -107,6 +113,11 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     margin: 3,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    marginTop: 20,
+    marginRight: 20,
   },
 });
 
