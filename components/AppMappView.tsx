@@ -87,7 +87,7 @@ export default function AppMappView({ geometry, initialDirections, selectedResta
         1000
       );
     }
-  }, [geometry, mapReady]);
+  }, [mapReady]);
 
   useEffect(() => {
     if (selectedRestaurantId && mapReady) {

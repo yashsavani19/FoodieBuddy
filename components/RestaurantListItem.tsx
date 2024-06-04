@@ -156,7 +156,7 @@ export const RestaurantListItem = ({ restaurant, isLastItem, style }: Restaurant
           <Pressable
             onPress={() => {
               setFindOnMapPressed(!isFindOnMapPressed);
-              navigation.navigate("Map", { geometry: restaurant.geometry });
+              navigation.navigate("Map", { geometry: restaurant.geometry, restaurantId: restaurant.id });
               console.log("Find on map pressed");
             }}
           >
