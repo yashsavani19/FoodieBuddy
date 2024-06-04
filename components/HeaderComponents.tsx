@@ -74,11 +74,13 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
     return (
       <View style={{ flexDirection: "row", flexShrink: 2 }}>
         <Text style={styles.title}>{title}</Text>
+        {/* Startup guide button */}
         <Pressable onPress={() => setModalVisible(true)}>
           <Image
             source={require("@/assets/images/startup-guide-icon.png")}
             style={styles.startupGuide}
           />
+          {/* Modal for the startup guide */}
           <Modal
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}
