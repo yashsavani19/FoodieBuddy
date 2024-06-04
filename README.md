@@ -1,11 +1,14 @@
 
-![Header Image]([path/to/your/image.png](https://github.com/yashsavani19/FoodieBuddy/blob/main/assets/images/title-logo.png))
 
-# FoodieBuddy
+![App Icon 2](https://github.com/yashsavani19/FoodieBuddy/assets/160118560/aa5f70cf-fa35-47e3-a650-aa3ae04afb68)
+
+<h1 align="center">
+  <span><strong>Welcome to FoodieBuddy </strong></span>
+</h1>
 
 ## Table of Contents
 
-- [Installation](#installation)
+- [Installation](#installation)                         
 - [Usage](#usage)
 - [Features](#features)
 
@@ -159,6 +162,9 @@ You may also edit your account information from this page including profile imag
    - Go to the [Google Cloud Console](https://console.cloud.google.com/welcome?project=theta-cable-418602)
    - Enable Places API (New) and Directions API
    - Generate API key and add it to .env
+
+Create a .env file in the root directory of the app.
+- Copy and paste the below code into the .env file.
 
 ### .env 
 ```javascript
