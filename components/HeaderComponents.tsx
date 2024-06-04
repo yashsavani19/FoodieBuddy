@@ -46,6 +46,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
   onSearchSubmit,
   onSortSelect,
 }) => {
+  const { setSortOption, selectedSortOption, sortRestaurants} = useContext(AppContext);
   const handleSearchSubmit = React.useCallback(
     (searchTerm: string) => {
       if (onSearchSubmit) {
