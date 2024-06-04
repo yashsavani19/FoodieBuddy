@@ -83,7 +83,7 @@ const HeaderComponents: React.FC<HeaderComponentsProps> = ({
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}
           >
-            <View>
+            <View style={{flex:1}}>
               <StartupGuide onClose={() => {setModalVisible(false)}}/>
             </View>
           </Modal>

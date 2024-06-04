@@ -51,24 +51,26 @@ interface Props {
 }
 
 const StartupGuide: React.FC<Props> = ({ onClose }) => (
-  <View>
+  <View style={{ flex: 1 }}>
     <TouchableOpacity onPress={onClose}>
       <AntDesign name="closecircle" size={24} color="black" />
     </TouchableOpacity>
 
-    <Swiper
-      style={styles.wrapper}
-      showsButtons={true}
-      dot={<View style={styles.dot} />}
-      activeDot={<View style={styles.activeDot} />}
-    >
-      {slides.map((slide) => (
-        <View style={styles.slide} key={slide.key}>
-          <Image source={slide.image} style={styles.image} />
-          <Text style={styles.text}>{slide.text}</Text>
-        </View>
-      ))}
-    </Swiper>
+    <View style={{ flex: 1 }}>
+      <Swiper
+        style={styles.wrapper}
+        showsButtons={true}
+        dot={<View style={styles.dot} />}
+        activeDot={<View style={styles.activeDot} />}
+      >
+        {slides.map((slide) => (
+          <View style={styles.slide} key={slide.key}>
+            <Image source={slide.image} style={styles.image} />
+            <Text style={styles.text}>{slide.text}</Text>
+          </View>
+        ))}
+      </Swiper>
+    </View>
   </View>
 );
 
