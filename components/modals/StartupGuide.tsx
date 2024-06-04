@@ -18,6 +18,7 @@ const slides = [
     key: "1",
     text: "Welcome to Foodie Buddy!",
     image: require("@/assets/images/BuddyBod.png"),
+    
   },
   {
     key: "2",
@@ -52,8 +53,8 @@ interface Props {
 
 const StartupGuide: React.FC<Props> = ({ onClose }) => (
   <View style={{ flex: 1 }}>
-    <TouchableOpacity onPress={onClose}>
-      <AntDesign name="closecircle" size={24} color="black" />
+    <TouchableOpacity onPress={onClose} style = {{ alignSelf : "flex-end", marginTop : 20, marginRight : 20 }}>
+      <AntDesign name="closecircle" size={40} color="black" />
     </TouchableOpacity>
 
     <View style={{ flex: 1 }}>
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,.2)",
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: 5,
     margin: 3,
   },
   activeDot: {
