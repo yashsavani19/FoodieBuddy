@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   image: {
-    width: width - 60,
+    width: width - 100,
     height: "70%",
     resizeMode: "contain",
   },
