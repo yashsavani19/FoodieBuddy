@@ -188,7 +188,6 @@ const ChatScreen: React.FC = () => {
       }
     );
 
-    // Listens to recommended restaurants from buddy
     const unsubscribeRecommnededRestaurants = listenToRecommendedRestaurants(
       chatRoomId,
       (restaurants) => {
@@ -514,6 +513,12 @@ const ChatScreen: React.FC = () => {
     }
   };
 
+  const currentUserId = auth.currentUser?.uid;
+
+  const handleLeaveChatRoom = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -568,12 +573,16 @@ const ChatScreen: React.FC = () => {
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-      <SettingsModal
-        visible={settingsVisible}
-        onClose={closeSettings}
-        chatRoomId={chatRoomId}
-        currentFriends={chatRoomFriends}
-      />
+      {currentUserId && (
+        <SettingsModal
+          visible={settingsVisible}
+          onClose={closeSettings}
+          chatRoomId={chatRoomId}
+          currentFriends={chatRoomFriends}
+          userId={currentUserId}
+          onLeaveChatRoom={handleLeaveChatRoom}
+        />
+      )}
       {selectedMessage && (
         <Modal
           transparent={true}
