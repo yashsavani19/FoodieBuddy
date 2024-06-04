@@ -1,3 +1,4 @@
+// StartupGuide.js
 import { AntDesign } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -10,10 +11,8 @@ import {
 } from "react-native";
 import Swiper from "react-native-swiper";
 
-// Get the window dimensions to use for responsive design
 const { width } = Dimensions.get("window");
 
-// Define the slides for the swiper component
 const slides = [
   {
     key: "1",
@@ -47,20 +46,11 @@ const slides = [
   },
 ];
 
-// Define the props for the StartupGuide component
-interface Props {
-  onClose: () => void;
-}
-
-// Define the StartupGuide functional component
-const StartupGuide: React.FC<Props> = ({ onClose }) => (
+const StartupGuide = ({ onClose }: { onClose: () => void }) => (
   <View style={{ flex: 1 }}>
-    {/* Close button */}
-    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+    <TouchableOpacity onPress={onClose} style={styles.closeButton} testID="close-button">
       <AntDesign name="closecircle" size={40} color="black" />
     </TouchableOpacity>
-
-    {/* Swiper component to display the slides */}
     <View style={{ flex: 1 }}>
       <Swiper
         style={styles.wrapper}
@@ -68,7 +58,6 @@ const StartupGuide: React.FC<Props> = ({ onClose }) => (
         dot={<View style={styles.dot} />}
         activeDot={<View style={styles.activeDot} />}
       >
-        {/* Map through the slides and render each slide */}
         {slides.map((slide) => (
           <View style={styles.slide} key={slide.key}>
             <Image source={slide.image} style={styles.image} />
@@ -80,7 +69,6 @@ const StartupGuide: React.FC<Props> = ({ onClose }) => (
   </View>
 );
 
-// Define the styles for the component
 const styles = StyleSheet.create({
   wrapper: {},
   slide: {
@@ -90,9 +78,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   image: {
-    width: width - 100, // Adjust the width of the image
-    height: "70%", // Adjust the height of the image
-    resizeMode: "contain", // Ensure the image retains its aspect ratio
+    width: width - 100,
+    height: "70%",
+    resizeMode: "contain",
   },
   text: {
     color: "#000",
