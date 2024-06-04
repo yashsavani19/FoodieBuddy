@@ -3,23 +3,30 @@ import React, { useContext, useEffect, useState } from "react";
 import * as Auth from "firebase/auth";
 import { auth } from "../controller/FirebaseHandler";
 import {
-  addUser,
   addUsername,
   checkUsername,
   updateUsername,
-  addPreferences,
 } from "@/controller/DatabaseHandler";
 
+/**
+ * Represents the response of a sign-in operation.
+ */
 interface SignInResponse {
   data: Auth.User | undefined;
   error: any;
 }
 
+/**
+ * Represents the response of a sign-out operation.
+ */
 interface SignOutResponse {
   error: any;
   data: {} | undefined;
 }
 
+/**
+ * Represents the value provided by the AuthContext.
+ */
 interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (
@@ -33,6 +40,9 @@ interface AuthContextValue {
   authInitialised: boolean;
 }
 
+/**
+ * Represents the props for the AuthProvider component.
+ */
 interface ProviderProps {
   children: React.ReactNode;
 }
@@ -41,12 +51,18 @@ const AuthContext = React.createContext<AuthContextValue | undefined>(
   undefined
 );
 
+/**
+ * AuthProvider component that provides authentication-related functionality.
+ */
 export function AuthProvider(props: ProviderProps) {
   const [user, setAuthUser] = useState<Auth.User | null>(
     auth.currentUser || null
   );
   const [authInitialised, setAuthInitialised] = useState(false);
 
+  /**
+   * Custom hook to handle protected routes based on authentication status.
+   */
   const useProtectedRoute = (user: Auth.User | null) => {
     const router = useRouter();
     const [isNavigationReady, setIsNavigationReady] = useState(false);
@@ -71,18 +87,15 @@ export function AuthProvider(props: ProviderProps) {
       if (!user) {
         router.replace("/LoginView");
       } else if (user) {
-        
         console.log("User is logged in");
-        try {
-          console.log("Preferences added");
-        } catch (error) {
-          console.error("Error adding preferences: ", error);
-        }
         router.push("/(tabs)/RestaurantListViews/ListView");
       }
     }, [user, authInitialised, isNavigationReady]);
   };
 
+  /**
+   * Effect to initialize authentication state.
+   */
   useEffect(() => {
     (async () => {
       try {
@@ -99,9 +112,11 @@ export function AuthProvider(props: ProviderProps) {
   }, []);
 
   /**
-   * Firebase methods
+   * Handles the login operation.
+   * @param email - User's email address.
+   * @param password - User's password.
+   * @returns Promise resolving to a boolean indicating success.
    */
-
   const handleLogin = async (
     email: string,
     password: string
@@ -133,6 +148,10 @@ export function AuthProvider(props: ProviderProps) {
     }
   };
 
+  /**
+   * Handles authentication errors.
+   * @param error - Authentication error.
+   */
   const handleAuthError = (error: Auth.AuthError) => {
     switch (error.code) {
       case "auth/user-not-found":
@@ -156,24 +175,34 @@ export function AuthProvider(props: ProviderProps) {
     }
   };
 
+  /**
+   * Performs the login operation with Firebase.
+   * @param email - User's email address.
+   * @param password - User's password.
+   */
   const login = async (email: string, password: string): Promise<void> => {
     await Auth.signInWithEmailAndPassword(auth, email, password);
   };
 
-  //Handle Register
+  /**
+   * Handles the registration operation.
+   * @param email - User's email address.
+   * @param username - User's username.
+   * @param password - User's password.
+   * @param confirmPassword - User's password confirmation.
+   * @returns Promise resolving to a boolean indicating success.
+   */
   const handleRegister = async (
     email: string,
     username: string,
     password: string,
     confirmPassword: string
   ): Promise<boolean> => {
-    // Alert Message if any of the fields is empty
     if (!email || !username || !password || !confirmPassword) {
       alert("Please fill in all fields");
       return false;
     }
 
-    // Alert message for passwords don't match
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return false;
@@ -191,7 +220,6 @@ export function AuthProvider(props: ProviderProps) {
       const authError = error as Auth.AuthError;
       console.error(authError.code);
       switch (authError.code) {
-        //Special error cases being thrown by firebase
         case "auth/email-already-in-use":
           alert(`Email address already in use.`);
           break;
@@ -213,7 +241,13 @@ export function AuthProvider(props: ProviderProps) {
     return false;
   };
 
-  // Register a user
+  /**
+   * Registers a new user with Firebase.
+   * @param email - User's email address.
+   * @param password - User's password.
+   * @param username - User's username.
+   * @returns Promise resolving to a boolean indicating success.
+   */
   const register = async (
     email: string,
     password: string,
@@ -236,31 +270,27 @@ export function AuthProvider(props: ProviderProps) {
     await Auth.updateProfile(currentAuth.currentUser, {
       displayName: username,
     });
-  
-    // Add user to Firestore and add default preferences
-    await addUser(currentAuth.currentUser.uid, email, username);
-  
     return true;
   };
 
-  // logout
+  /**
+   * Handles the logout operation.
+   */
   const handleLogout = async () => {
     try {
       await logout();
       setAuthUser(null);
-      // alert("Logout successful!");
     } catch (error: any) {
       alert(`Logout failed: ${error.message}`);
     }
   };
 
+  /**
+   * Performs the logout operation with Firebase.
+   */
   const logout = async (): Promise<void> => {
     await Auth.signOut(auth);
   };
-
-  /**
-   *
-   */
 
   useProtectedRoute(user);
 
@@ -279,6 +309,11 @@ export function AuthProvider(props: ProviderProps) {
   );
 }
 
+/**
+ * Re-authenticates the current user with Firebase.
+ * @param password - User's password.
+ * @returns Promise resolving to a boolean indicating success.
+ */
 export const reSignIn = async (password: string): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
@@ -293,7 +328,6 @@ export const reSignIn = async (password: string): Promise<boolean> => {
   } catch (error) {
     const authError = error as Auth.AuthError;
     switch (authError.code) {
-      //Special error cases being thrown by firebase
       case "auth/invalid-credential":
         alert("Wrong password.");
         break;
@@ -306,6 +340,12 @@ export const reSignIn = async (password: string): Promise<boolean> => {
   return false;
 };
 
+/**
+ * Changes the username of the current user.
+ * @param newUsername - The new username.
+ * @param profileImageUrl - URL of the profile image.
+ * @returns Promise resolving to a boolean indicating success.
+ */
 export const changeUsername = async (
   newUsername: string,
   profileImageUrl: string
@@ -331,6 +371,11 @@ export const changeUsername = async (
   return false;
 };
 
+/**
+ * Changes the email of the current user.
+ * @param newEmail - The new email address.
+ * @returns Promise resolving to a boolean indicating success.
+ */
 export const changeEmail = async (newEmail: string): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
@@ -342,7 +387,6 @@ export const changeEmail = async (newEmail: string): Promise<boolean> => {
     const authError = error as Auth.AuthError;
     console.error("Error updating email: ", error);
     switch (authError.code) {
-      //Special error cases being thrown by firebase
       case "auth/email-already-in-use":
         alert(`Email address already in use.`);
         break;
@@ -358,11 +402,13 @@ export const changeEmail = async (newEmail: string): Promise<boolean> => {
     }
     return false;
   }
-  // alert(
-  //   "Email updated successfully, please verify your email address and login again for changes to take effect."
-  // );
 };
 
+/**
+ * Changes the password of the current user.
+ * @param newPassword - The new password.
+ * @returns Promise resolving to a boolean indicating success.
+ */
 export const changePassword = async (newPassword: string): Promise<boolean> => {
   try {
     const user = Auth.getAuth().currentUser;
@@ -374,7 +420,6 @@ export const changePassword = async (newPassword: string): Promise<boolean> => {
     const authError = error as Auth.AuthError;
     console.error(authError.code);
     switch (authError.code) {
-      //Special error cases being thrown by firebase
       case "auth/email-already-in-use":
         alert(`Email address already in use.`);
         break;
@@ -396,6 +441,11 @@ export const changePassword = async (newPassword: string): Promise<boolean> => {
   return false;
 };
 
+/**
+ * Custom hook to use the AuthContext.
+ * @returns AuthContext value.
+ * @throws Error if used outside of AuthProvider.
+ */
 export const useAuth = () => {
   const authContext = useContext(AuthContext);
 
