@@ -241,6 +241,11 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   }, [preferencesAPINames, preferences]);
 
   useEffect(() => {
+    console.log("Data loading: "+dataLoading);
+  }, [dataLoading]);
+
+  
+  useEffect(() => {
     console.log(
       "Preferences (updated NOW): ",
       preferences
@@ -394,207 +399,223 @@ export const ContextProvider: React.FC<ContextProviderProps> = ({
   // Handle filtering of restaurants based on search term and selected category
   const filterRestaurants = () => {
     setRestaurantListIsLoading(true);
-    let result = localRestaurants;
+    setDataLoading(true);
+    try {
+      let result = localRestaurants;
 
-    if (selectedFilters.length > 0) {
-      const categoriesToFilter = new Set(
-        selectedFilters
-          .filter(
-            (filter) =>
-              ![
-                "Rating",
-                "Price",
-                "Open Status",
-                "Dietary Preference",
-                "Takeaway Option",
-              ].includes(filter.type)
-          )
-          .map((filter) => filter.apiName)
-      );
-
-      const pricesToFilter = new Set(
-        selectedFilters
-          .filter((filter) => ["Price"].includes(filter.type))
-          .map((filter) => filter.scale)
-      );
-
-      const ratingsToFilter = selectedFilters
-        .filter((filter) => ["Rating"].includes(filter.type))
-        .map((filter) => filter.rating);
-
-      const openStatusToFilter = selectedFilters
-        .filter((filter) => ["Open Status"].includes(filter.type))
-        .map((filter) => filter.apiName);
-
-      const dietsToFilter = new Set(
-        selectedFilters
-          .filter((filter) => ["Dietary Preference"].includes(filter.type))
-          .map((filter) => filter.apiName)
-      );
-
-      // filter restaurants by the selected categories (not intersection, but union of categories)
-      if (categoriesToFilter.size > 0) {
-        result = result.filter((restaurant) =>
-          restaurant.categories?.some((category) =>
-            categoriesToFilter.has(category)
-          )
+      if (selectedFilters.length > 0) {
+        const categoriesToFilter = new Set(
+          selectedFilters
+            .filter(
+              (filter) =>
+                ![
+                  "Rating",
+                  "Price",
+                  "Open Status",
+                  "Dietary Preference",
+                  "Takeaway Option",
+                ].includes(filter.type)
+            )
+            .map((filter) => filter.apiName)
         );
-      }
 
-      // Filter restaurants by the selected price level/s
-      if (pricesToFilter.size > 0) {
-        result = result.filter((restaurant) =>
-          pricesToFilter.has(parseInt(restaurant.price ?? "null"))
+        const pricesToFilter = new Set(
+          selectedFilters
+            .filter((filter) => ["Price"].includes(filter.type))
+            .map((filter) => filter.scale)
         );
-      }
 
-      // Filter restaurants by the selected rating and higher
-      if (ratingsToFilter.length > 0) {
-        result = result.filter(
-          (restaurant) =>
-            restaurant.rating &&
-            ratingsToFilter[0] !== undefined &&
-            restaurant.rating >= ratingsToFilter[0]
+        const ratingsToFilter = selectedFilters
+          .filter((filter) => ["Rating"].includes(filter.type))
+          .map((filter) => filter.rating);
+
+        const openStatusToFilter = selectedFilters
+          .filter((filter) => ["Open Status"].includes(filter.type))
+          .map((filter) => filter.apiName);
+
+        const dietsToFilter = new Set(
+          selectedFilters
+            .filter((filter) => ["Dietary Preference"].includes(filter.type))
+            .map((filter) => filter.apiName)
         );
-      }
 
-      // Filter restaurants that are currently open
-      if (openStatusToFilter.length > 0) {
-        result = result.filter(
-          (restaurant) =>
-            restaurant.currentOpeningHours &&
-            restaurant.currentOpeningHours.openNow === true
-        );
-      }
+        // filter restaurants by the selected categories (not intersection, but union of categories)
+        if (categoriesToFilter.size > 0) {
+          result = result.filter((restaurant) =>
+            restaurant.categories?.some((category) =>
+              categoriesToFilter.has(category)
+            )
+          );
+        }
 
-      // If there is a search term, filter restaurants by the search term
-      if (searchTerm) {
-        result = result.filter((restaurant) => {
-          return restaurant.name
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase());
-        });
-      }
+        // Filter restaurants by the selected price level/s
+        if (pricesToFilter.size > 0) {
+          result = result.filter((restaurant) =>
+            pricesToFilter.has(parseInt(restaurant.price ?? "null"))
+          );
+        }
 
-      // If there is a dietary preference, filter restaurants by the dietary preference
-      if (dietsToFilter.size > 0) {
-        result = result.filter((restaurant) =>
-          restaurant.categories?.some((category) => dietsToFilter.has(category))
-        );
-      }
+        // Filter restaurants by the selected rating and higher
+        if (ratingsToFilter.length > 0) {
+          result = result.filter(
+            (restaurant) =>
+              restaurant.rating &&
+              ratingsToFilter[0] !== undefined &&
+              restaurant.rating >= ratingsToFilter[0]
+          );
+        }
 
-      // Filter out Delivery and then Takeaway restaurants
-      if (
-        selectedFilters.some((filter) => filter.apiName === "meal_delivery")
-      ) {
-        result = result.filter((restaurant) =>
-          restaurant.categories?.some(
-            (category) => category === "meal_delivery"
-          )
-        );
-      }
-      if (
-        selectedFilters.some((filter) => filter.apiName === "meal_takeaway")
-      ) {
-        result = result.filter((restaurant) =>
-          restaurant.categories?.some(
-            (category) => category === "meal_takeaway"
-          )
-        );
-      }
-      updatePreferenceScore(result);
+        // Filter restaurants that are currently open
+        if (openStatusToFilter.length > 0) {
+          result = result.filter(
+            (restaurant) =>
+              restaurant.currentOpeningHours &&
+              restaurant.currentOpeningHours.openNow === true
+          );
+        }
 
-      setFilteredRestaurants(result);
+        // If there is a search term, filter restaurants by the search term
+        if (searchTerm) {
+          result = result.filter((restaurant) => {
+            return restaurant.name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase());
+          });
+        }
+
+        // If there is a dietary preference, filter restaurants by the dietary preference
+        if (dietsToFilter.size > 0) {
+          result = result.filter((restaurant) =>
+            restaurant.categories?.some((category) => dietsToFilter.has(category))
+          );
+        }
+
+        // Filter out Delivery and then Takeaway restaurants
+        if (
+          selectedFilters.some((filter) => filter.apiName === "meal_delivery")
+        ) {
+          result = result.filter((restaurant) =>
+            restaurant.categories?.some(
+              (category) => category === "meal_delivery"
+            )
+          );
+        }
+        if (
+          selectedFilters.some((filter) => filter.apiName === "meal_takeaway")
+        ) {
+          result = result.filter((restaurant) =>
+            restaurant.categories?.some(
+              (category) => category === "meal_takeaway"
+            )
+          );
+        }
+        updatePreferenceScore(result);
+        setFilteredRestaurants(result);
+      }
+    }
+    catch (error) {
+      console.log(error);
+    }
+    finally {
       setRestaurantListIsLoading(false);
+      setDataLoading(false);
     }
   };
 
-  const sortRestaurants = () => {
-    setRestaurantListIsLoading(true);
-    setDataLoading(true);
-    let result = filteredRestaurants;
-    switch (selectedSortOption.sortOption) {
-      case "Preference":
-        result = result.sort((a, b) => {
-          if ((b.preferenceScore ?? 0) === (a.preferenceScore ?? 0)) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
-        });
-
-        result = result.sort((a, b) => {
-          if ((b.preferenceScore ?? 0) === (a.preferenceScore ?? 0)) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
-        });
-
-        break;
-      case "Price: Low to High":
-        result = result.sort((a, b) => {
-          if (parseInt(a.price ?? "10") === parseInt(b.price ?? "10")) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return parseInt(a.price ?? "10") - parseInt(b.price ?? "10");
-        });
-        break;
-      case "Price: High to Low":
-        result = result.sort((a, b) => {
-          if (parseInt(b.price ?? "0") === parseInt(a.price ?? "0")) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return parseInt(b.price ?? "0") - parseInt(a.price ?? "0");
-        });
-        break;
-      case "Rating: High to Low":
-        result = result.sort((a, b) => {
-          if ((b.rating ?? 0) === (a.rating ?? 0)) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return (b.rating ?? 0) - (a.rating ?? 0);
-        });
-        break;
-      case "Rating: Low to High":
-        result = result.sort((a, b) => {
-          if ((a.rating ?? 5) === (b.rating ?? 5)) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return (a.rating ?? 5) - (b.rating ?? 5);
-        });
-        break;
-      case "A-Z":
-        result = result.sort((a, b) => {
-          if (a.name.localeCompare(b.name) === 0) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return a.name.localeCompare(b.name);
-        });
-        break;
-      case "Z-A":
-        result = result.sort((a, b) => {
-          if (b.name.localeCompare(a.name) === 0) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return b.name.localeCompare(a.name);
-        });
-        break;
-      case "Distance (Nearest)":
-        result = result.sort((a, b) => a.distance.localeCompare(b.distance));
-        break;
-      case "Distance (Farthest)":
-        result = result.sort((a, b) => b.distance.localeCompare(a.distance));
-        break;
-      default:
-        result = result.sort((a, b) => {
-          if (a.name.localeCompare(b.name) === 0) {
-            return a.distance.localeCompare(b.distance);
-          }
-          return a.name.localeCompare(b.name);
-        });
-        break;
+  const sortRestaurants = async () => {
+    async function sort() {
+      try {
+        let result = filteredRestaurants;
+        switch (selectedSortOption.sortOption) {
+          case "Preference":
+            result = result.sort((a, b) => {
+              if ((b.preferenceScore ?? 0) === (a.preferenceScore ?? 0)) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
+            });
+  
+            result = result.sort((a, b) => {
+              if ((b.preferenceScore ?? 0) === (a.preferenceScore ?? 0)) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return (b.preferenceScore ?? 0) - (a.preferenceScore ?? 0);
+            });
+  
+            break;
+          case "Price: Low to High":
+            result = result.sort((a, b) => {
+              if (parseInt(a.price ?? "10") === parseInt(b.price ?? "10")) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return parseInt(a.price ?? "10") - parseInt(b.price ?? "10");
+            });
+            break;
+          case "Price: High to Low":
+            result = result.sort((a, b) => {
+              if (parseInt(b.price ?? "0") === parseInt(a.price ?? "0")) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return parseInt(b.price ?? "0") - parseInt(a.price ?? "0");
+            });
+            break;
+          case "Rating: High to Low":
+            result = result.sort((a, b) => {
+              if ((b.rating ?? 0) === (a.rating ?? 0)) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return (b.rating ?? 0) - (a.rating ?? 0);
+            });
+            break;
+          case "Rating: Low to High":
+            result = result.sort((a, b) => {
+              if ((a.rating ?? 5) === (b.rating ?? 5)) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return (a.rating ?? 5) - (b.rating ?? 5);
+            });
+            break;
+          case "A-Z":
+            result = result.sort((a, b) => {
+              if (a.name.localeCompare(b.name) === 0) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return a.name.localeCompare(b.name);
+            });
+            break;
+          case "Z-A":
+            result = result.sort((a, b) => {
+              if (b.name.localeCompare(a.name) === 0) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return b.name.localeCompare(a.name);
+            });
+            break;
+          case "Distance (Nearest)":
+            result = result.sort((a, b) => a.distance.localeCompare(b.distance));
+            break;
+          case "Distance (Farthest)":
+            result = result.sort((a, b) => b.distance.localeCompare(a.distance));
+            break;
+          default:
+            result = result.sort((a, b) => {
+              if (a.name.localeCompare(b.name) === 0) {
+                return a.distance.localeCompare(b.distance);
+              }
+              return a.name.localeCompare(b.name);
+            });
+            break;
+        }
+        setFilteredRestaurants(result);
+      }
+      catch (error) {
+        console.log(error);
+      }
     }
 
-    setFilteredRestaurants(result);
+    setRestaurantListIsLoading(true);
+    setDataLoading(true);
+    await sort();
     setRestaurantListIsLoading(false);
     setDataLoading(false);
   };
